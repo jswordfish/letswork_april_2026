@@ -1,6 +1,7 @@
 package com.LetsWork.CRM.entities;
 
-import jakarta.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

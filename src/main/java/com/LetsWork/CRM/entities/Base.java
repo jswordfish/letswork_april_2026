@@ -3,9 +3,10 @@ package com.LetsWork.CRM.entities;
 import java.util.Date;
 import java.util.Objects;
 
-import jakarta.persistence.*;
-
-
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 
 import com.poiji.annotation.ExcelCellName;
 @MappedSuperclass

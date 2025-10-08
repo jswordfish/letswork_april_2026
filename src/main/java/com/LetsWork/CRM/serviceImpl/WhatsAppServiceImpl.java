@@ -69,17 +69,18 @@ public class WhatsAppServiceImpl implements WhatsAppService {
         headers.setBearerAuth(accessToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String body = """
-            {
-              "messaging_product": "whatsapp",
-              "to": "%s",
-              "type": "image",
-              "image": {
-                "id": "%s",
-                "caption": "%s"
-              }
-            }
-        """.formatted(toPhoneNumber, mediaId, caption);
+        String body = String.format(
+                "{\n" +
+                        "  \"messaging_product\": \"whatsapp\",\n" +
+                        "  \"to\": \"%s\",\n" +
+                        "  \"type\": \"image\",\n" +
+                        "  \"image\": {\n" +
+                        "    \"id\": \"%s\",\n" +
+                        "    \"caption\": \"%s\"\n" +
+                        "  }\n" +
+                        "}", 
+                        toPhoneNumber, mediaId, caption
+                );
 
         HttpEntity<String> request = new HttpEntity<>(body, headers);
         ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);

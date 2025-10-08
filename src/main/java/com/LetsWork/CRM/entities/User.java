@@ -1,15 +1,16 @@
 package com.LetsWork.CRM.entities;
 
-import jakarta.persistence.*;
+import java.beans.Transient;
+
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.poiji.annotation.ExcelCellName;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Builder
@@ -24,7 +25,7 @@ public class User extends Base{
 	String lastName;
 	
 	@ExcelCellName(value = "Role or Designation")
-	@Transient
+	
 	String roleOrDesig;
 	
 	@ExcelCellName(value = "Location")

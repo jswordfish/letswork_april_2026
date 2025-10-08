@@ -3,6 +3,8 @@ package com.LetsWork.CRM.controller;
 import java.util.List;
 import java.util.Objects;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,8 +20,6 @@ import com.LetsWork.CRM.entities.User;
 import com.LetsWork.CRM.repo.TenantRepo;
 import com.LetsWork.CRM.service.TenantService;
 import com.LetsWork.CRM.service.UserService;
-
-import jakarta.servlet.http.HttpSession;
 
 
 

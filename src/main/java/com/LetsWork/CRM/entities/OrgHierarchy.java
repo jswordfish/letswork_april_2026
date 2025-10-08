@@ -1,6 +1,6 @@
 package com.LetsWork.CRM.entities;
 
-import jakarta.persistence.*;
+import javax.persistence.Entity;
 
 import com.poiji.annotation.ExcelCellName;
 

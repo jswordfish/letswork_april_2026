@@ -2,6 +2,8 @@ package com.LetsWork.CRM.serviceImpl;
 
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,8 +16,6 @@ import com.LetsWork.CRM.entities.UserCredit;
 import com.LetsWork.CRM.repo.UserCreditRepository;
 import com.LetsWork.CRM.repo.UserRepo;
 import com.LetsWork.CRM.service.UserCreditService;
-
-import jakarta.transaction.Transactional;
 
 @Service
 @Transactional
