@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,8 +16,7 @@ import com.LetsWork.CRM.entities.User;
 import com.LetsWork.CRM.repo.UserRepo;
 import com.LetsWork.CRM.service.OrgHierarchyService;
 import com.LetsWork.CRM.service.UserService;
-import com.github.dozermapper.core.DozerBeanMapperBuilder;
-import com.github.dozermapper.core.Mapper;
+
 
 
 
@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService{
 	@Autowired
 	OrgHierarchyService orgHierarchyService;
 	
-	Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+	ModelMapper mapper = new ModelMapper();
 	
 	String companyAdminRole = "Company Admin";
 	

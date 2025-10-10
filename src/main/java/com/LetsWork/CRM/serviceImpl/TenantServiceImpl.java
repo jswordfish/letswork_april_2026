@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.LetsWork.CRM.entities.Tenant;
 import com.LetsWork.CRM.repo.TenantRepo;
 import com.LetsWork.CRM.service.TenantService;
-import com.github.dozermapper.core.DozerBeanMapperBuilder;
-import com.github.dozermapper.core.Mapper;
+
 
 
 
@@ -23,7 +23,7 @@ public class TenantServiceImpl implements TenantService{
 	@Autowired
 	TenantRepo tenantRepo;
 	
-	Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+	ModelMapper mapper = new ModelMapper();
 
 	@Override
 	public Tenant findByIdentity(String orgName, String companyId, String tenantAdminEmail) {

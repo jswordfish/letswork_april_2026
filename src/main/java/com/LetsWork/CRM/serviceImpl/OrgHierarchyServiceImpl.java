@@ -3,6 +3,7 @@ package com.LetsWork.CRM.serviceImpl;
 import java.util.Date;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -11,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.LetsWork.CRM.entities.OrgHierarchy;
 import com.LetsWork.CRM.repo.OrgHierarchyRepo;
 import com.LetsWork.CRM.service.OrgHierarchyService;
-import com.github.dozermapper.core.DozerBeanMapperBuilder;
-import com.github.dozermapper.core.Mapper;
+
 
 
 
@@ -24,7 +24,7 @@ public class OrgHierarchyServiceImpl implements OrgHierarchyService{
 	@Autowired
 	OrgHierarchyRepo repo;
 	
-	Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+	ModelMapper mapper = new ModelMapper();
 
 	@Override
 	public List<OrgHierarchy> findByLevel(String level, String companyId) {
