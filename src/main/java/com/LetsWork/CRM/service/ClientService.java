@@ -2,6 +2,8 @@ package com.LetsWork.CRM.service;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.LetsWork.CRM.dtos.PaginatedResponseDto;
 import com.LetsWork.CRM.entities.Client;
 
@@ -28,5 +30,7 @@ public interface ClientService {
 	PaginatedResponseDto getIndividualClients(String companyId, int page);
 	
 	PaginatedResponseDto getIndividualClientsByLocation(String location, String companyId, int page);
+	
+	public String uploadClientsFromExcel(MultipartFile file);
 
 }

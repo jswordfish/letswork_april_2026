@@ -1,5 +1,6 @@
 package com.LetsWork.CRM.serviceImpl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,14 +11,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.LetsWork.CRM.dtos.ConferenceRoomExcelDto;
 import com.LetsWork.CRM.dtos.PaginatedResponseDto;
 import com.LetsWork.CRM.entities.ConferenceRoom;
 import com.LetsWork.CRM.entities.Location;
+import com.LetsWork.CRM.enums.ConferenceRoomType;
 import com.LetsWork.CRM.repo.ConferenceRoomRepository;
 import com.LetsWork.CRM.repo.LocationRepository;
 import com.LetsWork.CRM.service.ConferenceRoomService;
 import com.LetsWork.CRM.service.LocationService;
+import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
 
 
 
@@ -58,6 +64,35 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 			return "record saved";
 		}
 		
+	}
+	
+	@Override
+	public List<String> uploadConferenceRooms(MultipartFile file, String companyId) throws IOException {
+	    List<ConferenceRoomExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, ConferenceRoomExcelDto.class);
+
+	    List<String> responses = new ArrayList<>();
+
+	    for (ConferenceRoomExcelDto dto : dtos) {
+	        try {
+	            ConferenceRoom room = ConferenceRoom.builder()
+	                    .name(dto.getName())
+	                    .capacity(dto.getCapacity())
+	                    .location(dto.getLocation())
+	                    .roomType(ConferenceRoomType.valueOf(dto.getRoomType().toUpperCase()))
+	                    .build();
+
+	            room.setCompanyId(companyId);
+
+	           
+	            String result = saveOrUpdate(room);
+
+	            responses.add(result + ": " + room.getName());
+	        } catch (Exception e) {
+	            responses.add("Error saving " + dto.getName() + ": " + e.getMessage());
+	        }
+	    }
+
+	    return responses;
 	}
 		
 	

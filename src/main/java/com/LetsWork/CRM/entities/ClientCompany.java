@@ -11,13 +11,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class ClientCompany extends Base{
 
     @Id
@@ -33,8 +34,6 @@ public class ClientCompany extends Base{
     
     private String location;
     
-    private String companyId;
 
-//    @OneToMany(mappedBy = "clientCompany", cascade = CascadeType.ALL)
-//    private List<Client> employees;
+
 }

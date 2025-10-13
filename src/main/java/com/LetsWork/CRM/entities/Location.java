@@ -7,17 +7,17 @@ import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class Location extends Base{
 
     @Id
@@ -33,6 +33,4 @@ public class Location extends Base{
 
     private String address;
 
-//    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
-//    private List<ConferenceRoom> conferenceRooms;
 }

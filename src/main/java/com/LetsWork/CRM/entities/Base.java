@@ -9,7 +9,14 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 import com.poiji.annotation.ExcelCellName;
+
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 @MappedSuperclass
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Base {
 	 @Id
 	    @GeneratedValue(strategy = GenerationType.AUTO)

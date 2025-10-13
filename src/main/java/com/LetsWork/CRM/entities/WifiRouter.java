@@ -12,14 +12,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class WifiRouter {
+@SuperBuilder
+public class WifiRouter extends Base{
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +32,5 @@ public class WifiRouter {
 	
 	private String password;
 	
-	private String companyId;
 
 }

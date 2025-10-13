@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.LetsWork.CRM.dtos.PaginatedResponseDto;
 import com.LetsWork.CRM.entities.Client;
@@ -29,6 +30,19 @@ public class ClientController {
 		
 		return service.saveOrUpdate(client);
 		
+	}
+	
+	@PostMapping(value = "/clients-upload-excel", consumes = "multipart/form-data")
+	public ResponseEntity<String> uploadClientsExcel(
+	        @RequestParam("file") MultipartFile file,
+	        @RequestParam String token) {
+
+	    if (file.isEmpty()) {
+	        return ResponseEntity.badRequest().body("Please upload a valid Excel file.");
+	    }
+
+	    String response = service.uploadClientsFromExcel(file);
+	    return ResponseEntity.ok(response);
 	}
 	
 	@GetMapping("/list of clients with same names")

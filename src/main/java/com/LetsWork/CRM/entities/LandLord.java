@@ -21,14 +21,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class LandLord {
+@SuperBuilder
+public class LandLord extends Base{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -77,7 +78,7 @@ public class LandLord {
 	
 	private String agreementFileS3Path;
 	
-	private String companyId;
+
 	
 	@Enumerated(EnumType.STRING)  
     @Column(nullable = false)

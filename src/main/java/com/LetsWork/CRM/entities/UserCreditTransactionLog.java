@@ -12,13 +12,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class UserCreditTransactionLog extends Base {
 	
 	@Id
@@ -33,6 +34,5 @@ public class UserCreditTransactionLog extends Base {
 	
 	String creditsUsedOn;
 	
-	String companyId;
 
 }

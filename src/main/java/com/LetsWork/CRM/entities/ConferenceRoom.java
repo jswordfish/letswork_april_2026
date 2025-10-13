@@ -16,13 +16,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class ConferenceRoom extends Base{
 
     @Id
@@ -32,7 +33,6 @@ public class ConferenceRoom extends Base{
     @NotBlank
     private String name;
     
-    private String companyId;
 
     private Integer capacity;
 

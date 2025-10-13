@@ -11,9 +11,10 @@ import com.poiji.annotation.ExcelCellName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
-@Builder
+@SuperBuilder
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -51,11 +52,7 @@ public class User extends Base{
 	Boolean external = false;
 	//String companyId;
 	
-	@ExcelCellName(value = "Is Reviewer")
-	@Builder.Default
-	Boolean reviewer = false;
 	
-	Float overAllScore;
 
 	public String getFirstName() {
 		return firstName;
@@ -146,21 +143,6 @@ public class User extends Base{
 		this.external = external;
 	}
 
-	public Boolean getReviewer() {
-		return reviewer;
-	}
-
-	public void setReviewer(Boolean reviewer) {
-		this.reviewer = reviewer;
-	}
-
-	public Float getOverAllScore() {
-		return overAllScore;
-	}
-
-	public void setOverAllScore(Float overAllScore) {
-		this.overAllScore = overAllScore;
-	}
 	
 	
 }

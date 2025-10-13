@@ -1,5 +1,7 @@
 package com.LetsWork.CRM.serviceImpl;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.LetsWork.CRM.dtos.ClientCompanyExcelDto;
 import com.LetsWork.CRM.dtos.PaginatedResponseDto;
 import com.LetsWork.CRM.entities.ClientCompany;
 import com.LetsWork.CRM.repo.ClientCompanyRepository;
@@ -17,6 +21,8 @@ import com.LetsWork.CRM.repo.ClientRepository;
 import com.LetsWork.CRM.repo.LocationRepository;
 import com.LetsWork.CRM.service.ClientCompanyService;
 import com.LetsWork.CRM.service.LocationService;
+import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
 
 
 
@@ -59,6 +65,30 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 			return "record saved";
 		}
 		
+	}
+	
+	@Override
+	public List<String> uploadClientCompanies(MultipartFile file, String companyId) throws IOException {
+	    List<ClientCompanyExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, ClientCompanyExcelDto.class);
+	    List<String> responses = new ArrayList<>();
+
+	    for (ClientCompanyExcelDto dto : dtos) {
+	        try {
+	            ClientCompany company = ClientCompany.builder()
+	                    .clientCompanyName(dto.getClientCompanyName())
+	                    .industry(dto.getIndustry())
+	                    .location(dto.getLocation())
+	                    .build();
+	            company.setCompanyId(companyId);
+
+	            String result = saveOrUpdate(company);
+
+	            responses.add(result + company.getClientCompanyName());
+	        } catch (Exception e) {
+	            responses.add("Error saving " + dto.getClientCompanyName() + ": " + e.getMessage());
+	        }
+	    }
+	    return responses;
 	}
 
 	@Override

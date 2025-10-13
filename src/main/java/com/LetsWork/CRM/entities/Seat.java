@@ -17,13 +17,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class Seat extends Base{
 	
 	@Id
@@ -32,7 +33,7 @@ public class Seat extends Base{
 	
 	private String location;
 	
-	private String companyId;
+	
 	
 	@Enumerated(EnumType.STRING)
 	private SeatType seatType;

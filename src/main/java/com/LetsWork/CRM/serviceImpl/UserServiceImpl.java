@@ -1,5 +1,6 @@
 package com.LetsWork.CRM.serviceImpl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -10,12 +11,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.LetsWork.CRM.entities.OrgHierarchy;
 import com.LetsWork.CRM.entities.User;
 import com.LetsWork.CRM.repo.UserRepo;
 import com.LetsWork.CRM.service.OrgHierarchyService;
 import com.LetsWork.CRM.service.UserService;
+import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
 
 
 
@@ -130,6 +134,29 @@ public class UserServiceImpl implements UserService{
 			}
 		
 		return repo.save(user2);
+	}
+	
+	@Override
+	public List<String> uploadUsersFromExcel(MultipartFile file, String companyId) throws IOException {
+	    // Parse Excel file into a list of User DTOs
+	    List<User> users = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, User.class);
+	    List<String> responses = new ArrayList<>();
+
+	    for (User user : users) {
+	        try {
+	            user.setCompanyId(companyId); // Make sure to associate company
+	            user.setExternal(false);      // Assuming Excel uploads are internal users
+
+	            // Use your existing saveOrUpdate method
+	            saveOrUpdate(user);
+
+	            responses.add("Saved or Updated: " + user.getFirstName() + " " + user.getLastName());
+	        } catch (Exception e) {
+	            responses.add("Error saving " + user.getEmail() + ": " + e.getMessage());
+	        }
+	    }
+
+	    return responses;
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package com.LetsWork.CRM.serviceImpl;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -9,11 +11,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.LetsWork.CRM.dtos.LocationExcelDto;
 import com.LetsWork.CRM.dtos.PaginatedResponseDto;
 import com.LetsWork.CRM.entities.Location;
 import com.LetsWork.CRM.repo.LocationRepository;
 import com.LetsWork.CRM.service.LocationService;
+import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
 
 
 
@@ -48,6 +54,31 @@ public class LocationServiceImpl implements LocationService {
 		
 		
 	}
+	
+	@Override
+	public String uploadLocationsFromExcel(MultipartFile file) {
+        try {
+            List<LocationExcelDto> locations = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, LocationExcelDto.class);
+
+            List<String> responses = locations.stream().map(dto -> {
+                Location location = Location.builder()
+                        .name(dto.getName())
+                        .totalSeats(dto.getTotalSeats())
+                        .totalConferenceRooms(dto.getTotalConferenceRooms())
+                        .address(dto.getAddress())
+                        .companyId(dto.getCompanyId())
+                        .build();
+                return saveOrUpdate(location);
+            }).collect(Collectors.toList());
+
+            return "Processed " + locations.size() + " locations successfully.\n"
+                    + String.join("\n", responses);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Failed to process Excel file: " + e.getMessage();
+        }
+    }
 
 	@Override
 	public Location findByName(String name) {

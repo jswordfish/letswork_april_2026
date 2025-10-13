@@ -10,14 +10,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ParkingSlot {
+@SuperBuilder
+public class ParkingSlot extends Base{
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +28,6 @@ public class ParkingSlot {
 	
 	private String location;
 	
-	private String companyId;
 	
 	private String floorNumber;
 	

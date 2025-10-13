@@ -27,6 +27,8 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
  
     List<Client> findByNameContainingIgnoreCase(String name);
     
+    Client findByEmailAndCompanyId(String email, String companyId);
+    
     Page<Client> findByNameContainingIgnoreCase(String name, Pageable pageable);
     
     @Query("SELECT c FROM Client c WHERE c.name = :name AND c.email = :email AND c.companyId = :companyId")
