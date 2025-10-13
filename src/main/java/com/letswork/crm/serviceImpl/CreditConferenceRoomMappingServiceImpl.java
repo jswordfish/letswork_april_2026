@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import java.util.Optional;
 
@@ -9,12 +9,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.ConferenceRoom;
-import com.LetsWork.CRM.entities.CreditConferenceRoomMapping;
-import com.LetsWork.CRM.repo.ConferenceRoomRepository;
-import com.LetsWork.CRM.repo.CreditConferenceRoomMappingRepository;
-import com.LetsWork.CRM.service.CreditConferenceRoomMappingService;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.ConferenceRoom;
+import com.letswork.crm.entities.CreditConferenceRoomMapping;
+import com.letswork.crm.repo.ConferenceRoomRepository;
+import com.letswork.crm.repo.CreditConferenceRoomMappingRepository;
+import com.letswork.crm.service.CreditConferenceRoomMappingService;
 
 @Service
 @Transactional

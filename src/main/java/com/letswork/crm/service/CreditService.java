@@ -1,7 +1,7 @@
-package com.LetsWork.CRM.service;
+package com.letswork.crm.service;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.Credit;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Credit;
 
 public interface CreditService {
 	

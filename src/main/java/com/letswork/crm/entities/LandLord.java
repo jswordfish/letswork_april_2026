@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.entities;
+package com.letswork.crm.entities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +14,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
-import com.LetsWork.CRM.enums.AgreementType;
+import com.letswork.crm.enums.AgreementType;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

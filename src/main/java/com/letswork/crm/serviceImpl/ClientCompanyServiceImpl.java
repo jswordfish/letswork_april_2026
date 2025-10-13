@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,14 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.LetsWork.CRM.dtos.ClientCompanyExcelDto;
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.ClientCompany;
-import com.LetsWork.CRM.repo.ClientCompanyRepository;
-import com.LetsWork.CRM.repo.ClientRepository;
-import com.LetsWork.CRM.repo.LocationRepository;
-import com.LetsWork.CRM.service.ClientCompanyService;
-import com.LetsWork.CRM.service.LocationService;
+import com.letswork.crm.dtos.ClientCompanyExcelDto;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.ClientCompany;
+import com.letswork.crm.repo.ClientCompanyRepository;
+import com.letswork.crm.repo.ClientRepository;
+import com.letswork.crm.repo.LocationRepository;
+import com.letswork.crm.service.ClientCompanyService;
+import com.letswork.crm.service.LocationService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 

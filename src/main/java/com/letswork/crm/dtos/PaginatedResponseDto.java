@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.dtos;
+package com.letswork.crm.dtos;
 
 import java.util.ArrayList;
 import java.util.List;

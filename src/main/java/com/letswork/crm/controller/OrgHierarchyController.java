@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.LetsWork.CRM.entities.OrgHierarchy;
-import com.LetsWork.CRM.repo.OrgHierarchyRepo;
-import com.LetsWork.CRM.repo.UserRepo;
-import com.LetsWork.CRM.service.OrgHierarchyService;
-import com.LetsWork.CRM.service.UserService;
+import com.letswork.crm.entities.OrgHierarchy;
+import com.letswork.crm.repo.OrgHierarchyRepo;
+import com.letswork.crm.repo.UserRepo;
+import com.letswork.crm.service.OrgHierarchyService;
+import com.letswork.crm.service.UserService;
 
 
 @RestController

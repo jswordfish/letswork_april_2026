@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.LetsWork.CRM.dtos.BookingValidationResponse;
-import com.LetsWork.CRM.entities.Booking;
-import com.LetsWork.CRM.service.BookingService;
+import com.letswork.crm.dtos.BookingValidationResponse;
+import com.letswork.crm.entities.Booking;
+import com.letswork.crm.service.BookingService;
 
 
 @RestController

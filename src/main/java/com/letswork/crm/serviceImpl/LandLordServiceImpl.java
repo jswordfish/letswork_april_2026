@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import java.io.File;
 import java.util.Objects;
@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.EscalationTimeAndPercentage;
-import com.LetsWork.CRM.entities.LandLord;
-import com.LetsWork.CRM.repo.LandLordRepository;
-import com.LetsWork.CRM.service.LandLordService;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.EscalationTimeAndPercentage;
+import com.letswork.crm.entities.LandLord;
+import com.letswork.crm.repo.LandLordRepository;
+import com.letswork.crm.service.LandLordService;
 
 
 @Service

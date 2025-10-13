@@ -1,8 +1,8 @@
-package com.LetsWork.CRM.service;
+package com.letswork.crm.service;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.Seat;
-import com.LetsWork.CRM.enums.SeatType;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Seat;
+import com.letswork.crm.enums.SeatType;
 
 public interface SeatService {
 	

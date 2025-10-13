@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.Location;
-import com.LetsWork.CRM.service.LocationService;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Location;
+import com.letswork.crm.service.LocationService;
 
 
 @RestController

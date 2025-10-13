@@ -1,12 +1,12 @@
-package com.LetsWork.CRM.service;
+package com.letswork.crm.service;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.ParkingSlot;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.ParkingSlot;
 
 
 public interface ParkingSlotService {

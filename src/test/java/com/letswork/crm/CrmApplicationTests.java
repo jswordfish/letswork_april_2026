@@ -1,12 +1,11 @@
-package com.LetsWork.CRM;
+package com.letswork.crm;
 
 import java.io.File;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.LetsWork.CRM.serviceImpl.S3Service;
+import com.letswork.crm.serviceImpl.S3Service;
 
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.BucketAlreadyExistsException;

@@ -1,11 +1,11 @@
-package com.LetsWork.CRM.repo;
+package com.letswork.crm.repo;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.LetsWork.CRM.entities.CreditConferenceRoomMapping;
+import com.letswork.crm.entities.CreditConferenceRoomMapping;
 
 @Repository
 public interface CreditConferenceRoomMappingRepository extends JpaRepository<CreditConferenceRoomMapping, Long>{

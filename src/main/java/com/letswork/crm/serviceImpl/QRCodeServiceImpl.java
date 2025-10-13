@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -12,17 +12,16 @@ import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.LetsWork.CRM.service.QRCodeService;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.letswork.crm.service.QRCodeService;
 
 
 

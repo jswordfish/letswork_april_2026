@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.Credit;
-import com.LetsWork.CRM.service.CreditService;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Credit;
+import com.letswork.crm.service.CreditService;
 
 @RestController
 @RequestMapping("/api/credits")

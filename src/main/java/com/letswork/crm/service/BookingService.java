@@ -1,10 +1,10 @@
-package com.LetsWork.CRM.service;
+package com.letswork.crm.service;
 
 import java.time.LocalDateTime;
 
-import com.LetsWork.CRM.dtos.BookingValidationResponse;
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.Booking;
+import com.letswork.crm.dtos.BookingValidationResponse;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Booking;
 
 
 public interface BookingService {

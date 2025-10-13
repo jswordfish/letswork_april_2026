@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.entities;
+package com.letswork.crm.entities;
 
 
 import javax.persistence.Entity;
@@ -7,13 +7,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
-import com.LetsWork.CRM.enums.SeatType;
+import com.letswork.crm.enums.SeatType;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

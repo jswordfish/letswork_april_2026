@@ -1,8 +1,7 @@
-package com.LetsWork.CRM;
+package com.letswork.crm;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
@@ -12,15 +11,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.LetsWork.CRM.entities.Seat;
-import com.LetsWork.CRM.entities.UserSeatMapping;
-import com.LetsWork.CRM.enums.SeatType;
-import com.LetsWork.CRM.repo.SeatRepository;
-import com.LetsWork.CRM.repo.UserSeatMappingRepository;
-import com.LetsWork.CRM.service.SeatService;
+import com.letswork.crm.entities.Seat;
+import com.letswork.crm.entities.UserSeatMapping;
+import com.letswork.crm.enums.SeatType;
+import com.letswork.crm.repo.SeatRepository;
+import com.letswork.crm.repo.UserSeatMappingRepository;
+import com.letswork.crm.service.SeatService;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -49,7 +47,7 @@ public class SeatServiceIntegrationTest {
         seatRepository.save(Seat.builder()
                 .companyId(companyId)
                 .location(location)
-                .seatType(SeatType.dedicated)
+                .seatType(SeatType.DEDICATED)
                 .seatNumber(1)
                 .costPerDay(500)
                 .costPerMonth(8000)
@@ -58,7 +56,7 @@ public class SeatServiceIntegrationTest {
         seatRepository.save(Seat.builder()
                 .companyId(companyId)
                 .location(location)
-                .seatType(SeatType.dedicated)
+                .seatType(SeatType.DEDICATED)
                 .seatNumber(2)
                 .costPerDay(600)
                 .costPerMonth(9000)
@@ -67,7 +65,7 @@ public class SeatServiceIntegrationTest {
         seatRepository.save(Seat.builder()
                 .companyId(companyId)
                 .location(location)
-                .seatType(SeatType.flexi)
+                .seatType(SeatType.FLEXI)
                 .seatNumber(1)
                 .costPerDay(300)
                 .costPerMonth(5000)
@@ -79,7 +77,7 @@ public class SeatServiceIntegrationTest {
         Seat newSeat = Seat.builder()
                 .companyId(companyId)
                 .location(location)
-                .seatType(SeatType.shared_cabin)
+                .seatType(SeatType.SHARED_CABIN)
                 .seatNumber(1)
                 .costPerDay(400)
                 .costPerMonth(7000)
@@ -88,7 +86,7 @@ public class SeatServiceIntegrationTest {
         Seat saved = seatRepository.save(newSeat);
 
         assertNotNull(saved.getId());
-        assertEquals(SeatType.shared_cabin, saved.getSeatType());
+        assertEquals(SeatType.SHARED_CABIN, saved.getSeatType());
     }
 
     @Test
@@ -96,7 +94,7 @@ public class SeatServiceIntegrationTest {
         Seat duplicate = Seat.builder()
                 .companyId(companyId)
                 .location(location)
-                .seatType(SeatType.dedicated)
+                .seatType(SeatType.DEDICATED)
                 .seatNumber(1)
                 .costPerDay(550)
                 .costPerMonth(8200)
@@ -110,8 +108,8 @@ public class SeatServiceIntegrationTest {
 
     @Test
     void testGetTotalSeats() {
-        long totalDedicatedSeats = seatService.getTotalSeats(companyId, location, SeatType.dedicated);
-        long totalFlexiSeats = seatService.getTotalSeats(companyId, location, SeatType.flexi);
+        long totalDedicatedSeats = seatService.getTotalSeats(companyId, location, SeatType.DEDICATED);
+        long totalFlexiSeats = seatService.getTotalSeats(companyId, location, SeatType.FLEXI);
 
         assertEquals(2, totalDedicatedSeats);
         assertEquals(1, totalFlexiSeats);
@@ -119,7 +117,7 @@ public class SeatServiceIntegrationTest {
 
     @Test
     void testGetAvailableSeats_NoUsers() {
-        long available = seatService.getAvailableSeats(companyId, location, SeatType.dedicated);
+        long available = seatService.getAvailableSeats(companyId, location, SeatType.DEDICATED);
         assertEquals(2, available);
     }
 
@@ -128,13 +126,13 @@ public class SeatServiceIntegrationTest {
         userSeatMappingRepository.save(UserSeatMapping.builder()
                 .companyId(companyId)
                 .location(location)
-                .seatType(SeatType.dedicated)
+                .seatType(SeatType.DEDICATED)
                 .seatNumber(1)
                 .email("user1@test.com")
                 .numberOfDays(5)
                 .build());
 
-        long available = seatService.getAvailableSeats(companyId, location, SeatType.dedicated);
+        long available = seatService.getAvailableSeats(companyId, location, SeatType.DEDICATED);
         assertEquals(1, available); 
     }
 
@@ -144,7 +142,7 @@ public class SeatServiceIntegrationTest {
                 UserSeatMapping.builder()
                         .companyId(companyId)
                         .location(location)
-                        .seatType(SeatType.dedicated)
+                        .seatType(SeatType.DEDICATED)
                         .seatNumber(1)
                         .email("u1@test.com")
                         .numberOfDays(3)
@@ -152,26 +150,26 @@ public class SeatServiceIntegrationTest {
                 UserSeatMapping.builder()
                         .companyId(companyId)
                         .location(location)
-                        .seatType(SeatType.dedicated)
+                        .seatType(SeatType.DEDICATED)
                         .seatNumber(2)
                         .email("u2@test.com")
                         .numberOfDays(2)
                         .build()
         ));
 
-        long available = seatService.getAvailableSeats(companyId, location, SeatType.dedicated);
+        long available = seatService.getAvailableSeats(companyId, location, SeatType.DEDICATED);
         assertEquals(0, available);
     }
 
     @Test
     void testGetAvailableSeats_InvalidLocation() {
-        long available = seatService.getAvailableSeats(companyId, "Pune", SeatType.dedicated);
+        long available = seatService.getAvailableSeats(companyId, "Pune", SeatType.DEDICATED);
         assertEquals(0, available);
     }
 
     @Test
     void testGetAvailableSeats_InvalidCompany() {
-        long available = seatService.getAvailableSeats("INVALID", location, SeatType.dedicated);
+        long available = seatService.getAvailableSeats("INVALID", location, SeatType.DEDICATED);
         assertEquals(0, available);
     }
 }

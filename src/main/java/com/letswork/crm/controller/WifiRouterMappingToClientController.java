@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.WifiRouterMappingToClient;
-import com.LetsWork.CRM.service.WifiRouterMappingToClientService;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.WifiRouterMappingToClient;
+import com.letswork.crm.service.WifiRouterMappingToClientService;
 
 @RestController
 @CrossOrigin

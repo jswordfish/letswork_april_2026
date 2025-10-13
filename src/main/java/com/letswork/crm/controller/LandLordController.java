@@ -6,17 +6,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.LandLord;
-import com.LetsWork.CRM.service.LandLordService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.LandLord;
+import com.letswork.crm.service.LandLordService;
 
 @RestController
 @CrossOrigin

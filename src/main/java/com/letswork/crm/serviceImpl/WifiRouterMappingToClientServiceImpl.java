@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -7,14 +7,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.Client;
-import com.LetsWork.CRM.entities.WifiRouter;
-import com.LetsWork.CRM.entities.WifiRouterMappingToClient;
-import com.LetsWork.CRM.repo.ClientRepository;
-import com.LetsWork.CRM.repo.WifiRouterMappingToClientRepository;
-import com.LetsWork.CRM.repo.WifiRouterRepository;
-import com.LetsWork.CRM.service.WifiRouterMappingToClientService;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Client;
+import com.letswork.crm.entities.WifiRouter;
+import com.letswork.crm.entities.WifiRouterMappingToClient;
+import com.letswork.crm.repo.ClientRepository;
+import com.letswork.crm.repo.WifiRouterMappingToClientRepository;
+import com.letswork.crm.repo.WifiRouterRepository;
+import com.letswork.crm.service.WifiRouterMappingToClientService;
+
+
 
 
 @Service

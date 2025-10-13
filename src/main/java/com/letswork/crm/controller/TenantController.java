@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.LetsWork.CRM.entities.Tenant;
-import com.LetsWork.CRM.entities.User;
-import com.LetsWork.CRM.repo.TenantRepo;
-import com.LetsWork.CRM.service.TenantService;
-import com.LetsWork.CRM.service.UserService;
+import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.entities.User;
+import com.letswork.crm.repo.TenantRepo;
+import com.letswork.crm.service.TenantService;
+import com.letswork.crm.service.UserService;
 
 
 

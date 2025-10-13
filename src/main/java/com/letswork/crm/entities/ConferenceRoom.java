@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.entities;
+package com.letswork.crm.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,10 +9,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 
-import com.LetsWork.CRM.enums.ConferenceRoomType;
+import com.letswork.crm.enums.ConferenceRoomType;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

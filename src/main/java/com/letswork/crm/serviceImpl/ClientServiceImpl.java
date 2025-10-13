@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 
 import java.io.IOException;
@@ -14,15 +14,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.LetsWork.CRM.dtos.ClientExcelDto;
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.Client;
-import com.LetsWork.CRM.entities.ClientCompany;
-import com.LetsWork.CRM.repo.ClientCompanyRepository;
-import com.LetsWork.CRM.repo.ClientRepository;
-import com.LetsWork.CRM.service.ClientService;
+import com.letswork.crm.dtos.ClientExcelDto;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Client;
+import com.letswork.crm.entities.ClientCompany;
+import com.letswork.crm.repo.ClientCompanyRepository;
+import com.letswork.crm.repo.ClientRepository;
+import com.letswork.crm.service.ClientService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
+
+
 
 
 
@@ -198,5 +200,7 @@ public class ClientServiceImpl implements ClientService {
         }
     }
 
+
+	
 
 }

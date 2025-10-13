@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.LetsWork.CRM.dtos.AuthenticationResponse;
-import com.LetsWork.CRM.service.UserService;
-import com.LetsWork.CRM.util.TokenService2;
-import com.LetsWork.CRM.entities.User;
+import com.letswork.crm.dtos.AuthenticationResponse;
+import com.letswork.crm.entities.User;
+import com.letswork.crm.service.UserService;
+import com.letswork.crm.util.TokenService2;
 
 
 

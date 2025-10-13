@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.repo;
+package com.letswork.crm.repo;
 
 import java.util.Optional;
 
@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.LetsWork.CRM.entities.LandLord;
+import com.letswork.crm.entities.LandLord;
 
 @Repository
 public interface LandLordRepository extends JpaRepository<LandLord, Long> {

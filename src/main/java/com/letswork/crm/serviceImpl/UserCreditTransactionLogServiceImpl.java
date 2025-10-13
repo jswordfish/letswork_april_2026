@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -7,16 +7,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.User;
-import com.LetsWork.CRM.entities.UserCredit;
-import com.LetsWork.CRM.entities.UserCreditTransactionLog;
-import com.LetsWork.CRM.enums.CreditTransactionType;
-import com.LetsWork.CRM.repo.UserCreditTransactionLogRepository;
-import com.LetsWork.CRM.repo.UserRepo;
-import com.LetsWork.CRM.service.UserCreditService;
-import com.LetsWork.CRM.service.UserCreditTransactionLogService;
-import com.LetsWork.CRM.util.InsufficientCreditsException;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.User;
+import com.letswork.crm.entities.UserCredit;
+import com.letswork.crm.entities.UserCreditTransactionLog;
+import com.letswork.crm.enums.CreditTransactionType;
+import com.letswork.crm.repo.UserCreditTransactionLogRepository;
+import com.letswork.crm.repo.UserRepo;
+import com.letswork.crm.service.UserCreditService;
+import com.letswork.crm.service.UserCreditTransactionLogService;
+import com.letswork.crm.util.InsufficientCreditsException;
 
 @Service
 @Transactional

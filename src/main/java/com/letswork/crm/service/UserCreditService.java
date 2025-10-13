@@ -1,9 +1,9 @@
-package com.LetsWork.CRM.service;
+package com.letswork.crm.service;
 
 import java.util.Optional;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.UserCredit;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.UserCredit;
 
 public interface UserCreditService {
 	

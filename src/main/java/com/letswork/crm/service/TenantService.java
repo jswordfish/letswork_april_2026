@@ -1,8 +1,8 @@
-package com.LetsWork.CRM.service;
+package com.letswork.crm.service;
 
 import java.util.List;
 
-import com.LetsWork.CRM.entities.Tenant;
+import com.letswork.crm.entities.Tenant;
 
 
 

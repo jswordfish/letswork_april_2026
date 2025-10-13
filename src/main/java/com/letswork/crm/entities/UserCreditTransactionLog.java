@@ -1,14 +1,13 @@
-package com.LetsWork.CRM.entities;
+package com.letswork.crm.entities;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import com.LetsWork.CRM.enums.CreditTransactionType;
+import com.letswork.crm.enums.CreditTransactionType;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

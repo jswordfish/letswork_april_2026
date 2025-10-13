@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.repo;
+package com.letswork.crm.repo;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -7,9 +7,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.LetsWork.CRM.entities.Client;
-import com.LetsWork.CRM.entities.WifiRouter;
-import com.LetsWork.CRM.entities.WifiRouterMappingToClient;
+import com.letswork.crm.entities.Client;
+import com.letswork.crm.entities.WifiRouter;
+import com.letswork.crm.entities.WifiRouterMappingToClient;
+
+
 
 @Repository
 public interface WifiRouterMappingToClientRepository extends JpaRepository<WifiRouterMappingToClient, Long> {

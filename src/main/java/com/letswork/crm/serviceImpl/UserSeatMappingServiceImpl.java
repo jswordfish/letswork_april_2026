@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import java.util.Optional;
 
@@ -10,14 +10,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.Seat;
-import com.LetsWork.CRM.entities.User;
-import com.LetsWork.CRM.entities.UserSeatMapping;
-import com.LetsWork.CRM.repo.SeatRepository;
-import com.LetsWork.CRM.repo.UserRepo;
-import com.LetsWork.CRM.repo.UserSeatMappingRepository;
-import com.LetsWork.CRM.service.UserSeatMappingService;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Seat;
+import com.letswork.crm.entities.User;
+import com.letswork.crm.entities.UserSeatMapping;
+import com.letswork.crm.repo.SeatRepository;
+import com.letswork.crm.repo.UserRepo;
+import com.letswork.crm.repo.UserSeatMappingRepository;
+import com.letswork.crm.service.UserSeatMappingService;
 
 @Service
 @Transactional

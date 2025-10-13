@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.entities;
+package com.letswork.crm.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

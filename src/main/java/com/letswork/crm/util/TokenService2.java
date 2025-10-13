@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.util;
+package com.letswork.crm.util;
 
 import java.util.concurrent.TimeUnit;
 

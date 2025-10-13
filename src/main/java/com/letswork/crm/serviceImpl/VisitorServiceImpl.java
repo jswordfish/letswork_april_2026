@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,10 +11,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.Visitor;
-import com.LetsWork.CRM.repo.VisitorRepository;
-import com.LetsWork.CRM.service.VisitorService;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Visitor;
+import com.letswork.crm.repo.VisitorRepository;
+import com.letswork.crm.service.VisitorService;
 
 
 

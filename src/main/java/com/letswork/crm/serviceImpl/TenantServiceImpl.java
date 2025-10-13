@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.LetsWork.CRM.entities.Tenant;
-import com.LetsWork.CRM.repo.TenantRepo;
-import com.LetsWork.CRM.service.TenantService;
+import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.repo.TenantRepo;
+import com.letswork.crm.service.TenantService;
 
 
 

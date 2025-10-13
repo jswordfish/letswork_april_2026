@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.Seat;
-import com.LetsWork.CRM.enums.SeatType;
-import com.LetsWork.CRM.service.SeatService;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Seat;
+import com.letswork.crm.enums.SeatType;
+import com.letswork.crm.service.SeatService;
 
 @RestController
 @CrossOrigin

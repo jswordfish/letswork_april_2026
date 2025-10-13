@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.dtos;
+package com.letswork.crm.dtos;
 
 public class AuthenticationResponse {
 	

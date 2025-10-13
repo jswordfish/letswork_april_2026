@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.dtos.WifiRouterExcelDto;
-import com.LetsWork.CRM.entities.WifiRouter;
-import com.LetsWork.CRM.repo.WifiRouterRepository;
-import com.LetsWork.CRM.service.WifiRouterService;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.dtos.WifiRouterExcelDto;
+import com.letswork.crm.entities.WifiRouter;
+import com.letswork.crm.repo.WifiRouterRepository;
+import com.letswork.crm.service.WifiRouterService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 

@@ -1,11 +1,11 @@
-package com.LetsWork.CRM.service;
+package com.letswork.crm.service;
 
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.Location;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Location;
 
 
 public interface LocationService {

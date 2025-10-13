@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.util;
+package com.letswork.crm.util;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;

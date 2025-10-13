@@ -1,11 +1,11 @@
-package com.LetsWork.CRM.repo;
+package com.letswork.crm.repo;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.LetsWork.CRM.entities.Tenant;
+import com.letswork.crm.entities.Tenant;
 
 
 

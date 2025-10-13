@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import java.io.File;
 import java.time.Duration;
@@ -15,27 +15,29 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.LetsWork.CRM.dtos.BookingValidationResponse;
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.Booking;
-import com.LetsWork.CRM.entities.Client;
-import com.LetsWork.CRM.entities.ClientCompany;
-import com.LetsWork.CRM.entities.ConferenceRoom;
-import com.LetsWork.CRM.entities.CreditConferenceRoomMapping;
-import com.LetsWork.CRM.entities.UserCreditTransactionLog;
-import com.LetsWork.CRM.enums.BookingStatus;
-import com.LetsWork.CRM.enums.CreditTransactionType;
-import com.LetsWork.CRM.repo.BookingRepository;
-import com.LetsWork.CRM.repo.ClientCompanyRepository;
-import com.LetsWork.CRM.repo.ClientRepository;
-import com.LetsWork.CRM.repo.ConferenceRoomRepository;
-import com.LetsWork.CRM.repo.CreditConferenceRoomMappingRepository;
-import com.LetsWork.CRM.service.BookingService;
-import com.LetsWork.CRM.service.CreditConferenceRoomMappingService;
-import com.LetsWork.CRM.service.QRCodeService;
-import com.LetsWork.CRM.service.UserCreditTransactionLogService;
-import com.LetsWork.CRM.service.WhatsAppService;
-import com.LetsWork.CRM.util.InsufficientCreditsException;
+import com.letswork.crm.dtos.BookingValidationResponse;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Booking;
+import com.letswork.crm.entities.Client;
+import com.letswork.crm.entities.ClientCompany;
+import com.letswork.crm.entities.ConferenceRoom;
+import com.letswork.crm.entities.CreditConferenceRoomMapping;
+import com.letswork.crm.entities.UserCreditTransactionLog;
+import com.letswork.crm.enums.BookingStatus;
+import com.letswork.crm.enums.CreditTransactionType;
+import com.letswork.crm.repo.BookingRepository;
+import com.letswork.crm.repo.ClientCompanyRepository;
+import com.letswork.crm.repo.ClientRepository;
+import com.letswork.crm.repo.ConferenceRoomRepository;
+import com.letswork.crm.repo.CreditConferenceRoomMappingRepository;
+import com.letswork.crm.service.BookingService;
+import com.letswork.crm.service.CreditConferenceRoomMappingService;
+import com.letswork.crm.service.QRCodeService;
+import com.letswork.crm.service.UserCreditTransactionLogService;
+import com.letswork.crm.service.WhatsAppService;
+import com.letswork.crm.util.InsufficientCreditsException;
+
+
 
 @Service
 @Transactional

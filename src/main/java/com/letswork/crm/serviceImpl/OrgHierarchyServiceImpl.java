@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import java.util.Date;
 import java.util.List;
@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.LetsWork.CRM.entities.OrgHierarchy;
-import com.LetsWork.CRM.repo.OrgHierarchyRepo;
-import com.LetsWork.CRM.service.OrgHierarchyService;
+import com.letswork.crm.entities.OrgHierarchy;
+import com.letswork.crm.repo.OrgHierarchyRepo;
+import com.letswork.crm.service.OrgHierarchyService;
 
 
 

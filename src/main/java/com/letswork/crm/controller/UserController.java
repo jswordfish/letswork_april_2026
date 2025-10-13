@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.LetsWork.CRM.entities.User;
-import com.LetsWork.CRM.repo.UserRepo;
-import com.LetsWork.CRM.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.letswork.crm.entities.User;
+import com.letswork.crm.repo.UserRepo;
+import com.letswork.crm.service.UserService;
 
 
 @RestController

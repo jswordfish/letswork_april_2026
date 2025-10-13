@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,11 +10,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.dtos.ParkingSlotExcelDto;
-import com.LetsWork.CRM.entities.ParkingSlot;
-import com.LetsWork.CRM.repo.ParkingSlotRepository;
-import com.LetsWork.CRM.service.ParkingSlotService;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.dtos.ParkingSlotExcelDto;
+import com.letswork.crm.entities.ParkingSlot;
+import com.letswork.crm.repo.ParkingSlotRepository;
+import com.letswork.crm.service.ParkingSlotService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 

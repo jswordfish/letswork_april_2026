@@ -1,7 +1,7 @@
-package com.LetsWork.CRM.service;
+package com.letswork.crm.service;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.UserSeatMapping;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.UserSeatMapping;
 
 public interface UserSeatMappingService {
 	

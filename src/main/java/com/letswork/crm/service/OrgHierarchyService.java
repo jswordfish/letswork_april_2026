@@ -1,8 +1,8 @@
-package com.LetsWork.CRM.service;
+package com.letswork.crm.service;
 
 import java.util.List;
 
-import com.LetsWork.CRM.entities.OrgHierarchy;
+import com.letswork.crm.entities.OrgHierarchy;
 
 
 

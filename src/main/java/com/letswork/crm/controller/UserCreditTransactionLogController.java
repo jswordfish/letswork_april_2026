@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.UserCreditTransactionLog;
-import com.LetsWork.CRM.service.UserCreditTransactionLogService;
-import com.LetsWork.CRM.util.InsufficientCreditsException;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.UserCreditTransactionLog;
+import com.letswork.crm.service.UserCreditTransactionLogService;
+import com.letswork.crm.util.InsufficientCreditsException;
 
 @RestController
 @CrossOrigin

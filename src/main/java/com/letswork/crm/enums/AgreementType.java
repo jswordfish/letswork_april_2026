@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.enums;
+package com.letswork.crm.enums;
 
 public enum AgreementType {
 	

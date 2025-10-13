@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.filters;
+package com.letswork.crm.filters;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -15,7 +15,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import com.LetsWork.CRM.util.TokenService2;
+import com.letswork.crm.util.TokenService2;
 
 
 

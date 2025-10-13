@@ -1,8 +1,8 @@
-package com.LetsWork.CRM.service;
+package com.letswork.crm.service;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.UserCreditTransactionLog;
-import com.LetsWork.CRM.util.InsufficientCreditsException;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.UserCreditTransactionLog;
+import com.letswork.crm.util.InsufficientCreditsException;
 
 public interface UserCreditTransactionLogService {
 	

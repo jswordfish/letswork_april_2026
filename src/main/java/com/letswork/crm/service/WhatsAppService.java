@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.service;
+package com.letswork.crm.service;
 
 
 

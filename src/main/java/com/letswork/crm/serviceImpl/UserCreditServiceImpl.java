@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.serviceImpl;
+package com.letswork.crm.serviceImpl;
 
 import java.util.Optional;
 
@@ -10,12 +10,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.LetsWork.CRM.dtos.PaginatedResponseDto;
-import com.LetsWork.CRM.entities.User;
-import com.LetsWork.CRM.entities.UserCredit;
-import com.LetsWork.CRM.repo.UserCreditRepository;
-import com.LetsWork.CRM.repo.UserRepo;
-import com.LetsWork.CRM.service.UserCreditService;
+import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.User;
+import com.letswork.crm.entities.UserCredit;
+import com.letswork.crm.repo.UserCreditRepository;
+import com.letswork.crm.repo.UserRepo;
+import com.letswork.crm.service.UserCreditService;
 
 @Service
 @Transactional

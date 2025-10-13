@@ -1,4 +1,4 @@
-package com.LetsWork.CRM.repo;
+package com.letswork.crm.repo;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.LetsWork.CRM.entities.OrgHierarchy;
+import com.letswork.crm.entities.OrgHierarchy;
 
 
 

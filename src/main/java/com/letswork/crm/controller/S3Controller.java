@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.LetsWork.CRM.serviceImpl.S3Service;
+import com.letswork.crm.serviceImpl.S3Service;
 
 @RestController
 @CrossOrigin
