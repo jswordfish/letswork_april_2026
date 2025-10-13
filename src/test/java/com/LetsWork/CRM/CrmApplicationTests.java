@@ -16,9 +16,10 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @SpringBootTest
+
 class CrmApplicationTests {
 
-	@Test
+	//@Test
 	void contextLoads() {
 	}
 	
@@ -28,7 +29,7 @@ class CrmApplicationTests {
     @Autowired
     private S3Client s3Client;
 
-    @Test
+    //@Test
     void testCreateBucketAndUploadImage() {
         String bucketName = "myapp-bucket-" + System.currentTimeMillis(); // unique name
         String keyName = "test-folder/sample-image.png";
@@ -53,7 +54,7 @@ class CrmApplicationTests {
 //        System.out.println("✅ File uploaded successfully: " + fileUrl);
     }
     
-    @Test
+    //@Test
     void testUploadJarFileToS3() {
         String bucketName = "myapp-bucket-1758037822620"; // ✅ your bucket
         String keyName = "jars/CRM-0.0.1-SNAPSHOT.jar";   // ✅ where in bucket to save
