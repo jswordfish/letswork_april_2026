@@ -18,16 +18,19 @@ public class ClientExcelDto {
     @ExcelCellName("Phone")
     private String phone;
 
-    @ExcelCellName("IsIndividual")
+    @ExcelCellName("Is Individual")
     private Boolean isIndividual;
 
-    @ExcelCellName("ClientCompanyName")
+    @ExcelCellName("Client Company Name")
     private String clientCompanyName;
 
     @ExcelCellName("Location")
     private String location;
 
-    @ExcelCellName("CompanyId")
+    @ExcelCellName("Company Id")
     private String companyId;
+    
+    @ExcelCellName("Business Category")
+    private String businessCategory;
 
 }

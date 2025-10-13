@@ -61,7 +61,7 @@ public class ClientServiceImpl implements ClientService {
 			client1.setCompanyId(client.getCompanyId());
 			client1.setClientCompanyName(client.getClientCompanyName());
 			client1.setLocation(client.getLocation());
-			
+			client1.setBusinessCategory(client.getBusinessCategory());
 			
 			repo.save(client1);
 			return "record updated";
@@ -186,6 +186,7 @@ public class ClientServiceImpl implements ClientService {
                         .clientCompanyName(dto.getClientCompanyName())
                         .location(dto.getLocation())
                         .companyId(dto.getCompanyId())
+                        .businessCategory(dto.getBusinessCategory())
                         .build();
 
                 return saveOrUpdate(client);
