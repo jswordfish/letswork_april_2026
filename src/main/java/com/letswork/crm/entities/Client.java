@@ -44,4 +44,6 @@ public class Client extends Base{
     
     private String location;
     
+    String businessCategory;
+    
 }

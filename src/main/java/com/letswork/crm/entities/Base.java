@@ -36,7 +36,7 @@ public class Base {
 	
 	String deletedBy;
 	
-	@ExcelCellName(value = "Company ID")
+	@ExcelCellName(value = "Company Id")
 	String companyId;
 	
 	String companyName;
