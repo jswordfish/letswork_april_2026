@@ -83,10 +83,7 @@ public class ClientServiceImpl implements ClientService {
 			client1.setClientCompanyName(client.getClientCompanyName());
 			client1.setLocation(client.getLocation());
 			client1.setBusinessCategory(client.getBusinessCategory());
-<<<<<<< HEAD
-			
-=======
->>>>>>> branch 'master' of https://github.com/Dhruvj4321/LetsWorkApp.git
+
 			
 			repo.save(client1);
 			return "record updated";

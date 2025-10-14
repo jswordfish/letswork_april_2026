@@ -21,11 +21,7 @@ public class ClientExcelDto {
     @ExcelCellName("Is Individual")
     private Boolean isIndividual;
 
-<<<<<<< HEAD
-    @ExcelCellName("Client CompanyName")
-=======
     @ExcelCellName("Client Company Name")
->>>>>>> branch 'master' of https://github.com/Dhruvj4321/LetsWorkApp.git
     private String clientCompanyName;
 
     @ExcelCellName("LetsWork Centre")
@@ -37,7 +33,5 @@ public class ClientExcelDto {
     @ExcelCellName("Company Id")
     private String companyId;
     
-    @ExcelCellName("Business Category")
-    private String businessCategory;
-
+    
 }
