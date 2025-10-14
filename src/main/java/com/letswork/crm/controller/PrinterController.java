@@ -39,7 +39,7 @@ public class PrinterController {
         return ResponseEntity.ok(service.listPrinters(companyId, page, size));
     }
 
-    @DeleteMapping("/delete by id")
+    @DeleteMapping("/delete printer by id")
     public ResponseEntity<String> deletePrinter(@RequestParam Long id, @RequestParam String token) {
         service.deletePrinter(id);
         return ResponseEntity.ok("Printer deleted successfully.");

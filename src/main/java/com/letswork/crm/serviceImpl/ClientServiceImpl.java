@@ -66,6 +66,7 @@ public class ClientServiceImpl implements ClientService {
 					.location(client.getLocation())
 					.clientCompanyName(client.getClientCompanyName())
 					.industry(client.getBusinessCategory())
+					.companyId(client.getCompanyId())//updated company id
 					.build();
 			
 			clientCompanyRepo.save(comp);
