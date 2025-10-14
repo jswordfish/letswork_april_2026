@@ -17,6 +17,6 @@ public interface WifiRouterService {
 
     String deleteWifiRouter(WifiRouter wifiRouter);
     
-    public List<String> uploadWifiRouters(MultipartFile file, String companyId) throws IOException;
+    public List<String> uploadWifiRouters(MultipartFile file) throws IOException;
 
 }

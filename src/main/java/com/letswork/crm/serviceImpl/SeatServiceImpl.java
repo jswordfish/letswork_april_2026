@@ -1,5 +1,8 @@
 package com.letswork.crm.serviceImpl;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,15 +12,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.dtos.SeatExcelDto;
 import com.letswork.crm.entities.Location;
 import com.letswork.crm.entities.Seat;
+import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.SeatType;
+import com.letswork.crm.repo.CabinRepository;
 import com.letswork.crm.repo.LocationRepository;
 import com.letswork.crm.repo.SeatRepository;
 import com.letswork.crm.repo.UserSeatMappingRepository;
 import com.letswork.crm.service.SeatService;
+import com.letswork.crm.service.TenantService;
+import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
+
 
 @Service
 @Transactional
@@ -31,15 +43,45 @@ public class SeatServiceImpl implements SeatService {
     
     @Autowired
     private UserSeatMappingRepository userSeatMappingRepository;
+    
+    @Autowired
+    private TenantService tenantService;
+    
+    @Autowired
+    private CabinRepository cabinRepository;
 
     @Override
     public Seat saveOrUpdate(Seat seat) {
+    	
+		Tenant tenant = tenantService.findTenantByCompanyId(seat.getCompanyId());
+		
+		if(tenant==null) {
+			
+			throw new RuntimeException("CompanyId invalid - "+seat.getCompanyId());
+			
+		}
     	
     	Location loc = locationRepo.findByNameAndCompanyId(seat.getLocation(), seat.getCompanyId());
     	
     	if(loc==null) {
     		throw new RuntimeException("This location does not exists");
     	}
+    	
+    	
+    	if (seat.getSeatType() == SeatType.SHARED_CABIN) {
+            if (!StringUtils.hasText(seat.getCabinName())) {
+                throw new RuntimeException("Cabin name is required for SHARED_CABIN seat type");
+            }
+
+            boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLocation(
+                    seat.getCabinName(), seat.getCompanyId(), seat.getLocation());
+            if (!cabinExists) {
+                throw new RuntimeException("Cabin does not exist: " + seat.getCabinName());
+            }
+        } else {
+            seat.setCabinName(null);
+        }
+    	
     	
         Optional<Seat> existingSeatOpt = seatRepository.findBySeatTypeAndCompanyIdAndLocationAndSeatNumber(seat.getSeatType(), seat.getCompanyId(), seat.getLocation(), seat.getSeatNumber());
 
@@ -49,12 +91,40 @@ public class SeatServiceImpl implements SeatService {
             
             existingSeat.setCostPerDay(seat.getCostPerDay());
             existingSeat.setCostPerMonth(seat.getCostPerMonth());
+            existingSeat.setCabinName(seat.getCabinName());
 
             return seatRepository.save(existingSeat);
         } else {
             
             return seatRepository.save(seat);
         }
+    }
+    
+    @Override
+    public List<String> uploadSeatExcel(MultipartFile file) throws IOException {
+        List<SeatExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, SeatExcelDto.class);
+        List<String> responses = new ArrayList<>();
+
+        for (SeatExcelDto dto : dtos) {
+            try {
+                Seat seat = Seat.builder()
+                        .companyId(dto.getCompanyId())
+                        .location(dto.getLocation())
+                        .seatType(SeatType.valueOf(dto.getSeatType().toUpperCase()))
+                        .seatNumber(dto.getSeatNumber())
+                        .costPerDay(dto.getCostPerDay() == null ? 0 : dto.getCostPerDay())
+                        .costPerMonth(dto.getCostPerMonth() == null ? 0 : dto.getCostPerMonth())
+                        .cabinName(dto.getCabinName())
+                        .build();
+
+                saveOrUpdate(seat);
+                responses.add("Saved/Updated: " + seat.getSeatType() + " #" + seat.getSeatNumber());
+            } catch (Exception e) {
+                responses.add("Error saving seat #" + dto.getSeatNumber() + ": " + e.getMessage());
+            }
+        }
+
+        return responses;
     }
 
     @Override

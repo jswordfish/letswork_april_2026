@@ -51,7 +51,7 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
 	}
 	
 	@Override
-	public List<String> uploadParkingSlots(MultipartFile file, String companyId) throws IOException {
+	public List<String> uploadParkingSlots(MultipartFile file) throws IOException {
 	    List<ParkingSlotExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, ParkingSlotExcelDto.class);
 	    List<String> responses = new ArrayList<>();
 
@@ -62,8 +62,8 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
 	                    .location(dto.getLocation())
 	                    .floorNumber(dto.getFloorNumber())
 	                    .otherDetails(dto.getOtherDetails())
+	                    .companyId(dto.getCompanyId())
 	                    .build();
-	            slot.setCompanyId(companyId);
 
 	            String result = saveOrUpdate(slot); 
 

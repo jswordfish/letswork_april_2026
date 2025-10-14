@@ -37,6 +37,8 @@ public class Client extends Base{
     private String phone;
 
     private Boolean isIndividual = true;
+    
+    private String businessCategory;
 
     private String clientCompanyName;
     

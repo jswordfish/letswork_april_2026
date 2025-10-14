@@ -37,8 +37,16 @@ public class ConferenceRoom extends Base{
 
     private String location;
     
-    @Enumerated(EnumType.STRING)  
-    @Column(nullable = false)
-    private ConferenceRoomType roomType;
+//    @Enumerated(EnumType.STRING)  
+//    @Column(nullable = false)
+//    private ConferenceRoomType roomType;
+    
+    private boolean hasProjector;
+    
+    private boolean hasWhiteBoard;
+    
+    private boolean hasChargingPorts;
+    
+    
     
 }

@@ -13,10 +13,19 @@ public class ConferenceRoomExcelDto {
     @ExcelCellName("Capacity")
     private Integer capacity;
 
-    @ExcelCellName("Location")
+    @ExcelCellName("LetsWork Centre")
     private String location;
-
-    @ExcelCellName("RoomType")
-    private String roomType;
+    
+    @ExcelCellName("Company Id")
+    private String companyId;
+    
+    @ExcelCellName("Has Projector")
+    private boolean hasProjector;
+    
+    @ExcelCellName("Has White Board")
+    private boolean hasWhiteBoard;
+    
+    @ExcelCellName("Has Charging Ports")
+    private boolean hasChargingPorts;
 
 }

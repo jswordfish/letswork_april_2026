@@ -7,13 +7,17 @@ import lombok.Data;
 @Data
 public class ClientCompanyExcelDto {
 	
-	@ExcelCellName("ClientCompanyName")
+	@ExcelCellName("Client Company Name")
     private String clientCompanyName;
 
     @ExcelCellName("Industry")
     private String industry;
 
-    @ExcelCellName("Location")
+    @ExcelCellName("LetsWork Centre")
     private String location;
+    
+    @ExcelCellName("Company Id")
+    private String companyId;
+    
 
 }

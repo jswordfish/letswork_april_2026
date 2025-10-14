@@ -17,11 +17,12 @@ import com.letswork.crm.dtos.ConferenceRoomExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ConferenceRoom;
 import com.letswork.crm.entities.Location;
-import com.letswork.crm.enums.ConferenceRoomType;
+import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.ConferenceRoomRepository;
 import com.letswork.crm.repo.LocationRepository;
 import com.letswork.crm.service.ConferenceRoomService;
 import com.letswork.crm.service.LocationService;
+import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 
@@ -39,10 +40,21 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	
 	@Autowired
 	LocationRepository locationRepo;
+	
+	@Autowired
+	TenantService tenantService;
 
 	@Override
 	public String saveOrUpdate(ConferenceRoom conferenceRoom) {
 		// TODO Auto-generated method stub
+		
+		Tenant tenant = tenantService.findTenantByCompanyId(conferenceRoom.getCompanyId());
+		
+		if(tenant==null) {
+			
+			throw new RuntimeException("CompanyId invalid - "+conferenceRoom.getCompanyId());
+			
+		}
 		
 		ConferenceRoom room = repo.findByNameAndLocationAndCompanyId(conferenceRoom.getName(), conferenceRoom.getLocation(), conferenceRoom.getCompanyId());
 		
@@ -50,8 +62,10 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 			
 			room.setName(conferenceRoom.getName());
 			room.setCapacity(conferenceRoom.getCapacity());
-			room.setRoomType(conferenceRoom.getRoomType());
 			room.setLocation(conferenceRoom.getLocation());
+			room.setHasProjector(conferenceRoom.isHasProjector());
+			room.setHasWhiteBoard(conferenceRoom.isHasWhiteBoard());
+			room.setHasChargingPorts(conferenceRoom.isHasChargingPorts());
 			
 			
 			repo.save(room);
@@ -67,7 +81,7 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	}
 	
 	@Override
-	public List<String> uploadConferenceRooms(MultipartFile file, String companyId) throws IOException {
+	public List<String> uploadConferenceRooms(MultipartFile file) throws IOException {
 	    List<ConferenceRoomExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, ConferenceRoomExcelDto.class);
 
 	    List<String> responses = new ArrayList<>();
@@ -78,10 +92,13 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	                    .name(dto.getName())
 	                    .capacity(dto.getCapacity())
 	                    .location(dto.getLocation())
-	                    .roomType(ConferenceRoomType.valueOf(dto.getRoomType().toUpperCase()))
+	                    .companyId(dto.getCompanyId())
+	                    .hasProjector(dto.isHasProjector())
+	                    .hasWhiteBoard(dto.isHasWhiteBoard())
+	                    .hasChargingPorts(dto.isHasChargingPorts())
 	                    .build();
 
-	            room.setCompanyId(companyId);
+	            
 
 	           
 	            String result = saveOrUpdate(room);

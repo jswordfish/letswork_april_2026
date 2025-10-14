@@ -16,8 +16,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.dtos.LocationExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Location;
+import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.LocationRepository;
 import com.letswork.crm.service.LocationService;
+import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 
@@ -29,10 +31,21 @@ public class LocationServiceImpl implements LocationService {
 	
 	@Autowired
 	LocationRepository repo;
+	
+	@Autowired
+	TenantService tenantService;
 
 	@Override
 	public String saveOrUpdate(Location location) {
 		// TODO Auto-generated method stub
+		
+		Tenant tenant = tenantService.findTenantByCompanyId(location.getCompanyId());
+		
+		if(tenant==null) {
+			
+			throw new RuntimeException("CompanyId invalid - "+location.getCompanyId());
+			
+		}
 		
 		Location loc = repo.findByNameAndCompanyId(location.getName(), location.getCompanyId());
 		
@@ -41,7 +54,10 @@ public class LocationServiceImpl implements LocationService {
 			loc.setName(location.getName());
 			loc.setAddress(location.getAddress());
 			loc.setTotalConferenceRooms(location.getTotalConferenceRooms());
-			loc.setTotalSeats(location.getTotalSeats());
+			loc.setState(location.getState());
+			loc.setCity(location.getCity());
+			loc.setHasCafe(location.isHasCafe());
+			loc.setAmenities(location.getAmenities());
 			
 			repo.save(loc);
 			return "record updated";
@@ -63,10 +79,13 @@ public class LocationServiceImpl implements LocationService {
             List<String> responses = locations.stream().map(dto -> {
                 Location location = Location.builder()
                         .name(dto.getName())
-                        .totalSeats(dto.getTotalSeats())
                         .totalConferenceRooms(dto.getTotalConferenceRooms())
                         .address(dto.getAddress())
                         .companyId(dto.getCompanyId())
+                        .state(dto.getState())
+                        .city(dto.getCity())
+                        .hasCafe(dto.isHasCafe())
+                        .amenities(dto.getAmenities())
                         .build();
                 return saveOrUpdate(location);
             }).collect(Collectors.toList());

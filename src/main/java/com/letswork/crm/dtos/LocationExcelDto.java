@@ -13,16 +13,25 @@ public class LocationExcelDto {
 	@ExcelCellName("Name")
     private String name;
 
-    @ExcelCellName("TotalSeats")
-    private Integer totalSeats;
+    @ExcelCellName("State")
+    private String state;
+    
+    @ExcelCellName("City")
+    private String city;
 
-    @ExcelCellName("TotalConferenceRooms")
+    @ExcelCellName("Total Conference Rooms")
     private Integer totalConferenceRooms;
 
     @ExcelCellName("Address")
     private String address;
+    
+    @ExcelCellName("Has Cafe")
+    private boolean hasCafe;
+    
+    @ExcelCellName("Amenities")
+    private String amenities;
 
-    @ExcelCellName("CompanyId")
+    @ExcelCellName("Company Id")
     private String companyId;
 
 }

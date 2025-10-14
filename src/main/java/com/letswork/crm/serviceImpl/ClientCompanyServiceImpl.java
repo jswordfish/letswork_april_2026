@@ -16,11 +16,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.dtos.ClientCompanyExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ClientCompany;
+import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.ClientCompanyRepository;
 import com.letswork.crm.repo.ClientRepository;
 import com.letswork.crm.repo.LocationRepository;
 import com.letswork.crm.service.ClientCompanyService;
 import com.letswork.crm.service.LocationService;
+import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 
@@ -41,10 +43,21 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	
 	@Autowired
 	LocationRepository locationRepo;
+	
+	@Autowired
+	TenantService tenantService;
 
 	@Override
 	public String saveOrUpdate(ClientCompany clientCompany) {
 		// TODO Auto-generated method stub
+		
+		Tenant tenant = tenantService.findTenantByCompanyId(clientCompany.getCompanyId());
+		
+		if(tenant==null) {
+			
+			throw new RuntimeException("CompanyId invalid - "+clientCompany.getCompanyId());
+			
+		}
 		
 		ClientCompany com = repo.findByClientCompanyNameAndLocationAndCompanyId(clientCompany.getClientCompanyName(), clientCompany.getLocation(), clientCompany.getCompanyId());
 		
@@ -68,7 +81,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	}
 	
 	@Override
-	public List<String> uploadClientCompanies(MultipartFile file, String companyId) throws IOException {
+	public List<String> uploadClientCompanies(MultipartFile file) throws IOException {
 	    List<ClientCompanyExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, ClientCompanyExcelDto.class);
 	    List<String> responses = new ArrayList<>();
 
@@ -78,8 +91,9 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	                    .clientCompanyName(dto.getClientCompanyName())
 	                    .industry(dto.getIndustry())
 	                    .location(dto.getLocation())
+	                    .companyId(dto.getCompanyId())
 	                    .build();
-	            company.setCompanyId(companyId);
+	            
 
 	            String result = saveOrUpdate(company);
 

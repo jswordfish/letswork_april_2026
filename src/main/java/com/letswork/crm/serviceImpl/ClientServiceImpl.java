@@ -18,9 +18,11 @@ import com.letswork.crm.dtos.ClientExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Client;
 import com.letswork.crm.entities.ClientCompany;
+import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.ClientCompanyRepository;
 import com.letswork.crm.repo.ClientRepository;
 import com.letswork.crm.service.ClientService;
+import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 
@@ -38,16 +40,35 @@ public class ClientServiceImpl implements ClientService {
 	@Autowired
 	ClientCompanyRepository clientCompanyRepo;
 	
+	@Autowired
+	TenantService tenantService;
+	
+	
 	private static final int PAGE_SIZE = 10;
 
 	@Override
 	public String saveOrUpdate(Client client) {
 		// TODO Auto-generated method stub
 		
+		Tenant tenant = tenantService.findTenantByCompanyId(client.getCompanyId());
+		
+		if(tenant==null) {
+			
+			throw new RuntimeException("CompanyId invalid - "+client.getCompanyId());
+			
+		}
+		
 		ClientCompany company = clientCompanyRepo.findByClientCompanyNameAndLocationAndCompanyId(client.getClientCompanyName(), client.getLocation(), client.getCompanyId());
 		
 		if(company == null) {
-			return "No company with the name "+client.getClientCompanyName()+" exists";
+//			return "No company with the name "+client.getClientCompanyName()+" exists";
+			ClientCompany comp = ClientCompany.builder()
+					.location(client.getLocation())
+					.clientCompanyName(client.getClientCompanyName())
+					.industry(client.getBusinessCategory())
+					.build();
+			
+			clientCompanyRepo.save(comp);
 		}
 		
 		Client client1 = repo.findByEmailAndCompanyId(client.getEmail(), client.getCompanyId());
@@ -61,6 +82,7 @@ public class ClientServiceImpl implements ClientService {
 			client1.setCompanyId(client.getCompanyId());
 			client1.setClientCompanyName(client.getClientCompanyName());
 			client1.setLocation(client.getLocation());
+			client1.setBusinessCategory(client.getBusinessCategory());
 			
 			
 			repo.save(client1);
@@ -186,6 +208,7 @@ public class ClientServiceImpl implements ClientService {
                         .clientCompanyName(dto.getClientCompanyName())
                         .location(dto.getLocation())
                         .companyId(dto.getCompanyId())
+                        .businessCategory(dto.getBusinessCategory())
                         .build();
 
                 return saveOrUpdate(client);

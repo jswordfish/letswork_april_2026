@@ -34,14 +34,13 @@ public class ParkingSlotController {
 	@PostMapping(value = "/parking-slots-upload-excel", consumes = "multipart/form-data")
 	public ResponseEntity<List<String>> uploadParkingSlots(
 	        @RequestParam("file") MultipartFile file,
-	        @RequestParam("companyId") String companyId,
 	        @RequestParam String token) throws IOException {
 
 	    if (file.isEmpty()) {
 	        return ResponseEntity.badRequest().body(List.of("Please upload a valid Excel file."));
 	    }
 
-	    List<String> responses = service.uploadParkingSlots(file, companyId);
+	    List<String> responses = service.uploadParkingSlots(file);
 	    return ResponseEntity.ok(responses);
 	}
 

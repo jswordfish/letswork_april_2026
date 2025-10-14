@@ -52,7 +52,7 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 	}
 	
 	@Override
-	public List<String> uploadWifiRouters(MultipartFile file, String companyId) throws IOException {
+	public List<String> uploadWifiRouters(MultipartFile file) throws IOException {
 	    List<WifiRouterExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, WifiRouterExcelDto.class);
 	    List<String> responses = new ArrayList<>();
 
@@ -62,8 +62,8 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 	                    .location(dto.getLocation())
 	                    .wifiName(dto.getWifiName())
 	                    .password(dto.getPassword())
+	                    .companyId(dto.getCompanyId())
 	                    .build();
-	            router.setCompanyId(companyId);
 
 	            String result = saveOrUpdate(router); 
 

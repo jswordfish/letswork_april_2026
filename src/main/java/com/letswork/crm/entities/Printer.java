@@ -1,10 +1,14 @@
 package com.letswork.crm.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.NotBlank;
+
+import com.letswork.crm.enums.PrinterType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,25 +22,20 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Location extends Base{
-
-    @Id
+public class Printer extends Base{
+	
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank(message = "Location name is required")
-    private String name;
-
-    private Integer totalConferenceRooms;
-
-    private String address;
-    
-    private String state;
-    
-    private String city;
-    
-    private boolean hasCafe;
-    
-    private String amenities;
+	
+	private String printerName;
+	
+	private String location;
+	
+	@Enumerated(EnumType.STRING)  
+    @Column(nullable = false)
+    private PrinterType printerType;
+	
+	private String printerCompany;
 
 }

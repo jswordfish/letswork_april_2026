@@ -1,5 +1,7 @@
 package com.letswork.crm.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Seat;
@@ -27,6 +30,11 @@ public class SeatController {
     @PostMapping("/save-or-update")
     public ResponseEntity<Seat> saveOrUpdate(@RequestBody Seat seat, @RequestParam String token) {
         return ResponseEntity.ok(seatService.saveOrUpdate(seat));
+    }
+    
+    @PostMapping("/upload-excel")
+    public ResponseEntity<List<String>> uploadSeatExcel(@RequestParam("file") MultipartFile file) throws Exception {
+        return ResponseEntity.ok(seatService.uploadSeatExcel(file));
     }
 
     @GetMapping("/list")

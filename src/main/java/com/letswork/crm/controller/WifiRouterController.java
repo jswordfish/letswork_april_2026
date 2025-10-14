@@ -35,14 +35,13 @@ public class WifiRouterController {
     @PostMapping(value = "/wifi-routers-upload-excel", consumes = "multipart/form-data")
     public ResponseEntity<List<String>> uploadWifiRouters(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("companyId") String companyId,
             @RequestParam String token) throws IOException {
 
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(List.of("Please upload a valid Excel file."));
         }
 
-        List<String> responses = service.uploadWifiRouters(file, companyId);
+        List<String> responses = service.uploadWifiRouters(file);
         return ResponseEntity.ok(responses);
     }
 

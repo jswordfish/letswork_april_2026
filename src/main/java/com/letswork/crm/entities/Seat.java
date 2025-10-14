@@ -40,5 +40,7 @@ public class Seat extends Base{
 	private int costPerDay;
 	
 	private int costPerMonth;
+	
+	private String cabinName;
 
 }

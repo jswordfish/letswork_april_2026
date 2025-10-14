@@ -5,19 +5,19 @@ import com.poiji.annotation.ExcelCellName;
 import lombok.Data;
 
 @Data
-public class ParkingSlotExcelDto {
+public class PrinterExcelDto {
 	
-	@ExcelCellName("Name")
-    private String name;
+	@ExcelCellName("Printer Name")
+    private String printerName;
 
     @ExcelCellName("LetsWork Centre")
     private String location;
 
-    @ExcelCellName("Floor Number")
-    private String floorNumber;
+    @ExcelCellName("Printer Type")
+    private String printerType;
 
-    @ExcelCellName("Other Details")
-    private String otherDetails;
+    @ExcelCellName("Printer Company")
+    private String printerCompany;
     
     @ExcelCellName("Company Id")
     private String companyId;

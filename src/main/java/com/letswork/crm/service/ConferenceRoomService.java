@@ -21,6 +21,6 @@ public interface ConferenceRoomService {
 	
 	String deleteByName(ConferenceRoom conferenceRoom);
 	
-	public List<String> uploadConferenceRooms(MultipartFile file, String companyId) throws IOException;
+	public List<String> uploadConferenceRooms(MultipartFile file) throws IOException;
 
 }

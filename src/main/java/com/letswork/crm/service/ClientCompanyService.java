@@ -26,6 +26,6 @@ public interface ClientCompanyService {
 	
 	PaginatedResponseDto getClientCompaniesByLocation(String location, String companyId, int page);
 	
-	public List<String> uploadClientCompanies(MultipartFile file, String companyId) throws IOException;
+	public List<String> uploadClientCompanies(MultipartFile file) throws IOException;
 
 }

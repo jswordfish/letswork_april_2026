@@ -4,7 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.NotBlank;
+
+import com.letswork.crm.enums.SeatType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,25 +19,18 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Location extends Base{
-
-    @Id
+public class Cabin extends Base{
+	
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank(message = "Location name is required")
-    private String name;
-
-    private Integer totalConferenceRooms;
-
-    private String address;
-    
-    private String state;
-    
-    private String city;
-    
-    private boolean hasCafe;
-    
-    private String amenities;
+	
+	private String location;
+	
+	private String cabinName;
+	
+	private String cabinNumber;
+	
+	private int totalSeats;
 
 }
