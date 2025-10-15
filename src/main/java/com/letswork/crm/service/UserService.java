@@ -35,7 +35,7 @@ public interface UserService {
 	
 	public List<User> findUsersByCompanyId(  String companyId);
 	
-	public List<String> uploadUsersFromExcel(MultipartFile file, String companyId) throws IOException;
+	public String uploadUsersFromExcel(MultipartFile file, String companyId) throws IOException;
 	
 
 }

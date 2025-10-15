@@ -100,21 +100,66 @@ public class SeatServiceImpl implements SeatService {
         }
     }
     
+    
+    private String validate(SeatExcelDto dto) {
+		if(dto.getSeatType() == null || dto.getSeatType().length() == 0) {
+			return "Seat Type Should not be null";
+		}
+		
+		if(dto.getSeatNumber() == null || dto.getSeatNumber().length() == 0) {
+			return "Seat Number Should not be null";		
+			}
+		
+		if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
+			return "LetsWork Centre Should not be null";	
+			}
+		
+		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
+			return "CompanyId Should not be null";	
+			}
+		
+		if(dto.getCostPerDay() == null) {
+			return "Cost Per Day Should not be null";	
+			}
+		
+		if(dto.getCostPerMonth() == null) {
+			return "Cost Per Month Should not be null";	
+			}
+		
+		if ("SHARED_CABIN".equalsIgnoreCase(dto.getSeatType())) {
+		    if (dto.getCabinName() == null || dto.getCabinName().trim().isEmpty()) {
+		        return "Cabin name must exist when seat type is SHARED_CABIN";
+		    }
+		}
+		
+		
+		return "ok";
+	}
+    
+    
     @Override
-    public List<String> uploadSeatExcel(MultipartFile file) throws IOException {
+    public String uploadSeatExcel(MultipartFile file) throws IOException {
         List<SeatExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, SeatExcelDto.class);
+        
+        for(SeatExcelDto dto : dtos) {
+        	String val = validate(dto);
+    		if(!val.equalsIgnoreCase("ok")) {
+    			return val;
+    		}
+    	}
+        
         List<String> responses = new ArrayList<>();
 
         for (SeatExcelDto dto : dtos) {
             try {
                 Seat seat = Seat.builder()
-                        .companyId(dto.getCompanyId())
-                        .letsWorkCentre(dto.getLetsWorkCentre())
+                        .companyId(dto.getCompanyId().trim())
+                        .letsWorkCentre(dto.getLetsWorkCentre().trim())
                         .seatType(SeatType.valueOf(dto.getSeatType().toUpperCase()))
-                        .seatNumber(dto.getSeatNumber())
+                        .seatNumber(dto.getSeatNumber().trim())
                         .costPerDay(dto.getCostPerDay() == null ? 0 : dto.getCostPerDay())
                         .costPerMonth(dto.getCostPerMonth() == null ? 0 : dto.getCostPerMonth())
-                        .cabinName(dto.getCabinName())
+                        .cabinName(dto.getCabinName().trim())
                         .build();
 
                 saveOrUpdate(seat);
@@ -124,7 +169,7 @@ public class SeatServiceImpl implements SeatService {
             }
         }
 
-        return responses;
+        return "ok";
     }
 
     @Override

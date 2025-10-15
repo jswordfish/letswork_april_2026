@@ -46,7 +46,7 @@ public class CabinController {
     }
 
     @PostMapping("/upload")
-    public List<String> uploadCabins(@RequestParam("file") MultipartFile file,
+    public String uploadCabins(@RequestParam("file") MultipartFile file,
     		@RequestParam String token) throws IOException {
         return cabinService.uploadCabins(file);
     }

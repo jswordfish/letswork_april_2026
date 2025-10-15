@@ -13,8 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.WifiRouterExcelDto;
+import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.entities.WifiRouter;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.WifiRouterRepository;
+import com.letswork.crm.service.TenantService;
 import com.letswork.crm.service.WifiRouterService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
@@ -28,11 +32,34 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 	@Autowired
 	WifiRouterRepository repo;
 	
+	@Autowired
+	TenantService tenantService;
+	
+	@Autowired
+	LetsWorkCentreRepository letsWorkCentreRepo;
+	
 	private static final int PAGE_SIZE = 10;
 
 	@Override
 	public String saveOrUpdate(WifiRouter wifiRouter) {
 		// TODO Auto-generated method stub
+		
+		Tenant tenant = tenantService.findTenantByCompanyId(wifiRouter.getCompanyId());
+		
+		if(tenant==null) {
+			
+			throw new RuntimeException("CompanyId invalid - "+wifiRouter.getCompanyId());
+			
+		}
+
+
+		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyId(wifiRouter.getLetsWorkCentre(), wifiRouter.getCompanyId());
+		
+		if(centre==null) {
+			throw new RuntimeException("This LetsWorkCentre does not exists");
+		}
+		
+		
 		WifiRouter wifi = repo.findByNameLetsWorkCentreAndCompany(wifiRouter.getWifiName(), wifiRouter.getLetsWorkCentre(), wifiRouter.getCompanyId());
 		
 		if(wifi!=null) {
@@ -51,18 +78,50 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 		}
 	}
 	
+	//Null validation
+	private String validate(WifiRouterExcelDto dto) {
+		if(dto.getWifiName() == null || dto.getWifiName().length() == 0) {
+			return "Wifi Name Should not be null";
+		}
+		
+		if(dto.getPassword() == null || dto.getPassword().length() == 0) {
+			return "Password Should not be null";		
+			}
+		
+		if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
+			return "LetsWork Centre Should not be null";	
+			}
+		
+		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
+			return "CompanyId Should not be null";	
+			}
+		
+		
+		return "ok";
+	}
+
+	
+	
 	@Override
-	public List<String> uploadWifiRouters(MultipartFile file) throws IOException {
+	public String uploadWifiRouters(MultipartFile file) throws IOException {
 	    List<WifiRouterExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, WifiRouterExcelDto.class);
+	    
+	    for(WifiRouterExcelDto dto : dtos) {
+    		String val = validate(dto);
+    		if(!val.equalsIgnoreCase("ok")) {
+    			return val;
+    		}
+    	}
+	    
 	    List<String> responses = new ArrayList<>();
 
 	    for (WifiRouterExcelDto dto : dtos) {
 	        try {
 	            WifiRouter router = WifiRouter.builder()
-	                    .letsWorkCentre(dto.getLetsWorkCentre())
-	                    .wifiName(dto.getWifiName())
-	                    .password(dto.getPassword())
-	                    .companyId(dto.getCompanyId())
+	                    .letsWorkCentre(dto.getLetsWorkCentre().trim())
+	                    .wifiName(dto.getWifiName().trim())
+	                    .password(dto.getPassword().trim())
+	                    .companyId(dto.getCompanyId().trim())
 	                    .build();
 
 	            String result = saveOrUpdate(router); 
@@ -72,7 +131,7 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 	            responses.add("Error saving " + dto.getWifiName() + ": " + e.getMessage());
 	        }
 	    }
-	    return responses;
+	    return "ok";
 	}
 
 	@Override

@@ -46,7 +46,7 @@ public class PrinterController {
     }
 
     @PostMapping("/upload-excel")
-    public ResponseEntity<List<String>> uploadPrintersExcel(
+    public ResponseEntity<String> uploadPrintersExcel(
             @RequestParam("file") MultipartFile file,
             @RequestParam String token) throws IOException {
         return ResponseEntity.ok(service.uploadPrintersFromExcel(file));

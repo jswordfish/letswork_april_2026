@@ -17,7 +17,7 @@ public class CabinExcelDto {
     private String cabinNumber;
 
     @ExcelCellName("Total Seats")
-    private int totalSeats;
+    private Integer totalSeats;
     
     @ExcelCellName("Description")
     private String description;

@@ -20,6 +20,6 @@ public interface SeatService {
     
     long getAvailableSeats(String companyId, String letsWorkCentre, SeatType seatType);
     
-    List<String> uploadSeatExcel(MultipartFile file) throws Exception;
+    String uploadSeatExcel(MultipartFile file) throws Exception;
 
 }

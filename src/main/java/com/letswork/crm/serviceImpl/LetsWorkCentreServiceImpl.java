@@ -1,9 +1,11 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,64 +36,119 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	
 	@Autowired
 	TenantService tenantService;
+	
+	ModelMapper mapper = new ModelMapper();
 
 	@Override
-	public String saveOrUpdate(LetsWorkCentre LetsWorkCentre) {
+	public String saveOrUpdate(LetsWorkCentre letsWorkCentre) {
 		// TODO Auto-generated method stub
 		
-		Tenant tenant = tenantService.findTenantByCompanyId(LetsWorkCentre.getCompanyId());
+		Tenant tenant = tenantService.findTenantByCompanyId(letsWorkCentre.getCompanyId());
 		
 		if(tenant==null) {
 			
-			throw new RuntimeException("CompanyId invalid - "+LetsWorkCentre.getCompanyId());
+			throw new RuntimeException("CompanyId invalid - "+letsWorkCentre.getCompanyId());
 			
 		}
 		
-		LetsWorkCentre loc = repo.findByNameAndCompanyId(LetsWorkCentre.getName(), LetsWorkCentre.getCompanyId());
+		
+		LetsWorkCentre loc = repo.findByNameAndCompanyId(letsWorkCentre.getName(), letsWorkCentre.getCompanyId());
 		
 		if(loc!=null) {
 			
-			loc.setName(LetsWorkCentre.getName());
-			loc.setAddress(LetsWorkCentre.getAddress());
-			loc.setTotalConferenceRooms(LetsWorkCentre.getTotalConferenceRooms());
-			loc.setState(LetsWorkCentre.getState());
-			loc.setCity(LetsWorkCentre.getCity());
-			loc.setHasCafe(LetsWorkCentre.isHasCafe());
-			loc.setAmenities(LetsWorkCentre.getAmenities());
+//			loc.setName(letsWorkCentre.getName());
+//			loc.setAddress(letsWorkCentre.getAddress());
+//			loc.setTotalConferenceRooms(letsWorkCentre.getTotalConferenceRooms());
+//			loc.setState(letsWorkCentre.getState());
+//			loc.setCity(letsWorkCentre.getCity());
+//			loc.setHasCafe(letsWorkCentre.isHasCafe());
+//			loc.setAmenities(letsWorkCentre.getAmenities());
+			
+			letsWorkCentre.setId(loc.getId());
+			letsWorkCentre.setUpdateDate(new Date());
+			mapper.map(letsWorkCentre, loc);
 			
 			repo.save(loc);
 			return "record updated";
 		}
 		
 		else {
-			repo.save(LetsWorkCentre);
+			letsWorkCentre.setCreateDate(new Date());
+			repo.save(letsWorkCentre);
 			return "record saved";
 		}
 		
 		
 	}
 	
+	
+	private String validate(LetsWorkCentreExcelDto dto) {
+		if(dto.getName() == null || dto.getName().length() == 0) {
+			return "Name Should not be null";
+		}
+		
+		if(dto.getState() == null || dto.getState().length() == 0) {
+			return "State Should not be null";		
+			}
+		
+		if(dto.getCity() == null || dto.getCity().length() == 0) {
+			return "City Should not be null";	
+			}
+		
+		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
+			return "CompanyId Should not be null";	
+			}
+		
+		if(dto.getTotalConferenceRooms() == null) {
+			return "Total Conference Rooms Should not be null";	
+			}
+		
+		if(dto.getAddress() == null || dto.getAddress().length() == 0) {
+			return "Address Should not be null";	
+			}
+		
+		if(dto.getAmenities() == null || dto.getAmenities().length() == 0) {
+			return "Amenities Should not be null";	
+			}
+		
+		if(!dto.isHasCafe()) {
+			return "Cafe boolean Should not be null";	
+			}
+		
+		
+		return "ok";
+	}
+	
+	
 	@Override
 	public String uploadLetsWorkCentresFromExcel(MultipartFile file) {
         try {
             List<LetsWorkCentreExcelDto> letsWorkCentres = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, LetsWorkCentreExcelDto.class);
-
+            
+            for(LetsWorkCentreExcelDto dto : letsWorkCentres) {
+            	String val = validate(dto);
+        		if(!val.equalsIgnoreCase("ok")) {
+        			return val;
+        		}
+        	}
+            
             List<String> responses = letsWorkCentres.stream().map(dto -> {
             	LetsWorkCentre letsWorkCentre = LetsWorkCentre.builder()
-                        .name(dto.getName())
+                        .name(dto.getName().trim())
                         .totalConferenceRooms(dto.getTotalConferenceRooms())
-                        .address(dto.getAddress())
-                        .companyId(dto.getCompanyId())
-                        .state(dto.getState())
-                        .city(dto.getCity())
+                        .address(dto.getAddress().trim())
+                        .companyId(dto.getCompanyId().trim())
+                        .state(dto.getState().trim())
+                        .city(dto.getCity().trim())
                         .hasCafe(dto.isHasCafe())
-                        .amenities(dto.getAmenities())
+                        .amenities(dto.getAmenities().trim())
                         .build();
                 return saveOrUpdate(letsWorkCentre);
             }).collect(Collectors.toList());
 
-            return "Processed " + letsWorkCentres.size() + " LetsWorkCentre successfully.\n"
-                    + String.join("\n", responses);
+//            return "Processed " + letsWorkCentres.size() + " LetsWorkCentre successfully.\n"
+//                    + String.join("\n", responses);
+            return "ok";
 
         } catch (IOException e) {
             e.printStackTrace();

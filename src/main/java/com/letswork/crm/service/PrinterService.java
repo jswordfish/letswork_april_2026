@@ -16,6 +16,6 @@ public interface PrinterService {
 
     void deletePrinter(Long id);
 
-    List<String> uploadPrintersFromExcel(MultipartFile file) throws IOException;
+    String uploadPrintersFromExcel(MultipartFile file) throws IOException;
 
 }

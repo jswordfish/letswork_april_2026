@@ -2,6 +2,7 @@ package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,8 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.dtos.CabinExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Cabin;
+import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.CabinRepository;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.service.CabinService;
 import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
@@ -32,6 +35,9 @@ public class CabinServiceImpl implements CabinService {
     
     @Autowired
     TenantService tenantService;
+    
+    @Autowired
+    LetsWorkCentreRepository letsWorkCentreRepo;
 
     @Override
     public synchronized Cabin saveOrUpdate(Cabin cabin) {
@@ -44,7 +50,12 @@ public class CabinServiceImpl implements CabinService {
 			
 		}
 
-
+		
+		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyId(cabin.getLetsWorkCentre(), cabin.getCompanyId());
+		
+		if(centre==null) {
+			throw new RuntimeException("This LetsWorkCentre does not exists");
+		}
 
     	
         if (!StringUtils.hasText(cabin.getCabinName()) || !StringUtils.hasText(cabin.getLetsWorkCentre())) {
@@ -59,8 +70,10 @@ public class CabinServiceImpl implements CabinService {
             old.setCabinNumber(cabin.getCabinNumber());
             old.setTotalSeats(cabin.getTotalSeats());
             old.setDescription(cabin.getDescription());
+            old.setUpdateDate(new Date());
             return cabinRepository.save(old);
         } else {
+        	cabin.setCreateDate(new Date());
             return cabinRepository.save(cabin);
         }
     }
@@ -82,21 +95,58 @@ public class CabinServiceImpl implements CabinService {
     public void delete(Long id) {
         cabinRepository.deleteById(id);
     }
+    
+    private String validate(CabinExcelDto dto) {
+		if(dto.getCabinName() == null || dto.getCabinName().length() == 0) {
+			return "Cabin name Should not be null";
+		}
+		
+		if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
+			return "LetsWork Centre Should not be null";	
+			}
+		
+		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
+			return "CompanyId Should not be null";	
+			}
+		
+		if(dto.getCabinNumber() == null || dto.getCabinNumber().length() == 0) {
+			return "Cabin number Should not be null";	
+			}
+		
+		if(dto.getTotalSeats() == null) {
+			return "Total seats Should not be null";	
+			}
+		
+		if(dto.getDescription() == null || dto.getDescription().length() == 0) {
+			return "Description Should not be null";	
+			}
+		
+	
+		return "ok";
+	}
 
     @Override
-    public List<String> uploadCabins(MultipartFile file) throws IOException {
+    public String uploadCabins(MultipartFile file) throws IOException {
         List<CabinExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, CabinExcelDto.class);
+        
+        for(CabinExcelDto dto : dtos) {
+        	String val = validate(dto);
+    		if(!val.equalsIgnoreCase("ok")) {
+    			return val;
+    		}
+    	}
+        
         List<String> responses = new ArrayList<>();
 
         for (CabinExcelDto dto : dtos) {
             try {
                 Cabin cabin = Cabin.builder()
-                        .cabinName(dto.getCabinName())
-                        .letsWorkCentre(dto.getLetsWorkCentre())
-                        .cabinNumber(dto.getCabinNumber())
+                        .cabinName(dto.getCabinName().trim())
+                        .letsWorkCentre(dto.getLetsWorkCentre().trim())
+                        .cabinNumber(dto.getCabinNumber().trim())
                         .totalSeats(dto.getTotalSeats())
-                        .description(dto.getDescription())
-                        .companyId(dto.getCompanyId())
+                        .description(dto.getDescription().trim())
+                        .companyId(dto.getCompanyId().trim())
                         .build();
 
                 saveOrUpdate(cabin);
@@ -105,6 +155,6 @@ public class CabinServiceImpl implements CabinService {
                 responses.add("Error saving " + dto.getCabinName() + ": " + e.getMessage());
             }
         }
-        return responses;
+        return "ok";
     }
 }

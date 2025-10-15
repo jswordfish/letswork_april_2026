@@ -2,8 +2,10 @@ package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +45,8 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	
 	@Autowired
 	TenantService tenantService;
+	
+	ModelMapper mapper = new ModelMapper();
 
 	@Override
 	public String saveOrUpdate(ConferenceRoom conferenceRoom) {
@@ -56,17 +60,25 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 			
 		}
 		
+		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyId(conferenceRoom.getLetsWorkCentre(), conferenceRoom.getCompanyId());
+		
+		if(centre==null) {
+			throw new RuntimeException("This LetsWorkCentre does not exists");
+		}
+		
 		ConferenceRoom room = repo.findByNameAndLetsWorkCentreAndCompanyId(conferenceRoom.getName(), conferenceRoom.getLetsWorkCentre(), conferenceRoom.getCompanyId());
 		
 		if(room!=null) {
 			
-			room.setName(conferenceRoom.getName());
-			room.setCapacity(conferenceRoom.getCapacity());
-			room.setLetsWorkCentre(conferenceRoom.getLetsWorkCentre());
-			room.setHasProjector(conferenceRoom.isHasProjector());
-			room.setHasWhiteBoard(conferenceRoom.isHasWhiteBoard());
-			room.setHasChargingPorts(conferenceRoom.isHasChargingPorts());
-			
+//			room.setName(conferenceRoom.getName());
+//			room.setCapacity(conferenceRoom.getCapacity());
+//			room.setLetsWorkCentre(conferenceRoom.getLetsWorkCentre());
+//			room.setHasProjector(conferenceRoom.isHasProjector());
+//			room.setHasWhiteBoard(conferenceRoom.isHasWhiteBoard());
+//			room.setHasChargingPorts(conferenceRoom.isHasChargingPorts());
+			conferenceRoom.setId(room.getId());
+			conferenceRoom.setUpdateDate(new Date());
+			mapper.map(conferenceRoom, room);
 			
 			repo.save(room);
 			return "record updated";
@@ -74,25 +86,66 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 		}
 		
 		else {
+			conferenceRoom.setCreateDate(new Date());
 			repo.save(conferenceRoom);
 			return "record saved";
 		}
 		
 	}
 	
-	@Override
-	public List<String> uploadConferenceRooms(MultipartFile file) throws IOException {
-	    List<ConferenceRoomExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, ConferenceRoomExcelDto.class);
+	private String validate(ConferenceRoomExcelDto dto) {
+		if(dto.getName() == null || dto.getName().length() == 0) {
+			return "Room name should not be null";
+		}
+		
+		if(dto.getCapacity() == null) {
+			return "Capacity should not be null";
+		}
+		
+		if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
+			return "LetsWork Centre should not be null";
+		}
+		
+		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
+			return "CompanyId should not be null";
+		}
+		
+		if(!dto.isHasProjector()) {
+			return "Has projector should not be null";
+		}
+		
+		if(!dto.isHasWhiteBoard()) {
+			return "Has White Board should not be null";
+		}
+		
+		if(!dto.isHasChargingPorts()) {
+			return "Has Charging ports should not be null";
+		}
+		
+		return "ok";
+	}
 
+	
+	@Override
+	public String uploadConferenceRooms(MultipartFile file) throws IOException {
+	    List<ConferenceRoomExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, ConferenceRoomExcelDto.class);
+	    
+	    for(ConferenceRoomExcelDto dto : dtos) {
+	    	String val = validate(dto);
+    		if(!val.equalsIgnoreCase("ok")) {
+    			return val;
+    		}
+    	}
+	    
 	    List<String> responses = new ArrayList<>();
 
 	    for (ConferenceRoomExcelDto dto : dtos) {
 	        try {
 	            ConferenceRoom room = ConferenceRoom.builder()
-	                    .name(dto.getName())
+	                    .name(dto.getName().trim())
 	                    .capacity(dto.getCapacity())
-	                    .letsWorkCentre(dto.getLetsWorkCentre())
-	                    .companyId(dto.getCompanyId())
+	                    .letsWorkCentre(dto.getLetsWorkCentre().trim())
+	                    .companyId(dto.getCompanyId().trim())
 	                    .hasProjector(dto.isHasProjector())
 	                    .hasWhiteBoard(dto.isHasWhiteBoard())
 	                    .hasChargingPorts(dto.isHasChargingPorts())
@@ -109,7 +162,7 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	        }
 	    }
 
-	    return responses;
+	    return "ok";
 	}
 		
 	

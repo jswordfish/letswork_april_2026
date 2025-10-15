@@ -20,7 +20,7 @@ public interface WifiRouterMappingToClientRepository extends JpaRepository<WifiR
 	WifiRouterMappingToClient findByWifiNameAndClientEmailAndLetsWorkCentre(String wifiName, String clientEmail, String letsWorkCentre);
 
 	@Query("SELECT c FROM Client c " +
-	           "JOIN WifiRouterMappingToClient m ON c.name = m.clientName AND c.email = m.clientEmail " +
+	           "JOIN WifiRouterMappingToClient m ON c.email = m.clientEmail " +
 	           "WHERE m.wifiName = :wifiName AND m.letsWorkCentre = :letsWorkCentre AND m.companyId = :companyId")
 	    Page<Client> findClientsByWifi(@Param("wifiName") String wifiName,
 	                                   @Param("letsWorkCentre") String letsWorkCentre,
@@ -29,8 +29,8 @@ public interface WifiRouterMappingToClientRepository extends JpaRepository<WifiR
 	
 	@Query("SELECT w FROM WifiRouter w " +
 	           "JOIN WifiRouterMappingToClient m ON w.wifiName = m.wifiName AND w.letsWorkCentre = m.letsWorkCentre " +
-	           "WHERE m.clientName = :clientName AND m.clientEmail = :clientEmail AND m.companyId = :companyId")
-	    Page<WifiRouter> findRoutersByClient(@Param("clientName") String clientName,
+	           "WHERE m.clientEmail = :clientEmail AND m.companyId = :companyId")
+	    Page<WifiRouter> findRoutersByClient(
 	                                         @Param("clientEmail") String clientEmail,
 	                                         @Param("companyId") String companyId,
 	                                         Pageable pageable);

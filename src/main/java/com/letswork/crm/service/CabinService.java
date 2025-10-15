@@ -16,6 +16,6 @@ public interface CabinService {
 
     void delete(Long id);
 
-    List<String> uploadCabins(MultipartFile file) throws IOException;
+    String uploadCabins(MultipartFile file) throws IOException;
 
 }

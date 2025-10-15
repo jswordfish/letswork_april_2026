@@ -27,11 +27,11 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 //    List<Client> findAllByCompany(@Param("companyName") String companyName);
     
  
-    List<Client> findByNameContainingIgnoreCase(String name);
+    List<Client> findByFirstNameContainingIgnoreCase(String firstName);
     
     Client findByEmailAndCompanyId(String email, String companyId);
     
-    Page<Client> findByNameContainingIgnoreCase(String name, Pageable pageable);
+    Page<Client> findByFirstNameContainingIgnoreCase(String firstName, Pageable pageable);
     
     @Query("SELECT c FROM Client c WHERE c.email = :email AND c.companyId = :companyId")
     Client findByNameAndEmailAndCompanyId(@Param("email") String email,

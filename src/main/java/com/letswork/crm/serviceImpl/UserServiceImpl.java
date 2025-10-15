@@ -136,10 +136,60 @@ public class UserServiceImpl implements UserService{
 		return repo.save(user2);
 	}
 	
+	private String validate(User dto) {
+		if(dto.getFirstName() == null || dto.getFirstName().length() == 0) {
+			return "First Name Should not be null";
+		}
+		
+		if(dto.getLastName() == null || dto.getLastName().length() == 0) {
+			return "Last Name Should not be null";		
+			}
+		
+		if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
+			return "LetsWork Centre Should not be null";	
+			}
+		
+		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
+			return "CompanyId Should not be null";	
+			}
+		
+		if(dto.getEmail() == null || dto.getEmail().length() == 0) {
+			return "Email Should not be null";	
+			}
+		
+		if(dto.getRoleOrDesig() == null || dto.getRoleOrDesig().length() == 0) {
+			return "Role Or Desig Should not be null";	
+			}
+		
+		if(dto.getDepartment() == null || dto.getDepartment().length() == 0) {
+			return "Department Should not be null";	
+			}
+		
+		if(dto.getEmpId() == null || dto.getEmpId().length() == 0) {
+			return "EmpId Should not be null";	
+			}
+		
+		if(dto.getPassword() == null || dto.getPassword().length() == 0) {
+			return "Password Should not be null";	
+			}
+		
+		
+		return "ok";
+	}
+	
+	
 	@Override
-	public List<String> uploadUsersFromExcel(MultipartFile file, String companyId) throws IOException {
+	public String uploadUsersFromExcel(MultipartFile file, String companyId) throws IOException {
 	    // Parse Excel file into a list of User DTOs
 	    List<User> users = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, User.class);
+	    
+	    for(User dto : users) {
+    		String val = validate(dto);
+    		if(!val.equalsIgnoreCase("ok")) {
+    			return val;
+    		}
+    	}
+	    
 	    List<String> responses = new ArrayList<>();
 
 	    for (User user : users) {
@@ -156,7 +206,7 @@ public class UserServiceImpl implements UserService{
 	        }
 	    }
 
-	    return responses;
+	    return "ok";
 	}
 
 	@Override

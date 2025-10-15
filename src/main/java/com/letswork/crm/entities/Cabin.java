@@ -31,7 +31,7 @@ public class Cabin extends Base{
 	
 	private String cabinNumber;
 	
-	private int totalSeats;
+	private Integer totalSeats;
 	
 	private String description;
 

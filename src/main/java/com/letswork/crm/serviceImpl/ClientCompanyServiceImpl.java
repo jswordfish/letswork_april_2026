@@ -2,8 +2,10 @@ package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,10 +45,12 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	LetsWorkCentreService LetsWorkCentreService;
 	
 	@Autowired
-	LetsWorkCentreRepository LetsWorkCentreRepo;
+	LetsWorkCentreRepository letsWorkCentreRepo;
 	
 	@Autowired
 	TenantService tenantService;
+	
+	ModelMapper mapper = new ModelMapper();
 
 	@Override
 	public String saveOrUpdate(ClientCompany clientCompany) {
@@ -60,7 +64,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 			
 		}
 		
-		LetsWorkCentre centre = LetsWorkCentreRepo.findByNameAndCompanyId(clientCompany.getCompanyName(), clientCompany.getCompanyId());
+		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyId(clientCompany.getLetsWorkCentre(), clientCompany.getCompanyId());
 		
 		if(centre==null) {
 			throw new RuntimeException("This LetsWorkCentre does not exists");
@@ -71,10 +75,14 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 		
 		if(com!=null) {
 			
-			com.setClientCompanyName(clientCompany.getClientCompanyName());
+//			com.setClientCompanyName(clientCompany.getClientCompanyName());
+//			
+//			com.setIndustry(clientCompany.getIndustry());
+//			com.setLetsWorkCentre(clientCompany.getLetsWorkCentre());
 			
-			com.setIndustry(clientCompany.getIndustry());
-			com.setLetsWorkCentre(clientCompany.getLetsWorkCentre());
+			clientCompany.setId(com.getId());
+			clientCompany.setUpdateDate(new Date());
+			mapper.map(clientCompany, com);
 		
 			repo.save(com);
 			return "record updated";
@@ -82,24 +90,55 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 		}
 		
 		else {
+			clientCompany.setCreateDate(new Date());
 			repo.save(clientCompany);
 			return "record saved";
 		}
 		
 	}
 	
+	private String validate(ClientCompanyExcelDto dto) {
+		if(dto.getClientCompanyName() == null || dto.getClientCompanyName().length() == 0) {
+			return "Client company Should not be null";
+		}
+		
+		if(dto.getIndustry() == null || dto.getIndustry().length() == 0) {
+			return "Client company Should not be null";		
+			}
+		
+		if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
+			return "LetsWork Centre Should not be null";	
+			}
+		
+		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
+			return "CompanyId Should not be null";	
+			}
+		
+		
+		return "ok";
+	}
+	
+	
 	@Override
-	public List<String> uploadClientCompanies(MultipartFile file) throws IOException {
+	public String uploadClientCompanies(MultipartFile file) throws IOException {
 	    List<ClientCompanyExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, ClientCompanyExcelDto.class);
+	    
+	    for(ClientCompanyExcelDto dto : dtos) {
+	    	String val = validate(dto);
+    		if(!val.equalsIgnoreCase("ok")) {
+    			return val;
+    		}
+    	}
+	    
 	    List<String> responses = new ArrayList<>();
 
 	    for (ClientCompanyExcelDto dto : dtos) {
 	        try {
 	            ClientCompany company = ClientCompany.builder()
-	                    .clientCompanyName(dto.getClientCompanyName())
-	                    .industry(dto.getIndustry())
-	                    .letsWorkCentre(dto.getLetsWorkCentre())
-	                    .companyId(dto.getCompanyId())
+	                    .clientCompanyName(dto.getClientCompanyName().trim())
+	                    .industry(dto.getIndustry().trim())
+	                    .letsWorkCentre(dto.getLetsWorkCentre().trim())
+	                    .companyId(dto.getCompanyId().trim())
 	                    .build();
 	            
 
@@ -110,7 +149,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	            responses.add("Error saving " + dto.getClientCompanyName() + ": " + e.getMessage());
 	        }
 	    }
-	    return responses;
+	    return "ok";
 	}
 
 	

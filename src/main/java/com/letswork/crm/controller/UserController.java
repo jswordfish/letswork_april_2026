@@ -48,20 +48,20 @@ public class UserController {
 	}
 	
 	@PostMapping(value = "/upload-users-excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<List<String>> uploadUsersExcel(
+	public ResponseEntity<String> uploadUsersExcel(
 	        @RequestParam("file") MultipartFile file,
 	        @RequestParam String companyId,
 	        @RequestParam String token) {
 
 	    if (file.isEmpty()) {
-	        return ResponseEntity.badRequest().body(List.of("Please upload a valid Excel file."));
+	        return ResponseEntity.badRequest().body("Please upload a valid Excel file.");
 	    }
 
 	    try {
-	        List<String> response = service.uploadUsersFromExcel(file, companyId);
+	        String response = service.uploadUsersFromExcel(file, companyId);
 	        return ResponseEntity.ok(response);
 	    } catch (Exception e) {
-	        return ResponseEntity.internalServerError().body(List.of("Error: " + e.getMessage()));
+	        return ResponseEntity.internalServerError().body(("Error: " + e.getMessage()));
 	    }
 	}
 	

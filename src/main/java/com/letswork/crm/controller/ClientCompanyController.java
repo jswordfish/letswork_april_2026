@@ -34,15 +34,15 @@ public class ClientCompanyController {
 	}
 	
 	@PostMapping(value = "/client-companies-upload-excel", consumes = "multipart/form-data")
-	public ResponseEntity<List<String>> uploadClientCompanies(
+	public ResponseEntity<String> uploadClientCompanies(
 	        @RequestParam("file") MultipartFile file,
 	        @RequestParam String token) throws IOException {
 
 	    if (file.isEmpty()) {
-	        return ResponseEntity.badRequest().body(List.of("Please upload a valid Excel file."));
+	        return ResponseEntity.badRequest().body(("Please upload a valid Excel file."));
 	    }
 
-	    List<String> responses = service.uploadClientCompanies(file);
+	    String responses = service.uploadClientCompanies(file);
 	    return ResponseEntity.ok(responses);
 	}
 	

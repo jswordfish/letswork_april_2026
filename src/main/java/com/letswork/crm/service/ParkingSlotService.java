@@ -17,6 +17,6 @@ public interface ParkingSlotService {
 
     String deleteParkingSlot(ParkingSlot parkingSlot);
     
-    public List<String> uploadParkingSlots(MultipartFile file) throws IOException;
+    public String uploadParkingSlots(MultipartFile file) throws IOException;
 
 }

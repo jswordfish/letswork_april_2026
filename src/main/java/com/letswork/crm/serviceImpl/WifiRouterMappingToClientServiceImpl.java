@@ -95,7 +95,7 @@ public class WifiRouterMappingToClientServiceImpl implements WifiRouterMappingTo
 	public PaginatedResponseDto getRoutersByClient(String clientName, String clientEmail, String companyId, int page) {
 		// TODO Auto-generated method stub
 		Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        Page<WifiRouter> resultPage = repo.findRoutersByClient(clientName, clientEmail, companyId, pageable);
+        Page<WifiRouter> resultPage = repo.findRoutersByClient( clientEmail, companyId, pageable);
         return buildPaginatedResponse(resultPage, page);
 	}
 	

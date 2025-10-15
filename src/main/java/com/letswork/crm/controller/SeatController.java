@@ -34,7 +34,7 @@ public class SeatController {
     
     //upload excel of seat
     @PostMapping("/upload-excel")
-    public ResponseEntity<List<String>> uploadSeatExcel(@RequestParam("file") MultipartFile file) throws Exception {
+    public ResponseEntity<String> uploadSeatExcel(@RequestParam("file") MultipartFile file) throws Exception {
         return ResponseEntity.ok(seatService.uploadSeatExcel(file));
     }
 
