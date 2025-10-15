@@ -157,15 +157,15 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
     }
 
 	@Override
-	public LetsWorkCentre findByName(String name) {
-		LetsWorkCentre loc = repo.findByName(name);
+	public LetsWorkCentre findByName(String name, String companyId) {
+		LetsWorkCentre loc = repo.findByNameAndCompanyId(name, companyId);
 		return loc;
 	}
 
 	@Override
-	public List<LetsWorkCentre> findAll() {
+	public List<LetsWorkCentre> findAll(String companyId) {
 		// TODO Auto-generated method stub
-		return repo.findAll();
+		return repo.findAllByCompanyId(companyId);
 	}
 
 	@Override
@@ -183,10 +183,10 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	
 	private static final int PAGE_SIZE = 10; 
 
-    @Override
-    public PaginatedResponseDto getAllLetsWorkCentres(int page) {
+	@Override
+    public PaginatedResponseDto getAllLetsWorkCentres(int page, String companyId) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("name").ascending());
-        Page<LetsWorkCentre> letsWorkCentrePage = repo.findAll(pageable);
+        Page<LetsWorkCentre> letsWorkCentrePage = repo.findAllByCompanyId(companyId, pageable);
 
         return buildPaginatedResponse(letsWorkCentrePage, page);
     }

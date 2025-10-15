@@ -46,14 +46,14 @@ public class LetsWorkCentreController {
     }
 	
 	@GetMapping("/fetch all LetsWorkCentres")
-	public List<LetsWorkCentre> fetchAll(@RequestParam String token){
-		return service.findAll();
+	public List<LetsWorkCentre> fetchAll(@RequestParam String token, @RequestParam String companyId){
+		return service.findAll(companyId);
 	}
 	
 	@GetMapping("/fetch all LetsWorkCentres paginated")
     public ResponseEntity<PaginatedResponseDto> getAllLetsWorkCentres(
-            @RequestParam(defaultValue = "0") int page, @RequestParam String token) {
-        return ResponseEntity.ok(service.getAllLetsWorkCentres(page));
+            @RequestParam(defaultValue = "0") int page, @RequestParam String token, @RequestParam String companyId) {
+        return ResponseEntity.ok(service.getAllLetsWorkCentres(page, companyId));
     }
 	
 	@DeleteMapping("/delete LetsWorkCentre")

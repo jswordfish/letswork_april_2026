@@ -20,12 +20,11 @@ import com.letswork.crm.dtos.ClientExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Client;
 import com.letswork.crm.entities.ClientCompany;
-import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.ClientCompanyRepository;
 import com.letswork.crm.repo.ClientRepository;
-import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.service.ClientService;
+import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
@@ -48,7 +47,7 @@ public class ClientServiceImpl implements ClientService {
 	TenantService tenantService;
 	
 	@Autowired
-	LetsWorkCentreRepository letsWorkCentreRepo;
+	LetsWorkCentreService letsWorkCentreService;
 	
 	ModelMapper mapper = new ModelMapper();
 	
@@ -63,12 +62,6 @@ public class ClientServiceImpl implements ClientService {
 		
 		if(tenant==null) {
 			throw new RuntimeException("CompanyId invalid - "+client.getCompanyId());
-		}
-		
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyId(client.getLetsWorkCentre(), client.getCompanyId());
-		
-		if(centre==null) {
-			throw new RuntimeException("This LetsWorkCentre does not exists");
 		}
 		
 		ClientCompany company = clientCompanyRepo.findByClientCompanyNameAndCompanyId(client.getClientCompanyName(),  client.getCompanyId());
@@ -219,6 +212,10 @@ public class ClientServiceImpl implements ClientService {
 			return "Letswork Center for User not available for "+dto.getEmail();
 		}
 		
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
+			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist for User not available for "+dto.getEmail();
+		}
+		
 		if(dto.getPhone() == null || dto.getPhone().length() == 0) {
 			return "Phone for User not available for "+dto.getEmail();
 		}
@@ -239,10 +236,7 @@ public class ClientServiceImpl implements ClientService {
         try {
             List<ClientExcelDto> clientsFromExcel = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, ClientExcelDto.class);
             	for(ClientExcelDto dto : clientsFromExcel) {
-            		String val = validate(dto);
-            		if(!val.equalsIgnoreCase("ok")) {
-            			return val;
-            		}
+            		validate(dto);
             	}
             
             List<String> responses = clientsFromExcel.stream().map(dto -> {
@@ -260,9 +254,8 @@ public class ClientServiceImpl implements ClientService {
                 return saveOrUpdate(client);
             }).collect(Collectors.toList());
 
-//            return "Processed " + clientsFromExcel.size() + " clients successfully.\n" +
-//                    String.join("\n", responses);
-            return "ok";
+            return "Processed " + clientsFromExcel.size() + " clients successfully.\n" +
+                    String.join("\n", responses);
 
         } catch (IOException e) {
             e.printStackTrace();

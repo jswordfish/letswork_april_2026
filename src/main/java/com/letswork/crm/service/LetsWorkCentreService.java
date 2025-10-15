@@ -12,13 +12,14 @@ public interface LetsWorkCentreService {
 	
     String saveOrUpdate(LetsWorkCentre letsWorkCentre);
     
-    LetsWorkCentre findByName(String name);
+    LetsWorkCentre findByName(String name, String companyId);
     
-    List<LetsWorkCentre> findAll();
+    List<LetsWorkCentre> findAll(String companyId);
     
     String deleteLetsWorkCentre(LetsWorkCentre letsWorkCentre);
     
-    PaginatedResponseDto getAllLetsWorkCentres(int page);
+    PaginatedResponseDto getAllLetsWorkCentres(int page, String companyId);
+    
     
     public String uploadLetsWorkCentresFromExcel(MultipartFile file);
     
