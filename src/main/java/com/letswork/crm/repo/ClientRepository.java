@@ -50,7 +50,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
             Pageable pageable);
 
     
-    @Query("SELECT c FROM Client c WHERE c.isIndividual = true AND c.companyId = :companyId")
+    @Query("SELECT c FROM Client c WHERE c.companyId = :companyId")
     List<Client> findIndividualClients(@Param("companyId") String companyId);
     
     @Query("SELECT c FROM Client c WHERE c.companyId = :companyId")
