@@ -13,7 +13,7 @@ public interface ClientCompanyService {
 	
 	String saveOrUpdate(ClientCompany clientCompany);
 	
-	List<ClientCompany> findByIndustry(String industry);
+	
 	
 	List<ClientCompany> listAll();
 	

@@ -1,3 +1,4 @@
+
 package com.letswork.crm.serviceImpl;
 
 import java.io.File;
@@ -79,12 +80,12 @@ public class BookingServiceImpl implements BookingService {
 	                             LocalDateTime startTime, LocalDateTime endTime) throws Exception {
 
 	    // 1. Validate client
-	    Client client = clientRepository.findByNameAndEmailAndCompanyId(clientName, clientEmail, companyId);
+	    Client client = clientRepository.findByEmailAndCompanyId( clientEmail, companyId);
 	    if (client == null) throw new IllegalArgumentException("Client not found with provided details.");
 
 	    // 2. Validate client company
-	    ClientCompany clientCompany = clientCompanyRepository.findByClientCompanyNameAndLetsWorkCentreAndCompanyId(
-	            clientCompanyName, letsWorkCentre, companyId);
+	    ClientCompany clientCompany = clientCompanyRepository.findByClientCompanyNameAndCompanyId(
+	            clientCompanyName, companyId);
 	    if (clientCompany == null) throw new IllegalArgumentException("Client company not found with provided details.");
 
 	    // 3. Validate conference room

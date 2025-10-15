@@ -15,8 +15,6 @@ public interface ClientService {
 	String saveOrUpdate(Client client);
 	
 	
-	List<Client> findByName(String name);
-	
 	String deleteClient(Client client);
 	
 	List<Client> getClientsByCompany(String companyName, String companyId);
@@ -26,9 +24,7 @@ public interface ClientService {
 	List<Client> getIndividualClients(String companyId);
 	
 	List<Client> getIndividualClientsByLetsWorkCentre(String letsWorkCentre, String companyId);
-	
-	PaginatedResponseDto findByName(String name, int page);
-	
+		
 	PaginatedResponseDto getIndividualClients(String companyId, int page);
 	
 	PaginatedResponseDto getIndividualClientsByLetsWorkCentre(String letsWorkCentre, String companyId, int page);

@@ -2,9 +2,11 @@ package com.letswork.crm.serviceImpl;
 
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +45,8 @@ public class ClientServiceImpl implements ClientService {
 	@Autowired
 	TenantService tenantService;
 	
+	ModelMapper mapper = new ModelMapper();
+	
 	
 	private static final int PAGE_SIZE = 10;
 
@@ -53,12 +57,10 @@ public class ClientServiceImpl implements ClientService {
 		Tenant tenant = tenantService.findTenantByCompanyId(client.getCompanyId());
 		
 		if(tenant==null) {
-			
 			throw new RuntimeException("CompanyId invalid - "+client.getCompanyId());
-			
 		}
 		
-		ClientCompany company = clientCompanyRepo.findByClientCompanyNameAndLetsWorkCentreAndCompanyId(client.getClientCompanyName(), client.getLetsWorkCentre(), client.getCompanyId());
+		ClientCompany company = clientCompanyRepo.findByClientCompanyNameAndCompanyId(client.getClientCompanyName(),  client.getCompanyId());
 		
 		if(company == null) {
 //			return "No company with the name "+client.getClientCompanyName()+" exists";
@@ -73,42 +75,43 @@ public class ClientServiceImpl implements ClientService {
 		}
 		
 		Client client1 = repo.findByEmailAndCompanyId(client.getEmail(), client.getCompanyId());
-		
 		if(client1!=null) {
 			
-			client1.setName(client.getName());
-			client1.setPhone(client.getPhone());
-			client1.setEmail(client.getEmail());
-			client1.setCompanyId(client.getCompanyId());
-			client1.setClientCompanyName(client.getClientCompanyName());
-			client1.setLetsWorkCentre(client.getLetsWorkCentre());
-			client1.setBusinessCategory(client.getBusinessCategory());
-
-			
+			if(!client.getClientCompanyName().equals(client1.getClientCompanyName())) {
+				//this means client has changed his company
+				deleteOldCompanyIfNotHavingOtherClients(client1.getClientCompanyName(), client1.getCompanyId());
+			}
+			client.setId(client1.getId());
+			client.setUpdateDate(new Date());
+			mapper.map(client, client1);
 			repo.save(client1);
 			return "record updated";
 			
 		}
 		
 		else {
+			client.setCreateDate(new Date());
 			repo.save(client);
 			return "record saved";
 		}
 		
 	}
-
-
-	@Override
-	public List<Client> findByName(String name) {
-		// TODO Auto-generated method stub
-		return repo.findByNameContainingIgnoreCase(name);
+	
+	private void deleteOldCompanyIfNotHavingOtherClients(String clientCompanyName, String companyId) {
+		if(repo.getCountOfClientsInClientCompany(clientCompanyName, companyId) == 1) {
+			//delete the old client company as it is no longer used
+			clientCompanyRepo.delete(clientCompanyRepo.findByClientCompanyNameAndCompanyId(clientCompanyName, companyId));
+		}
 	}
+
+
+	
 
 	@Override
 	public String deleteClient(Client client) {
 		// TODO Auto-generated method stub
 		
-		Client client1 = repo.findByNameAndEmailAndCompanyId(client.getName(), client.getEmail(), client.getCompanyId());
+		Client client1 = repo.findByNameAndEmailAndCompanyId( client.getEmail(), client.getCompanyId());
 		
 		if(client1!=null) {
 			repo.delete(client1);
@@ -161,12 +164,7 @@ public class ClientServiceImpl implements ClientService {
 	    return response;
 	}
 
-	@Override
-    public PaginatedResponseDto findByName(String name, int page) {
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("name").ascending());
-        Page<Client> clientPage = repo.findByNameContainingIgnoreCase(name, pageable);
-        return buildPaginatedResponse(clientPage, page);
-    }
+	
 	
 	@Override
     public PaginatedResponseDto getIndividualClients(String companyId, int page) {
@@ -193,23 +191,58 @@ public class ClientServiceImpl implements ClientService {
         response.setList(clientPage.getContent());
         return response;
     }
+	private String validate(ClientExcelDto dto) {
+		if(dto.getBusinessCategory() == null || dto.getBusinessCategory().length() == 0) {
+			return "Business Category not available for "+dto.getEmail();
+		}
+		
+		if(dto.getClientCompanyName() == null || dto.getClientCompanyName().length() == 0) {
+			return "Company Name for User not available for "+dto.getEmail();
+		}
+		
+		if(dto.getEmail() == null || dto.getEmail().length() == 0) {
+			return "Email for User not available for "+dto.getFirstName();
+		}
+		
+		if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
+			return "Letswork Center for User not available for "+dto.getEmail();
+		}
+		
+		if(dto.getPhone() == null || dto.getPhone().length() == 0) {
+			return "Phone for User not available for "+dto.getEmail();
+		}
+		
+		if(dto.getFirstName() == null || dto.getFirstName().length() == 0) {
+			return "First Name for User not available for "+dto.getEmail();
+		}
+		
+		if(dto.getLastName() == null || dto.getLastName().length() == 0) {
+			return "Last Name for User not available for "+dto.getEmail();
+		}
+		
+		return "ok";
+	}
 	
 	@Override
 	public String uploadClientsFromExcel(MultipartFile file) {
         try {
             List<ClientExcelDto> clientsFromExcel = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, ClientExcelDto.class);
-
+            	for(ClientExcelDto dto : clientsFromExcel) {
+            		validate(dto);
+            	}
+            
             List<String> responses = clientsFromExcel.stream().map(dto -> {
                 Client client = Client.builder()
-                        .name(dto.getName())
-                        .email(dto.getEmail())
-                        .phone(dto.getPhone())
-                        .clientCompanyName(dto.getClientCompanyName())
-                        .letsWorkCentre(dto.getLetsWorkCentre())
-                        .companyId(dto.getCompanyId())
-                        .businessCategory(dto.getBusinessCategory())
+                        .firstName(dto.getFirstName().trim())
+                        .lastName(dto.getLastName().trim())
+                        .email(dto.getEmail().trim())
+                        .phone(dto.getPhone().trim())
+                        .clientCompanyName(dto.getClientCompanyName().trim())
+                        .letsWorkCentre(dto.getLetsWorkCentre().trim())
+                        .companyId(dto.getCompanyId().trim())
+                        .businessCategory(dto.getBusinessCategory().trim())
                         .build();
-
+                	
                 return saveOrUpdate(client);
             }).collect(Collectors.toList());
 
@@ -222,7 +255,7 @@ public class ClientServiceImpl implements ClientService {
         }
     }
 
-
+	
 	
 
 }

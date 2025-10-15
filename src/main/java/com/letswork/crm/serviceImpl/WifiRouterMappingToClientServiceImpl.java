@@ -42,7 +42,7 @@ public class WifiRouterMappingToClientServiceImpl implements WifiRouterMappingTo
 			return "Wifi router with name "+mapping.getWifiName()+" does not exists";
 		}
 		
-		Client client = clientRepo.findByNameAndEmailAndCompanyId(mapping.getClientName(), mapping.getClientEmail(), mapping.getCompanyId());
+		Client client = clientRepo.findByEmailAndCompanyId( mapping.getClientEmail(), mapping.getCompanyId());
 		
 		if(client==null) {
 			return "Client with name "+mapping.getClientName()+" does not exists";

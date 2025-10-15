@@ -18,22 +18,10 @@ import com.letswork.crm.entities.LetsWorkCentre;
 public interface ClientCompanyRepository extends JpaRepository<ClientCompany, Long> {
 
     
-    ClientCompany findByClientCompanyName(String companyName);
-
-    
-    List<ClientCompany> findByIndustry(String industry);
-    
-    
-    List<ClientCompany> findAll();
-    
-    Page<ClientCompany> findAll(Pageable pageable);
-    
-    
     List<ClientCompany> findByLetsWorkCentre(LetsWorkCentre letsWorkCentre);
     
-    @Query("SELECT c FROM ClientCompany c WHERE c.clientCompanyName = :companyName AND c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
-    ClientCompany findByClientCompanyNameAndLetsWorkCentreAndCompanyId(@Param("companyName") String companyName,
-                                                          @Param("letsWorkCentre") String letsWorkCentre,
+    @Query("SELECT c FROM ClientCompany c WHERE c.clientCompanyName = :companyName AND c.companyId = :companyId")
+    ClientCompany findByClientCompanyNameAndCompanyId(@Param("companyName") String companyName,
                                                           @Param("companyId") String companyId);	
     
     @Query("SELECT c FROM ClientCompany c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
@@ -44,5 +32,7 @@ public interface ClientCompanyRepository extends JpaRepository<ClientCompany, Lo
     Page<ClientCompany> findByLetsWorkCentreAndCompanyId(@Param("letsWorkCentre") String letsWorkCentre,
                                                   @Param("companyId") String companyId,
                                                   Pageable pageable);
+    
+   
     
 }

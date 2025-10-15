@@ -45,20 +45,9 @@ public class ClientController {
 	    return ResponseEntity.ok(response);
 	}
 	
-	@GetMapping("/list of clients with same names")
-	public List<Client> findByName(@RequestParam String client, @RequestParam String token){
-		
-		return service.findByName(client);
-		
-	}
 	
-	@GetMapping("/list of clients with same names paginated")
-    public ResponseEntity<PaginatedResponseDto> findByName(
-            @RequestParam String client,
-            @RequestParam String token,
-            @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(service.findByName(client, page));
-    }
+	
+	
 	
 	@GetMapping("/get clients by company")
     public ResponseEntity<List<Client>> getClientsByCompany(@RequestParam String companyName, @RequestParam String companyId, @RequestParam String token) {

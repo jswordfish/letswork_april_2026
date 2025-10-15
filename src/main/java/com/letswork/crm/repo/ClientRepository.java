@@ -33,9 +33,8 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     
     Page<Client> findByNameContainingIgnoreCase(String name, Pageable pageable);
     
-    @Query("SELECT c FROM Client c WHERE c.name = :name AND c.email = :email AND c.companyId = :companyId")
-    Client findByNameAndEmailAndCompanyId(@Param("name") String name,
-                                         @Param("email") String email,
+    @Query("SELECT c FROM Client c WHERE c.email = :email AND c.companyId = :companyId")
+    Client findByNameAndEmailAndCompanyId(@Param("email") String email,
                                          @Param("companyId") String companyId);
     
  
@@ -65,5 +64,9 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     Page<Client> findIndividualClientsByLetsWorkCentre(@Param("letsWorkCentre") String letsWorkCentre,
                                                 @Param("companyId") String companyId,
                                                 Pageable pageable);
+    
+    @Query("SELECT COUNT(c) FROM Client c WHERE c.clientCompanyName = :clientCompanyName AND c.companyId = :companyId")
+    Long getCountOfClientsInClientCompany(@Param("clientCompanyName") String clientCompanyName,
+                                                          @Param("companyId") String companyId);	
     
 }

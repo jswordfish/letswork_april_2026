@@ -9,8 +9,11 @@ import lombok.Setter;
 @Setter
 public class ClientExcelDto {
 	
-	@ExcelCellName("Name")
-    private String name;
+	@ExcelCellName("First Name")
+    private String firstName;
+	
+	@ExcelCellName("Last Name")
+    private String lastName;
 
     @ExcelCellName("Email")
     private String email;

@@ -67,7 +67,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 		}
 		
 		
-		ClientCompany com = repo.findByClientCompanyNameAndLetsWorkCentreAndCompanyId(clientCompany.getClientCompanyName(), clientCompany.getLetsWorkCentre(), clientCompany.getCompanyId());
+		ClientCompany com = repo.findByClientCompanyNameAndCompanyId(clientCompany.getClientCompanyName(), clientCompany.getCompanyId());
 		
 		if(com!=null) {
 			
@@ -113,11 +113,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	    return responses;
 	}
 
-	@Override
-	public List<ClientCompany> findByIndustry(String industry) {
-		// TODO Auto-generated method stub
-		return repo.findByIndustry(industry);
-	}
+	
 
 	@Override
 	public List<ClientCompany> listAll() {
@@ -128,7 +124,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	@Override
 	public String deleteCompany(ClientCompany clientCompany) {
 		// TODO Auto-generated method stub
-		ClientCompany com = repo.findByClientCompanyNameAndLetsWorkCentreAndCompanyId(clientCompany.getClientCompanyName(), clientCompany.getLetsWorkCentre(), clientCompany.getCompanyId());
+		ClientCompany com = repo.findByClientCompanyNameAndCompanyId(clientCompany.getClientCompanyName(),  clientCompany.getCompanyId());
 		
 		if(com!=null) {
 			repo.delete(com);
