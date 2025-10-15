@@ -18,11 +18,11 @@ public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Long> 
     ParkingSlot findByNameAndCompanyId(String name, String companyId);
 
     
-    @Query("SELECT p FROM ParkingSlot p WHERE p.location = :location AND p.companyId = :companyId")
-    Page<ParkingSlot> findByLocation(String location, String companyId, Pageable pageable);
+    @Query("SELECT p FROM ParkingSlot p WHERE p.letsWorkCentre = :letsWorkCentre AND p.companyId = :companyId")
+    Page<ParkingSlot> findByLetsWorkCentre(String letsWorkCentre, String companyId, Pageable pageable);
 
     
-    @Query("SELECT p FROM ParkingSlot p WHERE p.name = :name AND p.location = :location AND p.companyId = :companyId")
-    ParkingSlot findByNameLocationAndCompany(String name, String location, String companyId);
+    @Query("SELECT p FROM ParkingSlot p WHERE p.name = :name AND p.letsWorkCentre = :letsWorkCentre AND p.companyId = :companyId")
+    ParkingSlot findByNameLetsWorkCentreAndCompany(String name, String letsWorkCentre, String companyId);
     
 }

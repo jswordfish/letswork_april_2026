@@ -44,13 +44,13 @@ public class ParkingSlotController {
 	    return ResponseEntity.ok(responses);
 	}
 
-    @GetMapping("/list slots by location")
-    public PaginatedResponseDto listByLocation(
-            @RequestParam String location,
+    @GetMapping("/list slots by LetsWorkCentre")
+    public PaginatedResponseDto listByLetsWorkCentre(
+            @RequestParam String letsWorkCentre,
             @RequestParam String companyId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam String token) {
-        return service.listByLocation(location, companyId, page);
+        return service.listByLetsWorkCentre(letsWorkCentre, companyId, page);
     }
 
     @DeleteMapping("/delete parking slot")

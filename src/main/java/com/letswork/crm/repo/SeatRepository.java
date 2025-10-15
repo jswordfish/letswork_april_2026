@@ -15,15 +15,15 @@ import com.letswork.crm.enums.SeatType;
 @Repository
 public interface SeatRepository extends JpaRepository<Seat, Long> {
 	
-    Page<Seat> findByCompanyIdAndLocation(String companyId, String location, Pageable pageable);
+    Page<Seat> findByCompanyIdAndLetsWorkCentre(String companyId, String letsWorkCentre, Pageable pageable);
     
-    Optional<Seat> findBySeatTypeAndCompanyIdAndLocation(SeatType seatType, String companyId, String location);
+    Optional<Seat> findBySeatTypeAndCompanyIdAndLetsWorkCentre(SeatType seatType, String companyId, String letsWorkCentre);
     
-    Optional<Seat> findBySeatTypeAndCompanyIdAndLocationAndSeatNumber(SeatType seatType, String companyId, String location, int seatNumber);
+    Optional<Seat> findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumber(SeatType seatType, String companyId, String letsWorkCentre, String seatNumber);
     
-    @Query("SELECT COUNT(s) FROM Seat s WHERE s.location = :location AND s.seatType = :seatType AND s.companyId = :companyId")
-    long countByCompanyIdAndLocationAndSeatType(@Param("companyId") String companyId,
-                                                @Param("location") String location,
+    @Query("SELECT COUNT(s) FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre AND s.seatType = :seatType AND s.companyId = :companyId")
+    long countByCompanyIdAndLetsWorkCentreAndSeatType(@Param("companyId") String companyId,
+                                                @Param("letsWorkCentre") String letsWorkCentre,
                                                 @Param("seatType") SeatType seatType);
     
 }

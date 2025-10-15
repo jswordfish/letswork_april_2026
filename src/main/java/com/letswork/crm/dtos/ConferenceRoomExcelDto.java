@@ -14,7 +14,7 @@ public class ConferenceRoomExcelDto {
     private Integer capacity;
 
     @ExcelCellName("LetsWork Centre")
-    private String location;
+    private String letsWorkCentre;
     
     @ExcelCellName("Company Id")
     private String companyId;

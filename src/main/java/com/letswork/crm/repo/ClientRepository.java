@@ -53,16 +53,16 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     @Query("SELECT c FROM Client c WHERE c.isIndividual = true AND c.companyId = :companyId")
     List<Client> findIndividualClients(@Param("companyId") String companyId);
     
-    @Query("SELECT c FROM Client c WHERE c.isIndividual = true AND c.companyId = :companyId")
+    @Query("SELECT c FROM Client c WHERE c.companyId = :companyId")
     Page<Client> findIndividualClients(@Param("companyId") String companyId, Pageable pageable);
     
     
-    @Query("SELECT c FROM Client c WHERE c.isIndividual = true AND c.companyId = :companyId AND c.location = :location")
-    List<Client> findIndividualClientsByLocation(@Param("location") String location,
+    @Query("SELECT c FROM Client c WHERE c.companyId = :companyId AND c.letsWorkCentre = :letsWorkCentre")
+    List<Client> findIndividualClientsByLetsWorkCentre(@Param("letsWorkCentre") String letsWorkCentre,
                                                 @Param("companyId") String companyId);
     
-    @Query("SELECT c FROM Client c WHERE c.isIndividual = true AND c.companyId = :companyId AND c.location = :location")
-    Page<Client> findIndividualClientsByLocation(@Param("location") String location,
+    @Query("SELECT c FROM Client c WHERE c.companyId = :companyId AND c.letsWorkCentre = :letsWorkCentre")
+    Page<Client> findIndividualClientsByLetsWorkCentre(@Param("letsWorkCentre") String letsWorkCentre,
                                                 @Param("companyId") String companyId,
                                                 Pageable pageable);
     

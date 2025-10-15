@@ -28,14 +28,14 @@ public class Seat extends Base{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-	private String location;
+	private String letsWorkCentre;
 	
 	
 	
 	@Enumerated(EnumType.STRING)
 	private SeatType seatType;
 	
-	private int seatNumber;
+	private String seatNumber;
 	
 	private int costPerDay;
 	

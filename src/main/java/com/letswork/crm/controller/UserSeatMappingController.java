@@ -31,12 +31,12 @@ public class UserSeatMappingController {
     @GetMapping("/list")
     public ResponseEntity<PaginatedResponseDto> listMappings(
             @RequestParam String companyId,
-            @RequestParam String location,
+            @RequestParam String letsWorkCentre,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam String token) {
 
-        return ResponseEntity.ok(userSeatMappingService.listMappings(companyId, location, pageNo, pageSize));
+        return ResponseEntity.ok(userSeatMappingService.listMappings(companyId, letsWorkCentre, pageNo, pageSize));
     }
 
     @DeleteMapping("/delete")

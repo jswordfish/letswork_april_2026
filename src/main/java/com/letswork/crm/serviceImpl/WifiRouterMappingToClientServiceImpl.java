@@ -36,7 +36,7 @@ public class WifiRouterMappingToClientServiceImpl implements WifiRouterMappingTo
 	public String saveOrUpdate(WifiRouterMappingToClient mapping) {
 		// TODO Auto-generated method stub
 		
-		WifiRouter wifi = wifiRouterRepo.findByNameLocationAndCompany(mapping.getWifiName(), mapping.getLocation(), mapping.getCompanyId());
+		WifiRouter wifi = wifiRouterRepo.findByNameLetsWorkCentreAndCompany(mapping.getWifiName(), mapping.getLetsWorkCentre(), mapping.getCompanyId());
 		
 		if(wifi==null) {
 			return "Wifi router with name "+mapping.getWifiName()+" does not exists";
@@ -48,7 +48,7 @@ public class WifiRouterMappingToClientServiceImpl implements WifiRouterMappingTo
 			return "Client with name "+mapping.getClientName()+" does not exists";
 		}
 		
-		WifiRouterMappingToClient mapping2 = repo.findByWifiNameAndClientEmailAndLocation(mapping.getWifiName(), mapping.getClientEmail(), mapping.getLocation());
+		WifiRouterMappingToClient mapping2 = repo.findByWifiNameAndClientEmailAndLetsWorkCentre(mapping.getWifiName(), mapping.getClientEmail(), mapping.getLetsWorkCentre());
 		
 		if(mapping2!=null) {
 			
@@ -66,7 +66,7 @@ public class WifiRouterMappingToClientServiceImpl implements WifiRouterMappingTo
 	public String deleteMapping(WifiRouterMappingToClient mapping) {
 		// TODO Auto-generated method stub
 		
-		WifiRouterMappingToClient mapping2 = repo.findByWifiNameAndClientEmailAndLocation(mapping.getWifiName(), mapping.getClientEmail(), mapping.getLocation());
+		WifiRouterMappingToClient mapping2 = repo.findByWifiNameAndClientEmailAndLetsWorkCentre(mapping.getWifiName(), mapping.getClientEmail(), mapping.getLetsWorkCentre());
 				
 		if(mapping2!=null) {
 			
@@ -84,10 +84,10 @@ public class WifiRouterMappingToClientServiceImpl implements WifiRouterMappingTo
 	private static final int PAGE_SIZE = 10;
 
 	@Override
-	public PaginatedResponseDto getClientsByWifi(String wifiName, String location, String companyId, int page) {
+	public PaginatedResponseDto getClientsByWifi(String wifiName, String letsWorkCentre, String companyId, int page) {
 		// TODO Auto-generated method stub
 		Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        Page<Client> resultPage = repo.findClientsByWifi(wifiName, location, companyId, pageable);
+        Page<Client> resultPage = repo.findClientsByWifi(wifiName, letsWorkCentre, companyId, pageable);
         return buildPaginatedResponse(resultPage, page);
 	}
 

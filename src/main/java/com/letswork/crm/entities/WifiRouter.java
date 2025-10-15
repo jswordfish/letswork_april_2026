@@ -26,7 +26,7 @@ public class WifiRouter extends Base{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-	private String location;
+	private String letsWorkCentre;
 	
 	private String wifiName;
 	

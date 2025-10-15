@@ -7,7 +7,7 @@ public interface UserSeatMappingService {
 	
 	UserSeatMapping saveOrUpdate(UserSeatMapping mapping);
 
-    PaginatedResponseDto listMappings(String companyId, String location, int pageNo, int pageSize);
+    PaginatedResponseDto listMappings(String companyId, String letsWorkCentre, int pageNo, int pageSize);
 
     void deleteMapping(Long id);
 

@@ -47,17 +47,18 @@ public class CabinServiceImpl implements CabinService {
 
 
     	
-        if (!StringUtils.hasText(cabin.getCabinName()) || !StringUtils.hasText(cabin.getLocation())) {
-            throw new RuntimeException("Cabin name and location are required.");
+        if (!StringUtils.hasText(cabin.getCabinName()) || !StringUtils.hasText(cabin.getLetsWorkCentre())) {
+            throw new RuntimeException("Cabin name and letsWorkCentre are required.");
         }
 
-        Optional<Cabin> existing = cabinRepository.findByCabinNameAndLocationAndCompanyId(
-                cabin.getCabinName(), cabin.getLocation(), cabin.getCompanyId());
+        Optional<Cabin> existing = cabinRepository.findByCabinNameAndLetsWorkCentreAndCompanyId(
+                cabin.getCabinName(), cabin.getLetsWorkCentre(), cabin.getCompanyId());
 
         if (existing.isPresent()) {
             Cabin old = existing.get();
             old.setCabinNumber(cabin.getCabinNumber());
             old.setTotalSeats(cabin.getTotalSeats());
+            old.setDescription(cabin.getDescription());
             return cabinRepository.save(old);
         } else {
             return cabinRepository.save(cabin);
@@ -91,9 +92,10 @@ public class CabinServiceImpl implements CabinService {
             try {
                 Cabin cabin = Cabin.builder()
                         .cabinName(dto.getCabinName())
-                        .location(dto.getLocation())
+                        .letsWorkCentre(dto.getLetsWorkCentre())
                         .cabinNumber(dto.getCabinNumber())
                         .totalSeats(dto.getTotalSeats())
+                        .description(dto.getDescription())
                         .companyId(dto.getCompanyId())
                         .build();
 

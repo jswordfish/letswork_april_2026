@@ -25,12 +25,14 @@ public class Cabin extends Base{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-	private String location;
+	private String letsWorkCentre;
 	
 	private String cabinName;
 	
 	private String cabinNumber;
 	
 	private int totalSeats;
+	
+	private String description;
 
 }

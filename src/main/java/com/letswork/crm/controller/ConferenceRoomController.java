@@ -47,18 +47,18 @@ public class ConferenceRoomController {
 	    return ResponseEntity.ok(responses);
 	}
 	
-	@GetMapping("/Find by location")
-	public List<ConferenceRoom> findByLocation(@RequestParam String location, @RequestParam String companyId, @RequestParam String token){
-		return service.findByLocation(location, companyId);
+	@GetMapping("/Find by LetsWorkCentre")
+	public List<ConferenceRoom> findByLetsWorkCentre(@RequestParam String letsWorkCentre, @RequestParam String companyId, @RequestParam String token){
+		return service.findByLetsWorkCentre(letsWorkCentre, companyId);
 	}
 	
-	@GetMapping("/find by location paginated")
-    public ResponseEntity<PaginatedResponseDto> findByLocation(
-            @RequestParam String location,
+	@GetMapping("/find by LetsWorkCentre paginated")
+    public ResponseEntity<PaginatedResponseDto> findByLetsWorkCentre(
+            @RequestParam String letsWorkCentre,
             @RequestParam String companyId,
             @RequestParam String token,
             @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(service.findByLocation(location, companyId, page));
+        return ResponseEntity.ok(service.findByLetsWorkCentre(letsWorkCentre, companyId, page));
     }
 
     

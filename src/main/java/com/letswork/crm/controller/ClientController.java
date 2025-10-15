@@ -81,9 +81,9 @@ public class ClientController {
         return ResponseEntity.ok(service.getIndividualClients(companyId));
     }
 	
-	@GetMapping("/individuals by location")
-    public ResponseEntity<List<Client>> getIndividualClientsByLocation(@RequestParam String location, @RequestParam String companyId, @RequestParam String token) {
-        return ResponseEntity.ok(service.getIndividualClientsByLocation(location, companyId));
+	@GetMapping("/individuals by LetsWorkCentre")
+    public ResponseEntity<List<Client>> getIndividualClientsByLetsWorkCentre(@RequestParam String letsWorkCentre, @RequestParam String companyId, @RequestParam String token) {
+        return ResponseEntity.ok(service.getIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId));
     }
 	
 	@DeleteMapping("/delete client")
@@ -102,13 +102,13 @@ public class ClientController {
     }
 
     
-    @GetMapping("/individuals by location paginated")
-    public ResponseEntity<PaginatedResponseDto> getIndividualClientsByLocation(
-            @RequestParam String location,
+    @GetMapping("/individuals by LetsWorkCentre paginated")
+    public ResponseEntity<PaginatedResponseDto> getIndividualClientsByLetsWorkCentre(
+            @RequestParam String letsWorkCentre,
             @RequestParam String companyId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam String token) {
-        return ResponseEntity.ok(service.getIndividualClientsByLocation(location, companyId, page));
+        return ResponseEntity.ok(service.getIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId, page));
     }
 
 }

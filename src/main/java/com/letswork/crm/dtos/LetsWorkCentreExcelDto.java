@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LocationExcelDto {
+public class LetsWorkCentreExcelDto {
 	
 	
 	@ExcelCellName("Name")

@@ -31,7 +31,7 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
 	public String saveOrUpdate(ParkingSlot parkingSlot) {
 		// TODO Auto-generated method stub
 		
-		ParkingSlot slot = repo.findByNameLocationAndCompany(parkingSlot.getName(), parkingSlot.getLocation(), parkingSlot.getCompanyId());
+		ParkingSlot slot = repo.findByNameLetsWorkCentreAndCompany(parkingSlot.getName(), parkingSlot.getLetsWorkCentre(), parkingSlot.getCompanyId());
 		
 		if(slot!=null) {
 			
@@ -59,7 +59,7 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
 	        try {
 	            ParkingSlot slot = ParkingSlot.builder()
 	                    .name(dto.getName())
-	                    .location(dto.getLocation())
+	                    .letsWorkCentre(dto.getLetsWorkCentre())
 	                    .floorNumber(dto.getFloorNumber())
 	                    .otherDetails(dto.getOtherDetails())
 	                    .companyId(dto.getCompanyId())
@@ -76,9 +76,9 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
 	}
 
 	@Override
-	public PaginatedResponseDto listByLocation(String location, String companyId, int page) {
+	public PaginatedResponseDto listByLetsWorkCentre(String letsWorkCentre, String companyId, int page) {
 		// TODO Auto-generated method stub
-		Page<ParkingSlot> parkingPage = repo.findByLocation(location, companyId, PageRequest.of(page, PAGE_SIZE));
+		Page<ParkingSlot> parkingPage = repo.findByLetsWorkCentre(letsWorkCentre, companyId, PageRequest.of(page, PAGE_SIZE));
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom((int) parkingPage.getPageable().getOffset() + 1);
@@ -95,7 +95,7 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
 	public String deleteParkingSlot(ParkingSlot parkingSlot) {
 		// TODO Auto-generated method stub
 		
-		ParkingSlot slot = repo.findByNameLocationAndCompany(parkingSlot.getName(), parkingSlot.getLocation(), parkingSlot.getCompanyId());
+		ParkingSlot slot = repo.findByNameLetsWorkCentreAndCompany(parkingSlot.getName(), parkingSlot.getLetsWorkCentre(), parkingSlot.getCompanyId());
 		
 		if(slot!=null) {
 			

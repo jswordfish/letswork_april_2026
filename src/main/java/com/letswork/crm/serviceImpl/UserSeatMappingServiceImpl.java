@@ -43,15 +43,15 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
     		
     	}
     	
-    	Optional<Seat> seat = seatRepo.findBySeatTypeAndCompanyIdAndLocationAndSeatNumber(mapping.getSeatType(), mapping.getCompanyId(), mapping.getLocation(), mapping.getSeatNumber());
+    	Optional<Seat> seat = seatRepo.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumber(mapping.getSeatType(), mapping.getCompanyId(), mapping.getLetsWorkCentre(), mapping.getSeatNumber());
     	
     	if(seat.isEmpty()) {
     		throw new RuntimeException("Seat does not exists");
     	}
     	
         Optional<UserSeatMapping> existingMappingOpt =
-                userSeatMappingRepository.findByEmailAndCompanyIdAndLocation(
-                        mapping.getEmail(), mapping.getCompanyId(), mapping.getLocation());
+                userSeatMappingRepository.findByEmailAndCompanyIdAndLetsWorkCentre(
+                        mapping.getEmail(), mapping.getCompanyId(), mapping.getLetsWorkCentre());
 
         if (existingMappingOpt.isPresent()) {
             UserSeatMapping existing = existingMappingOpt.get();
@@ -68,9 +68,9 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
     }
 
     @Override
-    public PaginatedResponseDto listMappings(String companyId, String location, int pageNo, int pageSize) {
+    public PaginatedResponseDto listMappings(String companyId, String letsWorkCentre, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("id").descending());
-        Page<UserSeatMapping> page = userSeatMappingRepository.findByCompanyIdAndLocation(companyId, location, pageable);
+        Page<UserSeatMapping> page = userSeatMappingRepository.findByCompanyIdAndLetsWorkCentre(companyId, letsWorkCentre, pageable);
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom((pageNo - 1) * pageSize + 1);

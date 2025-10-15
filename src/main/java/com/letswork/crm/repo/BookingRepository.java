@@ -24,12 +24,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     
     @Query("SELECT b FROM Booking b " +
             "WHERE b.conferenceRoomName = :roomName " +
-            "AND b.location = :location " +
+            "AND b.letsWorkCentre = :letsWorkCentre " +
             "AND b.companyId = :companyId " +
             "AND b.isActive = true " +
             "AND ((b.startTime < :endTime AND b.endTime > :startTime))")
      List<Booking> findConflictingBookings(@Param("roomName") String roomName,
-                                          @Param("location") String location,
+                                          @Param("letsWorkCentre") String letsWorkCentre,
                                           @Param("companyId") String companyId,
                                           @Param("startTime") LocalDateTime startTime,
                                           @Param("endTime") LocalDateTime endTime);

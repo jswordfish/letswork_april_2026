@@ -60,18 +60,18 @@ public class ClientCompanyController {
     }
 
     
-    @GetMapping("/companies by location paginated")
-    public ResponseEntity<PaginatedResponseDto> getClientCompaniesByLocation(
-            @RequestParam String location,
+    @GetMapping("/companies by LetsWorkCentre paginated")
+    public ResponseEntity<PaginatedResponseDto> getClientCompaniesByLetsWorkCentre(
+            @RequestParam String letsWorkCentre,
             @RequestParam String companyId,
             @RequestParam String token,
             @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(service.getClientCompaniesByLocation(location, companyId, page));
+        return ResponseEntity.ok(service.getClientCompaniesByLetsWorkCentre(letsWorkCentre, companyId, page));
     }
 	
-	@GetMapping("/companies by location")
-    public ResponseEntity<List<ClientCompany>> getClientCompaniesByLocation(@RequestParam String location, @RequestParam String companyId, @RequestParam String token) {
-        return ResponseEntity.ok(service.getClientCompaniesByLocation(location, companyId));
+	@GetMapping("/companies by LetsWorkCentre")
+    public ResponseEntity<List<ClientCompany>> getClientCompaniesByLetsWorkCentre(@RequestParam String letsWorkCentre, @RequestParam String companyId, @RequestParam String token) {
+        return ResponseEntity.ok(service.getClientCompaniesByLetsWorkCentre(letsWorkCentre, companyId));
     }
 	
 	@DeleteMapping("/delete company")

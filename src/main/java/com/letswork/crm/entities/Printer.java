@@ -30,7 +30,7 @@ public class Printer extends Base{
 	
 	private String printerName;
 	
-	private String location;
+	private String letsWorkCentre;
 	
 	@Enumerated(EnumType.STRING)  
     @Column(nullable = false)

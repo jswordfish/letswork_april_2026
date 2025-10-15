@@ -18,13 +18,13 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Location extends Base{
+public class LetsWorkCentre extends Base{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Location name is required")
+    @NotBlank(message = "LetsWorkCentre name is required")
     private String name;
 
     private Integer totalConferenceRooms;

@@ -13,7 +13,7 @@ public interface ParkingSlotService {
 	
 	String saveOrUpdate(ParkingSlot parkingSlot);
 
-    PaginatedResponseDto listByLocation(String location, String companyId, int page);
+    PaginatedResponseDto listByLetsWorkCentre(String letsWorkCentre, String companyId, int page);
 
     String deleteParkingSlot(ParkingSlot parkingSlot);
     

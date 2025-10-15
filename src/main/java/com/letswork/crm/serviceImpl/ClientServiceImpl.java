@@ -58,12 +58,12 @@ public class ClientServiceImpl implements ClientService {
 			
 		}
 		
-		ClientCompany company = clientCompanyRepo.findByClientCompanyNameAndLocationAndCompanyId(client.getClientCompanyName(), client.getLocation(), client.getCompanyId());
+		ClientCompany company = clientCompanyRepo.findByClientCompanyNameAndLetsWorkCentreAndCompanyId(client.getClientCompanyName(), client.getLetsWorkCentre(), client.getCompanyId());
 		
 		if(company == null) {
 //			return "No company with the name "+client.getClientCompanyName()+" exists";
 			ClientCompany comp = ClientCompany.builder()
-					.location(client.getLocation())
+					.letsWorkCentre(client.getLetsWorkCentre())
 					.clientCompanyName(client.getClientCompanyName())
 					.industry(client.getBusinessCategory())
 					.companyId(client.getCompanyId())//updated company id
@@ -79,10 +79,9 @@ public class ClientServiceImpl implements ClientService {
 			client1.setName(client.getName());
 			client1.setPhone(client.getPhone());
 			client1.setEmail(client.getEmail());
-			client1.setIsIndividual(client.getIsIndividual());
 			client1.setCompanyId(client.getCompanyId());
 			client1.setClientCompanyName(client.getClientCompanyName());
-			client1.setLocation(client.getLocation());
+			client1.setLetsWorkCentre(client.getLetsWorkCentre());
 			client1.setBusinessCategory(client.getBusinessCategory());
 
 			
@@ -135,9 +134,9 @@ public class ClientServiceImpl implements ClientService {
 
 
 	@Override
-	public List<Client> getIndividualClientsByLocation(String location, String companyId) {
+	public List<Client> getIndividualClientsByLetsWorkCentre(String letsWorkCentre, String companyId) {
 		// TODO Auto-generated method stub
-		return repo.findIndividualClientsByLocation(location, companyId);
+		return repo.findIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId);
 	}
 
 
@@ -176,11 +175,11 @@ public class ClientServiceImpl implements ClientService {
         return buildPaginatedResponse(clientPage, page);
     }
 
-    // ✅ Get individual clients by location
+    // ✅ Get individual clients by letsWorkCentre
     @Override
-    public PaginatedResponseDto getIndividualClientsByLocation(String location, String companyId, int page) {
+    public PaginatedResponseDto getIndividualClientsByLetsWorkCentre(String letsWorkCentre, String companyId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("id").descending());
-        Page<Client> clientPage = repo.findIndividualClientsByLocation(location, companyId, pageable);
+        Page<Client> clientPage = repo.findIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId, pageable);
         return buildPaginatedResponse(clientPage, page);
     }
 	
@@ -205,9 +204,8 @@ public class ClientServiceImpl implements ClientService {
                         .name(dto.getName())
                         .email(dto.getEmail())
                         .phone(dto.getPhone())
-                        .isIndividual(dto.getIsIndividual() != null ? dto.getIsIndividual() : true)
                         .clientCompanyName(dto.getClientCompanyName())
-                        .location(dto.getLocation())
+                        .letsWorkCentre(dto.getLetsWorkCentre())
                         .companyId(dto.getCompanyId())
                         .businessCategory(dto.getBusinessCategory())
                         .build();

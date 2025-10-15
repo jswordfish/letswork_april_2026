@@ -26,7 +26,7 @@ public class WifiRouterMappingToClient extends Base{
 	
 	private String wifiName;
 	
-	private String location;
+	private String letsWorkCentre;
 	
 	private String clientName;
 	

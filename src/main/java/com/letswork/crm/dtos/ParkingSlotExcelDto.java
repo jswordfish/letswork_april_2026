@@ -11,7 +11,7 @@ public class ParkingSlotExcelDto {
     private String name;
 
     @ExcelCellName("LetsWork Centre")
-    private String location;
+    private String letsWorkCentre;
 
     @ExcelCellName("Floor Number")
     private String floorNumber;

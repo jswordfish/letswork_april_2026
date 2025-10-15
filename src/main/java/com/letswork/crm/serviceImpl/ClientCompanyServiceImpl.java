@@ -16,12 +16,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.dtos.ClientCompanyExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ClientCompany;
+import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.ClientCompanyRepository;
 import com.letswork.crm.repo.ClientRepository;
-import com.letswork.crm.repo.LocationRepository;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.service.ClientCompanyService;
-import com.letswork.crm.service.LocationService;
+import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
@@ -39,10 +40,10 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	ClientRepository clientRepo;
 	
 	@Autowired
-	LocationService locationService;
+	LetsWorkCentreService LetsWorkCentreService;
 	
 	@Autowired
-	LocationRepository locationRepo;
+	LetsWorkCentreRepository LetsWorkCentreRepo;
 	
 	@Autowired
 	TenantService tenantService;
@@ -59,14 +60,21 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 			
 		}
 		
-		ClientCompany com = repo.findByClientCompanyNameAndLocationAndCompanyId(clientCompany.getClientCompanyName(), clientCompany.getLocation(), clientCompany.getCompanyId());
+		LetsWorkCentre centre = LetsWorkCentreRepo.findByNameAndCompanyId(clientCompany.getCompanyName(), clientCompany.getCompanyId());
+		
+		if(centre==null) {
+			throw new RuntimeException("This LetsWorkCentre does not exists");
+		}
+		
+		
+		ClientCompany com = repo.findByClientCompanyNameAndLetsWorkCentreAndCompanyId(clientCompany.getClientCompanyName(), clientCompany.getLetsWorkCentre(), clientCompany.getCompanyId());
 		
 		if(com!=null) {
 			
 			com.setClientCompanyName(clientCompany.getClientCompanyName());
 			
 			com.setIndustry(clientCompany.getIndustry());
-			com.setLocation(clientCompany.getLocation());
+			com.setLetsWorkCentre(clientCompany.getLetsWorkCentre());
 		
 			repo.save(com);
 			return "record updated";
@@ -90,7 +98,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	            ClientCompany company = ClientCompany.builder()
 	                    .clientCompanyName(dto.getClientCompanyName())
 	                    .industry(dto.getIndustry())
-	                    .location(dto.getLocation())
+	                    .letsWorkCentre(dto.getLetsWorkCentre())
 	                    .companyId(dto.getCompanyId())
 	                    .build();
 	            
@@ -120,7 +128,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	@Override
 	public String deleteCompany(ClientCompany clientCompany) {
 		// TODO Auto-generated method stub
-		ClientCompany com = repo.findByClientCompanyNameAndLocationAndCompanyId(clientCompany.getClientCompanyName(), clientCompany.getLocation(), clientCompany.getCompanyId());
+		ClientCompany com = repo.findByClientCompanyNameAndLetsWorkCentreAndCompanyId(clientCompany.getClientCompanyName(), clientCompany.getLetsWorkCentre(), clientCompany.getCompanyId());
 		
 		if(com!=null) {
 			repo.delete(com);
@@ -133,9 +141,9 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	
 
 	@Override
-	public List<ClientCompany> getClientCompaniesByLocation(String location, String companyId) {
+	public List<ClientCompany> getClientCompaniesByLetsWorkCentre(String letsWorkCentre, String companyId) {
 		// TODO Auto-generated method stub
-		return repo.findByLocationAndCompanyId(location, companyId);
+		return repo.findByLetsWorkCentreAndCompanyId(letsWorkCentre, companyId);
 	}
 	
 	private static final int PAGE_SIZE = 10; 
@@ -151,9 +159,9 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 
     
     @Override
-    public PaginatedResponseDto getClientCompaniesByLocation(String location, String companyId, int page) {
+    public PaginatedResponseDto getClientCompaniesByLetsWorkCentre(String letsWorkCentre, String companyId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("companyName").ascending());
-        Page<ClientCompany> companyPage = repo.findByLocationAndCompanyId(location, companyId, pageable);
+        Page<ClientCompany> companyPage = repo.findByLetsWorkCentreAndCompanyId(letsWorkCentre, companyId, pageable);
 
         return buildPaginatedResponse(companyPage, page);
     }

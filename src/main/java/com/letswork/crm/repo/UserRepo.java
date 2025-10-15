@@ -31,7 +31,7 @@ public interface UserRepo extends CrudRepository<User, Long> {
 	
 	//@Query(value="SELECT  u FROM User u WHERE ( u.companyId =:companyId) and ( (lower(u.firstName) LIKE lower(CONCAT('%',:search,'%')) OR (lower(u.lastName) LIKE lower(CONCAT('%',:search,'%')) OR (lower(u.location) LIKE lower(CONCAT('%',:search,'%')) OR (lower(u.email) LIKE lower(CONCAT('%',:search,'%')) OR (lower(u.empId) LIKE lower(CONCAT('%',:search,'%')) OR (lower(u.department) LIKE lower(CONCAT('%',:search,'%')) ) ")	
 	// 
-	@Query(value="SELECT  u FROM User u WHERE ( u.companyId =:companyId) and  ( lower(u.firstName) LIKE lower(CONCAT('%',:search,'%')) OR lower(u.lastName) LIKE lower(CONCAT('%',:search,'%')) OR lower(u.location) LIKE lower(CONCAT('%',:search,'%')) OR lower(u.email) LIKE lower(CONCAT('%',:search,'%')) OR lower(u.empId) LIKE lower(CONCAT('%',:search,'%')) OR lower(u.department) LIKE lower(CONCAT('%',:search,'%')) )  and (u.external is null or u.external =false)")
+	@Query(value="SELECT  u FROM User u WHERE ( u.companyId =:companyId) and  ( lower(u.firstName) LIKE lower(CONCAT('%',:search,'%')) OR lower(u.lastName) LIKE lower(CONCAT('%',:search,'%')) OR lower(u.letsWorkCentre) LIKE lower(CONCAT('%',:search,'%')) OR lower(u.email) LIKE lower(CONCAT('%',:search,'%')) OR lower(u.empId) LIKE lower(CONCAT('%',:search,'%')) OR lower(u.department) LIKE lower(CONCAT('%',:search,'%')) )  and (u.external is null or u.external =false)")
 	public List<User> searchUsers(@Param("search") String search, @Param("companyId") String companyId);
 	
 	

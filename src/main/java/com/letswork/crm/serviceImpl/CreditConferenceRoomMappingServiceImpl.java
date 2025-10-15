@@ -29,7 +29,7 @@ public class CreditConferenceRoomMappingServiceImpl implements CreditConferenceR
     @Override
     public CreditConferenceRoomMapping saveOrUpdate(CreditConferenceRoomMapping mapping) {
     	
-    	ConferenceRoom room = conferenceRoomRepository.findByNameAndLocationAndCompanyId(mapping.getConferenceRoomName(), mapping.getLocation(), mapping.getCompanyId());
+    	ConferenceRoom room = conferenceRoomRepository.findByNameAndLetsWorkCentreAndCompanyId(mapping.getConferenceRoomName(), mapping.getLetsWorkCentre(), mapping.getCompanyId());
     	
     	if(room==null) {
     		throw new RuntimeException("Conference room does not exists");
@@ -42,7 +42,7 @@ public class CreditConferenceRoomMappingServiceImpl implements CreditConferenceR
                 
                 // Manually update attributes to avoid changing Base properties inadvertently
                 existingMapping.setConferenceRoomName(mapping.getConferenceRoomName());
-                existingMapping.setLocation(mapping.getLocation());
+                existingMapping.setLetsWorkCentre(mapping.getLetsWorkCentre());
                 existingMapping.setPriceFor30Mins(mapping.getPriceFor30Mins());
                 existingMapping.setPriceFor1Hr(mapping.getPriceFor1Hr());
                 existingMapping.setPriceFor2Hrs(mapping.getPriceFor2Hrs());

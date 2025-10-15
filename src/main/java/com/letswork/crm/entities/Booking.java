@@ -47,7 +47,7 @@ public class Booking extends Base{
 		result = prime * result + ((companyId == null) ? 0 : companyId.hashCode());
 		result = prime * result + ((conferenceRoomName == null) ? 0 : conferenceRoomName.hashCode());
 		result = prime * result + ((endTime == null) ? 0 : endTime.hashCode());
-		result = prime * result + ((location == null) ? 0 : location.hashCode());
+		result = prime * result + ((letsWorkCentre == null) ? 0 : letsWorkCentre.hashCode());
 		result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
 		return result;
 	}
@@ -85,10 +85,10 @@ public class Booking extends Base{
 				return false;
 		} else if (!endTime.equals(other.endTime))
 			return false;
-		if (location == null) {
-			if (other.location != null)
+		if (letsWorkCentre == null) {
+			if (other.letsWorkCentre != null)
 				return false;
-		} else if (!location.equals(other.location))
+		} else if (!letsWorkCentre.equals(other.letsWorkCentre))
 			return false;
 		if (startTime == null) {
 			if (other.startTime != null)
@@ -101,7 +101,7 @@ public class Booking extends Base{
 
     private String conferenceRoomName;
     
-    private String location;  
+    private String letsWorkCentre;  
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;

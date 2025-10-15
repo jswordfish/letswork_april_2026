@@ -75,7 +75,7 @@ public class BookingServiceImpl implements BookingService {
 
 	@Override
 	public Booking createBooking(String clientName, String clientEmail, String conferenceRoomName,
-	                             String companyId, String location, String clientCompanyName,
+	                             String companyId, String letsWorkCentre, String clientCompanyName,
 	                             LocalDateTime startTime, LocalDateTime endTime) throws Exception {
 
 	    // 1. Validate client
@@ -83,13 +83,13 @@ public class BookingServiceImpl implements BookingService {
 	    if (client == null) throw new IllegalArgumentException("Client not found with provided details.");
 
 	    // 2. Validate client company
-	    ClientCompany clientCompany = clientCompanyRepository.findByClientCompanyNameAndLocationAndCompanyId(
-	            clientCompanyName, location, companyId);
+	    ClientCompany clientCompany = clientCompanyRepository.findByClientCompanyNameAndLetsWorkCentreAndCompanyId(
+	            clientCompanyName, letsWorkCentre, companyId);
 	    if (clientCompany == null) throw new IllegalArgumentException("Client company not found with provided details.");
 
 	    // 3. Validate conference room
-	    ConferenceRoom room = conferenceRoomRepository.findByNameAndLocationAndCompanyId(
-	            conferenceRoomName, location, companyId);
+	    ConferenceRoom room = conferenceRoomRepository.findByNameAndLetsWorkCentreAndCompanyId(
+	            conferenceRoomName, letsWorkCentre, companyId);
 	    if (room == null) throw new IllegalArgumentException("Conference room not found with provided details.");
 
 	    // 4. Validate time range
@@ -117,13 +117,13 @@ public class BookingServiceImpl implements BookingService {
 
 	    // 8. Check for booking conflicts
 	    List<Booking> conflicts = bookingRepository.findConflictingBookings(
-	            conferenceRoomName, location, companyId, startTime, endTime);
+	            conferenceRoomName, letsWorkCentre, companyId, startTime, endTime);
 	    if (!conflicts.isEmpty()) {
 	        throw new IllegalArgumentException("Booking conflict: Conference room is already booked in this slot.");
 	    }
 
 	    // 9. Calculate credits
-	    int requiredCredits = calculateCreditCost(conferenceRoomName, location, companyId, durationMinutes);
+	    int requiredCredits = calculateCreditCost(conferenceRoomName, letsWorkCentre, companyId, durationMinutes);
 
 	    // 10. Debit credits
 	    try {
@@ -155,7 +155,7 @@ public class BookingServiceImpl implements BookingService {
 	            .clientCompany(clientCompanyName)
 	            .conferenceRoomName(conferenceRoomName)
 	            .companyId(companyId)
-	            .location(location)
+	            .letsWorkCentre(letsWorkCentre)
 	            .startTime(startTime)
 	            .endTime(endTime)
 	            .bookingCode(bookingCode)
@@ -168,10 +168,10 @@ public class BookingServiceImpl implements BookingService {
 	    return bookingRepository.save(booking);
 	}
     
-private int calculateCreditCost(String roomName, String location, String companyId, long durationMinutes) {
+private int calculateCreditCost(String roomName, String letsWorkCentre, String companyId, long durationMinutes) {
         
         
-        CreditConferenceRoomMapping mapping = mappingRepository.findByConferenceRoomNameAndLocationAndCompanyId(roomName, location, companyId);
+        CreditConferenceRoomMapping mapping = mappingRepository.findByConferenceRoomNameAndLetsWorkCentreAndCompanyId(roomName, letsWorkCentre, companyId);
         
         if (mapping == null) {
             
@@ -233,7 +233,7 @@ public String cancelBooking(String bookingCode) {
                 int durationMinutes = (int) Duration.between(booking.getStartTime(), booking.getEndTime()).toMinutes();
                 int refundCredits = calculateCreditCost(
                         booking.getConferenceRoomName(),
-                        booking.getLocation(),
+                        booking.getLetsWorkCentre(),
                         booking.getCompanyId(),
                         durationMinutes
                 );

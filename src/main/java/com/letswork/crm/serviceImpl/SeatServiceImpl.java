@@ -17,12 +17,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.SeatExcelDto;
-import com.letswork.crm.entities.Location;
+import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.SeatType;
 import com.letswork.crm.repo.CabinRepository;
-import com.letswork.crm.repo.LocationRepository;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SeatRepository;
 import com.letswork.crm.repo.UserSeatMappingRepository;
 import com.letswork.crm.service.SeatService;
@@ -39,7 +39,7 @@ public class SeatServiceImpl implements SeatService {
     private SeatRepository seatRepository;
     
     @Autowired
-    private LocationRepository locationRepo;
+    private LetsWorkCentreRepository letsWorkCentreRepo;
     
     @Autowired
     private UserSeatMappingRepository userSeatMappingRepository;
@@ -61,10 +61,10 @@ public class SeatServiceImpl implements SeatService {
 			
 		}
     	
-    	Location loc = locationRepo.findByNameAndCompanyId(seat.getLocation(), seat.getCompanyId());
+		LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyId(seat.getLetsWorkCentre(), seat.getCompanyId());
     	
     	if(loc==null) {
-    		throw new RuntimeException("This location does not exists");
+    		throw new RuntimeException("This letsWorkCentre does not exists");
     	}
     	
     	
@@ -73,8 +73,8 @@ public class SeatServiceImpl implements SeatService {
                 throw new RuntimeException("Cabin name is required for SHARED_CABIN seat type");
             }
 
-            boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLocation(
-                    seat.getCabinName(), seat.getCompanyId(), seat.getLocation());
+            boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLetsWorkCentre(
+                    seat.getCabinName(), seat.getCompanyId(), seat.getLetsWorkCentre());
             if (!cabinExists) {
                 throw new RuntimeException("Cabin does not exist: " + seat.getCabinName());
             }
@@ -83,7 +83,7 @@ public class SeatServiceImpl implements SeatService {
         }
     	
     	
-        Optional<Seat> existingSeatOpt = seatRepository.findBySeatTypeAndCompanyIdAndLocationAndSeatNumber(seat.getSeatType(), seat.getCompanyId(), seat.getLocation(), seat.getSeatNumber());
+        Optional<Seat> existingSeatOpt = seatRepository.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumber(seat.getSeatType(), seat.getCompanyId(), seat.getLetsWorkCentre(), seat.getSeatNumber());
 
         if (existingSeatOpt.isPresent()) {
             Seat existingSeat = existingSeatOpt.get();
@@ -109,7 +109,7 @@ public class SeatServiceImpl implements SeatService {
             try {
                 Seat seat = Seat.builder()
                         .companyId(dto.getCompanyId())
-                        .location(dto.getLocation())
+                        .letsWorkCentre(dto.getLetsWorkCentre())
                         .seatType(SeatType.valueOf(dto.getSeatType().toUpperCase()))
                         .seatNumber(dto.getSeatNumber())
                         .costPerDay(dto.getCostPerDay() == null ? 0 : dto.getCostPerDay())
@@ -128,9 +128,9 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
-    public PaginatedResponseDto listSeats(String companyId, String location, int pageNo, int pageSize) {
+    public PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("id").descending());
-        Page<Seat> page = seatRepository.findByCompanyIdAndLocation(companyId, location, pageable);
+        Page<Seat> page = seatRepository.findByCompanyIdAndLetsWorkCentre(companyId, letsWorkCentre, pageable);
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom((pageNo - 1) * pageSize + 1);
@@ -150,14 +150,14 @@ public class SeatServiceImpl implements SeatService {
     
     
     @Override
-    public long getTotalSeats(String companyId, String location, SeatType seatType) {
-        return seatRepository.countByCompanyIdAndLocationAndSeatType(companyId, location, seatType);
+    public long getTotalSeats(String companyId, String letsWorkCentre, SeatType seatType) {
+        return seatRepository.countByCompanyIdAndLetsWorkCentreAndSeatType(companyId, letsWorkCentre, seatType);
     }
 
     @Override
-    public long getAvailableSeats(String companyId, String location, SeatType seatType) {
-        long totalSeats = seatRepository.countByCompanyIdAndLocationAndSeatType(companyId, location, seatType);
-        long occupiedSeats = userSeatMappingRepository.countByCompanyIdAndLocationAndSeatType(companyId, location, seatType);
+    public long getAvailableSeats(String companyId, String letsWorkCentre, SeatType seatType) {
+        long totalSeats = seatRepository.countByCompanyIdAndLetsWorkCentreAndSeatType(companyId, letsWorkCentre, seatType);
+        long occupiedSeats = userSeatMappingRepository.countByCompanyIdAndLetsWorkCentreAndSeatType(companyId, letsWorkCentre, seatType);
         return Math.max(totalSeats - occupiedSeats, 0);
     }
     

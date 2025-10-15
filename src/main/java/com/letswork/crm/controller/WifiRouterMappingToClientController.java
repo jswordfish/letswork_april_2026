@@ -36,11 +36,11 @@ public class WifiRouterMappingToClientController {
 	
 	@GetMapping("/get clients by wifi")
     public PaginatedResponseDto getClientsByWifi(@RequestParam String wifiName,
-                                                 @RequestParam String location,
+                                                 @RequestParam String letsWorkCentre,
                                                  @RequestParam String companyId,
                                                  @RequestParam(defaultValue = "0") int page,
                                                  @RequestParam String token) {
-        return service.getClientsByWifi(wifiName, location, companyId, page);
+        return service.getClientsByWifi(wifiName, letsWorkCentre, companyId, page);
     }
 
     

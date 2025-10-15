@@ -17,18 +17,18 @@ import com.letswork.crm.entities.WifiRouterMappingToClient;
 public interface WifiRouterMappingToClientRepository extends JpaRepository<WifiRouterMappingToClient, Long> {
 
     
-	WifiRouterMappingToClient findByWifiNameAndClientEmailAndLocation(String wifiName, String clientEmail, String location);
+	WifiRouterMappingToClient findByWifiNameAndClientEmailAndLetsWorkCentre(String wifiName, String clientEmail, String letsWorkCentre);
 
 	@Query("SELECT c FROM Client c " +
 	           "JOIN WifiRouterMappingToClient m ON c.name = m.clientName AND c.email = m.clientEmail " +
-	           "WHERE m.wifiName = :wifiName AND m.location = :location AND m.companyId = :companyId")
+	           "WHERE m.wifiName = :wifiName AND m.letsWorkCentre = :letsWorkCentre AND m.companyId = :companyId")
 	    Page<Client> findClientsByWifi(@Param("wifiName") String wifiName,
-	                                   @Param("location") String location,
+	                                   @Param("letsWorkCentre") String letsWorkCentre,
 	                                   @Param("companyId") String companyId,
 	                                   Pageable pageable);
 	
 	@Query("SELECT w FROM WifiRouter w " +
-	           "JOIN WifiRouterMappingToClient m ON w.wifiName = m.wifiName AND w.location = m.location " +
+	           "JOIN WifiRouterMappingToClient m ON w.wifiName = m.wifiName AND w.letsWorkCentre = m.letsWorkCentre " +
 	           "WHERE m.clientName = :clientName AND m.clientEmail = :clientEmail AND m.companyId = :companyId")
 	    Page<WifiRouter> findRoutersByClient(@Param("clientName") String clientName,
 	                                         @Param("clientEmail") String clientEmail,

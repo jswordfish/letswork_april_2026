@@ -14,7 +14,7 @@ public class ClientCompanyExcelDto {
     private String industry;
 
     @ExcelCellName("LetsWork Centre")
-    private String location;
+    private String letsWorkCentre;
     
     @ExcelCellName("Company Id")
     private String companyId;

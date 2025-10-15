@@ -8,7 +8,7 @@ import lombok.Data;
 public class WifiRouterExcelDto {
 	
 	@ExcelCellName("LetsWork Centre")
-    private String location;
+    private String letsWorkCentre;
 
     @ExcelCellName("Wifi Name")
     private String wifiName;

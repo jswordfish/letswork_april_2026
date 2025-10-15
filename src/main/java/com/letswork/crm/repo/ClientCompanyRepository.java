@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.ClientCompany;
-import com.letswork.crm.entities.Location;
+import com.letswork.crm.entities.LetsWorkCentre;
 
 
 
@@ -29,19 +29,19 @@ public interface ClientCompanyRepository extends JpaRepository<ClientCompany, Lo
     Page<ClientCompany> findAll(Pageable pageable);
     
     
-    List<ClientCompany> findByLocation(Location location);
+    List<ClientCompany> findByLetsWorkCentre(LetsWorkCentre letsWorkCentre);
     
-    @Query("SELECT c FROM ClientCompany c WHERE c.clientCompanyName = :companyName AND c.location = :location AND c.companyId = :companyId")
-    ClientCompany findByClientCompanyNameAndLocationAndCompanyId(@Param("companyName") String companyName,
-                                                          @Param("location") String location,
+    @Query("SELECT c FROM ClientCompany c WHERE c.clientCompanyName = :companyName AND c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
+    ClientCompany findByClientCompanyNameAndLetsWorkCentreAndCompanyId(@Param("companyName") String companyName,
+                                                          @Param("letsWorkCentre") String letsWorkCentre,
                                                           @Param("companyId") String companyId);	
     
-    @Query("SELECT c FROM ClientCompany c WHERE c.location = :location AND c.companyId = :companyId")
-    List<ClientCompany> findByLocationAndCompanyId(@Param("location") String location,
+    @Query("SELECT c FROM ClientCompany c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
+    List<ClientCompany> findByLetsWorkCentreAndCompanyId(@Param("letsWorkCentre") String letsWorkCentre,
                                                   @Param("companyId") String companyId);
     
-    @Query("SELECT c FROM ClientCompany c WHERE c.location = :location AND c.companyId = :companyId")
-    Page<ClientCompany> findByLocationAndCompanyId(@Param("location") String location,
+    @Query("SELECT c FROM ClientCompany c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
+    Page<ClientCompany> findByLetsWorkCentreAndCompanyId(@Param("letsWorkCentre") String letsWorkCentre,
                                                   @Param("companyId") String companyId,
                                                   Pageable pageable);
     

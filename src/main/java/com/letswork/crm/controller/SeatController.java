@@ -41,12 +41,12 @@ public class SeatController {
     @GetMapping("/list")
     public ResponseEntity<PaginatedResponseDto> listSeats(
             @RequestParam String companyId,
-            @RequestParam String location,
+            @RequestParam String letsWorkCentre,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam String token) {
 
-        return ResponseEntity.ok(seatService.listSeats(companyId, location, pageNo, pageSize));
+        return ResponseEntity.ok(seatService.listSeats(companyId, letsWorkCentre, pageNo, pageSize));
     }
 
     @DeleteMapping("/delete")
@@ -57,19 +57,19 @@ public class SeatController {
     
     @GetMapping("/total seats")
     public ResponseEntity<Long> getTotalSeats(@RequestParam String companyId,
-                                              @RequestParam String location,
+                                              @RequestParam String letsWorkCentre,
                                               @RequestParam SeatType seatType,
                                               @RequestParam String token) {
-        long totalSeats = seatService.getTotalSeats(companyId, location, seatType);
+        long totalSeats = seatService.getTotalSeats(companyId, letsWorkCentre, seatType);
         return ResponseEntity.ok(totalSeats);
     }
 
     @GetMapping("/available seats")
     public ResponseEntity<Long> getAvailableSeats(@RequestParam String companyId,
-                                                  @RequestParam String location,
+                                                  @RequestParam String letsWorkCentre,
                                                   @RequestParam SeatType seatType,
                                                   @RequestParam String token) {
-        long availableSeats = seatService.getAvailableSeats(companyId, location, seatType);
+        long availableSeats = seatService.getAvailableSeats(companyId, letsWorkCentre, seatType);
         return ResponseEntity.ok(availableSeats);
     }
     

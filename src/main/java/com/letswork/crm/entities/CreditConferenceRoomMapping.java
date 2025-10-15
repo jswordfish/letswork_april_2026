@@ -26,7 +26,7 @@ public class CreditConferenceRoomMapping extends Base {
 	
 	private String conferenceRoomName;
 	
-	private String location;
+	private String letsWorkCentre;
 	
 	private int priceFor30Mins;
 	

@@ -12,6 +12,6 @@ public interface CreditConferenceRoomMappingRepository extends JpaRepository<Cre
 	
 	Page<CreditConferenceRoomMapping> findByCompanyId(String companyId, Pageable pageable);
 	
-	CreditConferenceRoomMapping findByConferenceRoomNameAndLocationAndCompanyId(String roomName, String location, String companyId);
+	CreditConferenceRoomMapping findByConferenceRoomNameAndLetsWorkCentreAndCompanyId(String roomName, String letsWorkCentre, String companyId);
 
 }

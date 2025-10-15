@@ -8,13 +8,13 @@ import lombok.Data;
 public class SeatExcelDto {
 	
 	@ExcelCellName("LetsWork Centre")
-    private String location;
+    private String letsWorkCentre;
 
     @ExcelCellName("Seat Type")
     private String seatType;
 
     @ExcelCellName("Seat Number")
-    private Integer seatNumber;
+    private String seatNumber;
 
     @ExcelCellName("Cost Per Day")
     private Integer costPerDay;

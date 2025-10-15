@@ -11,7 +11,7 @@ public class PrinterExcelDto {
     private String printerName;
 
     @ExcelCellName("LetsWork Centre")
-    private String location;
+    private String letsWorkCentre;
 
     @ExcelCellName("Printer Type")
     private String printerType;

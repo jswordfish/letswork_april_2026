@@ -12,13 +12,13 @@ public interface SeatService {
 	
 	Seat saveOrUpdate(Seat seat);
 
-    PaginatedResponseDto listSeats(String companyId, String location, int pageNo, int pageSize);
+    PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, int pageNo, int pageSize);
 
     void deleteSeat(Long id);
     
-    long getTotalSeats(String companyId, String location, SeatType seatType);
+    long getTotalSeats(String companyId, String letsWorkCentre, SeatType seatType);
     
-    long getAvailableSeats(String companyId, String location, SeatType seatType);
+    long getAvailableSeats(String companyId, String letsWorkCentre, SeatType seatType);
     
     List<String> uploadSeatExcel(MultipartFile file) throws Exception;
 

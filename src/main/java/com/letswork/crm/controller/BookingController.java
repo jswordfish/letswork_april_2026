@@ -30,13 +30,13 @@ public class BookingController {
             @RequestParam String clientEmail,
             @RequestParam String conferenceRoomName,
             @RequestParam String companyId,
-            @RequestParam String location,
+            @RequestParam String letsWorkCentre,
             @RequestParam String clientCompanyName,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
             @RequestParam String token) throws Exception {
 
-        Booking booking = service.createBooking(clientName, clientEmail, conferenceRoomName, companyId, location, clientCompanyName, startTime, endTime);
+        Booking booking = service.createBooking(clientName, clientEmail, conferenceRoomName, companyId, letsWorkCentre, clientCompanyName, startTime, endTime);
         return ResponseEntity.ok(booking);
     }
 

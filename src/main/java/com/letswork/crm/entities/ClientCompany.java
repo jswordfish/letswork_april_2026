@@ -32,7 +32,7 @@ public class ClientCompany extends Base{
 
     private String industry;
     
-    private String location;
+    private String letsWorkCentre;
     
 
 

@@ -13,7 +13,7 @@ public interface WifiRouterService {
 	
 	String saveOrUpdate(WifiRouter wifiRouter);
 
-    PaginatedResponseDto listByLocation(String location, String companyId, int page);
+    PaginatedResponseDto listByLetsWorkCentre(String letsWorkCentre, String companyId, int page);
 
     String deleteWifiRouter(WifiRouter wifiRouter);
     

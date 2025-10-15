@@ -35,7 +35,7 @@ public class ConferenceRoom extends Base{
 
     private Integer capacity;
 
-    private String location;
+    private String letsWorkCentre;
     
 //    @Enumerated(EnumType.STRING)  
 //    @Column(nullable = false)

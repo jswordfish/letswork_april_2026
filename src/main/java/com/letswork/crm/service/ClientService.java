@@ -25,13 +25,13 @@ public interface ClientService {
 	
 	List<Client> getIndividualClients(String companyId);
 	
-	List<Client> getIndividualClientsByLocation(String location, String companyId);
+	List<Client> getIndividualClientsByLetsWorkCentre(String letsWorkCentre, String companyId);
 	
 	PaginatedResponseDto findByName(String name, int page);
 	
 	PaginatedResponseDto getIndividualClients(String companyId, int page);
 	
-	PaginatedResponseDto getIndividualClientsByLocation(String location, String companyId, int page);
+	PaginatedResponseDto getIndividualClientsByLetsWorkCentre(String letsWorkCentre, String companyId, int page);
 	
 	public String uploadClientsFromExcel(MultipartFile file);
 

@@ -13,9 +13,9 @@ public interface ConferenceRoomService {
 	
 	String saveOrUpdate(ConferenceRoom conferenceRoom);
 	
-	List<ConferenceRoom> findByLocation(String location, String companyId);
+	List<ConferenceRoom> findByLetsWorkCentre(String letsWorkCentre, String companyId);
 	
-	PaginatedResponseDto findByLocation(String location, String companyId, int page);
+	PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, int page);
 	
 //	PaginatedResponseDto findAvailableConferenceRooms(Boolean available, int page);
 	

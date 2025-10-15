@@ -9,7 +9,7 @@ import com.letswork.crm.entities.Booking;
 
 public interface BookingService {
 	
-	public Booking createBooking(String clientName, String clientEmail, String conferenceRoomName, String companyId, String location,
+	public Booking createBooking(String clientName, String clientEmail, String conferenceRoomName, String companyId, String letsWorkCentre,
             String clientCompanyName, LocalDateTime startTime, LocalDateTime endTime) throws Exception;
 	
 	public String cancelBooking(String bookingCode);

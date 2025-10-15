@@ -29,7 +29,7 @@ public class UserSeatMapping extends Base{
 	
 	private String email;
 	
-	private String location;
+	private String letsWorkCentre;
 	
 	@Enumerated(EnumType.STRING)
 	private SeatType seatType;
@@ -38,6 +38,6 @@ public class UserSeatMapping extends Base{
 	
 
 	
-	private int seatNumber;
+	private String seatNumber;
 
 }

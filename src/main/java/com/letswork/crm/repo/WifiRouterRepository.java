@@ -19,10 +19,10 @@ public interface WifiRouterRepository extends JpaRepository<WifiRouter, Long> {
     Optional<WifiRouter> findByWifiNameAndCompanyId(String wifiName, String companyId);
 
     
-    @Query("SELECT w FROM WifiRouter w WHERE w.location = :location AND w.companyId = :companyId")
-    Page<WifiRouter> findByLocation(String location, String companyId, Pageable pageable);
+    @Query("SELECT w FROM WifiRouter w WHERE w.letsWorkCentre = :letsWorkCentre AND w.companyId = :companyId")
+    Page<WifiRouter> findByLetsWorkCentre(String letsWorkCentre, String companyId, Pageable pageable);
 
     
-    @Query("SELECT w FROM WifiRouter w WHERE w.wifiName = :wifiName AND w.location = :location AND w.companyId = :companyId")
-    WifiRouter findByNameLocationAndCompany(String wifiName, String location, String companyId);
+    @Query("SELECT w FROM WifiRouter w WHERE w.wifiName = :wifiName AND w.letsWorkCentre = :letsWorkCentre AND w.companyId = :companyId")
+    WifiRouter findByNameLetsWorkCentreAndCompany(String wifiName, String letsWorkCentre, String companyId);
 }

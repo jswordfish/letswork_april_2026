@@ -10,8 +10,8 @@ import com.letswork.crm.entities.Cabin;
 @Repository
 public interface CabinRepository extends JpaRepository<Cabin, Long> {
     
-    Optional<Cabin> findByCabinNameAndLocationAndCompanyId(String cabinName, String location, String companyId);
+    Optional<Cabin> findByCabinNameAndLetsWorkCentreAndCompanyId(String cabinName, String letsWorkCentre, String companyId);
     
-    boolean existsByCabinNameAndCompanyIdAndLocation(String cabinName, String companyId, String location);
+    boolean existsByCabinNameAndCompanyIdAndLetsWorkCentre(String cabinName, String companyId, String letsWorkCentre);
     
 }

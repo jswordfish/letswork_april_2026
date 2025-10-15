@@ -10,7 +10,7 @@ import com.letswork.crm.entities.Printer;
 @Repository
 public interface PrinterRepository extends JpaRepository<Printer, Long> {
 
-    Printer findByPrinterNameAndLocationAndCompanyId(String printerName, String location, String companyId);
+    Printer findByPrinterNameAndLetsWorkCentreAndCompanyId(String printerName, String letsWorkCentre, String companyId);
 
     Page<Printer> findAllByCompanyId(String companyId, Pageable pageable);
 }

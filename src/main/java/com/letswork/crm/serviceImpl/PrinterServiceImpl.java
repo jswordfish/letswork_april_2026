@@ -50,8 +50,8 @@ public class PrinterServiceImpl implements PrinterService {
 			
 		}
     	
-        Printer existing = repo.findByPrinterNameAndLocationAndCompanyId(
-                printer.getPrinterName(), printer.getLocation(), printer.getCompanyId());
+        Printer existing = repo.findByPrinterNameAndLetsWorkCentreAndCompanyId(
+                printer.getPrinterName(), printer.getLetsWorkCentre(), printer.getCompanyId());
 
         if (existing != null) {
             existing.setPrinterType(printer.getPrinterType());
@@ -89,14 +89,14 @@ public class PrinterServiceImpl implements PrinterService {
 
         for (PrinterExcelDto dto : dtos) {
             try {
-                if (!StringUtils.hasText(dto.getPrinterName()) || !StringUtils.hasText(dto.getLocation())) {
+                if (!StringUtils.hasText(dto.getPrinterName()) || !StringUtils.hasText(dto.getLetsWorkCentre())) {
                     responses.add("Skipped: Missing required fields.");
                     continue;
                 }
 
                 Printer printer = Printer.builder()
                         .printerName(dto.getPrinterName())
-                        .location(dto.getLocation())
+                        .letsWorkCentre(dto.getLetsWorkCentre())
                         .printerCompany(dto.getPrinterCompany())
                         .printerType(PrinterType.valueOf(dto.getPrinterType().toUpperCase()))
                         .companyId(dto.getCompanyId())

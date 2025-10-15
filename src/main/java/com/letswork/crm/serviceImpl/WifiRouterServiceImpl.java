@@ -33,7 +33,7 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 	@Override
 	public String saveOrUpdate(WifiRouter wifiRouter) {
 		// TODO Auto-generated method stub
-		WifiRouter wifi = repo.findByNameLocationAndCompany(wifiRouter.getWifiName(), wifiRouter.getLocation(), wifiRouter.getCompanyId());
+		WifiRouter wifi = repo.findByNameLetsWorkCentreAndCompany(wifiRouter.getWifiName(), wifiRouter.getLetsWorkCentre(), wifiRouter.getCompanyId());
 		
 		if(wifi!=null) {
 			
@@ -59,7 +59,7 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 	    for (WifiRouterExcelDto dto : dtos) {
 	        try {
 	            WifiRouter router = WifiRouter.builder()
-	                    .location(dto.getLocation())
+	                    .letsWorkCentre(dto.getLetsWorkCentre())
 	                    .wifiName(dto.getWifiName())
 	                    .password(dto.getPassword())
 	                    .companyId(dto.getCompanyId())
@@ -76,9 +76,9 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 	}
 
 	@Override
-	public PaginatedResponseDto listByLocation(String location, String companyId, int page) {
+	public PaginatedResponseDto listByLetsWorkCentre(String letsWorkCentre, String companyId, int page) {
 		// TODO Auto-generated method stub
-		Page<WifiRouter> wifiPage = repo.findByLocation(location, companyId, PageRequest.of(page, PAGE_SIZE));
+		Page<WifiRouter> wifiPage = repo.findByLetsWorkCentre(letsWorkCentre, companyId, PageRequest.of(page, PAGE_SIZE));
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom((int) wifiPage.getPageable().getOffset() + 1);
@@ -95,7 +95,7 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 	public String deleteWifiRouter(WifiRouter wifiRouter) {
 		// TODO Auto-generated method stub
 		
-		WifiRouter wifi = repo.findByNameLocationAndCompany(wifiRouter.getWifiName(), wifiRouter.getLocation(), wifiRouter.getCompanyId());
+		WifiRouter wifi = repo.findByNameLetsWorkCentreAndCompany(wifiRouter.getWifiName(), wifiRouter.getLetsWorkCentre(), wifiRouter.getCompanyId());
 		
 		if(wifi!=null) {
 			

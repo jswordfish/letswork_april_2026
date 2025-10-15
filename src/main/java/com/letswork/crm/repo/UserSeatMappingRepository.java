@@ -15,13 +15,13 @@ import com.letswork.crm.enums.SeatType;
 @Repository
 public interface UserSeatMappingRepository extends JpaRepository<UserSeatMapping, Long> {
 
-    Page<UserSeatMapping> findByCompanyIdAndLocation(String companyId, String location, Pageable pageable);
+    Page<UserSeatMapping> findByCompanyIdAndLetsWorkCentre(String companyId, String letsWorkCentre, Pageable pageable);
 
-    Optional<UserSeatMapping> findByEmailAndCompanyIdAndLocation(String email, String companyId, String location);
+    Optional<UserSeatMapping> findByEmailAndCompanyIdAndLetsWorkCentre(String email, String companyId, String letsWorkCentre);
     
-    @Query("SELECT COUNT(u) FROM UserSeatMapping u WHERE u.location = :location AND u.seatType = :seatType AND u.companyId = :companyId")
-    long countByCompanyIdAndLocationAndSeatType(@Param("companyId") String companyId,
-                                                @Param("location") String location,
+    @Query("SELECT COUNT(u) FROM UserSeatMapping u WHERE u.letsWorkCentre = :letsWorkCentre AND u.seatType = :seatType AND u.companyId = :companyId")
+    long countByCompanyIdAndLetsWorkCentreAndSeatType(@Param("companyId") String companyId,
+                                                @Param("letsWorkCentre") String letsWorkCentre,
                                                 @Param("seatType") SeatType seatType);
     
 }

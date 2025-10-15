@@ -16,12 +16,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.dtos.ConferenceRoomExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ConferenceRoom;
-import com.letswork.crm.entities.Location;
+import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.ConferenceRoomRepository;
-import com.letswork.crm.repo.LocationRepository;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.service.ConferenceRoomService;
-import com.letswork.crm.service.LocationService;
+import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
@@ -36,10 +36,10 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	ConferenceRoomRepository repo;
 	
 	@Autowired
-	LocationService locationService;
+	LetsWorkCentreService letsWorkCentreService;
 	
 	@Autowired
-	LocationRepository locationRepo;
+	LetsWorkCentreRepository letsWorkCentreRepo;
 	
 	@Autowired
 	TenantService tenantService;
@@ -56,13 +56,13 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 			
 		}
 		
-		ConferenceRoom room = repo.findByNameAndLocationAndCompanyId(conferenceRoom.getName(), conferenceRoom.getLocation(), conferenceRoom.getCompanyId());
+		ConferenceRoom room = repo.findByNameAndLetsWorkCentreAndCompanyId(conferenceRoom.getName(), conferenceRoom.getLetsWorkCentre(), conferenceRoom.getCompanyId());
 		
 		if(room!=null) {
 			
 			room.setName(conferenceRoom.getName());
 			room.setCapacity(conferenceRoom.getCapacity());
-			room.setLocation(conferenceRoom.getLocation());
+			room.setLetsWorkCentre(conferenceRoom.getLetsWorkCentre());
 			room.setHasProjector(conferenceRoom.isHasProjector());
 			room.setHasWhiteBoard(conferenceRoom.isHasWhiteBoard());
 			room.setHasChargingPorts(conferenceRoom.isHasChargingPorts());
@@ -91,7 +91,7 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	            ConferenceRoom room = ConferenceRoom.builder()
 	                    .name(dto.getName())
 	                    .capacity(dto.getCapacity())
-	                    .location(dto.getLocation())
+	                    .letsWorkCentre(dto.getLetsWorkCentre())
 	                    .companyId(dto.getCompanyId())
 	                    .hasProjector(dto.isHasProjector())
 	                    .hasWhiteBoard(dto.isHasWhiteBoard())
@@ -115,24 +115,24 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	
 
 	@Override
-	public List<ConferenceRoom> findByLocation(String location, String companyId) {
+	public List<ConferenceRoom> findByLetsWorkCentre(String letsWorkCentre, String companyId) {
 		// TODO Auto-generated method stub
 		
-		Location loc = locationRepo.findByNameAndCompanyId(location, companyId);
+		LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyId(letsWorkCentre, companyId);
 
 	    if (loc == null) {
 	        return new ArrayList<>();
 	    }
 
 	    
-	    return repo.findByLocationAndCompanyId(loc.getName(), companyId);
+	    return repo.findByLetsWorkCentreAndCompanyId(loc.getName(), companyId);
 	}
 
 	@Override
 	public String deleteByName(ConferenceRoom conferenceRoom) {
 		// TODO Auto-generated method stub
 		
-		ConferenceRoom room = repo.findByNameAndLocationAndCompanyId(conferenceRoom.getName(), conferenceRoom.getLocation(), conferenceRoom.getCompanyId());
+		ConferenceRoom room = repo.findByNameAndLetsWorkCentreAndCompanyId(conferenceRoom.getName(), conferenceRoom.getLetsWorkCentre(), conferenceRoom.getCompanyId());
 		
 		if(room!=null) {
 			repo.delete(room);
@@ -146,15 +146,15 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 
     
     @Override
-    public PaginatedResponseDto findByLocation(String location, String companyId, int page) {
-        // Check if location exists
-        Location loc = locationRepo.findByNameAndCompanyId(location, companyId);
+    public PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, int page) {
+        // Check if letsWorkCentre exists
+    	LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyId(letsWorkCentre, companyId);
         if (loc == null) {
             return new PaginatedResponseDto(); 
         }
 
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("name").ascending());
-        Page<ConferenceRoom> roomPage = repo.findByLocationAndCompanyId(loc.getName(), companyId, pageable);
+        Page<ConferenceRoom> roomPage = repo.findByLetsWorkCentreAndCompanyId(loc.getName(), companyId, pageable);
 
         return buildPaginatedResponse(roomPage, page);
     }

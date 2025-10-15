@@ -29,8 +29,8 @@ public class User extends Base{
 	
 	String roleOrDesig;
 	
-	@ExcelCellName(value = "Location")
-	String location;
+	@ExcelCellName(value = "LetsWorkCentre")
+	String letsWorkCentre;
 	
 	@ExcelCellName(value = "Department")
 	String department;
@@ -78,12 +78,12 @@ public class User extends Base{
 		this.roleOrDesig = roleOrDesig;
 	}
 
-	public String getLocation() {
-		return location;
+	public String getLetsWorkCentre() {
+		return letsWorkCentre;
 	}
 
-	public void setLocation(String location) {
-		this.location = location;
+	public void setLetsWorkCentre(String letsWorkCentre) {
+		this.letsWorkCentre = letsWorkCentre;
 	}
 
 	public String getDepartment() {

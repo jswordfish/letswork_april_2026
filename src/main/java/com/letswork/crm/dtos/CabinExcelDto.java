@@ -10,14 +10,17 @@ public class CabinExcelDto {
 	@ExcelCellName("Cabin Name")
     private String cabinName;
 
-    @ExcelCellName("Location")
-    private String location;
+    @ExcelCellName("LetsWorkCentre")
+    private String letsWorkCentre;
 
     @ExcelCellName("Cabin Number")
     private String cabinNumber;
 
     @ExcelCellName("Total Seats")
     private int totalSeats;
+    
+    @ExcelCellName("Description")
+    private String description;
     
     @ExcelCellName("Company Id")
     private String companyId;

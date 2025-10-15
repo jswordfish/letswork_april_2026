@@ -22,19 +22,19 @@ public interface ConferenceRoomRepository extends JpaRepository<ConferenceRoom, 
 //    
 //    Page<ConferenceRoom> findByAvailable(Boolean available, Pageable pageable);
 
-    @Query("SELECT c FROM ConferenceRoom c WHERE c.location = :location AND c.companyId = :companyId")
-    List<ConferenceRoom> findByLocationAndCompanyId(@Param("location") String location,
+    @Query("SELECT c FROM ConferenceRoom c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
+    List<ConferenceRoom> findByLetsWorkCentreAndCompanyId(@Param("letsWorkCentre") String letsWorkCentre,
                                                    @Param("companyId") String companyId);
     
     ConferenceRoom findByName(String roomName);
     
-    @Query("SELECT c FROM ConferenceRoom c WHERE c.name = :name AND c.location = :location AND c.companyId = :companyId")
-    ConferenceRoom findByNameAndLocationAndCompanyId(@Param("name") String name,
-                                                    @Param("location") String location,
+    @Query("SELECT c FROM ConferenceRoom c WHERE c.name = :name AND c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
+    ConferenceRoom findByNameAndLetsWorkCentreAndCompanyId(@Param("name") String name,
+                                                    @Param("letsWorkCentre") String letsWorkCentre,
                                                     @Param("companyId") String companyId);
     
-    @Query("SELECT c FROM ConferenceRoom c WHERE c.location = :location AND c.companyId = :companyId")
-    Page<ConferenceRoom> findByLocationAndCompanyId(@Param("location") String location,
+    @Query("SELECT c FROM ConferenceRoom c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
+    Page<ConferenceRoom> findByLetsWorkCentreAndCompanyId(@Param("letsWorkCentre") String letsWorkCentre,
                                                    @Param("companyId") String companyId,
                                                    Pageable pageable);
     

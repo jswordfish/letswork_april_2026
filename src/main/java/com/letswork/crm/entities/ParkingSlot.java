@@ -26,7 +26,7 @@ public class ParkingSlot extends Base{
 	
 	private String name;
 	
-	private String location;
+	private String letsWorkCentre;
 	
 	
 	private String floorNumber;

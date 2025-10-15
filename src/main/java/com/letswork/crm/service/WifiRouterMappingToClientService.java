@@ -7,7 +7,7 @@ public interface WifiRouterMappingToClientService {
 	
 	public String saveOrUpdate(WifiRouterMappingToClient mapping);
 	
-	PaginatedResponseDto getClientsByWifi(String wifiName, String location, String companyId, int page);
+	PaginatedResponseDto getClientsByWifi(String wifiName, String letsWorkCentre, String companyId, int page);
 
     PaginatedResponseDto getRoutersByClient(String clientName, String clientEmail, String companyId, int page);
 	
