@@ -45,7 +45,10 @@ public class PrinterController {
         return ResponseEntity.ok("Printer deleted successfully.");
     }
 
-    @PostMapping("/upload-excel")
+    @PostMapping(
+		    value = "/uploadPrinters",
+		    consumes = "multipart/form-data"
+		)
     public ResponseEntity<String> uploadPrintersExcel(
             @RequestParam("file") MultipartFile file,
             @RequestParam String token) throws IOException {

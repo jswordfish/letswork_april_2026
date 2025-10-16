@@ -2,9 +2,11 @@ package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -53,6 +55,8 @@ public class SeatServiceImpl implements SeatService {
     
     @Autowired
 	LetsWorkCentreService letsWorkCentreService;
+    
+    ModelMapper mapper = new ModelMapper();
 
     @Override
     public Seat saveOrUpdate(Seat seat) {
@@ -91,14 +95,13 @@ public class SeatServiceImpl implements SeatService {
 
         if (existingSeatOpt.isPresent()) {
             Seat existingSeat = existingSeatOpt.get();
-
-            
-            existingSeat.setCostPerDay(seat.getCostPerDay());
-            existingSeat.setCostPerMonth(seat.getCostPerMonth());
-            existingSeat.setCabinName(seat.getCabinName());
-
+            seat.setCreateDate(existingSeat.getCreateDate());
+            seat.setUpdateDate(new Date());
+            seat.setId(existingSeat.getId());
+            mapper.map(seat, existingSeat);
             return seatRepository.save(existingSeat);
         } else {
+            seat.setCreateDate(new Date());
             
             return seatRepository.save(seat);
         }
@@ -168,7 +171,6 @@ public class SeatServiceImpl implements SeatService {
     		}
     	}
         
-        List<String> responses = new ArrayList<>();
 
         for (SeatExcelDto dto : dtos) {
             try {
@@ -183,10 +185,10 @@ public class SeatServiceImpl implements SeatService {
                         .build();
 
                 saveOrUpdate(seat);
-                responses.add("Saved/Updated: " + seat.getSeatType() + " #" + seat.getSeatNumber());
             } catch (Exception e) {
-                responses.add("Error saving seat #" + dto.getSeatNumber() + ": " + e.getMessage());
+            	return "problem "+e.getMessage();
             }
+            
         }
 
         return "ok";

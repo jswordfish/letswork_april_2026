@@ -2,8 +2,10 @@ package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +45,8 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 	LetsWorkCentreService letsWorkCentreService;
 	
 	private static final int PAGE_SIZE = 10;
+	
+	ModelMapper mapper = new ModelMapper();
 
 	@Override
 	public String saveOrUpdate(WifiRouter wifiRouter) {
@@ -67,16 +71,16 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 		WifiRouter wifi = repo.findByNameLetsWorkCentreAndCompany(wifiRouter.getWifiName(), wifiRouter.getLetsWorkCentre(), wifiRouter.getCompanyId());
 		
 		if(wifi!=null) {
-			
-			wifi.setPassword(wifiRouter.getPassword());
-			
-			
+			wifiRouter.setCreateDate(wifi.getCreateDate());
+			wifiRouter.setUpdateDate(new Date());
+			wifiRouter.setId(wifi.getId());
+			mapper.map(wifiRouter, wifi);
 			repo.save(wifi);
 			return "record updated";
-			
 		}
 		
 		else {
+			wifiRouter.setCreateDate(new Date());
 			repo.save(wifiRouter);
 			return "record saved";
 		}

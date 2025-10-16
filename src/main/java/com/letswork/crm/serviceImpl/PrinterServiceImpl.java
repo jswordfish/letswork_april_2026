@@ -2,10 +2,12 @@ package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +49,8 @@ public class PrinterServiceImpl implements PrinterService {
 	
 	@Autowired
 	LetsWorkCentreService letsWorkCentreService;
+	
+	ModelMapper mapper = new ModelMapper();
 
     @Override
     public Printer saveOrUpdate(Printer printer) {
@@ -69,10 +73,13 @@ public class PrinterServiceImpl implements PrinterService {
                 printer.getPrinterName(), printer.getLetsWorkCentre(), printer.getCompanyId());
 
         if (existing != null) {
-            existing.setPrinterType(printer.getPrinterType());
-            existing.setPrinterCompany(printer.getPrinterCompany());
+        	printer.setId(existing.getId());
+        	printer.setCreateDate(existing.getCreateDate());
+        	printer.setUpdateDate(new Date());
+           mapper.map(printer, existing);
             return repo.save(existing);
         } else {
+        	printer.setCreateDate(new Date());
             return repo.save(printer);
         }
     }

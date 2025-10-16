@@ -45,7 +45,8 @@ public class CabinController {
         return "Cabin deleted successfully";
     }
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/uploadCabins",
+		    consumes = "multipart/form-data")
     public String uploadCabins(@RequestParam("file") MultipartFile file,
     		@RequestParam String token) throws IOException {
         return cabinService.uploadCabins(file);
