@@ -2,6 +2,7 @@ package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -126,13 +127,20 @@ public class PrinterServiceImpl implements PrinterService {
 			return "Printer Company Should not be null";		
 			}
 		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
 		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
 			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
 		}
 		
-		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
-			return "CompanyId "+dto.getCompanyId()+" does not exists";
-		}
+		
+		List<String> allowedTypes = Arrays.asList("INKJET", "LASER");
+	    if (!allowedTypes.contains(dto.getPrinterType().trim().toUpperCase())) {
+	        return "Invalid Printer Type: " + dto.getPrinterType() + 
+	               ". Allowed types are: " + String.join(", ", allowedTypes);
+	    }
 		
 		
 		return "ok";

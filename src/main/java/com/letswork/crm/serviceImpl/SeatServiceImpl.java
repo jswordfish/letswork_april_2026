@@ -60,23 +60,21 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public Seat saveOrUpdate(Seat seat) {
-    	
-		Tenant tenant = tenantService.findTenantByCompanyId(seat.getCompanyId());
-		
-		if(tenant==null) {
-			
-			throw new RuntimeException("CompanyId invalid - "+seat.getCompanyId());
-			
-		}
-    	
-		LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyId(seat.getLetsWorkCentre(), seat.getCompanyId());
-    	
-    	if(loc==null) {
-    		throw new RuntimeException("This letsWorkCentre does not exists");
-    	}
-    	
-    	
-    	if (seat.getSeatType() == SeatType.SHARED_CABIN) {
+        
+        Tenant tenant = tenantService.findTenantByCompanyId(seat.getCompanyId());
+        
+        if(tenant == null) {
+            throw new RuntimeException("CompanyId invalid - " + seat.getCompanyId());
+        }
+        
+        LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyId(seat.getLetsWorkCentre(), seat.getCompanyId());
+        
+        if(loc == null) {
+            throw new RuntimeException("This letsWorkCentre does not exists");
+        }
+        
+        // This is the correct logic for SHARED_CABIN seats
+        if (seat.getSeatType() == SeatType.SHARED_CABIN) {
             if (!StringUtils.hasText(seat.getCabinName())) {
                 throw new RuntimeException("Cabin name is required for SHARED_CABIN seat type");
             }
@@ -87,10 +85,11 @@ public class SeatServiceImpl implements SeatService {
                 throw new RuntimeException("Cabin does not exist: " + seat.getCabinName());
             }
         } else {
+            // Enforce null cabin name for other types at the persistence layer
             seat.setCabinName(null);
         }
-    	
-    	
+        
+        
         Optional<Seat> existingSeatOpt = seatRepository.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumber(seat.getSeatType(), seat.getCompanyId(), seat.getLetsWorkCentre(), seat.getSeatNumber());
 
         if (existingSeatOpt.isPresent()) {
@@ -107,73 +106,91 @@ public class SeatServiceImpl implements SeatService {
         }
     }
     
+    // validate Method (Modified to enforce null cabinName for non-SHARED_CABIN) 
     
     private String validate(SeatExcelDto dto) {
-		if(dto.getSeatType() == null || dto.getSeatType().length() == 0) {
-			return "Seat Type Should not be null";
-		}
-		
-		if(dto.getSeatNumber() == null || dto.getSeatNumber().length() == 0) {
-			return "Seat Number Should not be null";		
-			}
-		
-		if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
-			return "LetsWork Centre Should not be null";	
-			}
-		
-		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
-			return "CompanyId Should not be null";	
-			}
-		
-		if(dto.getCostPerDay() == null) {
-			return "Cost Per Day Should not be null";	
-			}
-		
-		if(dto.getCostPerMonth() == null) {
-			return "Cost Per Month Should not be null";	
-			}
-		
-		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
-			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
-		}
-		
-		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
-			return "CompanyId "+dto.getCompanyId()+" does not exists";
-		}
-		
-		if ("SHARED_CABIN".equalsIgnoreCase(dto.getSeatType())) {
-		    if (dto.getCabinName() == null || dto.getCabinName().trim().isEmpty()) {
-		        return "Cabin name must exist when seat type is SHARED_CABIN";
-		    }
-		    
-		    boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLetsWorkCentre(
-		            dto.getCabinName(), dto.getCompanyId(), dto.getLetsWorkCentre());
+        if(dto.getSeatType() == null || dto.getSeatType().length() == 0) {
+            return "Seat Type Should not be null";
+        }
+        
+        if(dto.getSeatNumber() == null || dto.getSeatNumber().length() == 0) {
+            return "Seat Number Should not be null";        
+            }
+        
+        if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
+            return "LetsWork Centre Should not be null";    
+            }
+        
+        if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
+            return "CompanyId Should not be null";    
+            }
+        
+        if(dto.getCostPerDay() == null) {
+            return "Cost Per Day Should not be null";    
+            }
+        
+        if(dto.getCostPerMonth() == null) {
+            return "Cost Per Month Should not be null";    
+            }
+        
+        if(tenantService.findTenantByCompanyId(dto.getCompanyId()) == null) {
+            return "CompanyId "+dto.getCompanyId()+" does not exists";
+        }
+        
+        if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
+        	return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist for company Id "+dto.getCompanyId();
+        }
+        
+        
+        
+        // --- NEW VALIDATION LOGIC ADDED HERE ---
+        if ("SHARED_CABIN".equalsIgnoreCase(dto.getSeatType())) {
+            if (dto.getCabinName() == null || dto.getCabinName().trim().isEmpty()) {
+                return "Cabin name must exist when seat type is SHARED_CABIN";
+            }
+            
+            boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLetsWorkCentre(
+                        dto.getCabinName(), dto.getCompanyId(), dto.getLetsWorkCentre());
 
-		    if (!cabinExists) {
-		        return "Cabin with name " + dto.getCabinName() + " does not exist for the given company and location";
-		    }
-		    
-		}
-		
-		
-		return "ok";
-	}
+            if (!cabinExists) {
+                return "Cabin with name " + dto.getCabinName() + " does not exist for the given company and location";
+            }
+            
+        } else if (dto.getCabinName() != null && !dto.getCabinName().trim().isEmpty()) {
+            // Added check: If it's *not* SHARED_CABIN, cabinName must be null or empty
+            return "Cabin name must be empty for seat type: " + dto.getSeatType();
+        }
+        // --- END OF NEW VALIDATION LOGIC ---
+        
+        return "ok";
+    }
     
+    // --- uploadSeatExcel Method (FIXED NullPointerException) ---
     
     @Override
     public String uploadSeatExcel(MultipartFile file) throws IOException {
         List<SeatExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, SeatExcelDto.class);
         
+        // Validation loop (still short-circuits on first error, but that's your original design)
         for(SeatExcelDto dto : dtos) {
-        	String val = validate(dto);
-    		if(!val.equalsIgnoreCase("ok")) {
-    			return val;
-    		}
-    	}
+            String val = validate(dto);
+            if(!val.equalsIgnoreCase("ok")) {
+                return val;
+            }
+        }
         
 
+        // Saving loop
         for (SeatExcelDto dto : dtos) {
             try {
+                // Determine cabinName for Seat.builder()
+                String cabinName = null;
+                if (dto.getCabinName() != null) {
+                    // **CRITICAL FIX:** Only call trim() if dto.getCabinName() is not null.
+                    // If it was null, calling trim() caused a NullPointerException.
+                    cabinName = dto.getCabinName().trim();
+                }
+                
                 Seat seat = Seat.builder()
                         .companyId(dto.getCompanyId().trim())
                         .letsWorkCentre(dto.getLetsWorkCentre().trim())
@@ -181,18 +198,21 @@ public class SeatServiceImpl implements SeatService {
                         .seatNumber(dto.getSeatNumber().trim())
                         .costPerDay(dto.getCostPerDay() == null ? 0 : dto.getCostPerDay())
                         .costPerMonth(dto.getCostPerMonth() == null ? 0 : dto.getCostPerMonth())
-                        .cabinName(dto.getCabinName().trim())
+                        .cabinName(cabinName) // Use the safely determined cabinName
                         .build();
 
                 saveOrUpdate(seat);
             } catch (Exception e) {
-            	return "problem "+e.getMessage();
+                // This still short-circuits the entire process, which is why the 
+                // NullPointerException was a major problem.
+                return "problem " + e.getMessage();
             }
             
         }
 
         return "ok";
     }
+
 
     @Override
     public PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, int pageNo, int pageSize) {

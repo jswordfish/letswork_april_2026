@@ -213,13 +213,15 @@ public class ClientServiceImpl implements ClientService {
 			return "Letswork Center for User not available for "+dto.getEmail();
 		}
 		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
 		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
 			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist for User not available for "+dto.getEmail();
 		}
 		
-		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
-			return "CompanyId "+dto.getCompanyId()+" does not exists";
-		}
+		
 		
 		if(dto.getPhone() == null || dto.getPhone().length() == 0) {
 			return "Phone for User not available for "+dto.getEmail();

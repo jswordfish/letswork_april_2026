@@ -104,13 +104,15 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 			return "CompanyId Should not be null";	
 			}
 		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
 		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
 			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
 		}
 		
-		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
-			return "CompanyId "+dto.getCompanyId()+" does not exists";
-		}
+		
 		
 		
 		return "ok";

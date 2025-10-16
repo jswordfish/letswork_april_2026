@@ -181,13 +181,15 @@ public class UserServiceImpl implements UserService{
 			return "Password Should not be null";	
 			}
 		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
 		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
 			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
 		}
 		
-		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
-			return "CompanyId "+dto.getCompanyId()+" does not exists";
-		}
+		
 		
 		if(orgHierarchyService.findByRoleOrDesig(dto.getRoleOrDesig(), dto.getCompanyId())==null) {
 			return "This role - "+dto.getRoleOrDesig()+" does not exists";

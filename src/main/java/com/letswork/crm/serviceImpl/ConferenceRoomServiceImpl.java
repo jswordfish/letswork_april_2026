@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,7 +32,7 @@ import com.poiji.exception.PoijiExcelType;
 
 
 @Service
-@Transactional
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	
 	@Autowired
@@ -70,12 +71,7 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 		
 		if(room!=null) {
 			
-//			room.setName(conferenceRoom.getName());
-//			room.setCapacity(conferenceRoom.getCapacity());
-//			room.setLetsWorkCentre(conferenceRoom.getLetsWorkCentre());
-//			room.setHasProjector(conferenceRoom.isHasProjector());
-//			room.setHasWhiteBoard(conferenceRoom.isHasWhiteBoard());
-//			room.setHasChargingPorts(conferenceRoom.isHasChargingPorts());
+
 			conferenceRoom.setId(room.getId());
 			conferenceRoom.setUpdateDate(new Date());
 			mapper.map(conferenceRoom, room);
@@ -122,13 +118,15 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 			return "Has Charging ports should not be null";
 		}
 		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
 		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
 			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
 		}
 		
-		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
-			return "CompanyId "+dto.getCompanyId()+" does not exists";
-		}
+		
 		
 		return "ok";
 	}
