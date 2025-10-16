@@ -20,12 +20,12 @@ public class ConferenceRoomExcelDto {
     private String companyId;
     
     @ExcelCellName("Has Projector")
-    private boolean hasProjector;
+    private Boolean hasProjector;
     
     @ExcelCellName("Has White Board")
-    private boolean hasWhiteBoard;
+    private Boolean hasWhiteBoard;
     
     @ExcelCellName("Has Charging Ports")
-    private boolean hasChargingPorts;
+    private Boolean hasChargingPorts;
 
 }

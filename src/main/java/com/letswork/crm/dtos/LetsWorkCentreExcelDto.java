@@ -26,7 +26,7 @@ public class LetsWorkCentreExcelDto {
     private String address;
     
     @ExcelCellName("Has Cafe")
-    private boolean hasCafe;
+    private Boolean hasCafe;
     
     @ExcelCellName("Amenities")
     private String amenities;

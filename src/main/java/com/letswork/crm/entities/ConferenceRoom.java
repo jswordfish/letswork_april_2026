@@ -41,11 +41,11 @@ public class ConferenceRoom extends Base{
 //    @Column(nullable = false)
 //    private ConferenceRoomType roomType;
     
-    private boolean hasProjector;
+    private Boolean hasProjector;
     
-    private boolean hasWhiteBoard;
+    private Boolean hasWhiteBoard;
     
-    private boolean hasChargingPorts;
+    private Boolean hasChargingPorts;
     
     
     

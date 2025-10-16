@@ -111,7 +111,7 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 			return "Amenities Should not be null";	
 			}
 		
-		if(!dto.isHasCafe()) {
+		if(dto.getHasCafe()==null) {
 			return "Cafe boolean Should not be null";	
 			}
 		
@@ -144,7 +144,7 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
                         .companyId(dto.getCompanyId().trim())
                         .state(dto.getState().trim())
                         .city(dto.getCity().trim())
-                        .hasCafe(dto.isHasCafe())
+                        .hasCafe(dto.getHasCafe())
                         .amenities(dto.getAmenities().trim())
                         .build();
                 return saveOrUpdate(letsWorkCentre);

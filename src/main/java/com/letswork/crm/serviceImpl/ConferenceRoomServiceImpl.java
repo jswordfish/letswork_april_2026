@@ -110,15 +110,15 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 			return "CompanyId should not be null";
 		}
 		
-		if(!dto.isHasProjector()) {
+		if(dto.getHasProjector()==null) {
 			return "Has projector should not be null";
 		}
 		
-		if(!dto.isHasWhiteBoard()) {
+		if(dto.getHasWhiteBoard()==null) {
 			return "Has White Board should not be null";
 		}
 		
-		if(!dto.isHasChargingPorts()) {
+		if(dto.getHasChargingPorts()==null) {
 			return "Has Charging ports should not be null";
 		}
 		
@@ -154,9 +154,9 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	                    .capacity(dto.getCapacity())
 	                    .letsWorkCentre(dto.getLetsWorkCentre().trim())
 	                    .companyId(dto.getCompanyId().trim())
-	                    .hasProjector(dto.isHasProjector())
-	                    .hasWhiteBoard(dto.isHasWhiteBoard())
-	                    .hasChargingPorts(dto.isHasChargingPorts())
+	                    .hasProjector(dto.getHasProjector())
+	                    .hasWhiteBoard(dto.getHasWhiteBoard())
+	                    .hasChargingPorts(dto.getHasChargingPorts())
 	                    .build();
 
 	            

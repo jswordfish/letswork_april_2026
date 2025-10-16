@@ -35,7 +35,7 @@ public class LetsWorkCentre extends Base{
     
     private String city;
     
-    private boolean hasCafe;
+    private Boolean hasCafe;
     
     private String amenities;
 
