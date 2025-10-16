@@ -19,6 +19,7 @@ import com.letswork.crm.entities.ParkingSlot;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.ParkingSlotRepository;
+import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.ParkingSlotService;
 import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
@@ -36,6 +37,9 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
 	
 	@Autowired
 	LetsWorkCentreRepository letsWorkCentreRepo;
+	
+	@Autowired
+	LetsWorkCentreService letsWorkCentreService;
 	
 	ModelMapper mapper = new ModelMapper();
 	
@@ -105,6 +109,14 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
 		if(dto.getOtherDetails() == null || dto.getOtherDetails().length() == 0) {
 			return "Other Details Should not be null";	
 			}
+		
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
+			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
+		}
+		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
 		
 		
 		return "ok";

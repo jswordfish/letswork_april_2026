@@ -16,7 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.entities.OrgHierarchy;
 import com.letswork.crm.entities.User;
 import com.letswork.crm.repo.UserRepo;
+import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.OrgHierarchyService;
+import com.letswork.crm.service.TenantService;
 import com.letswork.crm.service.UserService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
@@ -33,6 +35,12 @@ public class UserServiceImpl implements UserService{
 	
 	@Autowired
 	OrgHierarchyService orgHierarchyService;
+	
+	@Autowired
+	TenantService tenantService;
+	
+	@Autowired
+	LetsWorkCentreService letsWorkCentreService;
 	
 	ModelMapper mapper = new ModelMapper();
 	
@@ -172,6 +180,18 @@ public class UserServiceImpl implements UserService{
 		if(dto.getPassword() == null || dto.getPassword().length() == 0) {
 			return "Password Should not be null";	
 			}
+		
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
+			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
+		}
+		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
+		if(orgHierarchyService.findByRoleOrDesig(dto.getRoleOrDesig(), dto.getCompanyId())==null) {
+			return "This role - "+dto.getRoleOrDesig()+" does not exists";
+		}
 		
 		
 		return "ok";

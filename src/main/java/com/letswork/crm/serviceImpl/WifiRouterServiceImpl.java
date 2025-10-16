@@ -18,6 +18,7 @@ import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.entities.WifiRouter;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.WifiRouterRepository;
+import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.TenantService;
 import com.letswork.crm.service.WifiRouterService;
 import com.poiji.bind.Poiji;
@@ -37,6 +38,9 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 	
 	@Autowired
 	LetsWorkCentreRepository letsWorkCentreRepo;
+	
+	@Autowired
+	LetsWorkCentreService letsWorkCentreService;
 	
 	private static final int PAGE_SIZE = 10;
 
@@ -95,6 +99,14 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
 			return "CompanyId Should not be null";	
 			}
+		
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
+			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
+		}
+		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
 		
 		
 		return "ok";

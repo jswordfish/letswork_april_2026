@@ -115,6 +115,10 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 			return "Cafe boolean Should not be null";	
 			}
 		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
 		
 		return "ok";
 	}

@@ -22,6 +22,7 @@ import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.CabinRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.service.CabinService;
+import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
@@ -38,6 +39,9 @@ public class CabinServiceImpl implements CabinService {
     
     @Autowired
     LetsWorkCentreRepository letsWorkCentreRepo;
+    
+    @Autowired
+	LetsWorkCentreService letsWorkCentreService;
 
     @Override
     public synchronized Cabin saveOrUpdate(Cabin cabin) {
@@ -120,6 +124,14 @@ public class CabinServiceImpl implements CabinService {
 		if(dto.getDescription() == null || dto.getDescription().length() == 0) {
 			return "Description Should not be null";	
 			}
+		
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
+			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
+		}
+		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
 		
 	
 		return "ok";

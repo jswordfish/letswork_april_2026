@@ -25,6 +25,7 @@ import com.letswork.crm.repo.CabinRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SeatRepository;
 import com.letswork.crm.repo.UserSeatMappingRepository;
+import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.SeatService;
 import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
@@ -49,6 +50,9 @@ public class SeatServiceImpl implements SeatService {
     
     @Autowired
     private CabinRepository cabinRepository;
+    
+    @Autowired
+	LetsWorkCentreService letsWorkCentreService;
 
     @Override
     public Seat saveOrUpdate(Seat seat) {
@@ -126,10 +130,26 @@ public class SeatServiceImpl implements SeatService {
 			return "Cost Per Month Should not be null";	
 			}
 		
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
+			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
+		}
+		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
 		if ("SHARED_CABIN".equalsIgnoreCase(dto.getSeatType())) {
 		    if (dto.getCabinName() == null || dto.getCabinName().trim().isEmpty()) {
 		        return "Cabin name must exist when seat type is SHARED_CABIN";
 		    }
+		    
+		    boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLetsWorkCentre(
+		            dto.getCabinName(), dto.getCompanyId(), dto.getLetsWorkCentre());
+
+		    if (!cabinExists) {
+		        return "Cabin with name " + dto.getCabinName() + " does not exist for the given company and location";
+		    }
+		    
 		}
 		
 		

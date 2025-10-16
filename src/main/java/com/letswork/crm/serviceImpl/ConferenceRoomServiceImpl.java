@@ -122,6 +122,14 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 			return "Has Charging ports should not be null";
 		}
 		
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
+			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
+		}
+		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
 		return "ok";
 	}
 

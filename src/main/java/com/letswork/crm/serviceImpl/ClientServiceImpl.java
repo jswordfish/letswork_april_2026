@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.ClientExcelDto;
+import com.letswork.crm.dtos.ConferenceRoomExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Client;
 import com.letswork.crm.entities.ClientCompany;
@@ -216,6 +217,10 @@ public class ClientServiceImpl implements ClientService {
 			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist for User not available for "+dto.getEmail();
 		}
 		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
 		if(dto.getPhone() == null || dto.getPhone().length() == 0) {
 			return "Phone for User not available for "+dto.getEmail();
 		}
@@ -228,6 +233,10 @@ public class ClientServiceImpl implements ClientService {
 			return "Last Name for User not available for "+dto.getEmail();
 		}
 		
+		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
+			return "CompanyId for User should not be null";
+		}
+		
 		return "ok";
 	}
 	
@@ -236,7 +245,10 @@ public class ClientServiceImpl implements ClientService {
         try {
             List<ClientExcelDto> clientsFromExcel = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, ClientExcelDto.class);
             	for(ClientExcelDto dto : clientsFromExcel) {
-            		validate(dto);
+            		String val = validate(dto);
+            		if(!val.equalsIgnoreCase("ok")) {
+            			return val;
+            		}
             	}
             
             List<String> responses = clientsFromExcel.stream().map(dto -> {
@@ -254,8 +266,9 @@ public class ClientServiceImpl implements ClientService {
                 return saveOrUpdate(client);
             }).collect(Collectors.toList());
 
-            return "Processed " + clientsFromExcel.size() + " clients successfully.\n" +
-                    String.join("\n", responses);
+//            return "Processed " + clientsFromExcel.size() + " clients successfully.\n" +
+//                    String.join("\n", responses);
+            return "ok";
 
         } catch (IOException e) {
             e.printStackTrace();

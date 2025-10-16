@@ -50,6 +50,9 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	@Autowired
 	TenantService tenantService;
 	
+	@Autowired
+	LetsWorkCentreService letsWorkCentreService;
+	
 	ModelMapper mapper = new ModelMapper();
 
 	@Override
@@ -113,6 +116,15 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
 			return "CompanyId Should not be null";	
 			}
+		
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
+			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
+		}
+		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
 		
 		
 		return "ok";
