@@ -37,5 +37,9 @@ public class Printer extends Base{
     private PrinterType printerType;
 	
 	private String printerCompany;
+	
+	private String state;
+	
+	private String city;
 
 }

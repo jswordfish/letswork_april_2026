@@ -19,5 +19,10 @@ public class ClientCompanyExcelDto {
     @ExcelCellName("Company Id")
     private String companyId;
     
+    @ExcelCellName("State")
+    private String state;
+    
+    @ExcelCellName("City")
+    private String city;
 
 }

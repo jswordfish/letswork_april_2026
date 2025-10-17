@@ -17,13 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.ClientExcelDto;
-import com.letswork.crm.dtos.ConferenceRoomExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Client;
 import com.letswork.crm.entities.ClientCompany;
+import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.ClientCompanyRepository;
 import com.letswork.crm.repo.ClientRepository;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.service.ClientService;
 import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.TenantService;
@@ -50,6 +51,9 @@ public class ClientServiceImpl implements ClientService {
 	@Autowired
 	LetsWorkCentreService letsWorkCentreService;
 	
+	@Autowired
+	LetsWorkCentreRepository letsWorkCentreRepo;
+	
 	ModelMapper mapper = new ModelMapper();
 	
 	
@@ -65,6 +69,12 @@ public class ClientServiceImpl implements ClientService {
 			throw new RuntimeException("CompanyId invalid - "+client.getCompanyId());
 		}
 		
+		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(client.getLetsWorkCentre(), client.getCompanyId(), client.getCity(), client.getState());
+		
+		if(centre==null) {
+			throw new RuntimeException("This LetsWorkCentre does not exists");
+		}
+		
 		ClientCompany company = clientCompanyRepo.findByClientCompanyNameAndCompanyId(client.getClientCompanyName(),  client.getCompanyId());
 		
 		if(company == null) {
@@ -73,7 +83,9 @@ public class ClientServiceImpl implements ClientService {
 					.letsWorkCentre(client.getLetsWorkCentre())
 					.clientCompanyName(client.getClientCompanyName())
 					.industry(client.getBusinessCategory())
-					.companyId(client.getCompanyId())//updated company id
+					.city(client.getCity())
+					.state(client.getState())
+					.companyId(client.getCompanyId())
 					.build();
 			
 			clientCompanyRepo.save(comp);
@@ -213,15 +225,6 @@ public class ClientServiceImpl implements ClientService {
 			return "Letswork Center for User not available for "+dto.getEmail();
 		}
 		
-		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
-			return "CompanyId "+dto.getCompanyId()+" does not exists";
-		}
-		
-		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
-			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist for User not available for "+dto.getEmail();
-		}
-		
-		
 		
 		if(dto.getPhone() == null || dto.getPhone().length() == 0) {
 			return "Phone for User not available for "+dto.getEmail();
@@ -237,6 +240,22 @@ public class ClientServiceImpl implements ClientService {
 		
 		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
 			return "CompanyId for User should not be null";
+		}
+		
+		if(dto.getCity() == null || dto.getCity().length() == 0) {
+			return "City Should not be null";	
+			}
+		
+		if(dto.getState() == null || dto.getState().length() == 0) {
+			return "State Should not be null";	
+			}
+		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getCity(), dto.getState()) == null){
+			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
 		}
 		
 		return "ok";
@@ -263,6 +282,8 @@ public class ClientServiceImpl implements ClientService {
                         .letsWorkCentre(dto.getLetsWorkCentre().trim())
                         .companyId(dto.getCompanyId().trim())
                         .businessCategory(dto.getBusinessCategory().trim())
+                        .city(dto.getCity().trim())
+                        .state(dto.getState().trim())
                         .build();
                 	
                 return saveOrUpdate(client);

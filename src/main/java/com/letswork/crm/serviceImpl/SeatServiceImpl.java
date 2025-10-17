@@ -67,7 +67,7 @@ public class SeatServiceImpl implements SeatService {
             throw new RuntimeException("CompanyId invalid - " + seat.getCompanyId());
         }
         
-        LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyId(seat.getLetsWorkCentre(), seat.getCompanyId());
+        LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(seat.getLetsWorkCentre(), seat.getCompanyId(), seat.getCity(), seat.getState());
         
         if(loc == null) {
             throw new RuntimeException("This letsWorkCentre does not exists");
@@ -133,17 +133,23 @@ public class SeatServiceImpl implements SeatService {
             return "Cost Per Month Should not be null";    
             }
         
+        if(dto.getCity() == null || dto.getCity().length() == 0) {
+			return "City Should not be null";	
+			}
+		
+		if(dto.getState() == null || dto.getState().length() == 0) {
+			return "State Should not be null";	
+			}
+        
         if(tenantService.findTenantByCompanyId(dto.getCompanyId()) == null) {
             return "CompanyId "+dto.getCompanyId()+" does not exists";
         }
         
-        if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
-        	return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist for company Id "+dto.getCompanyId();
-        }
+        if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getCity(), dto.getState()) == null){
+			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
+		}
         
         
-        
-        // --- NEW VALIDATION LOGIC ADDED HERE ---
         if ("SHARED_CABIN".equalsIgnoreCase(dto.getSeatType())) {
             if (dto.getCabinName() == null || dto.getCabinName().trim().isEmpty()) {
                 return "Cabin name must exist when seat type is SHARED_CABIN";
@@ -157,21 +163,20 @@ public class SeatServiceImpl implements SeatService {
             }
             
         } else if (dto.getCabinName() != null && !dto.getCabinName().trim().isEmpty()) {
-            // Added check: If it's *not* SHARED_CABIN, cabinName must be null or empty
+            
             return "Cabin name must be empty for seat type: " + dto.getSeatType();
         }
-        // --- END OF NEW VALIDATION LOGIC ---
+        
         
         return "ok";
     }
     
-    // --- uploadSeatExcel Method (FIXED NullPointerException) ---
     
     @Override
     public String uploadSeatExcel(MultipartFile file) throws IOException {
         List<SeatExcelDto> dtos = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, SeatExcelDto.class);
         
-        // Validation loop (still short-circuits on first error, but that's your original design)
+        
         for(SeatExcelDto dto : dtos) {
             String val = validate(dto);
             if(!val.equalsIgnoreCase("ok")) {
@@ -180,14 +185,13 @@ public class SeatServiceImpl implements SeatService {
         }
         
 
-        // Saving loop
+        
         for (SeatExcelDto dto : dtos) {
             try {
-                // Determine cabinName for Seat.builder()
+                
                 String cabinName = null;
                 if (dto.getCabinName() != null) {
-                    // **CRITICAL FIX:** Only call trim() if dto.getCabinName() is not null.
-                    // If it was null, calling trim() caused a NullPointerException.
+                    
                     cabinName = dto.getCabinName().trim();
                 }
                 
@@ -198,13 +202,14 @@ public class SeatServiceImpl implements SeatService {
                         .seatNumber(dto.getSeatNumber().trim())
                         .costPerDay(dto.getCostPerDay() == null ? 0 : dto.getCostPerDay())
                         .costPerMonth(dto.getCostPerMonth() == null ? 0 : dto.getCostPerMonth())
-                        .cabinName(cabinName) // Use the safely determined cabinName
+                        .cabinName(cabinName) 
+                        .city(dto.getCity().trim())
+                        .state(dto.getState().trim())
                         .build();
 
                 saveOrUpdate(seat);
             } catch (Exception e) {
-                // This still short-circuits the entire process, which is why the 
-                // NullPointerException was a major problem.
+               
                 return "problem " + e.getMessage();
             }
             

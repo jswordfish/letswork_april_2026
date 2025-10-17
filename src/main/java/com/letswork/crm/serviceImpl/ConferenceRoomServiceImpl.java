@@ -61,7 +61,7 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 			
 		}
 		
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyId(conferenceRoom.getLetsWorkCentre(), conferenceRoom.getCompanyId());
+		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(conferenceRoom.getLetsWorkCentre(), conferenceRoom.getCompanyId(), conferenceRoom.getCity(), conferenceRoom.getState());
 		
 		if(centre==null) {
 			throw new RuntimeException("This LetsWorkCentre does not exists");
@@ -118,11 +118,19 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 			return "Has Charging ports should not be null";
 		}
 		
+		if(dto.getCity() == null || dto.getCity().length() == 0) {
+			return "City Should not be null";	
+			}
+		
+		if(dto.getState() == null || dto.getState().length() == 0) {
+			return "State Should not be null";	
+			}
+		
 		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
 			return "CompanyId "+dto.getCompanyId()+" does not exists";
 		}
 		
-		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getCity(), dto.getState()) == null){
 			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
 		}
 		
@@ -155,6 +163,8 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	                    .hasProjector(dto.getHasProjector())
 	                    .hasWhiteBoard(dto.getHasWhiteBoard())
 	                    .hasChargingPorts(dto.getHasChargingPorts())
+	                    .city(dto.getCity().trim())
+	                    .state(dto.getState().trim())
 	                    .build();
 
 	            
@@ -174,10 +184,10 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	
 
 	@Override
-	public List<ConferenceRoom> findByLetsWorkCentre(String letsWorkCentre, String companyId) {
+	public List<ConferenceRoom> findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state) {
 		// TODO Auto-generated method stub
 		
-		LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyId(letsWorkCentre, companyId);
+		LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state);
 
 	    if (loc == null) {
 	        return new ArrayList<>();
@@ -205,9 +215,9 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 
     
     @Override
-    public PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, int page) {
+    public PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page) {
         // Check if letsWorkCentre exists
-    	LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyId(letsWorkCentre, companyId);
+    	LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state);
         if (loc == null) {
             return new PaginatedResponseDto(); 
         }

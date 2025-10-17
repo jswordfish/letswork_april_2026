@@ -27,5 +27,11 @@ public class ConferenceRoomExcelDto {
     
     @ExcelCellName("Has Charging Ports")
     private Boolean hasChargingPorts;
+    
+    @ExcelCellName("State")
+    private String state;
+    
+    @ExcelCellName("City")
+    private String city;
 
 }

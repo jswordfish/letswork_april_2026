@@ -32,5 +32,9 @@ public class WifiRouter extends Base{
 	
 	private String password;
 	
+	private String state;
+	
+	private String city;
+	
 
 }

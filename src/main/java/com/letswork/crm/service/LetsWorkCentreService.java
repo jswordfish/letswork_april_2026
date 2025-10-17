@@ -12,7 +12,7 @@ public interface LetsWorkCentreService {
 	
     String saveOrUpdate(LetsWorkCentre letsWorkCentre);
     
-    LetsWorkCentre findByName(String name, String companyId);
+    LetsWorkCentre findByName(String name, String companyId, String city, String state);
     
     List<LetsWorkCentre> findAll(String companyId);
     

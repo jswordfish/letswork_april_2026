@@ -47,6 +47,8 @@ public class ConferenceRoom extends Base{
     
     private Boolean hasChargingPorts;
     
-    
+	private String state;
+	
+	private String city;
     
 }

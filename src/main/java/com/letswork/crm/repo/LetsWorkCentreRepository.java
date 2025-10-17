@@ -18,9 +18,15 @@ import com.letswork.crm.entities.LetsWorkCentre;
 public interface LetsWorkCentreRepository extends JpaRepository<LetsWorkCentre, Long> {
 
     
-	@Query("SELECT l FROM LetsWorkCentre l WHERE l.name = :name AND l.companyId = :companyId")
-    LetsWorkCentre findByNameAndCompanyId(@Param("name") String name,
-                                    @Param("companyId") String companyId);
+//	@Query("SELECT l FROM LetsWorkCentre l WHERE l.name = :name AND l.companyId = :companyId")
+//    LetsWorkCentre findByNameAndCompanyId(@Param("name") String name,
+//                                    @Param("companyId") String companyId);
+	
+	@Query("SELECT l FROM LetsWorkCentre l WHERE l.name = :name AND l.companyId = :companyId AND l.city = :city AND l.state = :state")
+	LetsWorkCentre findByNameAndCompanyIdAndCityAndState(@Param("name") String name,
+	                                                     @Param("companyId") String companyId,
+	                                                     @Param("city") String city,
+	                                                     @Param("state") String state);
     
     
     @Query("SELECT l FROM LetsWorkCentre l WHERE l.companyId = :companyId")

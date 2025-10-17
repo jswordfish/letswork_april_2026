@@ -34,6 +34,8 @@ public class ClientCompany extends Base{
     
     private String letsWorkCentre;
     
-
+	private String state;
+	
+	private String city;
 
 }

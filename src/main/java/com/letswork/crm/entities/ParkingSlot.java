@@ -32,5 +32,9 @@ public class ParkingSlot extends Base{
 	private String floorNumber;
 	
 	private String otherDetails;
+	
+	private String state;
+	
+	private String city;
 
 }

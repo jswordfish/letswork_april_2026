@@ -52,18 +52,11 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 		}
 		
 		
-		LetsWorkCentre loc = repo.findByNameAndCompanyId(letsWorkCentre.getName(), letsWorkCentre.getCompanyId());
+		LetsWorkCentre loc = repo.findByNameAndCompanyIdAndCityAndState(letsWorkCentre.getName(), letsWorkCentre.getCompanyId(), letsWorkCentre.getCity(), letsWorkCentre.getState());
 		
 		if(loc!=null) {
 			
-//			loc.setName(letsWorkCentre.getName());
-//			loc.setAddress(letsWorkCentre.getAddress());
-//			loc.setTotalConferenceRooms(letsWorkCentre.getTotalConferenceRooms());
-//			loc.setState(letsWorkCentre.getState());
-//			loc.setCity(letsWorkCentre.getCity());
-//			loc.setHasCafe(letsWorkCentre.isHasCafe());
-//			loc.setAmenities(letsWorkCentre.getAmenities());
-			
+
 			letsWorkCentre.setId(loc.getId());
 			letsWorkCentre.setUpdateDate(new Date());
 			mapper.map(letsWorkCentre, loc);
@@ -161,8 +154,8 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
     }
 
 	@Override
-	public LetsWorkCentre findByName(String name, String companyId) {
-		LetsWorkCentre loc = repo.findByNameAndCompanyId(name, companyId);
+	public LetsWorkCentre findByName(String name, String companyId, String city, String state) {
+		LetsWorkCentre loc = repo.findByNameAndCompanyIdAndCityAndState(name, companyId, city, state);
 		return loc;
 	}
 
@@ -176,7 +169,7 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	public String deleteLetsWorkCentre(LetsWorkCentre letsWorkCentre) {
 		// TODO Auto-generated method stub
 		
-		LetsWorkCentre loc = repo.findByNameAndCompanyId(letsWorkCentre.getName(), letsWorkCentre.getCompanyId());
+		LetsWorkCentre loc = repo.findByNameAndCompanyIdAndCityAndState(letsWorkCentre.getName(), letsWorkCentre.getCompanyId(), letsWorkCentre.getCity(), letsWorkCentre.getState());
 		if(loc!=null) {
 		repo.delete(loc);
 		return "record deleted";

@@ -67,7 +67,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 			
 		}
 		
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyId(clientCompany.getLetsWorkCentre(), clientCompany.getCompanyId());
+		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(clientCompany.getLetsWorkCentre(), clientCompany.getCompanyId(), clientCompany.getCity(), clientCompany.getState());
 		
 		if(centre==null) {
 			throw new RuntimeException("This LetsWorkCentre does not exists");
@@ -117,11 +117,19 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 			return "CompanyId Should not be null";	
 			}
 		
+		if(dto.getCity() == null || dto.getCity().length() == 0) {
+			return "City Should not be null";	
+			}
+		
+		if(dto.getState() == null || dto.getState().length() == 0) {
+			return "State Should not be null";	
+			}
+		
 		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
 			return "CompanyId "+dto.getCompanyId()+" does not exists";
 		}
 		
-		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getCity(), dto.getState()) == null){
 			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
 		}
 		
@@ -153,6 +161,8 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	                    .industry(dto.getIndustry().trim())
 	                    .letsWorkCentre(dto.getLetsWorkCentre().trim())
 	                    .companyId(dto.getCompanyId().trim())
+	                    .city(dto.getCity().trim())
+	                    .state(dto.getState().trim())
 	                    .build();
 	            
 

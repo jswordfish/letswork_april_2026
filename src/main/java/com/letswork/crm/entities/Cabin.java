@@ -34,5 +34,9 @@ public class Cabin extends Base{
 	private Integer totalSeats;
 	
 	private String description;
+	
+	private String state;
+	
+	private String city;
 
 }

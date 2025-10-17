@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +43,8 @@ public class CabinServiceImpl implements CabinService {
     
     @Autowired
 	LetsWorkCentreService letsWorkCentreService;
+    
+    ModelMapper mapper = new ModelMapper();
 
     @Override
     public synchronized Cabin saveOrUpdate(Cabin cabin) {
@@ -55,7 +58,7 @@ public class CabinServiceImpl implements CabinService {
 		}
 
 		
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyId(cabin.getLetsWorkCentre(), cabin.getCompanyId());
+		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(cabin.getLetsWorkCentre(), cabin.getCompanyId(), cabin.getCity(), cabin.getState());
 		
 		if(centre==null) {
 			throw new RuntimeException("This LetsWorkCentre does not exists");
@@ -71,13 +74,15 @@ public class CabinServiceImpl implements CabinService {
 
         if (existing.isPresent()) {
             Cabin old = existing.get();
-            old.setCabinNumber(cabin.getCabinNumber());
-            old.setTotalSeats(cabin.getTotalSeats());
-            old.setDescription(cabin.getDescription());
-            old.setUpdateDate(new Date());
+            cabin.setId(old.getId());
+            cabin.setCreateDate(old.getCreateDate());
+            cabin.setUpdateDate(new Date());
+            
+            mapper.map(cabin, old); 
+            
             return cabinRepository.save(old);
         } else {
-        	cabin.setCreateDate(new Date());
+            cabin.setCreateDate(new Date());
             return cabinRepository.save(cabin);
         }
     }
@@ -125,11 +130,19 @@ public class CabinServiceImpl implements CabinService {
 			return "Description Should not be null";	
 			}
 		
+		if(dto.getCity() == null || dto.getCity().length() == 0) {
+			return "City Should not be null";	
+			}
+		
+		if(dto.getState() == null || dto.getState().length() == 0) {
+			return "State Should not be null";	
+			}
+		
 		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
 			return "CompanyId "+dto.getCompanyId()+" does not exists";
 		}
 		
-		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId()) == null){
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getCity(), dto.getState()) == null){
 			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
 		}
 		
@@ -161,6 +174,8 @@ public class CabinServiceImpl implements CabinService {
                         .totalSeats(dto.getTotalSeats())
                         .description(dto.getDescription().trim())
                         .companyId(dto.getCompanyId().trim())
+                        .city(dto.getCity().trim())
+                        .state(dto.getState().trim())
                         .build();
 
                 saveOrUpdate(cabin);
