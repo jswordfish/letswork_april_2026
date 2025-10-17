@@ -41,8 +41,7 @@ public class HolidayServiceImpl implements HolidayService {
     @Autowired
     private LetsWorkCentreRepository letsWorkCentreRepo;
 
-    @Autowired
-    private ModelMapper mapper;
+    ModelMapper mapper = new ModelMapper();
 
     @Override
     public String saveOrUpdate(Holiday holiday) {
