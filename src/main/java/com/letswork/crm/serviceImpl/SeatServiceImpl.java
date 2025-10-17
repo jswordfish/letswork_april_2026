@@ -79,8 +79,8 @@ public class SeatServiceImpl implements SeatService {
                 throw new RuntimeException("Cabin name is required for SHARED_CABIN seat type");
             }
 
-            boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLetsWorkCentre(
-                    seat.getCabinName(), seat.getCompanyId(), seat.getLetsWorkCentre());
+            boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndState(
+                    seat.getCabinName(), seat.getCompanyId(), seat.getLetsWorkCentre(), seat.getCity(), seat.getState());
             if (!cabinExists) {
                 throw new RuntimeException("Cabin does not exist: " + seat.getCabinName());
             }
@@ -90,7 +90,7 @@ public class SeatServiceImpl implements SeatService {
         }
         
         
-        Optional<Seat> existingSeatOpt = seatRepository.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumber(seat.getSeatType(), seat.getCompanyId(), seat.getLetsWorkCentre(), seat.getSeatNumber());
+        Optional<Seat> existingSeatOpt = seatRepository.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndState(seat.getSeatType(), seat.getCompanyId(), seat.getLetsWorkCentre(), seat.getSeatNumber(), seat.getCity(), seat.getState());
 
         if (existingSeatOpt.isPresent()) {
             Seat existingSeat = existingSeatOpt.get();
@@ -155,8 +155,8 @@ public class SeatServiceImpl implements SeatService {
                 return "Cabin name must exist when seat type is SHARED_CABIN";
             }
             
-            boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLetsWorkCentre(
-                        dto.getCabinName(), dto.getCompanyId(), dto.getLetsWorkCentre());
+            boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndState(
+                        dto.getCabinName(), dto.getCompanyId(), dto.getLetsWorkCentre(), dto.getCity(), dto.getState());
 
             if (!cabinExists) {
                 return "Cabin with name " + dto.getCabinName() + " does not exist for the given company and location";
@@ -220,9 +220,9 @@ public class SeatServiceImpl implements SeatService {
 
 
     @Override
-    public PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, int pageNo, int pageSize) {
+    public PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("id").descending());
-        Page<Seat> page = seatRepository.findByCompanyIdAndLetsWorkCentre(companyId, letsWorkCentre, pageable);
+        Page<Seat> page = seatRepository.findByCompanyIdAndLetsWorkCentreAndCityAndState(companyId, letsWorkCentre, city, state, pageable);
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom((pageNo - 1) * pageSize + 1);
@@ -242,14 +242,14 @@ public class SeatServiceImpl implements SeatService {
     
     
     @Override
-    public long getTotalSeats(String companyId, String letsWorkCentre, SeatType seatType) {
-        return seatRepository.countByCompanyIdAndLetsWorkCentreAndSeatType(companyId, letsWorkCentre, seatType);
+    public long getTotalSeats(String companyId, String letsWorkCentre, SeatType seatType, String city, String state) {
+        return seatRepository.countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(companyId, letsWorkCentre, seatType, city, state);
     }
 
     @Override
-    public long getAvailableSeats(String companyId, String letsWorkCentre, SeatType seatType) {
-        long totalSeats = seatRepository.countByCompanyIdAndLetsWorkCentreAndSeatType(companyId, letsWorkCentre, seatType);
-        long occupiedSeats = userSeatMappingRepository.countByCompanyIdAndLetsWorkCentreAndSeatType(companyId, letsWorkCentre, seatType);
+    public long getAvailableSeats(String companyId, String letsWorkCentre, SeatType seatType, String city, String state) {
+        long totalSeats = seatRepository.countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(companyId, letsWorkCentre, seatType, city, state);
+        long occupiedSeats = userSeatMappingRepository.countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(companyId, letsWorkCentre, seatType, city, state);
         return Math.max(totalSeats - occupiedSeats, 0);
     }
     

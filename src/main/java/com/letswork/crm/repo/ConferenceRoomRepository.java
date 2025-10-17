@@ -22,21 +22,25 @@ public interface ConferenceRoomRepository extends JpaRepository<ConferenceRoom, 
 //    
 //    Page<ConferenceRoom> findByAvailable(Boolean available, Pageable pageable);
 
-    @Query("SELECT c FROM ConferenceRoom c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
-    List<ConferenceRoom> findByLetsWorkCentreAndCompanyId(@Param("letsWorkCentre") String letsWorkCentre,
-                                                   @Param("companyId") String companyId);
-    
-    ConferenceRoom findByName(String roomName);
-    
-    @Query("SELECT c FROM ConferenceRoom c WHERE c.name = :name AND c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
-    ConferenceRoom findByNameAndLetsWorkCentreAndCompanyId(@Param("name") String name,
-                                                    @Param("letsWorkCentre") String letsWorkCentre,
-                                                    @Param("companyId") String companyId);
-    
-    @Query("SELECT c FROM ConferenceRoom c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
-    Page<ConferenceRoom> findByLetsWorkCentreAndCompanyId(@Param("letsWorkCentre") String letsWorkCentre,
-                                                   @Param("companyId") String companyId,
-                                                   Pageable pageable);
+	@Query("SELECT c FROM ConferenceRoom c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
+	List<ConferenceRoom> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre,
+	                                                                     @Param("companyId") String companyId,
+	                                                                     @Param("city") String city,
+	                                                                     @Param("state") String state);
+
+	@Query("SELECT c FROM ConferenceRoom c WHERE c.name = :name AND c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
+	ConferenceRoom findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(@Param("name") String name,
+	                                                                      @Param("letsWorkCentre") String letsWorkCentre,
+	                                                                      @Param("companyId") String companyId,
+	                                                                      @Param("city") String city,
+	                                                                      @Param("state") String state);
+
+	@Query("SELECT c FROM ConferenceRoom c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
+	Page<ConferenceRoom> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre,
+	                                                                     @Param("companyId") String companyId,
+	                                                                     @Param("city") String city,
+	                                                                     @Param("state") String state,
+	                                                                     Pageable pageable);
     
     
 

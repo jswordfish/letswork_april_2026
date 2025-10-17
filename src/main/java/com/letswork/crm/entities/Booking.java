@@ -30,8 +30,6 @@ public class Booking extends Base{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-
-
     private String clientName;
     
     private String clientEmail;

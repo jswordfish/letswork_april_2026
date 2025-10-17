@@ -15,13 +15,18 @@ import com.letswork.crm.enums.SeatType;
 @Repository
 public interface UserSeatMappingRepository extends JpaRepository<UserSeatMapping, Long> {
 
-    Page<UserSeatMapping> findByCompanyIdAndLetsWorkCentre(String companyId, String letsWorkCentre, Pageable pageable);
+	Page<UserSeatMapping> findByCompanyIdAndLetsWorkCentreAndCityAndState(
+	        String companyId, String letsWorkCentre, String city, String state, Pageable pageable);
 
-    Optional<UserSeatMapping> findByEmailAndCompanyIdAndLetsWorkCentre(String email, String companyId, String letsWorkCentre);
-    
-    @Query("SELECT COUNT(u) FROM UserSeatMapping u WHERE u.letsWorkCentre = :letsWorkCentre AND u.seatType = :seatType AND u.companyId = :companyId")
-    long countByCompanyIdAndLetsWorkCentreAndSeatType(@Param("companyId") String companyId,
-                                                @Param("letsWorkCentre") String letsWorkCentre,
-                                                @Param("seatType") SeatType seatType);
+	Optional<UserSeatMapping> findByEmailAndCompanyIdAndLetsWorkCentreAndCityAndState(
+	        String email, String companyId, String letsWorkCentre, String city, String state);
+
+	@Query("SELECT COUNT(u) FROM UserSeatMapping u WHERE u.letsWorkCentre = :letsWorkCentre AND u.seatType = :seatType AND u.companyId = :companyId AND u.city = :city AND u.state = :state")
+	long countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(
+	        @Param("companyId") String companyId,
+	        @Param("letsWorkCentre") String letsWorkCentre,
+	        @Param("seatType") SeatType seatType,
+	        @Param("city") String city,
+	        @Param("state") String state);
     
 }

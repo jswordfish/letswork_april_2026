@@ -83,15 +83,15 @@ public class BookingServiceImpl implements BookingService {
 	    Client client = clientRepository.findByEmailAndCompanyId( clientEmail, companyId);
 	    if (client == null) throw new IllegalArgumentException("Client not found with provided details.");
 
-	    // 2. Validate client company
-	    ClientCompany clientCompany = clientCompanyRepository.findByClientCompanyNameAndCompanyId(
-	            clientCompanyName, companyId);
-	    if (clientCompany == null) throw new IllegalArgumentException("Client company not found with provided details.");
+	    // 2. Validate client company IGNORE THIS FOR NOW, ADDED NEW ATTRIBUTES, CITY AND STATE	
+//	    ClientCompany clientCompany = clientCompanyRepository.findByClientCompanyNameAndCompanyId(
+//	            clientCompanyName, companyId);
+//	    if (clientCompany == null) throw new IllegalArgumentException("Client company not found with provided details.");
 
-	    // 3. Validate conference room
-	    ConferenceRoom room = conferenceRoomRepository.findByNameAndLetsWorkCentreAndCompanyId(
-	            conferenceRoomName, letsWorkCentre, companyId);
-	    if (room == null) throw new IllegalArgumentException("Conference room not found with provided details.");
+	    // 3. Validate conference room IGNORE THIS FOR NOW, ADDED NEW ATTRIBUTES, CITY AND STATE	
+//	    ConferenceRoom room = conferenceRoomRepository.findByNameAndLetsWorkCentreAndCompanyId(
+//	            conferenceRoomName, letsWorkCentre, companyId);
+//	    if (room == null) throw new IllegalArgumentException("Conference room not found with provided details.");
 
 	    // 4. Validate time range
 	    if (!endTime.isAfter(startTime))

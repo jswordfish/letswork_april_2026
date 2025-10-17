@@ -29,11 +29,11 @@ public class CreditConferenceRoomMappingServiceImpl implements CreditConferenceR
     @Override
     public CreditConferenceRoomMapping saveOrUpdate(CreditConferenceRoomMapping mapping) {
     	
-    	ConferenceRoom room = conferenceRoomRepository.findByNameAndLetsWorkCentreAndCompanyId(mapping.getConferenceRoomName(), mapping.getLetsWorkCentre(), mapping.getCompanyId());
-    	
-    	if(room==null) {
-    		throw new RuntimeException("Conference room does not exists");
-    	}
+//    	ConferenceRoom room = conferenceRoomRepository.findByNameAndLetsWorkCentreAndCompanyId(mapping.getConferenceRoomName(), mapping.getLetsWorkCentre(), mapping.getCompanyId());
+//    	
+//    	if(room==null) {
+//    		throw new RuntimeException("Conference room does not exists");
+//    	} REMOVING FOR NOW DUE TO CITY AND STATE
     	
         if (mapping.getId() != null) {
             Optional<CreditConferenceRoomMapping> existingMappingOpt = mappingRepository.findById(mapping.getId());

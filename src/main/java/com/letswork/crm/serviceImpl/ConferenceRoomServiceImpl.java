@@ -67,7 +67,7 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 			throw new RuntimeException("This LetsWorkCentre does not exists");
 		}
 		
-		ConferenceRoom room = repo.findByNameAndLetsWorkCentreAndCompanyId(conferenceRoom.getName(), conferenceRoom.getLetsWorkCentre(), conferenceRoom.getCompanyId());
+		ConferenceRoom room = repo.findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(conferenceRoom.getName(), conferenceRoom.getLetsWorkCentre(), conferenceRoom.getCompanyId(), conferenceRoom.getCity(), conferenceRoom.getState());
 		
 		if(room!=null) {
 			
@@ -194,14 +194,14 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	    }
 
 	    
-	    return repo.findByLetsWorkCentreAndCompanyId(loc.getName(), companyId);
+	    return repo.findByLetsWorkCentreAndCompanyIdAndCityAndState(loc.getName(), companyId, city, state);
 	}
 
 	@Override
 	public String deleteByName(ConferenceRoom conferenceRoom) {
 		// TODO Auto-generated method stub
 		
-		ConferenceRoom room = repo.findByNameAndLetsWorkCentreAndCompanyId(conferenceRoom.getName(), conferenceRoom.getLetsWorkCentre(), conferenceRoom.getCompanyId());
+		ConferenceRoom room = repo.findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(conferenceRoom.getName(), conferenceRoom.getLetsWorkCentre(), conferenceRoom.getCompanyId(), conferenceRoom.getCity(), conferenceRoom.getState());
 		
 		if(room!=null) {
 			repo.delete(room);
@@ -223,7 +223,7 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
         }
 
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("name").ascending());
-        Page<ConferenceRoom> roomPage = repo.findByLetsWorkCentreAndCompanyId(loc.getName(), companyId, pageable);
+        Page<ConferenceRoom> roomPage = repo.findByLetsWorkCentreAndCompanyIdAndCityAndState(loc.getName(), companyId, city, state, pageable);
 
         return buildPaginatedResponse(roomPage, page);
     }

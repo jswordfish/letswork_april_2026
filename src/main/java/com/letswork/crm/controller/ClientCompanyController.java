@@ -64,15 +64,17 @@ public class ClientCompanyController {
     public ResponseEntity<PaginatedResponseDto> getClientCompaniesByLetsWorkCentre(
             @RequestParam String letsWorkCentre,
             @RequestParam String companyId,
+            @RequestParam String city,
+            @RequestParam String state,
             @RequestParam String token,
             @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(service.getClientCompaniesByLetsWorkCentre(letsWorkCentre, companyId, page));
+        return ResponseEntity.ok(service.getClientCompaniesByLetsWorkCentre(letsWorkCentre, companyId, city, state, page));
     }
 	
-	@GetMapping("/companies by LetsWorkCentre")
-    public ResponseEntity<List<ClientCompany>> getClientCompaniesByLetsWorkCentre(@RequestParam String letsWorkCentre, @RequestParam String companyId, @RequestParam String token) {
-        return ResponseEntity.ok(service.getClientCompaniesByLetsWorkCentre(letsWorkCentre, companyId));
-    }
+//	@GetMapping("/companies by LetsWorkCentre")
+//    public ResponseEntity<List<ClientCompany>> getClientCompaniesByLetsWorkCentre(@RequestParam String letsWorkCentre, @RequestParam String companyId, @RequestParam String token) {
+//        return ResponseEntity.ok(service.getClientCompaniesByLetsWorkCentre(letsWorkCentre, companyId));
+//    }
 	
 	@DeleteMapping("/delete company")
 	public String deleteCompany(@RequestBody ClientCompany clientCompany, @RequestParam String token) {

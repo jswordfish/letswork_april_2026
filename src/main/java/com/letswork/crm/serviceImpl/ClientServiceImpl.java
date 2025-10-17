@@ -75,7 +75,7 @@ public class ClientServiceImpl implements ClientService {
 			throw new RuntimeException("This LetsWorkCentre does not exists");
 		}
 		
-		ClientCompany company = clientCompanyRepo.findByClientCompanyNameAndCompanyId(client.getClientCompanyName(),  client.getCompanyId());
+		ClientCompany company = clientCompanyRepo.findByClientCompanyNameAndCompanyIdAndCityAndState(client.getClientCompanyName(),  client.getCompanyId(), client.getCity(), client.getState());
 		
 		if(company == null) {
 //			return "No company with the name "+client.getClientCompanyName()+" exists";
@@ -96,7 +96,7 @@ public class ClientServiceImpl implements ClientService {
 			
 			if(!client.getClientCompanyName().equals(client1.getClientCompanyName())) {
 				//this means client has changed his company
-				deleteOldCompanyIfNotHavingOtherClients(client1.getClientCompanyName(), client1.getCompanyId());
+				deleteOldCompanyIfNotHavingOtherClients(client1.getClientCompanyName(), client1.getCompanyId(), client1.getCity(), client1.getState());
 			}
 			client.setId(client1.getId());
 			client.setUpdateDate(new Date());
@@ -114,10 +114,10 @@ public class ClientServiceImpl implements ClientService {
 		
 	}
 	
-	private void deleteOldCompanyIfNotHavingOtherClients(String clientCompanyName, String companyId) {
+	private void deleteOldCompanyIfNotHavingOtherClients(String clientCompanyName, String companyId, String city, String state) {
 		if(repo.getCountOfClientsInClientCompany(clientCompanyName, companyId) == 1) {
 			//delete the old client company as it is no longer used
-			clientCompanyRepo.delete(clientCompanyRepo.findByClientCompanyNameAndCompanyId(clientCompanyName, companyId));
+			clientCompanyRepo.delete(clientCompanyRepo.findByClientCompanyNameAndCompanyIdAndCityAndState(clientCompanyName, companyId, city, state));
 		}
 	}
 

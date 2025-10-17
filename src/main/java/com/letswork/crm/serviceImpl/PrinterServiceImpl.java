@@ -70,8 +70,8 @@ public class PrinterServiceImpl implements PrinterService {
 			throw new RuntimeException("This LetsWorkCentre does not exists");
 		}
     	
-        Printer existing = repo.findByPrinterNameAndLetsWorkCentreAndCompanyId(
-                printer.getPrinterName(), printer.getLetsWorkCentre(), printer.getCompanyId());
+        Printer existing = repo.findByPrinterNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
+                printer.getPrinterName(), printer.getLetsWorkCentre(), printer.getCompanyId(), printer.getCity(), printer.getState());
 
         if (existing != null) {
         	printer.setId(existing.getId());

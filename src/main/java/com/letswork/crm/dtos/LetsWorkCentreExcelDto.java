@@ -1,5 +1,7 @@
 package com.letswork.crm.dtos;
 
+import java.time.LocalTime;
+
 import com.poiji.annotation.ExcelCellName;
 
 import lombok.Getter;
@@ -33,5 +35,17 @@ public class LetsWorkCentreExcelDto {
 
     @ExcelCellName("Company Id")
     private String companyId;
+    
+    @ExcelCellName("Start Time Weekdays")
+    private LocalTime startTimeRegular;
+    
+    @ExcelCellName("End Time Weekdays")
+    private LocalTime endTimeRegular;
+    
+    @ExcelCellName("Start Time Saturday")
+    private LocalTime startTimeSat;
+    
+    @ExcelCellName("End Time Sturday")
+    private LocalTime endTimeSat;
 
 }

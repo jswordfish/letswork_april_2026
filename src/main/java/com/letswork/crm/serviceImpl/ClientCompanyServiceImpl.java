@@ -74,15 +74,11 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 		}
 		
 		
-		ClientCompany com = repo.findByClientCompanyNameAndCompanyId(clientCompany.getClientCompanyName(), clientCompany.getCompanyId());
+		ClientCompany com = repo.findByClientCompanyNameAndCompanyIdAndCityAndState(clientCompany.getClientCompanyName(), clientCompany.getCompanyId(), clientCompany.getCity(), clientCompany.getState());
 		
 		if(com!=null) {
 			
-//			com.setClientCompanyName(clientCompany.getClientCompanyName());
-//			
-//			com.setIndustry(clientCompany.getIndustry());
-//			com.setLetsWorkCentre(clientCompany.getLetsWorkCentre());
-			
+
 			clientCompany.setId(com.getId());
 			clientCompany.setUpdateDate(new Date());
 			mapper.map(clientCompany, com);
@@ -187,7 +183,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	@Override
 	public String deleteCompany(ClientCompany clientCompany) {
 		// TODO Auto-generated method stub
-		ClientCompany com = repo.findByClientCompanyNameAndCompanyId(clientCompany.getClientCompanyName(),  clientCompany.getCompanyId());
+		ClientCompany com = repo.findByClientCompanyNameAndCompanyIdAndCityAndState(clientCompany.getClientCompanyName(),  clientCompany.getCompanyId(), clientCompany.getCity(), clientCompany.getState());
 		
 		if(com!=null) {
 			repo.delete(com);
@@ -200,9 +196,9 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	
 
 	@Override
-	public List<ClientCompany> getClientCompaniesByLetsWorkCentre(String letsWorkCentre, String companyId) {
+	public List<ClientCompany> getClientCompaniesByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state) {
 		// TODO Auto-generated method stub
-		return repo.findByLetsWorkCentreAndCompanyId(letsWorkCentre, companyId);
+		return repo.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state);
 	}
 	
 	private static final int PAGE_SIZE = 10; 
@@ -218,9 +214,9 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 
     
     @Override
-    public PaginatedResponseDto getClientCompaniesByLetsWorkCentre(String letsWorkCentre, String companyId, int page) {
+    public PaginatedResponseDto getClientCompaniesByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("companyName").ascending());
-        Page<ClientCompany> companyPage = repo.findByLetsWorkCentreAndCompanyId(letsWorkCentre, companyId, pageable);
+        Page<ClientCompany> companyPage = repo.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, pageable);
 
         return buildPaginatedResponse(companyPage, page);
     }

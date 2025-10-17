@@ -45,11 +45,13 @@ public class SeatController {
     public ResponseEntity<PaginatedResponseDto> listSeats(
             @RequestParam String companyId,
             @RequestParam String letsWorkCentre,
+            @RequestParam String city,
+            @RequestParam String state,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam String token) {
 
-        return ResponseEntity.ok(seatService.listSeats(companyId, letsWorkCentre, pageNo, pageSize));
+        return ResponseEntity.ok(seatService.listSeats(companyId, letsWorkCentre, city, state, pageNo, pageSize));
     }
 
     @DeleteMapping("/delete")
@@ -62,8 +64,10 @@ public class SeatController {
     public ResponseEntity<Long> getTotalSeats(@RequestParam String companyId,
                                               @RequestParam String letsWorkCentre,
                                               @RequestParam SeatType seatType,
+                                              @RequestParam String city,
+                                              @RequestParam String state,
                                               @RequestParam String token) {
-        long totalSeats = seatService.getTotalSeats(companyId, letsWorkCentre, seatType);
+        long totalSeats = seatService.getTotalSeats(companyId, letsWorkCentre, seatType, city, state);
         return ResponseEntity.ok(totalSeats);
     }
 
@@ -71,8 +75,10 @@ public class SeatController {
     public ResponseEntity<Long> getAvailableSeats(@RequestParam String companyId,
                                                   @RequestParam String letsWorkCentre,
                                                   @RequestParam SeatType seatType,
+                                                  @RequestParam String city,
+                                                  @RequestParam String state,
                                                   @RequestParam String token) {
-        long availableSeats = seatService.getAvailableSeats(companyId, letsWorkCentre, seatType);
+        long availableSeats = seatService.getAvailableSeats(companyId, letsWorkCentre, seatType, city, state);
         return ResponseEntity.ok(availableSeats);
     }
     

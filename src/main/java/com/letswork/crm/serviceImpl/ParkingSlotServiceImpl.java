@@ -65,7 +65,7 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
 		}	
 
 		
-		ParkingSlot slot = repo.findByNameLetsWorkCentreAndCompany(parkingSlot.getName(), parkingSlot.getLetsWorkCentre(), parkingSlot.getCompanyId());
+		ParkingSlot slot = repo.findByNameLetsWorkCentreAndCompanyAndCityAndState(parkingSlot.getName(), parkingSlot.getLetsWorkCentre(), parkingSlot.getCompanyId(), parkingSlot.getCity(), parkingSlot.getState());
 		
 		if(slot!=null) {
 			
@@ -169,9 +169,9 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
 	}
 
 	@Override
-	public PaginatedResponseDto listByLetsWorkCentre(String letsWorkCentre, String companyId, int page) {
+	public PaginatedResponseDto listByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page) {
 		// TODO Auto-generated method stub
-		Page<ParkingSlot> parkingPage = repo.findByLetsWorkCentre(letsWorkCentre, companyId, PageRequest.of(page, PAGE_SIZE));
+		Page<ParkingSlot> parkingPage = repo.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, PageRequest.of(page, PAGE_SIZE));
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom((int) parkingPage.getPageable().getOffset() + 1);
@@ -188,7 +188,7 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
 	public String deleteParkingSlot(ParkingSlot parkingSlot) {
 		// TODO Auto-generated method stub
 		
-		ParkingSlot slot = repo.findByNameLetsWorkCentreAndCompany(parkingSlot.getName(), parkingSlot.getLetsWorkCentre(), parkingSlot.getCompanyId());
+		ParkingSlot slot = repo.findByNameLetsWorkCentreAndCompanyAndCityAndState(parkingSlot.getName(), parkingSlot.getLetsWorkCentre(), parkingSlot.getCompanyId(), parkingSlot.getCity(), parkingSlot.getState());
 		
 		if(slot!=null) {
 			

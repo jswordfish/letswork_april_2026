@@ -22,9 +22,9 @@ public interface ClientCompanyService {
 	String deleteCompany(ClientCompany clientCompany);
 	
 	
-	List<ClientCompany> getClientCompaniesByLetsWorkCentre(String letsWorkCentre, String companyId);
+	List<ClientCompany> getClientCompaniesByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state);
 	
-	PaginatedResponseDto getClientCompaniesByLetsWorkCentre(String letsWorkCentre, String companyId, int page);
+	PaginatedResponseDto getClientCompaniesByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page);
 	
 	public String uploadClientCompanies(MultipartFile file) throws IOException;
 

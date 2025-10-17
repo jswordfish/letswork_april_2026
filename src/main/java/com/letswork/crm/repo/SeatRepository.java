@@ -15,15 +15,17 @@ import com.letswork.crm.enums.SeatType;
 @Repository
 public interface SeatRepository extends JpaRepository<Seat, Long> {
 	
-    Page<Seat> findByCompanyIdAndLetsWorkCentre(String companyId, String letsWorkCentre, Pageable pageable);
-    
-    Optional<Seat> findBySeatTypeAndCompanyIdAndLetsWorkCentre(SeatType seatType, String companyId, String letsWorkCentre);
-    
-    Optional<Seat> findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumber(SeatType seatType, String companyId, String letsWorkCentre, String seatNumber);
-    
-    @Query("SELECT COUNT(s) FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre AND s.seatType = :seatType AND s.companyId = :companyId")
-    long countByCompanyIdAndLetsWorkCentreAndSeatType(@Param("companyId") String companyId,
-                                                @Param("letsWorkCentre") String letsWorkCentre,
-                                                @Param("seatType") SeatType seatType);
+	Page<Seat> findByCompanyIdAndLetsWorkCentreAndCityAndState(String companyId, String letsWorkCentre, String city, String state, Pageable pageable);
+
+	Optional<Seat> findBySeatTypeAndCompanyIdAndLetsWorkCentreAndCityAndState(SeatType seatType, String companyId, String letsWorkCentre, String city, String state);
+
+	Optional<Seat> findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndState(SeatType seatType, String companyId, String letsWorkCentre, String seatNumber, String city, String state);
+
+	@Query("SELECT COUNT(s) FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre AND s.seatType = :seatType AND s.companyId = :companyId AND s.city = :city AND s.state = :state")
+	long countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(@Param("companyId") String companyId,
+	                                                                 @Param("letsWorkCentre") String letsWorkCentre,
+	                                                                 @Param("seatType") SeatType seatType,
+	                                                                 @Param("city") String city,
+	                                                                 @Param("state") String state);
     
 }

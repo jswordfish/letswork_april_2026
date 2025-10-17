@@ -39,5 +39,9 @@ public class UserSeatMapping extends Base{
 
 	
 	private String seatNumber;
+	
+	private String city;
+	
+	private String state;
 
 }

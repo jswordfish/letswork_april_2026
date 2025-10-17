@@ -1,5 +1,7 @@
 package com.letswork.crm.entities;
 
+import java.time.LocalTime;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -38,5 +40,13 @@ public class LetsWorkCentre extends Base{
     private Boolean hasCafe;
     
     private String amenities;
+    
+    private LocalTime startTimeRegular;
+    
+    private LocalTime endTimeRegular;
+    
+    private LocalTime startTimeSat;
+    
+    private LocalTime endTimeSat;
 
 }

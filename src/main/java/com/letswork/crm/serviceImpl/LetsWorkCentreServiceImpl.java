@@ -108,6 +108,40 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 			return "Cafe boolean Should not be null";	
 			}
 		
+		if (dto.getStartTimeRegular() == null) {
+	        return "Start Time (Regular) should not be null";
+	    }
+
+	    if (dto.getEndTimeRegular() == null) {
+	        return "End Time (Regular) should not be null";
+	    }
+
+	    if (dto.getStartTimeSat() == null) {
+	        return "Start Time (Saturday) should not be null";
+	    }
+
+	    if (dto.getEndTimeSat() == null) {
+	        return "End Time (Saturday) should not be null";
+	    }
+
+	    
+	    if (dto.getEndTimeRegular().isBefore(dto.getStartTimeRegular())) {
+	        return "End Time (Regular) cannot be before Start Time (Regular)";
+	    }
+
+	    if (dto.getEndTimeSat().isBefore(dto.getStartTimeSat())) {
+	        return "End Time (Saturday) cannot be before Start Time (Saturday)";
+	    }
+
+	    // --- Optional sanity checks ---
+	    if (dto.getStartTimeRegular().equals(dto.getEndTimeRegular())) {
+	        return "Start and End Time (Regular) cannot be the same";
+	    }
+
+	    if (dto.getStartTimeSat().equals(dto.getEndTimeSat())) {
+	        return "Start and End Time (Saturday) cannot be the same";
+	    }
+		
 		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
 			return "CompanyId "+dto.getCompanyId()+" does not exists";
 		}
@@ -139,6 +173,10 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
                         .city(dto.getCity().trim())
                         .hasCafe(dto.getHasCafe())
                         .amenities(dto.getAmenities().trim())
+                        .startTimeRegular(dto.getStartTimeRegular())
+                        .endTimeRegular(dto.getEndTimeRegular())
+                        .startTimeSat(dto.getStartTimeSat())
+                        .endTimeSat(dto.getEndTimeSat())
                         .build();
                 return saveOrUpdate(letsWorkCentre);
             }).collect(Collectors.toList());

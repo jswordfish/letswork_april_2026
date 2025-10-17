@@ -36,7 +36,7 @@ public class WifiRouterMappingToClientServiceImpl implements WifiRouterMappingTo
 	public String saveOrUpdate(WifiRouterMappingToClient mapping) {
 		// TODO Auto-generated method stub
 		
-		WifiRouter wifi = wifiRouterRepo.findByNameLetsWorkCentreAndCompany(mapping.getWifiName(), mapping.getLetsWorkCentre(), mapping.getCompanyId());
+		WifiRouter wifi = wifiRouterRepo.findByNameLetsWorkCentreAndCompanyAndCityAndState(mapping.getWifiName(), mapping.getLetsWorkCentre(), mapping.getCompanyId(), mapping.getCity(), mapping.getState());
 		
 		if(wifi==null) {
 			return "Wifi router with name "+mapping.getWifiName()+" does not exists";

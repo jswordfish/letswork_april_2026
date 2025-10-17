@@ -69,8 +69,8 @@ public class CabinServiceImpl implements CabinService {
             throw new RuntimeException("Cabin name and letsWorkCentre are required.");
         }
 
-        Optional<Cabin> existing = cabinRepository.findByCabinNameAndLetsWorkCentreAndCompanyId(
-                cabin.getCabinName(), cabin.getLetsWorkCentre(), cabin.getCompanyId());
+        Optional<Cabin> existing = cabinRepository.findByCabinNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
+                cabin.getCabinName(), cabin.getLetsWorkCentre(), cabin.getCompanyId(), cabin.getCity(), cabin.getState());
 
         if (existing.isPresent()) {
             Cabin old = existing.get();

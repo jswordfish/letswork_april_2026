@@ -49,9 +49,11 @@ public class WifiRouterController {
     public PaginatedResponseDto listByLetsWorkCentre(
             @RequestParam String letsWorkCentre,
             @RequestParam String companyId,
+            @RequestParam String city,
+            @RequestParam String state,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam String token) {
-        return service.listByLetsWorkCentre(letsWorkCentre, companyId, page);
+        return service.listByLetsWorkCentre(letsWorkCentre, companyId, city, state, page);
     }
 
     @DeleteMapping("/delete wifi router")

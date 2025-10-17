@@ -43,15 +43,15 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
     		
     	}
     	
-    	Optional<Seat> seat = seatRepo.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumber(mapping.getSeatType(), mapping.getCompanyId(), mapping.getLetsWorkCentre(), mapping.getSeatNumber());
+    	Optional<Seat> seat = seatRepo.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndState(mapping.getSeatType(), mapping.getCompanyId(), mapping.getLetsWorkCentre(), mapping.getSeatNumber(), mapping.getCity(), mapping.getState());
     	
     	if(seat.isEmpty()) {
     		throw new RuntimeException("Seat does not exists");
     	}
     	
         Optional<UserSeatMapping> existingMappingOpt =
-                userSeatMappingRepository.findByEmailAndCompanyIdAndLetsWorkCentre(
-                        mapping.getEmail(), mapping.getCompanyId(), mapping.getLetsWorkCentre());
+                userSeatMappingRepository.findByEmailAndCompanyIdAndLetsWorkCentreAndCityAndState(
+                        mapping.getEmail(), mapping.getCompanyId(), mapping.getLetsWorkCentre(), mapping.getCity(), mapping.getState());
 
         if (existingMappingOpt.isPresent()) {
             UserSeatMapping existing = existingMappingOpt.get();
@@ -59,6 +59,8 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
             existing.setSeatType(mapping.getSeatType());
             existing.setSeatNumber(mapping.getSeatNumber());
             existing.setNumberOfDays(mapping.getNumberOfDays());
+            existing.setCity(mapping.getCity());
+            existing.setState(mapping.getState());
 
             return userSeatMappingRepository.save(existing);
         } else {
@@ -68,9 +70,9 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
     }
 
     @Override
-    public PaginatedResponseDto listMappings(String companyId, String letsWorkCentre, int pageNo, int pageSize) {
+    public PaginatedResponseDto listMappings(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("id").descending());
-        Page<UserSeatMapping> page = userSeatMappingRepository.findByCompanyIdAndLetsWorkCentre(companyId, letsWorkCentre, pageable);
+        Page<UserSeatMapping> page = userSeatMappingRepository.findByCompanyIdAndLetsWorkCentreAndCityAndState(companyId, letsWorkCentre, city, state, pageable);
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom((pageNo - 1) * pageSize + 1);

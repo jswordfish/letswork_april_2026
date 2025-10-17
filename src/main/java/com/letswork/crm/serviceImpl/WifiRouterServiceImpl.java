@@ -68,7 +68,7 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 		}
 		
 		
-		WifiRouter wifi = repo.findByNameLetsWorkCentreAndCompany(wifiRouter.getWifiName(), wifiRouter.getLetsWorkCentre(), wifiRouter.getCompanyId());
+		WifiRouter wifi = repo.findByNameLetsWorkCentreAndCompanyAndCityAndState(wifiRouter.getWifiName(), wifiRouter.getLetsWorkCentre(), wifiRouter.getCompanyId(), wifiRouter.getCity(), wifiRouter.getState());
 		
 		if(wifi!=null) {
 			wifiRouter.setCreateDate(wifi.getCreateDate());
@@ -163,9 +163,9 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 	}
 
 	@Override
-	public PaginatedResponseDto listByLetsWorkCentre(String letsWorkCentre, String companyId, int page) {
+	public PaginatedResponseDto listByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page) {
 		// TODO Auto-generated method stub
-		Page<WifiRouter> wifiPage = repo.findByLetsWorkCentre(letsWorkCentre, companyId, PageRequest.of(page, PAGE_SIZE));
+		Page<WifiRouter> wifiPage = repo.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, PageRequest.of(page, PAGE_SIZE));
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom((int) wifiPage.getPageable().getOffset() + 1);
@@ -182,7 +182,7 @@ public class WifiRouterServiceImpl implements WifiRouterService {
 	public String deleteWifiRouter(WifiRouter wifiRouter) {
 		// TODO Auto-generated method stub
 		
-		WifiRouter wifi = repo.findByNameLetsWorkCentreAndCompany(wifiRouter.getWifiName(), wifiRouter.getLetsWorkCentre(), wifiRouter.getCompanyId());
+		WifiRouter wifi = repo.findByNameLetsWorkCentreAndCompanyAndCityAndState(wifiRouter.getWifiName(), wifiRouter.getLetsWorkCentre(), wifiRouter.getCompanyId(), wifiRouter.getCity(), wifiRouter.getState());
 		
 		if(wifi!=null) {
 			

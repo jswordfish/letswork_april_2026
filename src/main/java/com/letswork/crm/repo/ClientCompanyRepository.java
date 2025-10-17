@@ -17,22 +17,24 @@ import com.letswork.crm.entities.LetsWorkCentre;
 @Repository
 public interface ClientCompanyRepository extends JpaRepository<ClientCompany, Long> {
 
+	@Query("SELECT c FROM ClientCompany c WHERE c.clientCompanyName = :companyName AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
+	ClientCompany findByClientCompanyNameAndCompanyIdAndCityAndState(@Param("companyName") String companyName,
+	                                                                 @Param("companyId") String companyId,
+	                                                                 @Param("city") String city,
+	                                                                 @Param("state") String state);
+
+	@Query("SELECT c FROM ClientCompany c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
+	List<ClientCompany> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre,
+	                                                                    @Param("companyId") String companyId,
+	                                                                    @Param("city") String city,
+	                                                                    @Param("state") String state);
+
+	@Query("SELECT c FROM ClientCompany c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
+	Page<ClientCompany> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre,
+	                                                                    @Param("companyId") String companyId,
+	                                                                    @Param("city") String city,
+	                                                                    @Param("state") String state,
+	                                                                    Pageable pageable);
     
-    List<ClientCompany> findByLetsWorkCentre(LetsWorkCentre letsWorkCentre);
-    
-    @Query("SELECT c FROM ClientCompany c WHERE c.clientCompanyName = :companyName AND c.companyId = :companyId")
-    ClientCompany findByClientCompanyNameAndCompanyId(@Param("companyName") String companyName,
-                                                          @Param("companyId") String companyId);	
-    
-    @Query("SELECT c FROM ClientCompany c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
-    List<ClientCompany> findByLetsWorkCentreAndCompanyId(@Param("letsWorkCentre") String letsWorkCentre,
-                                                  @Param("companyId") String companyId);
-    
-    @Query("SELECT c FROM ClientCompany c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId")
-    Page<ClientCompany> findByLetsWorkCentreAndCompanyId(@Param("letsWorkCentre") String letsWorkCentre,
-                                                  @Param("companyId") String companyId,
-                                                  Pageable pageable);
-    
-   
     
 }
