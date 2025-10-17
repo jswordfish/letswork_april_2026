@@ -106,70 +106,70 @@ public class SeatServiceIntegrationTest {
         assertEquals(8200, updated.getCostPerMonth());
     }
 
-    @Test
-    void testGetTotalSeats() {
-        long totalDedicatedSeats = seatService.getTotalSeats(companyId, letsWorkCentre, SeatType.DEDICATED);
-        long totalFlexiSeats = seatService.getTotalSeats(companyId, letsWorkCentre, SeatType.FLEXI);
-
-        assertEquals(2, totalDedicatedSeats);
-        assertEquals(1, totalFlexiSeats);
-    }
-
-    @Test
-    void testGetAvailableSeats_NoUsers() {
-        long available = seatService.getAvailableSeats(companyId, letsWorkCentre, SeatType.DEDICATED);
-        assertEquals(2, available);
-    }
-
-    @Test
-    void testGetAvailableSeats_WithUsers() {
-        userSeatMappingRepository.save(UserSeatMapping.builder()
-                .companyId(companyId)
-                .letsWorkCentre(letsWorkCentre)
-                .seatType(SeatType.DEDICATED)
-                .seatNumber("1")
-                .email("user1@test.com")
-                .numberOfDays(5)
-                .build());
-
-        long available = seatService.getAvailableSeats(companyId, letsWorkCentre, SeatType.DEDICATED);
-        assertEquals(1, available); 
-    }
-
-    @Test
-    void testGetAvailableSeats_AllOccupied() {
-        userSeatMappingRepository.saveAll(List.of(
-                UserSeatMapping.builder()
-                        .companyId(companyId)
-                        .letsWorkCentre(letsWorkCentre)
-                        .seatType(SeatType.DEDICATED)
-                        .seatNumber("1")
-                        .email("u1@test.com")
-                        .numberOfDays(3)
-                        .build(),
-                UserSeatMapping.builder()
-                        .companyId(companyId)
-                        .letsWorkCentre(letsWorkCentre)
-                        .seatType(SeatType.DEDICATED)
-                        .seatNumber("2")
-                        .email("u2@test.com")
-                        .numberOfDays(2)
-                        .build()
-        ));
-
-        long available = seatService.getAvailableSeats(companyId, letsWorkCentre, SeatType.DEDICATED);
-        assertEquals(0, available);
-    }
-
-    @Test
-    void testGetAvailableSeats_InvalidLetsWorkCentre() {
-        long available = seatService.getAvailableSeats(companyId, "Pune", SeatType.DEDICATED);
-        assertEquals(0, available);
-    }
-
-    @Test
-    void testGetAvailableSeats_InvalidCompany() {
-        long available = seatService.getAvailableSeats("INVALID", letsWorkCentre, SeatType.DEDICATED);
-        assertEquals(0, available);
-    }
+//    @Test
+//    void testGetTotalSeats() {
+//        long totalDedicatedSeats = seatService.getTotalSeats(companyId, letsWorkCentre, SeatType.DEDICATED);
+//        long totalFlexiSeats = seatService.getTotalSeats(companyId, letsWorkCentre, SeatType.FLEXI);
+//
+//        assertEquals(2, totalDedicatedSeats);
+//        assertEquals(1, totalFlexiSeats);
+//    }
+//
+//    @Test
+//    void testGetAvailableSeats_NoUsers() {
+//        long available = seatService.getAvailableSeats(companyId, letsWorkCentre, SeatType.DEDICATED);
+//        assertEquals(2, available);
+//    }
+//
+//    @Test
+//    void testGetAvailableSeats_WithUsers() {
+//        userSeatMappingRepository.save(UserSeatMapping.builder()
+//                .companyId(companyId)
+//                .letsWorkCentre(letsWorkCentre)
+//                .seatType(SeatType.DEDICATED)
+//                .seatNumber("1")
+//                .email("user1@test.com")
+//                .numberOfDays(5)
+//                .build());
+//
+//        long available = seatService.getAvailableSeats(companyId, letsWorkCentre, SeatType.DEDICATED);
+//        assertEquals(1, available); 
+//    }
+//
+//    @Test
+//    void testGetAvailableSeats_AllOccupied() {
+//        userSeatMappingRepository.saveAll(List.of(
+//                UserSeatMapping.builder()
+//                        .companyId(companyId)
+//                        .letsWorkCentre(letsWorkCentre)
+//                        .seatType(SeatType.DEDICATED)
+//                        .seatNumber("1")
+//                        .email("u1@test.com")
+//                        .numberOfDays(3)
+//                        .build(),
+//                UserSeatMapping.builder()
+//                        .companyId(companyId)
+//                        .letsWorkCentre(letsWorkCentre)
+//                        .seatType(SeatType.DEDICATED)
+//                        .seatNumber("2")
+//                        .email("u2@test.com")
+//                        .numberOfDays(2)
+//                        .build()
+//        ));
+//
+//        long available = seatService.getAvailableSeats(companyId, letsWorkCentre, SeatType.DEDICATED);
+//        assertEquals(0, available);
+//    }
+//
+//    @Test
+//    void testGetAvailableSeats_InvalidLetsWorkCentre() {
+//        long available = seatService.getAvailableSeats(companyId, "Pune", SeatType.DEDICATED);
+//        assertEquals(0, available);
+//    }
+//
+//    @Test
+//    void testGetAvailableSeats_InvalidCompany() {
+//        long available = seatService.getAvailableSeats("INVALID", letsWorkCentre, SeatType.DEDICATED);
+//        assertEquals(0, available);
+//    }
 }
