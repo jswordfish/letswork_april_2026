@@ -1,6 +1,7 @@
 package com.letswork.crm.entities;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -27,12 +28,14 @@ public class Holiday extends Base{
 	
 	private String letsWorkCentre;
 	
-	private LocalDate holidayDate;
+	private Date holidayDate;
 	
 	private String holidayReason;
 	
 	private String city;
 	
 	private String state;
+	
+	
 
 }

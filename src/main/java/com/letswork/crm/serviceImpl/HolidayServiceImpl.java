@@ -1,6 +1,8 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,6 +44,8 @@ public class HolidayServiceImpl implements HolidayService {
     private LetsWorkCentreRepository letsWorkCentreRepo;
 
     ModelMapper mapper = new ModelMapper();
+    
+    DateFormat dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
 
     @Override
     public String saveOrUpdate(Holiday holiday) {
@@ -138,7 +142,8 @@ public class HolidayServiceImpl implements HolidayService {
                 holiday.setCompanyId(dto.getCompanyId().trim());
                 holiday.setCity(dto.getCity().trim());
                 holiday.setState(dto.getState().trim());
-                holiday.setHolidayDate(dto.getHolidayDate());
+                Date dt = dateFormat.parse(dto.getHolidayDate());
+                holiday.setHolidayDate(dt);
                 holiday.setHolidayReason(dto.getHolidayReason().trim());
 
                 String result = saveOrUpdate(holiday);

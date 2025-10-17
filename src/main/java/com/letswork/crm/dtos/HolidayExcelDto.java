@@ -22,7 +22,7 @@ public class HolidayExcelDto {
     private String state;
 
     @ExcelCellName("Holiday Date")
-    private LocalDate holidayDate;
+    private String holidayDate;
 
     @ExcelCellName("Holiday Reason")
     private String holidayReason;
