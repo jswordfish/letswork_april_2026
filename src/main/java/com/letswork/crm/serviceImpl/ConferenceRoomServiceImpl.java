@@ -223,7 +223,7 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
         }
 
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("name").ascending());
-        Page<ConferenceRoom> roomPage = repo.findByLetsWorkCentreAndCompanyIdAndCityAndState(loc.getName(), companyId, city, state, pageable);
+        Page<ConferenceRoom> roomPage = repo.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, pageable);
 
         return buildPaginatedResponse(roomPage, page);
     }

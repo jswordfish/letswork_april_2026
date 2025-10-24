@@ -32,14 +32,9 @@ public class ConferenceRoom extends Base{
     @NotBlank
     private String name;
     
-
     private Integer capacity;
 
     private String letsWorkCentre;
-    
-//    @Enumerated(EnumType.STRING)  
-//    @Column(nullable = false)
-//    private ConferenceRoomType roomType;
     
     private Boolean hasProjector;
     
