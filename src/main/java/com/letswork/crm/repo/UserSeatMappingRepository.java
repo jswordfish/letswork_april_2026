@@ -31,6 +31,6 @@ public interface UserSeatMappingRepository extends JpaRepository<UserSeatMapping
 	        @Param("state") String state);
 	
 	@Query("SELECT u FROM UserSeatMapping u WHERE u.letsWorkCentre = :letsWorkCentre AND u.companyId = :companyId AND u.city = :city AND u.state = :state")
-    Page<Cabin> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre, @Param("companyId") String companyId, @Param("city") String city, @Param("state") String state, Pageable pageable);
+    Page<UserSeatMapping> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre, @Param("companyId") String companyId, @Param("city") String city, @Param("state") String state, Pageable pageable);
     
 }
