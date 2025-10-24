@@ -21,5 +21,7 @@ public interface SeatService {
     long getAvailableSeats(String companyId, String letsWorkCentre, SeatType seatType, String city, String state);
     
     String uploadSeatExcel(MultipartFile file) throws Exception;
+    
+    PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page);
 
 }

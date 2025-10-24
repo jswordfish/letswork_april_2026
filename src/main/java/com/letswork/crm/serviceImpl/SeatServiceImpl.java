@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.SeatExcelDto;
+import com.letswork.crm.entities.ConferenceRoom;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.entities.Tenant;
@@ -251,6 +252,35 @@ public class SeatServiceImpl implements SeatService {
         long totalSeats = seatRepository.countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(companyId, letsWorkCentre, seatType, city, state);
         long occupiedSeats = userSeatMappingRepository.countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(companyId, letsWorkCentre, seatType, city, state);
         return Math.max(totalSeats - occupiedSeats, 0);
+    }
+    
+    
+    @Override
+    public PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page) {
+        // Check if letsWorkCentre exists
+    	LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state);
+        if (loc == null) {
+            return new PaginatedResponseDto(); 
+        }
+
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("name").ascending());
+        Page<Seat> seatPage = seatRepository.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, pageable);
+
+        return buildPaginatedResponse(seatPage, page);
+    }
+    
+    
+    private static final int PAGE_SIZE = 10;
+    
+    private PaginatedResponseDto buildPaginatedResponse(Page<Seat> seatPage, int page) {
+        PaginatedResponseDto response = new PaginatedResponseDto();
+        response.setRecordsFrom((page * PAGE_SIZE) + 1);
+        response.setRecordsTo(Math.min((page + 1) * PAGE_SIZE, (int) seatPage.getTotalElements()));
+        response.setTotalNumberOfRecords((int) seatPage.getTotalElements());
+        response.setTotalNumberOfPages(seatPage.getTotalPages());
+        response.setSelectedPage(page + 1);
+        response.setList(seatPage.getContent());
+        return response;
     }
     
 }
