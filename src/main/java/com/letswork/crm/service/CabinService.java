@@ -17,5 +17,7 @@ public interface CabinService {
     void delete(Long id);
 
     String uploadCabins(MultipartFile file) throws IOException;
+    
+    PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page);
 
 }

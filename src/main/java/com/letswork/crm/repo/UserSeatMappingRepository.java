@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.letswork.crm.entities.Cabin;
 import com.letswork.crm.entities.UserSeatMapping;
 import com.letswork.crm.enums.SeatType;
 
@@ -28,5 +29,8 @@ public interface UserSeatMappingRepository extends JpaRepository<UserSeatMapping
 	        @Param("seatType") SeatType seatType,
 	        @Param("city") String city,
 	        @Param("state") String state);
+	
+	@Query("SELECT u FROM UserSeatMapping u WHERE u.letsWorkCentre = :letsWorkCentre AND u.companyId = :companyId AND u.city = :city AND u.state = :state")
+    Page<Cabin> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre, @Param("companyId") String companyId, @Param("city") String city, @Param("state") String state, Pageable pageable);
     
 }

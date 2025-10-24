@@ -46,5 +46,16 @@ public class UserSeatMappingController {
         userSeatMappingService.deleteMapping(id);
         return ResponseEntity.ok("User-seat mapping deleted successfully");
     }
+    
+    @GetMapping("/find by LetsWorkCentre paginated")
+    public ResponseEntity<PaginatedResponseDto> findByLetsWorkCentre(
+            @RequestParam String letsWorkCentre,
+            @RequestParam String city,
+			@RequestParam String state,
+            @RequestParam String companyId,
+            @RequestParam String token,
+            @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(userSeatMappingService.findByLetsWorkCentre(letsWorkCentre, companyId, city, state, page));
+    }
 
 }

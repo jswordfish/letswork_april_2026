@@ -11,12 +11,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Cabin;
+import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
+import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.entities.User;
 import com.letswork.crm.entities.UserSeatMapping;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SeatRepository;
 import com.letswork.crm.repo.UserRepo;
 import com.letswork.crm.repo.UserSeatMappingRepository;
+import com.letswork.crm.service.LetsWorkCentreService;
+import com.letswork.crm.service.TenantService;
 import com.letswork.crm.service.UserSeatMappingService;
 
 @Service
@@ -31,6 +37,15 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
     
     @Autowired
     private SeatRepository seatRepo;
+    
+    @Autowired
+    TenantService tenantService;
+    
+    @Autowired
+    LetsWorkCentreRepository letsWorkCentreRepo;
+    
+    @Autowired
+	LetsWorkCentreService letsWorkCentreService;
 
     @Override
     public UserSeatMapping saveOrUpdate(UserSeatMapping mapping) {
@@ -89,4 +104,42 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
     public void deleteMapping(Long id) {
         userSeatMappingRepository.deleteById(id);
     }
+    
+    @Override
+    public PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page) {
+        // Check if letsWorkCentre exists
+    	
+		Tenant tenant = tenantService.findTenantByCompanyId(companyId);
+        
+        if(tenant == null) {
+            throw new RuntimeException("CompanyId invalid - " + companyId);
+        }
+        
+        LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state);
+        
+        if(loc == null) {
+            throw new RuntimeException("This letsWorkCentre does not exists");
+        }
+
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("email").ascending());
+        Page<Cabin> mappingPage = userSeatMappingRepository.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, pageable);
+
+        return buildPaginatedResponse(mappingPage, page);
+    }
+    
+    
+    private static final int PAGE_SIZE = 10;
+    
+    private PaginatedResponseDto buildPaginatedResponse(Page<Cabin> mappingPage, int page) {
+        PaginatedResponseDto response = new PaginatedResponseDto();
+        response.setRecordsFrom((page * PAGE_SIZE) + 1);
+        response.setRecordsTo(Math.min((page + 1) * PAGE_SIZE, (int) mappingPage.getTotalElements()));
+        response.setTotalNumberOfRecords((int) mappingPage.getTotalElements());
+        response.setTotalNumberOfPages(mappingPage.getTotalPages());
+        response.setSelectedPage(page + 1);
+        response.setList(mappingPage.getContent());
+        return response;
+    }
+    
+    
 }

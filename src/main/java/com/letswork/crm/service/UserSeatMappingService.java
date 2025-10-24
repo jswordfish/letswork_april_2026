@@ -10,5 +10,7 @@ public interface UserSeatMappingService {
     PaginatedResponseDto listMappings(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize);
 
     void deleteMapping(Long id);
+    
+    public PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page);
 
 }

@@ -10,6 +10,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -19,6 +21,7 @@ import com.letswork.crm.dtos.CabinExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Cabin;
 import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.Seat;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.CabinRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
@@ -186,4 +189,42 @@ public class CabinServiceImpl implements CabinService {
         }
         return "ok";
     }
+    
+    
+    @Override
+    public PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page) {
+        // Check if letsWorkCentre exists
+    	
+		Tenant tenant = tenantService.findTenantByCompanyId(companyId);
+        
+        if(tenant == null) {
+            throw new RuntimeException("CompanyId invalid - " + companyId);
+        }
+        
+        LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state);
+        
+        if(loc == null) {
+            throw new RuntimeException("This letsWorkCentre does not exists");
+        }
+
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("cabinName").ascending());
+        Page<Cabin> cabinPage = cabinRepository.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, pageable);
+
+        return buildPaginatedResponse(cabinPage, page);
+    }
+    
+    
+    private static final int PAGE_SIZE = 10;
+    
+    private PaginatedResponseDto buildPaginatedResponse(Page<Cabin> cabinPage, int page) {
+        PaginatedResponseDto response = new PaginatedResponseDto();
+        response.setRecordsFrom((page * PAGE_SIZE) + 1);
+        response.setRecordsTo(Math.min((page + 1) * PAGE_SIZE, (int) cabinPage.getTotalElements()));
+        response.setTotalNumberOfRecords((int) cabinPage.getTotalElements());
+        response.setTotalNumberOfPages(cabinPage.getTotalPages());
+        response.setSelectedPage(page + 1);
+        response.setList(cabinPage.getContent());
+        return response;
+    }
+    
 }

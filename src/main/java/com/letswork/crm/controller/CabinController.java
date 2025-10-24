@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,5 +51,16 @@ public class CabinController {
     public String uploadCabins(@RequestParam("file") MultipartFile file,
     		@RequestParam String token) throws IOException {
         return cabinService.uploadCabins(file);
+    }
+    
+    @GetMapping("/find by LetsWorkCentre paginated")
+    public ResponseEntity<PaginatedResponseDto> findByLetsWorkCentre(
+            @RequestParam String letsWorkCentre,
+            @RequestParam String city,
+			@RequestParam String state,
+            @RequestParam String companyId,
+            @RequestParam String token,
+            @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(cabinService.findByLetsWorkCentre(letsWorkCentre, companyId, city, state, page));
     }
 }
