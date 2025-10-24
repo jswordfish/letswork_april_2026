@@ -126,7 +126,7 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
         }
 
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("email").ascending());
-        Page<Cabin> mappingPage = userSeatMappingRepository.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, pageable);
+        Page<UserSeatMapping> mappingPage = userSeatMappingRepository.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, pageable);
 
         return buildPaginatedResponse(mappingPage, page);
     }
@@ -134,7 +134,7 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
     
     private static final int PAGE_SIZE = 10;
     
-    private PaginatedResponseDto buildPaginatedResponse(Page<Cabin> mappingPage, int page) {
+    private PaginatedResponseDto buildPaginatedResponse(Page<UserSeatMapping> mappingPage, int page) {
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom((page * PAGE_SIZE) + 1);
         response.setRecordsTo(Math.min((page + 1) * PAGE_SIZE, (int) mappingPage.getTotalElements()));
