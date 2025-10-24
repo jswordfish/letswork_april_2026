@@ -258,12 +258,20 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page) {
         // Check if letsWorkCentre exists
-    	LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state);
-        if (loc == null) {
-            return new PaginatedResponseDto(); 
+    	
+		Tenant tenant = tenantService.findTenantByCompanyId(companyId);
+        
+        if(tenant == null) {
+            throw new RuntimeException("CompanyId invalid - " + companyId);
+        }
+        
+        LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state);
+        
+        if(loc == null) {
+            throw new RuntimeException("This letsWorkCentre does not exists");
         }
 
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("name").ascending());
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("seatNumber").ascending());
         Page<Seat> seatPage = seatRepository.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, pageable);
 
         return buildPaginatedResponse(seatPage, page);
