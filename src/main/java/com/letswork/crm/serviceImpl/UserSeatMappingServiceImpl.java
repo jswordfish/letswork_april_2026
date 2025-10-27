@@ -54,6 +54,14 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
     @Override
     public UserSeatMapping saveOrUpdate(UserSeatMapping mapping) {
     	
+		Tenant tenant = tenantService.findTenantByCompanyId(mapping.getCompanyId());
+		
+		if(tenant==null) {
+			
+			throw new RuntimeException("CompanyId invalid - "+mapping.getCompanyId());
+			
+		}
+    	
     	Client client = clientRepo.findByEmailAndCompanyId(mapping.getEmail(), mapping.getCompanyId());
     	
     	if(client==null) {
@@ -62,10 +70,10 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
     		
     	}
     	
-    	Optional<Seat> seat = seatRepo.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndState(mapping.getSeatType(), mapping.getCompanyId(), mapping.getLetsWorkCentre(), mapping.getSeatNumber(), mapping.getCity(), mapping.getState());
+    	Optional<Seat> seat = seatRepo.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndStateAndPublishedTrue(mapping.getSeatType(), mapping.getCompanyId(), mapping.getLetsWorkCentre(), mapping.getSeatNumber(), mapping.getCity(), mapping.getState());
     	
     	if(seat.isEmpty()) {
-    		throw new RuntimeException("Seat does not exists");
+    		throw new RuntimeException("Seat does not exists or is not published");
     	}
     	
         Optional<UserSeatMapping> existingMappingOpt =

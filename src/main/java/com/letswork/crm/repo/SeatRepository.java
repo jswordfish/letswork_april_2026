@@ -21,6 +21,14 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 
 	Optional<Seat> findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndState(SeatType seatType, String companyId, String letsWorkCentre, String seatNumber, String city, String state);
 
+	Optional<Seat> findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndStateAndPublishedTrue(
+	        SeatType seatType,
+	        String companyId,
+	        String letsWorkCentre,
+	        String seatNumber,
+	        String city,
+	        String state);
+	
 	@Query("SELECT COUNT(s) FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre AND s.seatType = :seatType AND s.companyId = :companyId AND s.city = :city AND s.state = :state")
 	long countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(@Param("companyId") String companyId,
 	                                                                 @Param("letsWorkCentre") String letsWorkCentre,
@@ -30,5 +38,13 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 	
 	@Query("SELECT s FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre AND s.companyId = :companyId AND s.city = :city AND s.state = :state")
     Page<Seat> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre, @Param("companyId") String companyId, @Param("city") String city, @Param("state") String state, Pageable pageable);
+	
+	@Query("SELECT s FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre AND s.companyId = :companyId AND s.city = :city AND s.state = :state AND s.published = true")
+	Page<Seat> findPublishedSeatsByLetsWorkCentreAndCompanyIdAndCityAndState(
+	        @Param("letsWorkCentre") String letsWorkCentre,
+	        @Param("companyId") String companyId,
+	        @Param("city") String city,
+	        @Param("state") String state,
+	        Pageable pageable);
 	
 }

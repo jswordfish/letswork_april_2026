@@ -235,6 +235,22 @@ public class SeatServiceImpl implements SeatService {
 
         return response;
     }
+    
+    @Override
+    public PaginatedResponseDto listPublishedSeats(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("id").descending());
+        Page<Seat> page = seatRepository.findPublishedSeatsByLetsWorkCentreAndCompanyIdAndCityAndState(companyId, letsWorkCentre, city, state, pageable);
+
+        PaginatedResponseDto response = new PaginatedResponseDto();
+        response.setRecordsFrom((pageNo - 1) * pageSize + 1);
+        response.setRecordsTo((int) Math.min(pageNo * pageSize, page.getTotalElements()));
+        response.setTotalNumberOfRecords((int) page.getTotalElements());
+        response.setTotalNumberOfPages(page.getTotalPages());
+        response.setSelectedPage(pageNo);
+        response.setList(page.getContent());
+
+        return response;
+    }
 
     @Override
     public void deleteSeat(Long id) {

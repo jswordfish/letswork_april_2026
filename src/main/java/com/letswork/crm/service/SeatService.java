@@ -13,6 +13,8 @@ public interface SeatService {
 	Seat saveOrUpdate(Seat seat);
 
     PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize);
+    
+    PaginatedResponseDto listPublishedSeats(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize);
 
     void deleteSeat(Long id);
     

@@ -36,8 +36,6 @@ public class UserSeatMapping extends Base{
 	
 	private int numberOfDays;
 	
-
-	
 	private String seatNumber;
 	
 	private String city;

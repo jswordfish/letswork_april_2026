@@ -53,6 +53,19 @@ public class SeatController {
 
         return ResponseEntity.ok(seatService.listSeats(companyId, letsWorkCentre, city, state, pageNo, pageSize));
     }
+    
+    @GetMapping("/list published seats")
+    public ResponseEntity<PaginatedResponseDto> listPublishedSeats(
+            @RequestParam String companyId,
+            @RequestParam String letsWorkCentre,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam(defaultValue = "1") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam String token) {
+
+        return ResponseEntity.ok(seatService.listPublishedSeats(companyId, letsWorkCentre, city, state, pageNo, pageSize));
+    }
 
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteSeat(@RequestParam Long id, @RequestParam String token) {
