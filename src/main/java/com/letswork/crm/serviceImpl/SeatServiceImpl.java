@@ -239,7 +239,7 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public PaginatedResponseDto listPublishedSeats(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("id").descending());
-        Page<Seat> page = seatRepository.findPublishedSeatsByLetsWorkCentreAndCompanyIdAndCityAndState(companyId, letsWorkCentre, city, state, pageable);
+        Page<Seat> page = seatRepository.findPublishedSeatsByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, pageable);
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom((pageNo - 1) * pageSize + 1);
