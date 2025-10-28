@@ -94,7 +94,8 @@ public class UserController {
     public ResponseEntity<Page<User>> getUsers(
             @RequestParam String companyId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String token) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<User> users = service.getUsers(companyId, pageable);
