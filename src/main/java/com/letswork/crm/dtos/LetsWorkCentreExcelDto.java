@@ -37,15 +37,21 @@ public class LetsWorkCentreExcelDto {
     private String companyId;
     
     @ExcelCellName("Start Time Weekdays")
-    private LocalTime startTimeRegular;
+    private String startTimeRegular;
     
     @ExcelCellName("End Time Weekdays")
-    private LocalTime endTimeRegular;
+    private String endTimeRegular;
     
     @ExcelCellName("Start Time Saturday")
-    private LocalTime startTimeSat;
+    private String startTimeSat;
     
     @ExcelCellName("End Time Sturday")
-    private LocalTime endTimeSat;
+    private String endTimeSat;
+    
+    @ExcelCellName("Latitude")
+    private String latitude;
+    
+    @ExcelCellName("Longitude")
+    private String longitude;
 
 }

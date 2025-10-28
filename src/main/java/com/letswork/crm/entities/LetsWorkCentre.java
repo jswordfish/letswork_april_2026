@@ -43,16 +43,16 @@ public class LetsWorkCentre extends Base{
     
     private String amenities;
     
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm a")
     private LocalTime startTimeRegular;
     
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm a")
     private LocalTime endTimeRegular;
     
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm a")
     private LocalTime startTimeSat;
     
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm a")
     private LocalTime endTimeSat;
     
     private String latitude;

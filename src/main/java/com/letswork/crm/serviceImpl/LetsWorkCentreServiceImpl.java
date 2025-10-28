@@ -1,6 +1,8 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,6 +53,10 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 			
 		}
 		
+		validateTimeOrder("Weekdays", letsWorkCentre.getStartTimeRegular(), letsWorkCentre.getEndTimeRegular());
+		
+	    validateTimeOrder("Saturday", letsWorkCentre.getStartTimeSat(), letsWorkCentre.getEndTimeSat());
+		
 		
 		LetsWorkCentre loc = repo.findByNameAndCompanyIdAndCityAndState(letsWorkCentre.getName(), letsWorkCentre.getCompanyId(), letsWorkCentre.getCity(), letsWorkCentre.getState());
 		
@@ -72,6 +78,20 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 		}
 		
 		
+	}
+	
+	private void validateTimeOrder(String label, LocalTime startTime, LocalTime endTime) {
+	    if (startTime == null || endTime == null) {
+	        return; // skip validation if not provided
+	    }
+
+	    if (startTime.equals(endTime)) {
+	        throw new RuntimeException(label + " timing invalid: start time and end time cannot be the same (" + startTime + ")");
+	    }
+
+	    if (startTime.isAfter(endTime)) {
+	        throw new RuntimeException(label + " timing invalid: start time (" + startTime + ") cannot be after end time (" + endTime + ")");
+	    }
 	}
 	
 	
@@ -108,6 +128,14 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 			return "Cafe boolean Should not be null";	
 			}
 		
+		if(dto.getLatitude() == null || dto.getLatitude().length() == 0) {
+			return "Latitude Should not be null";	
+			}
+		
+		if(dto.getLongitude() == null || dto.getLongitude().length() == 0) {
+			return "Longitude Should not be null";	
+			}
+		
 		if (dto.getStartTimeRegular() == null) {
 	        return "Start Time (Regular) should not be null";
 	    }
@@ -125,15 +153,6 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	    }
 
 	    
-	    if (dto.getEndTimeRegular().isBefore(dto.getStartTimeRegular())) {
-	        return "End Time (Regular) cannot be before Start Time (Regular)";
-	    }
-
-	    if (dto.getEndTimeSat().isBefore(dto.getStartTimeSat())) {
-	        return "End Time (Saturday) cannot be before Start Time (Saturday)";
-	    }
-
-	    // --- Optional sanity checks ---
 	    if (dto.getStartTimeRegular().equals(dto.getEndTimeRegular())) {
 	        return "Start and End Time (Regular) cannot be the same";
 	    }
@@ -150,6 +169,23 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 		return "ok";
 	}
 	
+	private LocalTime parseTime(String time) {
+	    if (time == null || time.trim().isEmpty()) return null;
+
+	    time = time.trim().toUpperCase();
+	    DateTimeFormatter formatter12 = DateTimeFormatter.ofPattern("hh:mm a");
+	    DateTimeFormatter formatter24 = DateTimeFormatter.ofPattern("HH:mm");
+
+	    try {
+	        return LocalTime.parse(time, formatter12);  // Try 12-hour format first
+	    } catch (Exception e) {
+	        try {
+	            return LocalTime.parse(time, formatter24); // Then try 24-hour format
+	        } catch (Exception ex) {
+	            throw new RuntimeException("Invalid time format: " + time + " (expected formats: 'hh:mm a' or 'HH:mm')");
+	        }
+	    }
+	}
 	
 	@Override
 	public String uploadLetsWorkCentresFromExcel(MultipartFile file) {
@@ -164,6 +200,12 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
         	}
             
             List<String> responses = letsWorkCentres.stream().map(dto -> {
+            	
+            	LocalTime startRegular = parseTime(dto.getStartTimeRegular());
+                LocalTime endRegular = parseTime(dto.getEndTimeRegular());
+                LocalTime startSat = parseTime(dto.getStartTimeSat());
+                LocalTime endSat = parseTime(dto.getEndTimeSat());
+            	
             	LetsWorkCentre letsWorkCentre = LetsWorkCentre.builder()
                         .name(dto.getName().trim())
                         .totalConferenceRooms(dto.getTotalConferenceRooms())
@@ -173,10 +215,10 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
                         .city(dto.getCity().trim())
                         .hasCafe(dto.getHasCafe())
                         .amenities(dto.getAmenities().trim())
-                        .startTimeRegular(dto.getStartTimeRegular())
-                        .endTimeRegular(dto.getEndTimeRegular())
-                        .startTimeSat(dto.getStartTimeSat())
-                        .endTimeSat(dto.getEndTimeSat())
+                        .startTimeRegular(startRegular)
+                        .endTimeRegular(endRegular)
+                        .startTimeSat(startSat)
+                        .endTimeSat(endSat)
                         .build();
                 return saveOrUpdate(letsWorkCentre);
             }).collect(Collectors.toList());
