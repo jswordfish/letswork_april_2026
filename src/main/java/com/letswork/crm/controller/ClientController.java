@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,19 +21,20 @@ import com.letswork.crm.service.ClientService;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/client")
 public class ClientController {
 	
 	@Autowired
 	ClientService service;
 	
-	@PostMapping("/create client")
+	@PostMapping
 	public String createClient(@RequestBody Client client, @RequestParam String token) {
 		
 		return service.saveOrUpdate(client);
 		
 	}
 	
-	@PostMapping(value = "/clients-upload-excel", consumes = "multipart/form-data")
+	@PostMapping(value = "/upload-excel", consumes = "multipart/form-data")
 	public ResponseEntity<String> uploadClientsExcel(
 	        @RequestParam("file") MultipartFile file,
 	        @RequestParam String token) {
@@ -49,12 +51,12 @@ public class ClientController {
 	
 	
 	
-	@GetMapping("/get clients by company")
-    public ResponseEntity<List<Client>> getClientsByCompany(@RequestParam String companyName, @RequestParam String companyId, @RequestParam String token) {
-        return ResponseEntity.ok(service.getClientsByCompany(companyName, companyId));
-    }
+//	@GetMapping("/get clients by company")
+//    public ResponseEntity<List<Client>> getClientsByCompany(@RequestParam String companyName, @RequestParam String companyId, @RequestParam String token) {
+//        return ResponseEntity.ok(service.getClientsByCompany(companyName, companyId));
+//    }
 	
-	@GetMapping("/get clients by company paginated")
+	@GetMapping("/clients-by-company")
 	public ResponseEntity<PaginatedResponseDto> getClientsByCompany(
 	        @RequestParam String companyName,
 	        @RequestParam String companyId,
@@ -65,24 +67,24 @@ public class ClientController {
 	    return ResponseEntity.ok(response);
 	}
 	
-	@GetMapping("/get individuals")
-    public ResponseEntity<List<Client>> getIndividualClients(@RequestParam String companyId, @RequestParam String token) {
-        return ResponseEntity.ok(service.getIndividualClients(companyId));
-    }
+//	@GetMapping("/get-individuals")
+//    public ResponseEntity<List<Client>> getIndividualClients(@RequestParam String companyId, @RequestParam String token) {
+//        return ResponseEntity.ok(service.getIndividualClients(companyId));
+//    }
+//	
+//	@GetMapping("/individuals-by-LetsWorkCentre")
+//    public ResponseEntity<List<Client>> getIndividualClientsByLetsWorkCentre(@RequestParam String letsWorkCentre, @RequestParam String companyId, @RequestParam String token) {
+//        return ResponseEntity.ok(service.getIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId));
+//    }
 	
-	@GetMapping("/individuals by LetsWorkCentre")
-    public ResponseEntity<List<Client>> getIndividualClientsByLetsWorkCentre(@RequestParam String letsWorkCentre, @RequestParam String companyId, @RequestParam String token) {
-        return ResponseEntity.ok(service.getIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId));
-    }
-	
-	@DeleteMapping("/delete client")
+	@DeleteMapping
 	public String deleteClient(@RequestBody Client client, @RequestParam String token) {
 		
 		return service.deleteClient(client);
 		
 	}
 	
-	@GetMapping("/get individuals paginated")
+	@GetMapping("/get-individuals")
     public ResponseEntity<PaginatedResponseDto> getIndividualClients(
             @RequestParam String companyId,
             @RequestParam(defaultValue = "0") int page,
@@ -91,7 +93,7 @@ public class ClientController {
     }
 
     
-    @GetMapping("/individuals by LetsWorkCentre paginated")
+    @GetMapping("/individuals-by-LetsWorkCentre")
     public ResponseEntity<PaginatedResponseDto> getIndividualClientsByLetsWorkCentre(
             @RequestParam String letsWorkCentre,
             @RequestParam String companyId,

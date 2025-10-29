@@ -49,7 +49,7 @@ public class LandLordController {
         return ResponseEntity.ok(saved);
     }
     
-    @DeleteMapping("/delete-by-id")
+    @DeleteMapping
     public ResponseEntity<?> delete(@RequestParam Long id, @RequestParam String token) {
         landLordService.deleteById(id);
         return ResponseEntity.noContent().build();

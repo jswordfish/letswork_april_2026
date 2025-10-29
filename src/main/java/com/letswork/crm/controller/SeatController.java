@@ -27,7 +27,7 @@ public class SeatController {
     @Autowired
     private SeatService seatService;
 
-    @PostMapping("/save-or-update")
+    @PostMapping
     public ResponseEntity<Seat> saveOrUpdate(@RequestBody Seat seat, @RequestParam String token) {
         return ResponseEntity.ok(seatService.saveOrUpdate(seat));
     }
@@ -41,7 +41,7 @@ public class SeatController {
         return ResponseEntity.ok(seatService.uploadSeatExcel(file));
     }
 
-    @GetMapping("/list")
+    @GetMapping
     public ResponseEntity<PaginatedResponseDto> listSeats(
             @RequestParam String companyId,
             @RequestParam String letsWorkCentre,
@@ -54,7 +54,7 @@ public class SeatController {
         return ResponseEntity.ok(seatService.listSeats(companyId, letsWorkCentre, city, state, pageNo, pageSize));
     }
     
-    @GetMapping("/list published seats")
+    @GetMapping("/list-published-seats")
     public ResponseEntity<PaginatedResponseDto> listPublishedSeats(
             @RequestParam String companyId,
             @RequestParam String letsWorkCentre,
@@ -67,13 +67,13 @@ public class SeatController {
         return ResponseEntity.ok(seatService.listPublishedSeats(companyId, letsWorkCentre, city, state, pageNo, pageSize));
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping
     public ResponseEntity<String> deleteSeat(@RequestParam Long id, @RequestParam String token) {
         seatService.deleteSeat(id);
         return ResponseEntity.ok("Seat deleted successfully");
     }
     
-    @GetMapping("/total seats")
+    @GetMapping("/total-seats")
     public ResponseEntity<Long> getTotalSeats(@RequestParam String companyId,
                                               @RequestParam String letsWorkCentre,
                                               @RequestParam SeatType seatType,
@@ -84,7 +84,7 @@ public class SeatController {
         return ResponseEntity.ok(totalSeats);
     }
 
-    @GetMapping("/available seats")
+    @GetMapping("/available-seats")
     public ResponseEntity<Long> getAvailableSeats(@RequestParam String companyId,
                                                   @RequestParam String letsWorkCentre,
                                                   @RequestParam SeatType seatType,
@@ -95,7 +95,7 @@ public class SeatController {
         return ResponseEntity.ok(availableSeats);
     }
     
-    @GetMapping("/find by LetsWorkCentre paginated")
+    @GetMapping("/find-by-LetsWorkCentre")
     public ResponseEntity<PaginatedResponseDto> findByLetsWorkCentre(
             @RequestParam String letsWorkCentre,
             @RequestParam String city,

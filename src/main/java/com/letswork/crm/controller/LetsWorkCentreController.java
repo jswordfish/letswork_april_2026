@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,12 +21,13 @@ import com.letswork.crm.service.LetsWorkCentreService;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/LetsWorkCentre")
 public class LetsWorkCentreController {
 	
 	@Autowired
 	LetsWorkCentreService service;
 	
-	@PostMapping("/create LetsWorkCentre")
+	@PostMapping
 	public String createOrUpdate(@RequestBody LetsWorkCentre letsWorkCentre, @RequestParam String token) {
 		
 		return service.saveOrUpdate(letsWorkCentre);
@@ -33,7 +35,7 @@ public class LetsWorkCentreController {
 	}
 	
 	@PostMapping(
-		    value = "/upload-excel-LetsWorkCentre",
+		    value = "/upload-excel",
 		    consumes = "multipart/form-data"
 		)
     public ResponseEntity<String> uploadLetsWorkCentresExcel(@RequestParam("file") MultipartFile file, @RequestParam String token) {
@@ -45,28 +47,28 @@ public class LetsWorkCentreController {
         return ResponseEntity.ok(response);
     }
 	
-	@GetMapping("/fetch all LetsWorkCentres")
-	public List<LetsWorkCentre> fetchAll(@RequestParam String token, @RequestParam String companyId){
-		return service.findAll(companyId);
-	}
+//	@GetMapping("/fetch all LetsWorkCentres")
+//	public List<LetsWorkCentre> fetchAll(@RequestParam String token, @RequestParam String companyId){
+//		return service.findAll(companyId);
+//	}
 	
-	@GetMapping("/fetch all LetsWorkCentres paginated")
+	@GetMapping
     public ResponseEntity<PaginatedResponseDto> getAllLetsWorkCentres(
             @RequestParam(defaultValue = "0") int page, @RequestParam String token, @RequestParam String companyId) {
         return ResponseEntity.ok(service.getAllLetsWorkCentres(page, companyId));
     }
 	
-	@GetMapping("/fetch-amenities")
-    public ResponseEntity<List<String>> getAmenitiesForCentre(
-            @RequestParam String name,
-            @RequestParam String companyId,
-            @RequestParam String city,
-            @RequestParam String state,
-            @RequestParam String token) {
-
-        List<String> amenities = service.getAmenitiesForCentre(name, companyId, city, state);
-        return ResponseEntity.ok(amenities);
-    }
+//	@GetMapping("/fetch-amenities")
+//    public ResponseEntity<List<String>> getAmenitiesForCentre(
+//            @RequestParam String name,
+//            @RequestParam String companyId,
+//            @RequestParam String city,
+//            @RequestParam String state,
+//            @RequestParam String token) {
+//
+//        List<String> amenities = service.getAmenitiesForCentre(name, companyId, city, state);
+//        return ResponseEntity.ok(amenities);
+//    }
 	
 	@GetMapping("/amenities")
 	public ResponseEntity<List<String>> getAllAmenitiesByCompany(
@@ -77,7 +79,7 @@ public class LetsWorkCentreController {
         return ResponseEntity.ok(amenities);
     }
 	
-	@DeleteMapping("/delete LetsWorkCentre")
+	@DeleteMapping
 	public String deleteLetsWorkCentre(@RequestBody LetsWorkCentre letsWorkCentre, @RequestParam String token) {
 		
 		return service.deleteLetsWorkCentre(letsWorkCentre);

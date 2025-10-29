@@ -23,14 +23,14 @@ public class CreditConferenceRoomMappingController {
 	@Autowired
     private CreditConferenceRoomMappingService mappingService;
 
-    @PostMapping("/save credit mapping")
+    @PostMapping
     public ResponseEntity<CreditConferenceRoomMapping> saveOrUpdateMapping(@RequestBody CreditConferenceRoomMapping mapping, @RequestParam String token) {
         // Assume companyId is included in the request body (Mapping object)
         CreditConferenceRoomMapping savedMapping = mappingService.saveOrUpdate(mapping);
         return ResponseEntity.ok(savedMapping);
     }
 
-    @GetMapping("/get credit mapping")
+    @GetMapping
     public ResponseEntity<PaginatedResponseDto> listMappings(
         @RequestParam String companyId, 
         @RequestParam(defaultValue = "0") int page,
@@ -41,7 +41,7 @@ public class CreditConferenceRoomMappingController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/delete by id")
+    @DeleteMapping
     public ResponseEntity<String> deleteMapping(@RequestParam Long id, @RequestParam String token) {
         mappingService.deleteById(id);
         return ResponseEntity.ok("Conference room credit mapping deleted successfully.");

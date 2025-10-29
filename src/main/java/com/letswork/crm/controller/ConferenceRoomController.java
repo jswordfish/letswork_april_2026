@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,12 +22,13 @@ import com.letswork.crm.service.ConferenceRoomService;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/conferenceRoom")
 public class ConferenceRoomController {
 	
 	@Autowired
 	ConferenceRoomService service;
 	
-	@PostMapping("/create Conference Room")
+	@PostMapping
 	public String createOrUpdate(@RequestBody ConferenceRoom conferenceRoom, @RequestParam String token) {
 		
 		return service.saveOrUpdate(conferenceRoom);
@@ -34,7 +36,7 @@ public class ConferenceRoomController {
 	}
 	
 	
-	@PostMapping(value = "/conference-rooms-upload-excel", consumes = "multipart/form-data")
+	@PostMapping(value = "/upload-excel", consumes = "multipart/form-data")
 	public ResponseEntity<String> uploadConferenceRooms(
 	        @RequestParam("file") MultipartFile file,
 	        @RequestParam String token) throws IOException {
@@ -47,15 +49,15 @@ public class ConferenceRoomController {
 	    return ResponseEntity.ok(responses);
 	}
 	
-	@GetMapping("/Find by LetsWorkCentre")
-	public List<ConferenceRoom> findByLetsWorkCentre(@RequestParam String letsWorkCentre, @RequestParam String companyId,
-			@RequestParam String city,
-			@RequestParam String state,
-			@RequestParam String token){
-		return service.findByLetsWorkCentre(letsWorkCentre, companyId, city, state);
-	}
+//	@GetMapping("/Find by LetsWorkCentre")
+//	public List<ConferenceRoom> findByLetsWorkCentre(@RequestParam String letsWorkCentre, @RequestParam String companyId,
+//			@RequestParam String city,
+//			@RequestParam String state,
+//			@RequestParam String token){
+//		return service.findByLetsWorkCentre(letsWorkCentre, companyId, city, state);
+//	}
 	
-	@GetMapping("/find by LetsWorkCentre paginated")
+	@GetMapping("/find-by-LetsWorkCentre")
     public ResponseEntity<PaginatedResponseDto> findByLetsWorkCentre(
             @RequestParam String letsWorkCentre,
             @RequestParam String city,
@@ -75,7 +77,7 @@ public class ConferenceRoomController {
 //        return ResponseEntity.ok(service.findAvailableConferenceRooms(available, page));
 //    }
 	
-	@DeleteMapping("/delete room")
+	@DeleteMapping
 	public String deleteRoom(@RequestBody ConferenceRoom conferenceRoom, @RequestParam String token) {
 		
 		return service.deleteByName(conferenceRoom);

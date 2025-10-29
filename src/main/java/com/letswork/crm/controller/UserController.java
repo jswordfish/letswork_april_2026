@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +28,7 @@ import com.letswork.crm.service.UserService;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/user")
 public class UserController {
 	
 	
@@ -44,14 +46,14 @@ public class UserController {
 	@Autowired
 	UserRepo repo;
 	
-	@PostMapping("/create_user")
+	@PostMapping
 	public void createOrUpdateUser(@RequestBody User user, @RequestParam String token) {
 		
 		service.saveOrUpdate(user);
 		
 	}
 	
-	@PostMapping(value = "/upload-users-excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/upload-excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<String> uploadUsersExcel(
 	        @RequestParam("file") MultipartFile file,
 	        @RequestParam String companyId,
@@ -69,7 +71,7 @@ public class UserController {
 	    }
 	}
 	
-	@DeleteMapping("/delete user")
+	@DeleteMapping
 	public String deleteUser(@RequestBody User user, @RequestParam String token) {
 		
 		User user2 = service.findByEmail(user.getEmail(), user.getCompanyId());
@@ -83,14 +85,14 @@ public class UserController {
 	}
 	
 	 
-	@GetMapping("/fetch Users")
-	public List<User> fetchUsers(){
-		
-		return service.findAll();
-		
-	}
+//	@GetMapping
+//	public List<User> fetchUsers(){
+//		
+//		return service.findAll();
+//		
+//	}
 	
-	@GetMapping("/get users paginated")
+	@GetMapping
     public ResponseEntity<Page<User>> getUsers(
             @RequestParam String companyId,
             @RequestParam(defaultValue = "0") int page,

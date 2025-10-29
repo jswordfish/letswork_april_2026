@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,6 +21,7 @@ import com.letswork.crm.service.UserService;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/OrgHierarchy")
 public class OrgHierarchyController {
 	
 	@Autowired
@@ -34,7 +36,7 @@ public class OrgHierarchyController {
 	@Autowired
 	UserRepo userRepo;
 	
-	@PostMapping("/Create OrgHierarchy")
+	@PostMapping
 	public void createOrgHierarchy(@RequestBody OrgHierarchy orghierarchy, @RequestParam String token) {
 		
 		service.saveOrUpdate(orghierarchy);
@@ -42,7 +44,7 @@ public class OrgHierarchyController {
 	}
 	
 	
-	@DeleteMapping("/delete role")
+	@DeleteMapping("/delete-role")
 	public String deleteOrgHierarchy(@RequestBody OrgHierarchy orghierarchy, @RequestParam String token) {
 		
 		OrgHierarchy org = service.findByRoleOrDesig(orghierarchy.getRoleOrDesig(),orghierarchy.getCompanyId());
@@ -65,7 +67,7 @@ public class OrgHierarchyController {
 	}
 	
 	
-	@GetMapping("find all levels")
+	@GetMapping("find-all-levels")
 	public List<OrgHierarchy> listByCompanyId(@RequestParam String companyId){
 		return service.getAllHierarchyLevels(companyId);
 	}

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,17 +22,18 @@ import com.letswork.crm.service.ParkingSlotService;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/ParkingSlot")
 public class ParkingSlotController {
 	
 	@Autowired
 	ParkingSlotService service;
 	
-	@PostMapping("/create or update parking slot")
+	@PostMapping
     public String saveOrUpdate(@RequestBody ParkingSlot parkingSlot, @RequestParam String token) {
         return service.saveOrUpdate(parkingSlot);
     }
 	
-	@PostMapping(value = "/parking-slots-upload-excel", consumes = "multipart/form-data")
+	@PostMapping(value = "/upload-excel", consumes = "multipart/form-data")
 	public ResponseEntity<String> uploadParkingSlots(
 	        @RequestParam("file") MultipartFile file,
 	        @RequestParam String token) throws IOException {
@@ -44,7 +46,7 @@ public class ParkingSlotController {
 	    return ResponseEntity.ok(responses);
 	}
 
-    @GetMapping("/list slots by LetsWorkCentre")
+    @GetMapping
     public PaginatedResponseDto listByLetsWorkCentre(
             @RequestParam String letsWorkCentre,
             @RequestParam String companyId,
@@ -55,7 +57,7 @@ public class ParkingSlotController {
         return service.listByLetsWorkCentre(letsWorkCentre, companyId, city, state, page);
     }
 
-    @DeleteMapping("/delete parking slot")
+    @DeleteMapping
     public String delete(@RequestBody ParkingSlot parkingSlot, @RequestParam String token) {
         return service.deleteParkingSlot(parkingSlot);
     }

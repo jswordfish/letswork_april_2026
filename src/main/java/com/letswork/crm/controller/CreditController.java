@@ -23,14 +23,14 @@ public class CreditController {
 	@Autowired
     private CreditService creditService;
 
-    @PostMapping("/create credits")
+    @PostMapping
     public ResponseEntity<Credit> saveOrUpdateCredit(@RequestBody Credit credit, @RequestParam String token) {
         
         Credit savedCredit = creditService.saveOrUpdate(credit);
         return ResponseEntity.ok(savedCredit);
     }
 
-    @GetMapping("/get credits")
+    @GetMapping
     public ResponseEntity<PaginatedResponseDto> listCredits(
         @RequestParam String companyId, 
         @RequestParam(defaultValue = "0") int page,
@@ -41,7 +41,7 @@ public class CreditController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/delete credit by id")
+    @DeleteMapping
     public ResponseEntity<String> deleteCredit(@RequestParam Long id, @RequestParam String token) {
         creditService.deleteById(id);
         return ResponseEntity.ok("Credit deleted successfully.");

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,19 +22,20 @@ import com.letswork.crm.service.ClientCompanyService;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/clientCompany")
 public class ClientCompanyController {
 	
 	@Autowired
 	ClientCompanyService service;
 	
-	@PostMapping("/create client company")
+	@PostMapping
 	public String createCompany(@RequestBody ClientCompany clientCompany, @RequestParam String token) {
 		
 		return service.saveOrUpdate(clientCompany);
 		
 	}
 	
-	@PostMapping(value = "/client-companies-upload-excel", consumes = "multipart/form-data")
+	@PostMapping(value = "/upload-excel", consumes = "multipart/form-data")
 	public ResponseEntity<String> uploadClientCompanies(
 	        @RequestParam("file") MultipartFile file,
 	        @RequestParam String token) throws IOException {
@@ -46,21 +48,21 @@ public class ClientCompanyController {
 	    return ResponseEntity.ok(responses);
 	}
 	
-	@GetMapping("/get all companies")
-	public List<ClientCompany> getAll(@RequestParam String token){
-		
-		return service.listAll();
-		
-	}
+//	@GetMapping
+//	public List<ClientCompany> getAll(@RequestParam String token){
+//		
+//		return service.listAll();
+//		
+//	}
 	
-	@GetMapping("/get all companies paginated")
+	@GetMapping
     public ResponseEntity<PaginatedResponseDto> getAllCompanies(
             @RequestParam(defaultValue = "0") int page, @RequestParam String token) {
         return ResponseEntity.ok(service.listAll(page));
     }
 
     
-    @GetMapping("/companies by LetsWorkCentre paginated")
+    @GetMapping("/companies-by-LetsWorkCentre")
     public ResponseEntity<PaginatedResponseDto> getClientCompaniesByLetsWorkCentre(
             @RequestParam String letsWorkCentre,
             @RequestParam String companyId,
@@ -76,7 +78,7 @@ public class ClientCompanyController {
 //        return ResponseEntity.ok(service.getClientCompaniesByLetsWorkCentre(letsWorkCentre, companyId));
 //    }
 	
-	@DeleteMapping("/delete company")
+	@DeleteMapping
 	public String deleteCompany(@RequestBody ClientCompany clientCompany, @RequestParam String token) {
 		
 		return service.deleteCompany(clientCompany);

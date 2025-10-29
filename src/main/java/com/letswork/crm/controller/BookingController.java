@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,13 +19,14 @@ import com.letswork.crm.service.BookingService;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/booking")
 public class BookingController {
 	
 	@Autowired
 	BookingService service;
 	
 	
-	@PostMapping("/create booking")
+	@PostMapping
     public ResponseEntity<Booking> createBooking(
             @RequestParam String clientName,
             @RequestParam String clientEmail,
@@ -40,13 +42,13 @@ public class BookingController {
         return ResponseEntity.ok(booking);
     }
 
-    @GetMapping("/validate booking")
+    @GetMapping("/validate")
     public ResponseEntity<BookingValidationResponse> validateBooking(@RequestParam String bookingCode, @RequestParam String token) {
         BookingValidationResponse response = service.validateBooking(bookingCode);
         return ResponseEntity.ok(response);
     }
     
-    @PostMapping("/cancel booking")
+    @PostMapping("/cancel")
     public String cancelBooking(@RequestParam String bookingCode, @RequestParam String token) {
     	
     	return service.cancelBooking(bookingCode);

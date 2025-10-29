@@ -29,7 +29,7 @@ public class HolidayController {
         return holidayService.uploadHolidays(file);
     }
 
-    @GetMapping("/list")
+    @GetMapping
     public ResponseEntity<PaginatedResponseDto> listHolidays(
             @RequestParam(required = false) String companyId,
             @RequestParam(required = false) String letsWorkCentre,

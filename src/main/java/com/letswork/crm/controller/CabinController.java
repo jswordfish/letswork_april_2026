@@ -20,19 +20,19 @@ import com.letswork.crm.entities.Cabin;
 import com.letswork.crm.service.CabinService;
 
 @RestController
-@RequestMapping("/api/cabin")
+@RequestMapping("/cabin")
 @CrossOrigin
 public class CabinController {
 
     @Autowired
     private CabinService cabinService;
 
-    @PostMapping("/saveOrUpdate")
+    @PostMapping
     public Cabin saveOrUpdate(@RequestBody Cabin cabin, @RequestParam String token) {
         return cabinService.saveOrUpdate(cabin);
     }
 
-    @GetMapping("/list")
+    @GetMapping
     public PaginatedResponseDto listAll(@RequestParam String companyId,
                                         @RequestParam(defaultValue = "0") int page,
                                         @RequestParam(defaultValue = "10") int size,
@@ -40,7 +40,7 @@ public class CabinController {
         return cabinService.listAll(companyId, page, size);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping
     public String delete(@RequestParam Long id, @RequestParam String token) {
         cabinService.delete(id);
         return "Cabin deleted successfully";
@@ -53,7 +53,7 @@ public class CabinController {
         return cabinService.uploadCabins(file);
     }
     
-    @GetMapping("/find by LetsWorkCentre paginated")
+    @GetMapping("/find-by-LetsWorkCentre")
     public ResponseEntity<PaginatedResponseDto> findByLetsWorkCentre(
             @RequestParam String letsWorkCentre,
             @RequestParam String city,

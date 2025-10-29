@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,18 +22,19 @@ import com.letswork.crm.service.WifiRouterService;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/wifiRouter")
 public class WifiRouterController {
 	
 	@Autowired
     private WifiRouterService service;
 
-    @PostMapping("/create or update wifi router")
+    @PostMapping
     public String saveOrUpdate(@RequestBody WifiRouter wifiRouter, @RequestParam String token) {
     	
         return service.saveOrUpdate(wifiRouter);
     }
     
-    @PostMapping(value = "/wifi-routers-upload-excel", consumes = "multipart/form-data")
+    @PostMapping(value = "/upload-excel", consumes = "multipart/form-data")
     public ResponseEntity<String> uploadWifiRouters(
             @RequestParam("file") MultipartFile file,
             @RequestParam String token) throws IOException {
@@ -45,7 +47,7 @@ public class WifiRouterController {
         return ResponseEntity.ok(responses);
     }
 
-    @GetMapping("/list wifi by LetsWorkCentre")
+    @GetMapping
     public PaginatedResponseDto listByLetsWorkCentre(
             @RequestParam String letsWorkCentre,
             @RequestParam String companyId,
@@ -56,7 +58,7 @@ public class WifiRouterController {
         return service.listByLetsWorkCentre(letsWorkCentre, companyId, city, state, page);
     }
 
-    @DeleteMapping("/delete wifi router")
+    @DeleteMapping
     public String delete(@RequestBody WifiRouter wifiRouter, @RequestParam String token) {
     	
         return service.deleteWifiRouter(wifiRouter);
