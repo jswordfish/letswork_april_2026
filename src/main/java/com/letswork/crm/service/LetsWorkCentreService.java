@@ -20,6 +20,7 @@ public interface LetsWorkCentreService {
     
     PaginatedResponseDto getAllLetsWorkCentres(int page, String companyId);
     
+    public List<String> getAmenitiesForCentre(String name, String companyId, String city, String state);
     
     public String uploadLetsWorkCentresFromExcel(MultipartFile file);
     

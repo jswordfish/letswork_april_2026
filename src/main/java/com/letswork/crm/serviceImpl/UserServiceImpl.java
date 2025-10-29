@@ -155,9 +155,6 @@ public class UserServiceImpl implements UserService{
 			return "Last Name Should not be null";		
 			}
 		
-		if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
-			return "LetsWork Centre Should not be null";	
-			}
 		
 		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
 			return "CompanyId Should not be null";	
@@ -191,6 +188,7 @@ public class UserServiceImpl implements UserService{
 			return "State Should not be null";	
 			}
 		
+		
 		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
 			return "CompanyId "+dto.getCompanyId()+" does not exists";
 		}
@@ -198,7 +196,6 @@ public class UserServiceImpl implements UserService{
 		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getCity(), dto.getState()) == null){
 			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
 		}
-		
 		
 		
 		if(orgHierarchyService.findByRoleOrDesig(dto.getRoleOrDesig(), dto.getCompanyId())==null) {

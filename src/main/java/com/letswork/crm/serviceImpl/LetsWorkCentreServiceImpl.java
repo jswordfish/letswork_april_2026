@@ -3,6 +3,8 @@ package com.letswork.crm.serviceImpl;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +40,8 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	
 	@Autowired
 	TenantService tenantService;
+	
+	
 	
 	ModelMapper mapper = new ModelMapper();
 
@@ -136,6 +140,14 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 			return "Longitude Should not be null";	
 			}
 		
+		if(dto.getCity() == null || dto.getCity().length() == 0) {
+			return "City Should not be null";	
+			}
+		
+		if(dto.getState() == null || dto.getState().length() == 0) {
+			return "State Should not be null";	
+			}
+		
 		if (dto.getStartTimeRegular() == null) {
 	        return "Start Time (Regular) should not be null";
 	    }
@@ -164,6 +176,7 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
 			return "CompanyId "+dto.getCompanyId()+" does not exists";
 		}
+		
 		
 		
 		return "ok";
@@ -266,6 +279,26 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
         Page<LetsWorkCentre> letsWorkCentrePage = repo.findAllByCompanyId(companyId, pageable);
 
         return buildPaginatedResponse(letsWorkCentrePage, page);
+    }
+	
+	@Override
+    public List<String> getAmenitiesForCentre(String name, String companyId, String city, String state) {
+        LetsWorkCentre centre = repo.findByNameAndCompanyIdAndCityAndState(name, companyId, city, state);
+
+        if (centre == null) {
+            throw new RuntimeException("Centre not found for the given details");
+        }
+
+        String amenities = centre.getAmenities();
+        if (amenities == null || amenities.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Split by comma, trim spaces, and filter out empty strings
+        return Arrays.stream(amenities.split(","))
+                     .map(String::trim)
+                     .filter(s -> !s.isEmpty())
+                     .collect(Collectors.toList());
     }
 
     

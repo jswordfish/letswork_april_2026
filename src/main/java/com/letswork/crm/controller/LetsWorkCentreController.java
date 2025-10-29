@@ -56,6 +56,18 @@ public class LetsWorkCentreController {
         return ResponseEntity.ok(service.getAllLetsWorkCentres(page, companyId));
     }
 	
+	@GetMapping("/fetch-amenities")
+    public ResponseEntity<List<String>> getAmenitiesForCentre(
+            @RequestParam String name,
+            @RequestParam String companyId,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam String token) {
+
+        List<String> amenities = service.getAmenitiesForCentre(name, companyId, city, state);
+        return ResponseEntity.ok(amenities);
+    }
+	
 	@DeleteMapping("/delete LetsWorkCentre")
 	public String deleteLetsWorkCentre(@RequestBody LetsWorkCentre letsWorkCentre, @RequestParam String token) {
 		
