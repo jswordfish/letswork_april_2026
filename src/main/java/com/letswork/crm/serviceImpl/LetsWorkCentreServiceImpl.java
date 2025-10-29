@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -299,6 +300,25 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
                      .map(String::trim)
                      .filter(s -> !s.isEmpty())
                      .collect(Collectors.toList());
+    }
+	
+	@Override
+    public List<String> getAllAmenities(String companyId) {
+		List<String> allAmenities = repo.findAllAmenitiesByCompanyId(companyId);
+
+        if (allAmenities.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return allAmenities.stream()
+                .filter(Objects::nonNull)
+                .flatMap(a -> Arrays.stream(a.split(",")))  
+                .map(String::trim)                         
+                .filter(s -> !s.isEmpty())                 
+                .map(String::toLowerCase)                  
+                .distinct()                                
+                .sorted()                                  
+                .collect(Collectors.toList());
     }
 
     

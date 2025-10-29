@@ -28,6 +28,8 @@ public interface LetsWorkCentreRepository extends JpaRepository<LetsWorkCentre, 
 	                                                     @Param("city") String city,
 	                                                     @Param("state") String state);
     
+	@Query("SELECT l.amenities FROM LetsWorkCentre l WHERE l.companyId = :companyId AND l.amenities IS NOT NULL")
+	List<String> findAllAmenitiesByCompanyId(@Param("companyId") String companyId);
     
     @Query("SELECT l FROM LetsWorkCentre l WHERE l.companyId = :companyId")
     Page<LetsWorkCentre> findAllByCompanyId(@Param("companyId") String companyId, Pageable pageable);

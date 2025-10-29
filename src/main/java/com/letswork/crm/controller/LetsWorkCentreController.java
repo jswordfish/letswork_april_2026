@@ -68,6 +68,15 @@ public class LetsWorkCentreController {
         return ResponseEntity.ok(amenities);
     }
 	
+	@GetMapping("/amenities")
+	public ResponseEntity<List<String>> getAllAmenitiesByCompany(
+            @RequestParam String companyId,
+            @RequestParam String token) {
+
+        List<String> amenities = service.getAllAmenities(companyId);
+        return ResponseEntity.ok(amenities);
+    }
+	
 	@DeleteMapping("/delete LetsWorkCentre")
 	public String deleteLetsWorkCentre(@RequestBody LetsWorkCentre letsWorkCentre, @RequestParam String token) {
 		
