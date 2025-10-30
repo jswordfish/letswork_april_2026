@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import com.letswork.crm.enums.SeatType;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,7 +44,8 @@ public class Seat extends Base{
 	
 	private String cabinName;
 	
-	private Boolean published;
+	@Builder.Default
+	private Boolean published = false;
 	
 	private String state;
 	
