@@ -223,7 +223,7 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("id").descending());
-        Page<Seat> page = seatRepository.findByCompanyIdAndLetsWorkCentreAndCityAndState(companyId, letsWorkCentre, city, state, pageable);
+        Page<Seat> page = seatRepository.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, pageable);
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom((pageNo - 1) * pageSize + 1);
@@ -306,5 +306,28 @@ public class SeatServiceImpl implements SeatService {
         response.setList(seatPage.getContent());
         return response;
     }
+
+	@Override
+	public String publishSeats(String letsWorkCentre, String companyId, String city, String state, SeatType seatType,
+			String seatNumber) {
+		
+		Optional<Seat> existingSeatOpt = seatRepository.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndState(seatType, companyId, letsWorkCentre, seatNumber, city, state);
+		
+		if (existingSeatOpt.isPresent()) {
+	        Seat existingSeat = existingSeatOpt.get();
+
+	        if (Boolean.TRUE.equals(existingSeat.getPublished())) {
+	            return "seat already published";
+	        }
+
+	        existingSeat.setPublished(true);
+	        existingSeat.setUpdateDate(new Date());
+	        saveOrUpdate(existingSeat);
+	        return "seat published successfully";
+	    }
+
+	    return "seat does not exist";
+		
+	}
     
 }

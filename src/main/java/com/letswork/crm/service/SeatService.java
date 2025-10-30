@@ -25,5 +25,7 @@ public interface SeatService {
     String uploadSeatExcel(MultipartFile file) throws Exception;
     
     PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page);
+    
+    String publishSeats(String letsWorkCentre, String companyId, String city, String state, SeatType seatType, String seatNumber);
 
 }

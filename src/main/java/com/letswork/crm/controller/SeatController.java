@@ -106,4 +106,19 @@ public class SeatController {
         return ResponseEntity.ok(seatService.findByLetsWorkCentre(letsWorkCentre, companyId, city, state, page));
     }
     
+    @PostMapping("/publish")
+    public ResponseEntity<String> publishSeat(
+            @RequestParam String letsWorkCentre,
+            @RequestParam String companyId,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam SeatType seatType,
+            @RequestParam String seatNumber,
+            @RequestParam String token) {
+
+       
+        String response = seatService.publishSeats(letsWorkCentre, companyId, city, state, seatType, seatNumber);
+        return ResponseEntity.ok(response);
+    }
+    
 }

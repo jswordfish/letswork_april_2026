@@ -63,12 +63,7 @@ public class CabinController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping
-    public String delete(@RequestParam Long id, @RequestParam String token) {
-        cabinService.delete(id);
-        return "Cabin deleted successfully";
-    }
-
+    
     @PostMapping(value = "/uploadCabins",
 		    consumes = "multipart/form-data")
     public String uploadCabins(@RequestParam("file") MultipartFile file,

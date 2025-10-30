@@ -15,9 +15,7 @@ import com.letswork.crm.enums.SeatType;
 @Repository
 public interface SeatRepository extends JpaRepository<Seat, Long> {
 	
-	Page<Seat> findByCompanyIdAndLetsWorkCentreAndCityAndState(String companyId, String letsWorkCentre, String city, String state, Pageable pageable);
-
-	Optional<Seat> findBySeatTypeAndCompanyIdAndLetsWorkCentreAndCityAndState(SeatType seatType, String companyId, String letsWorkCentre, String city, String state);
+	
 
 	Optional<Seat> findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndState(SeatType seatType, String companyId, String letsWorkCentre, String seatNumber, String city, String state);
 
