@@ -227,6 +227,18 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 
         return buildPaginatedResponse(roomPage, page);
     }
+    
+    @Override
+    public PaginatedResponseDto listAll(String companyId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        Page<ConferenceRoom> roomPage = repo.findAllByCompanyId(companyId, pageable);
+
+        if (roomPage.isEmpty()) {
+            return new PaginatedResponseDto();
+        }
+
+        return buildPaginatedResponse(roomPage, page);
+    }
 
     
 //    @Override

@@ -57,16 +57,37 @@ public class ConferenceRoomController {
 //		return service.findByLetsWorkCentre(letsWorkCentre, companyId, city, state);
 //	}
 	
-	@GetMapping("/find-by-LetsWorkCentre")
-    public ResponseEntity<PaginatedResponseDto> findByLetsWorkCentre(
-            @RequestParam String letsWorkCentre,
-            @RequestParam String city,
-			@RequestParam String state,
-            @RequestParam String companyId,
-            @RequestParam String token,
-            @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(service.findByLetsWorkCentre(letsWorkCentre, companyId, city, state, page));
-    }
+//	@GetMapping("/find-by-LetsWorkCentre")
+//    public ResponseEntity<PaginatedResponseDto> findByLetsWorkCentre(
+//            @RequestParam String letsWorkCentre,
+//            @RequestParam String city,
+//			@RequestParam String state,
+//            @RequestParam String companyId,
+//            @RequestParam String token,
+//            @RequestParam(defaultValue = "0") int page) {
+//        return ResponseEntity.ok(service.findByLetsWorkCentre(letsWorkCentre, companyId, city, state, page));
+//    }
+	
+	@GetMapping
+	public ResponseEntity<PaginatedResponseDto> listConferenceRooms(
+	        @RequestParam String companyId,
+	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) String city,
+	        @RequestParam(required = false) String state,
+	        @RequestParam String token,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size) {
+
+	    PaginatedResponseDto response;
+
+	    if (letsWorkCentre != null && city != null && state != null) {
+	        response = service.findByLetsWorkCentre(letsWorkCentre, companyId, city, state, page);
+	    } else {
+	        response = service.listAll(companyId, page, size);
+	    }
+
+	    return ResponseEntity.ok(response);
+	}
 
     
 //    @GetMapping("/get available rooms paginated")

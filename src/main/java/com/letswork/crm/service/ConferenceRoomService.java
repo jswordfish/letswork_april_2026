@@ -22,5 +22,7 @@ public interface ConferenceRoomService {
 	String deleteByName(ConferenceRoom conferenceRoom);
 	
 	public String uploadConferenceRooms(MultipartFile file) throws IOException;
+	
+	public PaginatedResponseDto listAll(String companyId, int page, int size);
 
 }

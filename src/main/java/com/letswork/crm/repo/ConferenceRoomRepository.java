@@ -41,6 +41,9 @@ public interface ConferenceRoomRepository extends JpaRepository<ConferenceRoom, 
 	                                                                     @Param("city") String city,
 	                                                                     @Param("state") String state,
 	                                                                     Pageable pageable);
+	
+	@Query("SELECT c FROM ConferenceRoom c WHERE c.companyId = :companyId")
+    Page<ConferenceRoom> findAllByCompanyId(@Param("companyId") String companyId, Pageable pageable);
     
     
 
