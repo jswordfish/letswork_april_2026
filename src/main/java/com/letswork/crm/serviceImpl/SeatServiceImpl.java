@@ -102,6 +102,7 @@ public class SeatServiceImpl implements SeatService {
             return seatRepository.save(existingSeat);
         } else {
             seat.setCreateDate(new Date());
+            seat.setPublished(false);
             
             return seatRepository.save(seat);
         }
