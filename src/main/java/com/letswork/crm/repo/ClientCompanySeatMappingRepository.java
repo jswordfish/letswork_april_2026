@@ -1,5 +1,7 @@
 package com.letswork.crm.repo;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.ClientCompanySeatMapping;
+import com.letswork.crm.enums.SeatType;
 
 @Repository
 public interface ClientCompanySeatMappingRepository extends JpaRepository<ClientCompanySeatMapping, Long> {
@@ -34,5 +37,22 @@ public interface ClientCompanySeatMappingRepository extends JpaRepository<Client
 
     @Query("SELECT c FROM ClientCompanySeatMapping c WHERE c.companyId = :companyId")
     Page<ClientCompanySeatMapping> findByCompanyId(@Param("companyId") String companyId, Pageable pageable);
+    
+    @Query("SELECT c FROM ClientCompanySeatMapping c WHERE " +
+    	       "c.clientCompanyName = :clientCompanyName AND " +
+    	       "c.letsWorkCentre = :letsWorkCentre AND " +
+    	       "c.companyId = :companyId AND " +
+    	       "c.city = :city AND " +
+    	       "c.state = :state AND " +
+    	       "c.seatType = :seatType AND " +
+    	       "c.seatNumber = :seatNumber")
+    	Optional<ClientCompanySeatMapping> findByFullBusinessKey(
+    	        @Param("clientCompanyName") String clientCompanyName,
+    	        @Param("letsWorkCentre") String letsWorkCentre,
+    	        @Param("companyId") String companyId,
+    	        @Param("city") String city,
+    	        @Param("state") String state,
+    	        @Param("seatType") SeatType seatType,
+    	        @Param("seatNumber") String seatNumber);
     
 }
