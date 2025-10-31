@@ -222,12 +222,26 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("id").descending());
-        Page<Seat> page = seatRepository.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state, pageable);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("id").descending());
+
+        Page<Seat> page;
+
+        // Dynamic filtering logic
+        if ((letsWorkCentre == null || letsWorkCentre.isEmpty()) &&
+            (city == null || city.isEmpty()) &&
+            (state == null || state.isEmpty())) {
+
+            // No filters → list all for company
+            page = seatRepository.findByCompanyId(companyId, pageable);
+
+        } else {
+            // Apply filters dynamically
+            page = seatRepository.findByFilters(companyId, letsWorkCentre, city, state, pageable);
+        }
 
         PaginatedResponseDto response = new PaginatedResponseDto();
-        response.setRecordsFrom((pageNo - 1) * pageSize + 1);
-        response.setRecordsTo((int) Math.min(pageNo * pageSize, page.getTotalElements()));
+        response.setRecordsFrom(pageNo * pageSize + 1);
+        response.setRecordsTo((int) Math.min((pageNo + 1) * pageSize, page.getTotalElements()));
         response.setTotalNumberOfRecords((int) page.getTotalElements());
         response.setTotalNumberOfPages(page.getTotalPages());
         response.setSelectedPage(pageNo);

@@ -27,6 +27,18 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 	        String city,
 	        String state);
 	
+	Page<Seat> findByCompanyId(String companyId, Pageable pageable);
+
+    @Query("SELECT s FROM Seat s WHERE s.companyId = :companyId "
+         + "AND (:letsWorkCentre IS NULL OR s.letsWorkCentre = :letsWorkCentre) "
+         + "AND (:city IS NULL OR s.city = :city) "
+         + "AND (:state IS NULL OR s.state = :state)")
+    Page<Seat> findByFilters(@Param("companyId") String companyId,
+                             @Param("letsWorkCentre") String letsWorkCentre,
+                             @Param("city") String city,
+                             @Param("state") String state,
+                             Pageable pageable);
+	
 	@Query("SELECT COUNT(s) FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre AND s.seatType = :seatType AND s.companyId = :companyId AND s.city = :city AND s.state = :state")
 	long countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(@Param("companyId") String companyId,
 	                                                                 @Param("letsWorkCentre") String letsWorkCentre,

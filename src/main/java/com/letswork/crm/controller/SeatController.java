@@ -41,18 +41,18 @@ public class SeatController {
         return ResponseEntity.ok(seatService.uploadSeatExcel(file));
     }
 
-    @GetMapping
-    public ResponseEntity<PaginatedResponseDto> listSeats(
-            @RequestParam String companyId,
-            @RequestParam String letsWorkCentre,
-            @RequestParam String city,
-            @RequestParam String state,
-            @RequestParam(defaultValue = "1") int pageNo,
-            @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam String token) {
-
-        return ResponseEntity.ok(seatService.listSeats(companyId, letsWorkCentre, city, state, pageNo, pageSize));
-    }
+//    @GetMapping
+//    public ResponseEntity<PaginatedResponseDto> listSeats(
+//            @RequestParam String companyId,
+//            @RequestParam String letsWorkCentre,
+//            @RequestParam String city,
+//            @RequestParam String state,
+//            @RequestParam(defaultValue = "1") int pageNo,
+//            @RequestParam(defaultValue = "10") int pageSize,
+//            @RequestParam String token) {
+//
+//        return ResponseEntity.ok(seatService.listSeats(companyId, letsWorkCentre, city, state, pageNo, pageSize));
+//    }
     
     @GetMapping("/list-published-seats")
     public ResponseEntity<PaginatedResponseDto> listPublishedSeats(
@@ -95,15 +95,17 @@ public class SeatController {
         return ResponseEntity.ok(availableSeats);
     }
     
-    @GetMapping("/find-by-LetsWorkCentre")
-    public ResponseEntity<PaginatedResponseDto> findByLetsWorkCentre(
-            @RequestParam String letsWorkCentre,
-            @RequestParam String city,
-			@RequestParam String state,
+    @GetMapping
+    public ResponseEntity<PaginatedResponseDto> listSeats(
             @RequestParam String companyId,
+            @RequestParam(required = false) String letsWorkCentre,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String state,
             @RequestParam String token,
-            @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(seatService.findByLetsWorkCentre(letsWorkCentre, companyId, city, state, page));
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(seatService.listSeats(companyId, letsWorkCentre, city, state, page, size));
     }
     
     @PostMapping("/publish")
