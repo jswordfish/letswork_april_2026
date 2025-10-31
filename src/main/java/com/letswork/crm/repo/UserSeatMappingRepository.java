@@ -33,4 +33,20 @@ public interface UserSeatMappingRepository extends JpaRepository<UserSeatMapping
 	@Query("SELECT u FROM UserSeatMapping u WHERE u.letsWorkCentre = :letsWorkCentre AND u.companyId = :companyId AND u.city = :city AND u.state = :state")
     Page<UserSeatMapping> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre, @Param("companyId") String companyId, @Param("city") String city, @Param("state") String state, Pageable pageable);
     
+	
+	@Query("SELECT u FROM UserSeatMapping u WHERE " +
+		       "u.seatNumber = :seatNumber AND " +
+		       "u.seatType = :seatType AND " +
+		       "u.letsWorkCentre = :letsWorkCentre AND " +
+		       "u.companyId = :companyId AND " +
+		       "u.city = :city AND " +
+		       "u.state = :state")
+		Optional<UserSeatMapping> findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
+		        @Param("seatNumber") String seatNumber,
+		        @Param("seatType") SeatType seatType,
+		        @Param("letsWorkCentre") String letsWorkCentre,
+		        @Param("companyId") String companyId,
+		        @Param("city") String city,
+		        @Param("state") String state);
+	
 }

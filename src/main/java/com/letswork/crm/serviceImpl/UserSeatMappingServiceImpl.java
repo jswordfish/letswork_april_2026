@@ -76,6 +76,21 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
     		throw new RuntimeException("Seat does not exists or is not published");
     	}
     	
+    	
+    	Optional<UserSeatMapping> seatAssignedOpt =
+                userSeatMappingRepository.findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
+                        mapping.getSeatNumber(), mapping.getSeatType(), mapping.getLetsWorkCentre(),
+                        mapping.getCompanyId(), mapping.getCity(), mapping.getState());
+
+        if (seatAssignedOpt.isPresent()) {
+            UserSeatMapping seatAssigned = seatAssignedOpt.get();
+            
+            if (!seatAssigned.getEmail().equalsIgnoreCase(mapping.getEmail())) {
+                throw new RuntimeException("Seat " + mapping.getSeatNumber() + " is already assigned to another user: " + seatAssigned.getEmail());
+            }
+        }
+    	
+    	
         Optional<UserSeatMapping> existingMappingOpt =
                 userSeatMappingRepository.findByEmailAndCompanyIdAndLetsWorkCentreAndCityAndState(
                         mapping.getEmail(), mapping.getCompanyId(), mapping.getLetsWorkCentre(), mapping.getCity(), mapping.getState());
