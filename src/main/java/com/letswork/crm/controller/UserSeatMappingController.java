@@ -23,12 +23,12 @@ public class UserSeatMappingController {
 	@Autowired
     private UserSeatMappingService userSeatMappingService;
 
-    @PostMapping("/save-or-update")
+    @PostMapping
     public ResponseEntity<UserSeatMapping> saveOrUpdate(@RequestBody UserSeatMapping mapping, @RequestParam String token) {
         return ResponseEntity.ok(userSeatMappingService.saveOrUpdate(mapping));
     }
 
-    @GetMapping("/list")
+    @GetMapping
     public ResponseEntity<PaginatedResponseDto> listMappings(
             @RequestParam String companyId,
             @RequestParam String letsWorkCentre,
@@ -41,13 +41,13 @@ public class UserSeatMappingController {
         return ResponseEntity.ok(userSeatMappingService.listMappings(companyId, letsWorkCentre, city, state, pageNo, pageSize));
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping
     public ResponseEntity<String> deleteMapping(@RequestParam Long id, @RequestParam String token) {
         userSeatMappingService.deleteMapping(id);
         return ResponseEntity.ok("User-seat mapping deleted successfully");
     }
     
-    @GetMapping("/find by LetsWorkCentre paginated")
+    @GetMapping("/find-by-LetsWorkCentre")
     public ResponseEntity<PaginatedResponseDto> findByLetsWorkCentre(
             @RequestParam String letsWorkCentre,
             @RequestParam String city,

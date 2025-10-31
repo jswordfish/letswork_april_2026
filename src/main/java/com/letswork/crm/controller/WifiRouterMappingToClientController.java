@@ -20,21 +20,21 @@ public class WifiRouterMappingToClientController {
 	@Autowired
 	WifiRouterMappingToClientService service;
 	
-	@PostMapping("/create mapping")
+	@PostMapping
 	public String createOrUpdate(@RequestBody WifiRouterMappingToClient mapping, @RequestParam String token) {
 		
 		return service.saveOrUpdate(mapping);
 		
 	}
 	
-	@DeleteMapping("/delete mapping")
+	@DeleteMapping
 	public String deleteMapping(@RequestBody WifiRouterMappingToClient mapping, @RequestParam String token) {
 		
 		return service.deleteMapping(mapping);
 		
 	}
 	
-	@GetMapping("/get clients by wifi")
+	@GetMapping("/get-clients-by-wifi")
     public PaginatedResponseDto getClientsByWifi(@RequestParam String wifiName,
                                                  @RequestParam String letsWorkCentre,
                                                  @RequestParam String companyId,
@@ -44,7 +44,7 @@ public class WifiRouterMappingToClientController {
     }
 
     
-    @GetMapping("/get routers by client")
+    @GetMapping("/get-routers-by-client")
     public PaginatedResponseDto getRoutersByClient(@RequestParam String clientName,
                                                    @RequestParam String clientEmail,
                                                    @RequestParam String companyId,

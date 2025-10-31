@@ -21,14 +21,14 @@ public class UserCreditController {
 	@Autowired
     private UserCreditService userCreditService;
 
-    @PostMapping("/save user credits")
+    @PostMapping
     public ResponseEntity<UserCredit> saveOrUpdateUserCredit(@RequestBody UserCredit userCredit, @RequestParam String token) {
         // Assume companyId is included in the request body (UserCredit object)
         UserCredit savedCredit = userCreditService.saveOrUpdate(userCredit);
         return ResponseEntity.ok(savedCredit);
     }
 
-    @GetMapping("/list user credits")
+    @GetMapping("/list-user-credits")
     public ResponseEntity<UserCredit> getUserCreditsByEmail(
         @RequestParam String email,
         @RequestParam String companyId,
@@ -41,7 +41,7 @@ public class UserCreditController {
         return ResponseEntity.ok(userCredit);
     }
 
-    @GetMapping("/list all user credits")
+    @GetMapping
     public ResponseEntity<PaginatedResponseDto> listAllUserCredits(
         @RequestParam String companyId, 
         @RequestParam(defaultValue = "0") int page,
@@ -52,7 +52,7 @@ public class UserCreditController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/delete by id")
+    @DeleteMapping
     public ResponseEntity<String> deleteUserCredit(@RequestParam Long id, @RequestParam String token) {
         userCreditService.deleteById(id);
         return ResponseEntity.ok("User credit entry deleted successfully.");

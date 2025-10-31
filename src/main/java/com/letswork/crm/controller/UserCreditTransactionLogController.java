@@ -22,7 +22,7 @@ public class UserCreditTransactionLogController {
     private UserCreditTransactionLogService transactionService;
 
     // API to create a new transaction (debit or credit)
-    @PostMapping("/create a new transaction")
+    @PostMapping
     public ResponseEntity<?> logTransaction(@RequestBody UserCreditTransactionLog transactionLog, @RequestParam String token) {
         // transactionLog must contain companyId, userEmail, totalCredits, and creditTransactionType
         try {
@@ -37,7 +37,7 @@ public class UserCreditTransactionLogController {
     }
     
     // API to list transactions for a specific user
-    @GetMapping("/list transactions for a specific user")
+    @GetMapping("/list-user")
     public ResponseEntity<PaginatedResponseDto> listUserTransactions(
         @RequestParam String email,
         @RequestParam String companyId, 
@@ -50,7 +50,7 @@ public class UserCreditTransactionLogController {
     }
 
     // API to list all transactions for a company
-    @GetMapping("/list all transactions for a company")
+    @GetMapping("/list-company")
     public ResponseEntity<PaginatedResponseDto> listAllTransactions(
         @RequestParam String companyId, 
         @RequestParam(defaultValue = "0") int page,
