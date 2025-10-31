@@ -74,7 +74,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 		}
 		
 		
-		ClientCompany com = repo.findByClientCompanyNameAndCompanyIdAndCityAndState(clientCompany.getClientCompanyName(), clientCompany.getCompanyId(), clientCompany.getCity(), clientCompany.getState());
+		ClientCompany com = repo.findByClientCompanyNameAndCompanyIdAndCityAndStateAndLetsWorkCentre(clientCompany.getClientCompanyName(), clientCompany.getCompanyId(), clientCompany.getCity(), clientCompany.getState(), clientCompany.getLetsWorkCentre());
 		
 		if(com!=null) {
 			
@@ -183,7 +183,7 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 	@Override
 	public String deleteCompany(ClientCompany clientCompany) {
 		// TODO Auto-generated method stub
-		ClientCompany com = repo.findByClientCompanyNameAndCompanyIdAndCityAndState(clientCompany.getClientCompanyName(),  clientCompany.getCompanyId(), clientCompany.getCity(), clientCompany.getState());
+		ClientCompany com = repo.findByClientCompanyNameAndCompanyIdAndCityAndStateAndLetsWorkCentre(clientCompany.getClientCompanyName(),  clientCompany.getCompanyId(), clientCompany.getCity(), clientCompany.getState(), clientCompany.getLetsWorkCentre());
 		
 		if(com!=null) {
 			repo.delete(com);

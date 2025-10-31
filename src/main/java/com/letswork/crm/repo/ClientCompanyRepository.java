@@ -17,11 +17,18 @@ import com.letswork.crm.entities.LetsWorkCentre;
 @Repository
 public interface ClientCompanyRepository extends JpaRepository<ClientCompany, Long> {
 
-	@Query("SELECT c FROM ClientCompany c WHERE c.clientCompanyName = :companyName AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
-	ClientCompany findByClientCompanyNameAndCompanyIdAndCityAndState(@Param("companyName") String companyName,
-	                                                                 @Param("companyId") String companyId,
-	                                                                 @Param("city") String city,
-	                                                                 @Param("state") String state);
+	@Query("SELECT c FROM ClientCompany c WHERE " +
+		       "c.clientCompanyName = :companyName AND " +
+		       "c.companyId = :companyId AND " +
+		       "c.city = :city AND " +
+		       "c.state = :state AND " +
+		       "c.letsWorkCentre = :letsWorkCentre")
+		ClientCompany findByClientCompanyNameAndCompanyIdAndCityAndStateAndLetsWorkCentre(
+		        @Param("companyName") String companyName,
+		        @Param("companyId") String companyId,
+		        @Param("city") String city,
+		        @Param("state") String state,
+		        @Param("letsWorkCentre") String letsWorkCentre);
 
 	@Query("SELECT c FROM ClientCompany c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
 	List<ClientCompany> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre,
