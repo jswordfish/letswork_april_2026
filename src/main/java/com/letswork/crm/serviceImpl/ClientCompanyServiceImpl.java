@@ -220,6 +220,14 @@ public class ClientCompanyServiceImpl implements ClientCompanyService {
 
         return buildPaginatedResponse(companyPage, page);
     }
+    
+    @Override
+    public PaginatedResponseDto getClientCompanies(String companyId, int page) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("clientCompanyName").ascending());
+        Page<ClientCompany> pageResult = repo.findByCompanyId(companyId, pageable);
+
+        return buildPaginatedResponse(pageResult, page);
+    }
 
     
     private PaginatedResponseDto buildPaginatedResponse(Page<ClientCompany> companyPage, int page) {

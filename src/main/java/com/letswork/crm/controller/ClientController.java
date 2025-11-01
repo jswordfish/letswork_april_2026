@@ -84,22 +84,44 @@ public class ClientController {
 		
 	}
 	
-	@GetMapping("/get-individuals")
-    public ResponseEntity<PaginatedResponseDto> getIndividualClients(
-            @RequestParam String companyId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam String token) {
-        return ResponseEntity.ok(service.getIndividualClients(companyId, page));
-    }
+	@GetMapping
+	public ResponseEntity<PaginatedResponseDto> getIndividualClients(
+	        @RequestParam String companyId,
+	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) String city,
+	        @RequestParam(required = false) String state,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam String token) {
 
-    
-    @GetMapping("/individuals-by-LetsWorkCentre")
-    public ResponseEntity<PaginatedResponseDto> getIndividualClientsByLetsWorkCentre(
-            @RequestParam String letsWorkCentre,
-            @RequestParam String companyId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam String token) {
-        return ResponseEntity.ok(service.getIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId, page));
-    }
+	    PaginatedResponseDto response;
+
+	    if (letsWorkCentre != null && city != null && state != null) {
+	        response = service.getIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId, city, state, page);
+	    } else {
+	        response = service.getIndividualClients(companyId, page);
+	    }
+
+	    return ResponseEntity.ok(response);
+	}
+	
+//	@GetMapping("/get-individuals")
+//    public ResponseEntity<PaginatedResponseDto> getIndividualClients(
+//            @RequestParam String companyId,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam String token) {
+//        return ResponseEntity.ok(service.getIndividualClients(companyId, page));
+//    }
+//
+//    
+//    @GetMapping("/individuals-by-LetsWorkCentre")
+//    public ResponseEntity<PaginatedResponseDto> getIndividualClientsByLetsWorkCentre(
+//            @RequestParam String letsWorkCentre,
+//            @RequestParam String companyId,
+//            @RequestParam String city,
+//            @RequestParam String state,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam String token) {
+//        return ResponseEntity.ok(service.getIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId, city, state, page));
+//    }
 
 }

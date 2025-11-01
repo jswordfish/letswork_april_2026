@@ -27,7 +27,7 @@ public interface ClientService {
 		
 	PaginatedResponseDto getIndividualClients(String companyId, int page);
 	
-	PaginatedResponseDto getIndividualClientsByLetsWorkCentre(String letsWorkCentre, String companyId, int page);
+	PaginatedResponseDto getIndividualClientsByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page);
 	
 	public String uploadClientsFromExcel(MultipartFile file);
 

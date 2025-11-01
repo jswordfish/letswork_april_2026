@@ -42,6 +42,8 @@ public interface ClientCompanyRepository extends JpaRepository<ClientCompany, Lo
 	                                                                    @Param("city") String city,
 	                                                                    @Param("state") String state,
 	                                                                    Pageable pageable);
+	
+	Page<ClientCompany> findByCompanyId(String companyId, Pageable pageable);
     
     
 }

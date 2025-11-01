@@ -60,10 +60,13 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     List<Client> findIndividualClientsByLetsWorkCentre(@Param("letsWorkCentre") String letsWorkCentre,
                                                 @Param("companyId") String companyId);
     
-    @Query("SELECT c FROM Client c WHERE c.companyId = :companyId AND c.letsWorkCentre = :letsWorkCentre")
-    Page<Client> findIndividualClientsByLetsWorkCentre(@Param("letsWorkCentre") String letsWorkCentre,
-                                                @Param("companyId") String companyId,
-                                                Pageable pageable);
+    @Query("SELECT c FROM Client c WHERE c.companyId = :companyId AND c.letsWorkCentre = :letsWorkCentre AND c.city = :city AND c.state = :state")
+    Page<Client> findIndividualClientsByLetsWorkCentre(
+            @Param("letsWorkCentre") String letsWorkCentre,
+            @Param("companyId") String companyId,
+            @Param("city") String city,
+            @Param("state") String state,
+            Pageable pageable);
     
     @Query("SELECT COUNT(c) FROM Client c WHERE c.clientCompanyName = :clientCompanyName AND c.companyId = :companyId")
     Long getCountOfClientsInClientCompany(@Param("clientCompanyName") String clientCompanyName,

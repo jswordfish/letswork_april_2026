@@ -192,9 +192,9 @@ public class ClientServiceImpl implements ClientService {
 
     // ✅ Get individual clients by letsWorkCentre
     @Override
-    public PaginatedResponseDto getIndividualClientsByLetsWorkCentre(String letsWorkCentre, String companyId, int page) {
+    public PaginatedResponseDto getIndividualClientsByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("id").descending());
-        Page<Client> clientPage = repo.findIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId, pageable);
+        Page<Client> clientPage = repo.findIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId, city, state, pageable);
         return buildPaginatedResponse(clientPage, page);
     }
 	

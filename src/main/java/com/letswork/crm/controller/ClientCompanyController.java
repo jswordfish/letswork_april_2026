@@ -55,23 +55,43 @@ public class ClientCompanyController {
 //		
 //	}
 	
+//	@GetMapping
+//    public ResponseEntity<PaginatedResponseDto> getAllCompanies(
+//            @RequestParam(defaultValue = "0") int page, @RequestParam String token) {
+//        return ResponseEntity.ok(service.listAll(page));
+//    }
+	
 	@GetMapping
-    public ResponseEntity<PaginatedResponseDto> getAllCompanies(
-            @RequestParam(defaultValue = "0") int page, @RequestParam String token) {
-        return ResponseEntity.ok(service.listAll(page));
-    }
+	public ResponseEntity<PaginatedResponseDto> getClientCompanies(
+	        @RequestParam String companyId,
+	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) String city,
+	        @RequestParam(required = false) String state,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam String token) {
+
+	    PaginatedResponseDto response;
+
+	    if (letsWorkCentre != null && city != null && state != null) {
+	        response = service.getClientCompaniesByLetsWorkCentre(letsWorkCentre, companyId, city, state, page);
+	    } else {
+	        response = service.getClientCompanies(companyId, page);
+	    }
+
+	    return ResponseEntity.ok(response);
+	}
 
     
-    @GetMapping("/companies-by-LetsWorkCentre")
-    public ResponseEntity<PaginatedResponseDto> getClientCompaniesByLetsWorkCentre(
-            @RequestParam String letsWorkCentre,
-            @RequestParam String companyId,
-            @RequestParam String city,
-            @RequestParam String state,
-            @RequestParam String token,
-            @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(service.getClientCompaniesByLetsWorkCentre(letsWorkCentre, companyId, city, state, page));
-    }
+//    @GetMapping("/companies-by-LetsWorkCentre")
+//    public ResponseEntity<PaginatedResponseDto> getClientCompaniesByLetsWorkCentre(
+//            @RequestParam String letsWorkCentre,
+//            @RequestParam String companyId,
+//            @RequestParam String city,
+//            @RequestParam String state,
+//            @RequestParam String token,
+//            @RequestParam(defaultValue = "0") int page) {
+//        return ResponseEntity.ok(service.getClientCompaniesByLetsWorkCentre(letsWorkCentre, companyId, city, state, page));
+//    }
 	
 //	@GetMapping("/companies by LetsWorkCentre")
 //    public ResponseEntity<List<ClientCompany>> getClientCompaniesByLetsWorkCentre(@RequestParam String letsWorkCentre, @RequestParam String companyId, @RequestParam String token) {
