@@ -1,5 +1,6 @@
 package com.letswork.crm.repo;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -69,5 +70,21 @@ public interface ClientCompanySeatMappingRepository extends JpaRepository<Client
     	        @Param("companyId") String companyId,
     	        @Param("city") String city,
     	        @Param("state") String state);
+    
+    @Query("SELECT COUNT(c) FROM ClientCompanySeatMapping c WHERE c.letsWorkCentre = :letsWorkCentre AND c.seatType = :seatType AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
+    long countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(
+            @Param("companyId") String companyId,
+            @Param("letsWorkCentre") String letsWorkCentre,
+            @Param("seatType") SeatType seatType,
+            @Param("city") String city,
+            @Param("state") String state);
+    
+    @Query("SELECT c.seatNumber FROM ClientCompanySeatMapping c WHERE c.letsWorkCentre = :letsWorkCentre AND c.seatType = :seatType AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
+    List<String> findSeatNumbersByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(
+            @Param("companyId") String companyId,
+            @Param("letsWorkCentre") String letsWorkCentre,
+            @Param("seatType") SeatType seatType,
+            @Param("city") String city,
+            @Param("state") String state);
     
 }

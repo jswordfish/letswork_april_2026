@@ -1,5 +1,6 @@
 package com.letswork.crm.repo;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -9,7 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.letswork.crm.entities.Cabin;
 import com.letswork.crm.entities.UserSeatMapping;
 import com.letswork.crm.enums.SeatType;
 
@@ -48,5 +48,13 @@ public interface UserSeatMappingRepository extends JpaRepository<UserSeatMapping
 		        @Param("companyId") String companyId,
 		        @Param("city") String city,
 		        @Param("state") String state);
+	
+	@Query("SELECT u.seatNumber FROM UserSeatMapping u WHERE u.letsWorkCentre = :letsWorkCentre AND u.seatType = :seatType AND u.companyId = :companyId AND u.city = :city AND u.state = :state")
+	List<String> findSeatNumbersByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(
+	        @Param("companyId") String companyId,
+	        @Param("letsWorkCentre") String letsWorkCentre,
+	        @Param("seatType") SeatType seatType,
+	        @Param("city") String city,
+	        @Param("state") String state);
 	
 }

@@ -85,14 +85,18 @@ public class SeatController {
     }
 
     @GetMapping("/available-seats")
-    public ResponseEntity<Long> getAvailableSeats(@RequestParam String companyId,
-                                                  @RequestParam String letsWorkCentre,
-                                                  @RequestParam SeatType seatType,
-                                                  @RequestParam String city,
-                                                  @RequestParam String state,
-                                                  @RequestParam String token) {
-        long availableSeats = seatService.getAvailableSeats(companyId, letsWorkCentre, seatType, city, state);
-        return ResponseEntity.ok(availableSeats);
+    public ResponseEntity<PaginatedResponseDto> getAvailableSeats(
+            @RequestParam String companyId,
+            @RequestParam String letsWorkCentre,
+            @RequestParam SeatType seatType,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String token) {
+
+        PaginatedResponseDto resp = seatService.getAvailableSeats(companyId, letsWorkCentre, seatType, city, state, page);
+        return ResponseEntity.ok(resp);
     }
     
     @GetMapping

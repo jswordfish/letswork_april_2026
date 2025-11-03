@@ -1,14 +1,17 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,12 +22,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.SeatExcelDto;
-import com.letswork.crm.entities.ConferenceRoom;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.SeatType;
 import com.letswork.crm.repo.CabinRepository;
+import com.letswork.crm.repo.ClientCompanySeatMappingRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SeatRepository;
 import com.letswork.crm.repo.UserSeatMappingRepository;
@@ -56,6 +59,9 @@ public class SeatServiceImpl implements SeatService {
     
     @Autowired
 	LetsWorkCentreService letsWorkCentreService;
+    
+    @Autowired
+    ClientCompanySeatMappingRepository clientCompanySeatMappingRepository;
     
     ModelMapper mapper = new ModelMapper();
 
@@ -278,11 +284,48 @@ public class SeatServiceImpl implements SeatService {
         return seatRepository.countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(companyId, letsWorkCentre, seatType, city, state);
     }
 
+//    @Override
+//    public long getAvailableSeats(String companyId, String letsWorkCentre, SeatType seatType, String city, String state) {
+//        long totalSeats = seatRepository.countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(companyId, letsWorkCentre, seatType, city, state);
+//        long occupiedSeats = userSeatMappingRepository.countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(companyId, letsWorkCentre, seatType, city, state);
+//        return Math.max(totalSeats - occupiedSeats, 0);
+//    }
+    
     @Override
-    public long getAvailableSeats(String companyId, String letsWorkCentre, SeatType seatType, String city, String state) {
-        long totalSeats = seatRepository.countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(companyId, letsWorkCentre, seatType, city, state);
-        long occupiedSeats = userSeatMappingRepository.countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(companyId, letsWorkCentre, seatType, city, state);
-        return Math.max(totalSeats - occupiedSeats, 0);
+    public PaginatedResponseDto getAvailableSeats(String companyId, String letsWorkCentre, SeatType seatType, String city, String state, int page) {
+
+        
+        List<Seat> allSeats = seatRepository.findAllByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(
+                companyId, letsWorkCentre, seatType, city, state);
+
+        
+        List<String> userOccupiedSeats = userSeatMappingRepository
+                .findSeatNumbersByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(companyId, letsWorkCentre, seatType, city, state);
+
+        
+        List<String> companyOccupiedSeats = clientCompanySeatMappingRepository
+                .findSeatNumbersByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(companyId, letsWorkCentre, seatType, city, state);
+
+        
+        Set<String> occupiedSeatNumbers = new HashSet<>();
+        occupiedSeatNumbers.addAll(userOccupiedSeats);
+        occupiedSeatNumbers.addAll(companyOccupiedSeats);
+
+        
+        List<Seat> availableSeats = allSeats.stream()
+                .filter(seat -> !occupiedSeatNumbers.contains(seat.getSeatNumber()))
+                .collect(Collectors.toList());
+
+        
+        int pageSize = 10; 
+        int start = Math.min(page * pageSize, availableSeats.size());
+        int end = Math.min(start + pageSize, availableSeats.size());
+
+        List<Seat> paginatedSeats = availableSeats.subList(start, end);
+        Page<Seat> seatPage = new PageImpl<>(paginatedSeats, PageRequest.of(page, pageSize), availableSeats.size());
+
+        
+        return buildPaginatedResponse(seatPage, page);
     }
     
     

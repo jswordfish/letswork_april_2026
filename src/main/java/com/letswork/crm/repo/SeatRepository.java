@@ -1,5 +1,6 @@
 package com.letswork.crm.repo;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -45,6 +46,15 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 	                                                                 @Param("seatType") SeatType seatType,
 	                                                                 @Param("city") String city,
 	                                                                 @Param("state") String state);
+	
+	@Query("SELECT s FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre AND s.seatType = :seatType " +
+		       "AND s.companyId = :companyId AND s.city = :city AND s.state = :state AND s.published = true")
+		List<Seat> findAllByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(
+		        @Param("companyId") String companyId,
+		        @Param("letsWorkCentre") String letsWorkCentre,
+		        @Param("seatType") SeatType seatType,
+		        @Param("city") String city,
+		        @Param("state") String state);
 	
 	@Query("SELECT s FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre AND s.companyId = :companyId AND s.city = :city AND s.state = :state")
     Page<Seat> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre, @Param("companyId") String companyId, @Param("city") String city, @Param("state") String state, Pageable pageable);
