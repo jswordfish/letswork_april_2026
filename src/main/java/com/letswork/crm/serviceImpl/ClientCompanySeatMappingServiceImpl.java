@@ -18,10 +18,12 @@ import com.letswork.crm.entities.ClientCompanySeatMapping;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.entities.UserSeatMapping;
 import com.letswork.crm.repo.ClientCompanyRepository;
 import com.letswork.crm.repo.ClientCompanySeatMappingRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SeatRepository;
+import com.letswork.crm.repo.UserSeatMappingRepository;
 import com.letswork.crm.service.ClientCompanySeatMappingService;
 import com.letswork.crm.service.TenantService;
 
@@ -43,6 +45,9 @@ public class ClientCompanySeatMappingServiceImpl implements ClientCompanySeatMap
 	
 	@Autowired
 	ClientCompanyRepository clientCompanyRepo;
+	
+	@Autowired
+	UserSeatMappingRepository userSeatMappingRepository;
 	
 	
 	private static final int PAGE_SIZE = 10;
@@ -76,6 +81,37 @@ public class ClientCompanySeatMappingServiceImpl implements ClientCompanySeatMap
 	    if(company==null) {
 	    	throw new RuntimeException("This company does not exists");
 	    }
+	    
+	    
+	    Optional<ClientCompanySeatMapping> seatAssignedOpt =
+	            repo.findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
+	                    mapping.getSeatNumber(),
+	                    mapping.getSeatType(),
+	                    mapping.getLetsWorkCentre(),
+	                    mapping.getCompanyId(),
+	                    mapping.getCity(),
+	                    mapping.getState()
+	            );
+
+	    if (seatAssignedOpt.isPresent()) {
+	        ClientCompanySeatMapping seatAssigned = seatAssignedOpt.get();
+	        if (!seatAssigned.getClientCompanyName().equalsIgnoreCase(mapping.getClientCompanyName())) {
+	            throw new RuntimeException("Seat " + mapping.getSeatNumber() + " is already assigned to another company: " + seatAssigned.getClientCompanyName());
+	        }
+	    }
+	    
+	    Optional<UserSeatMapping> seatAssignedOpt1 =
+                userSeatMappingRepository.findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
+                        mapping.getSeatNumber(), mapping.getSeatType(), mapping.getLetsWorkCentre(),
+                        mapping.getCompanyId(), mapping.getCity(), mapping.getState());
+
+        if (seatAssignedOpt1.isPresent()) {
+            UserSeatMapping seatAssigned = seatAssignedOpt1.get();
+            
+            throw new RuntimeException("Seat " + mapping.getSeatNumber() + " is already assigned to another user: " + seatAssigned.getEmail());
+            
+        }
+	    
 	    
 	    Optional<ClientCompanySeatMapping> existingOpt = repo.findByFullBusinessKey(
 	            mapping.getClientCompanyName(), mapping.getLetsWorkCentre(),

@@ -55,4 +55,19 @@ public interface ClientCompanySeatMappingRepository extends JpaRepository<Client
     	        @Param("seatType") SeatType seatType,
     	        @Param("seatNumber") String seatNumber);
     
+    @Query("SELECT c FROM ClientCompanySeatMapping c WHERE " +
+    	       "c.seatNumber = :seatNumber AND " +
+    	       "c.seatType = :seatType AND " +
+    	       "c.letsWorkCentre = :letsWorkCentre AND " +
+    	       "c.companyId = :companyId AND " +
+    	       "c.city = :city AND " +
+    	       "c.state = :state")
+    	Optional<ClientCompanySeatMapping> findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
+    	        @Param("seatNumber") String seatNumber,
+    	        @Param("seatType") SeatType seatType,
+    	        @Param("letsWorkCentre") String letsWorkCentre,
+    	        @Param("companyId") String companyId,
+    	        @Param("city") String city,
+    	        @Param("state") String state);
+    
 }

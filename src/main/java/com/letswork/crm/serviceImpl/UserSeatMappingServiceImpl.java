@@ -11,12 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
-import com.letswork.crm.entities.Cabin;
 import com.letswork.crm.entities.Client;
+import com.letswork.crm.entities.ClientCompanySeatMapping;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.entities.UserSeatMapping;
+import com.letswork.crm.repo.ClientCompanySeatMappingRepository;
 import com.letswork.crm.repo.ClientRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SeatRepository;
@@ -50,6 +51,9 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
     
     @Autowired
     ClientRepository clientRepo;
+    
+    @Autowired
+    ClientCompanySeatMappingRepository clientCompanySeatRepo;
 
     @Override
     public UserSeatMapping saveOrUpdate(UserSeatMapping mapping) {
@@ -88,6 +92,22 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
             if (!seatAssigned.getEmail().equalsIgnoreCase(mapping.getEmail())) {
                 throw new RuntimeException("Seat " + mapping.getSeatNumber() + " is already assigned to another user: " + seatAssigned.getEmail());
             }
+        }
+        
+        Optional<ClientCompanySeatMapping> seatAssignedOpt1 =
+                clientCompanySeatRepo.findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
+                        mapping.getSeatNumber(),
+                        mapping.getSeatType(),
+                        mapping.getLetsWorkCentre(),
+                        mapping.getCompanyId(),
+                        mapping.getCity(),
+                        mapping.getState()
+                );
+
+        if (seatAssignedOpt1.isPresent()) {
+            ClientCompanySeatMapping seatAssigned = seatAssignedOpt1.get();
+            throw new RuntimeException("Seat " + mapping.getSeatNumber() + " is already assigned to another company: " + seatAssigned.getClientCompanyName());
+            
         }
     	
     	
