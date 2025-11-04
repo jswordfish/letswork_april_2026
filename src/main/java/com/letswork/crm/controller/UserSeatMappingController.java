@@ -1,6 +1,9 @@
 package com.letswork.crm.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -56,6 +59,23 @@ public class UserSeatMappingController {
             @RequestParam String token,
             @RequestParam(defaultValue = "0") int page) {
         return ResponseEntity.ok(userSeatMappingService.findByLetsWorkCentre(letsWorkCentre, companyId, city, state, page));
+    }
+    
+    @GetMapping("/client-based")
+    public ResponseEntity<?> findByEmail(
+            @RequestParam String email,
+            @RequestParam String companyId,
+            @RequestParam String letsWorkCentre,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam String token) {
+
+        try {
+            Optional<UserSeatMapping> mapping = userSeatMappingService.findByEmail(email, companyId, letsWorkCentre, city, state);
+            return ResponseEntity.ok(mapping.get());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
 }

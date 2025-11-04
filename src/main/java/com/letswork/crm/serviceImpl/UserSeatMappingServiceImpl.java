@@ -188,6 +188,20 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
         response.setList(mappingPage.getContent());
         return response;
     }
+
+	@Override
+	public Optional<UserSeatMapping> findByEmail(String email, String companyId, String letsWorkCentre, String city, String state) {
+		// TODO Auto-generated method stub
+		
+		Optional<UserSeatMapping> mapping = userSeatMappingRepository.findByEmailAndCompanyIdAndLetsWorkCentreAndCityAndState(email, companyId, letsWorkCentre, city, state);
+		
+		if(!mapping.isPresent()) {
+			throw new RuntimeException("This User does not have a seat");
+		}
+		
+		return mapping;
+		
+	}
     
     
 }
