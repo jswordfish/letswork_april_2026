@@ -56,7 +56,7 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 		        @Param("city") String city,
 		        @Param("state") String state);
 	
-	@Query("SELECT s FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre" +
+	@Query("SELECT s FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre " +
 		       "AND s.companyId = :companyId AND s.city = :city AND s.state = :state AND s.published = true")
 		List<Seat> findAllByCompanyIdAndLetsWorkCentreAndCityAndState(
 		        @Param("companyId") String companyId,
