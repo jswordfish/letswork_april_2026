@@ -21,9 +21,6 @@ public interface UserSeatMappingRepository extends JpaRepository<UserSeatMapping
 	Page<UserSeatMapping> findByCompanyIdAndLetsWorkCentreAndCityAndState(
 	        String companyId, String letsWorkCentre, String city, String state, Pageable pageable);
 	
-	@Query("select new com.letswork.crm.dtos.UserSeatMappingDto(v.letsWorkCentre, v.seatType, v.seatNumber, v.city,  v.state) from UserSeatMapping v where  v.testIdentifier  =:testIdentifier and v.questionType = 'MCQ' and v.companyId =:companyId group by  v.email, v.attempt")
-	Set<UserSeatMapping> findByCompanyIdAndLetsWorkCentreAndCityAndState(
-	        String companyId, String letsWorkCentre, String city, String state);
 	
 	@Query("SELECT new com.letswork.crm.entities.SeatKey(u.letsWorkCentre, u.city, u.state, u.companyId, u.seatType, u.seatNumber) " +
 		       "FROM UserSeatMapping u " +
