@@ -120,7 +120,8 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
 
             existing.setSeatType(mapping.getSeatType());
             existing.setSeatNumber(mapping.getSeatNumber());
-            existing.setNumberOfDays(mapping.getNumberOfDays());
+            existing.setStartDate(mapping.getStartDate());
+            existing.setEndDate(mapping.getEndDate());
             existing.setCity(mapping.getCity());
             existing.setState(mapping.getState());
 
