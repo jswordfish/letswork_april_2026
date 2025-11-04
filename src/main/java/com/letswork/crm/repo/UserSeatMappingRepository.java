@@ -26,10 +26,14 @@ public interface UserSeatMappingRepository extends JpaRepository<UserSeatMapping
 	        String companyId, String letsWorkCentre, String city, String state);
 	
 	@Query("SELECT new com.letswork.crm.entities.SeatKey(u.letsWorkCentre, u.city, u.state, u.companyId, u.seatType, u.seatNumber) " +
-		       "FROM UserSeatMapping u WHERE u.companyId = :companyId AND u.letsWorkCentre = :letsWorkCentre " +
+		       "FROM UserSeatMapping u " +
+		       "WHERE u.companyId = :companyId AND u.letsWorkCentre = :letsWorkCentre " +
 		       "AND u.city = :city AND u.state = :state")
 		List<SeatKey> findSeatKeysByCompanyIdAndLetsWorkCentreAndCityAndState(
-		        String companyId, String letsWorkCentre, String city, String state);
+		        @Param("companyId") String companyId,
+		        @Param("letsWorkCentre") String letsWorkCentre,
+		        @Param("city") String city,
+		        @Param("state") String state);
 	
 	
 
