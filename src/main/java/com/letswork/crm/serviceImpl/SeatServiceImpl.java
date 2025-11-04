@@ -21,9 +21,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.dtos.SeatAvailabilityDto;
 import com.letswork.crm.dtos.SeatExcelDto;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
+import com.letswork.crm.entities.SeatKey;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.SeatType;
 import com.letswork.crm.repo.CabinRepository;
@@ -276,6 +278,68 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public void deleteSeat(Long id) {
         seatRepository.deleteById(id);
+    }
+    
+    @Override
+    public PaginatedResponseDto getAllSeatsWithAvailability(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            int page) {
+
+        // 1️⃣ Fetch all seats for this LetsWorkCentre, city, state, and company
+        List<Seat> allSeats = seatRepository.findAllByCompanyIdAndLetsWorkCentreAndCityAndState(
+                companyId, letsWorkCentre, city, state);
+
+        // 2️⃣ Fetch occupied seats from user seat mapping
+        List<SeatKey> userOccupiedSeatKeys = userSeatMappingRepository
+                .findSeatKeysByCompanyIdAndLetsWorkCentreAndCityAndState(companyId, letsWorkCentre, city, state);
+
+        // 3️⃣ Fetch occupied seats from company seat mapping
+        List<SeatKey> companyOccupiedSeatKeys = clientCompanySeatMappingRepository
+                .findSeatKeysByCompanyIdAndLetsWorkCentreAndCityAndState(companyId, letsWorkCentre, city, state);
+
+        // 4️⃣ Combine all occupied seats
+        Set<SeatKey> occupiedSeatKeys = new HashSet<>();
+        occupiedSeatKeys.addAll(userOccupiedSeatKeys);
+        occupiedSeatKeys.addAll(companyOccupiedSeatKeys);
+
+        // 5️⃣ Map all seats with availability info
+        List<SeatAvailabilityDto> seatAvailabilityList = allSeats.stream()
+                .map(seat -> {
+                    SeatKey key = new SeatKey(
+                            seat.getLetsWorkCentre(),
+                            seat.getCity(),
+                            seat.getState(),
+                            seat.getCompanyId(),
+                            seat.getSeatType(),
+                            seat.getSeatNumber()
+                    );
+                    boolean isOccupied = occupiedSeatKeys.contains(key);
+                    return new SeatAvailabilityDto(seat, !isOccupied);
+                })
+                .collect(Collectors.toList());
+
+        // 6️⃣ Pagination logic
+        int pageSize = 10;
+        int totalRecords = seatAvailabilityList.size();
+        int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+        int start = Math.min(page * pageSize, totalRecords);
+        int end = Math.min(start + pageSize, totalRecords);
+
+        List<SeatAvailabilityDto> paginatedSeats = seatAvailabilityList.subList(start, end);
+
+        // 7️⃣ Prepare paginated response DTO
+        PaginatedResponseDto response = new PaginatedResponseDto();
+        response.setRecordsFrom(start + 1);
+        response.setRecordsTo(end);
+        response.setTotalNumberOfRecords(totalRecords);
+        response.setTotalNumberOfPages(totalPages);
+        response.setSelectedPage(page);
+        response.setList(paginatedSeats);
+
+        return response;
     }
     
     

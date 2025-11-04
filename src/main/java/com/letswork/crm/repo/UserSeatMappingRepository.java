@@ -2,6 +2,7 @@ package com.letswork.crm.repo;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.letswork.crm.entities.SeatKey;
 import com.letswork.crm.entities.UserSeatMapping;
 import com.letswork.crm.enums.SeatType;
 
@@ -18,6 +20,18 @@ public interface UserSeatMappingRepository extends JpaRepository<UserSeatMapping
 
 	Page<UserSeatMapping> findByCompanyIdAndLetsWorkCentreAndCityAndState(
 	        String companyId, String letsWorkCentre, String city, String state, Pageable pageable);
+	
+	@Query("select new com.letswork.crm.dtos.UserSeatMappingDto(v.letsWorkCentre, v.seatType, v.seatNumber, v.city,  v.state) from UserSeatMapping v where  v.testIdentifier  =:testIdentifier and v.questionType = 'MCQ' and v.companyId =:companyId group by  v.email, v.attempt")
+	Set<UserSeatMapping> findByCompanyIdAndLetsWorkCentreAndCityAndState(
+	        String companyId, String letsWorkCentre, String city, String state);
+	
+	@Query("SELECT new com.letswork.crm.entities.SeatKey(u.letsWorkCentre, u.city, u.state, u.companyId, u.seatType, u.seatNumber) " +
+		       "FROM UserSeatMapping u WHERE u.companyId = :companyId AND u.letsWorkCentre = :letsWorkCentre " +
+		       "AND u.city = :city AND u.state = :state")
+		List<SeatKey> findSeatKeysByCompanyIdAndLetsWorkCentreAndCityAndState(
+		        String companyId, String letsWorkCentre, String city, String state);
+	
+	
 
 	Optional<UserSeatMapping> findByEmailAndCompanyIdAndLetsWorkCentreAndCityAndState(
 	        String email, String companyId, String letsWorkCentre, String city, String state);

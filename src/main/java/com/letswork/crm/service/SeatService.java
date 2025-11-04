@@ -28,5 +28,12 @@ public interface SeatService {
     PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page);
     
     String publishSeats(String letsWorkCentre, String companyId, String city, String state, SeatType seatType, String seatNumber);
+    
+    public PaginatedResponseDto getAllSeatsWithAvailability(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            int page);
 
 }

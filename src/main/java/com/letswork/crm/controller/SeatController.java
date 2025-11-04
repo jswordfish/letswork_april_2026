@@ -99,6 +99,21 @@ public class SeatController {
         return ResponseEntity.ok(resp);
     }
     
+    @GetMapping("/availability")
+    public ResponseEntity<PaginatedResponseDto> getAllSeatsWithAvailability(
+            @RequestParam String companyId,
+            @RequestParam String letsWorkCentre,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam String token,
+            @RequestParam(defaultValue = "0") int page) {
+
+        PaginatedResponseDto response = seatService.getAllSeatsWithAvailability(
+                companyId, letsWorkCentre, city, state, page);
+
+        return ResponseEntity.ok(response);
+    }
+    
     @GetMapping
     public ResponseEntity<PaginatedResponseDto> listSeats(
             @RequestParam String companyId,

@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.ClientCompanySeatMapping;
+import com.letswork.crm.entities.SeatKey;
 import com.letswork.crm.enums.SeatType;
 
 @Repository
@@ -70,6 +71,12 @@ public interface ClientCompanySeatMappingRepository extends JpaRepository<Client
     	        @Param("companyId") String companyId,
     	        @Param("city") String city,
     	        @Param("state") String state);
+    
+    @Query("SELECT new com.letswork.crm.entities.SeatKey(c.letsWorkCentre, c.city, c.state, c.companyId, c.seatType, c.seatNumber) " +
+		       "FROM ClientCompanySeatMapping c WHERE c.companyId = :companyId AND c.letsWorkCentre = :letsWorkCentre " +
+		       "AND c.city = :city AND c.state = :state")
+		List<SeatKey> findSeatKeysByCompanyIdAndLetsWorkCentreAndCityAndState(
+		        String companyId, String letsWorkCentre, String city, String state);
     
     @Query("SELECT COUNT(c) FROM ClientCompanySeatMapping c WHERE c.letsWorkCentre = :letsWorkCentre AND c.seatType = :seatType AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
     long countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(
