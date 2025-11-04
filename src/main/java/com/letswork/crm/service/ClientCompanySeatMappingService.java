@@ -1,5 +1,8 @@
 package com.letswork.crm.service;
 
+import java.util.List;
+
+import com.letswork.crm.dtos.BulkSeatAssignmentRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ClientCompanySeatMapping;
 
@@ -13,5 +16,7 @@ public interface ClientCompanySeatMappingService {
             String companyId, String city, String state, int page);
 	
 	public String deleteMapping(Long id);
+	
+	List<ClientCompanySeatMapping> assignMultipleSeats(BulkSeatAssignmentRequest request);
 
 }

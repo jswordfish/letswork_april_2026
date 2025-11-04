@@ -1,6 +1,8 @@
 package com.letswork.crm.entities;
 
 
+import java.time.LocalDate;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -8,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.letswork.crm.enums.SeatType;
 
 import lombok.AllArgsConstructor;
@@ -35,7 +38,11 @@ public class ClientCompanySeatMapping extends Base{
 	@Enumerated(EnumType.STRING)
 	private SeatType seatType;
 	
-	private int numberOfDays;
+	@JsonFormat(pattern = "dd/MM/yyyy")
+	private LocalDate startDate;
+	
+	@JsonFormat(pattern = "dd/MM/yyyy")
+	private LocalDate endDate;
 	
 	private String seatNumber;
 	

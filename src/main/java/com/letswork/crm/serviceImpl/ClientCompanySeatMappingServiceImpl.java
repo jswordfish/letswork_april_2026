@@ -1,6 +1,8 @@
 package com.letswork.crm.serviceImpl;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
@@ -12,7 +14,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.letswork.crm.dtos.BulkSeatAssignmentRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.dtos.SeatAssignmentDto;
 import com.letswork.crm.entities.ClientCompany;
 import com.letswork.crm.entities.ClientCompanySeatMapping;
 import com.letswork.crm.entities.LetsWorkCentre;
@@ -131,6 +135,32 @@ public class ClientCompanySeatMappingServiceImpl implements ClientCompanySeatMap
 	        return repo.save(mapping);
 	    }
 	}
+	
+	@Override
+    public List<ClientCompanySeatMapping> assignMultipleSeats(BulkSeatAssignmentRequest request) {
+
+        List<ClientCompanySeatMapping> savedMappings = new ArrayList<>();
+
+        for (SeatAssignmentDto seatDto : request.getSeats()) {
+
+            ClientCompanySeatMapping mapping = new ClientCompanySeatMapping();
+            mapping.setClientCompanyName(request.getClientCompanyName());
+            mapping.setLetsWorkCentre(request.getLetsWorkCentre());
+            mapping.setCity(request.getCity());
+            mapping.setState(request.getState());
+            mapping.setCompanyId(request.getCompanyId());
+            mapping.setSeatType(seatDto.getSeatType());
+            mapping.setSeatNumber(seatDto.getSeatNumber());
+            mapping.setStartDate(request.getStartDate());
+            mapping.setEndDate(request.getEndDate());
+
+            
+            ClientCompanySeatMapping saved = this.saveOrUpdate(mapping);
+            savedMappings.add(saved);
+        }
+
+        return savedMappings;
+    }
 	
 	@Override
     public PaginatedResponseDto listByLetsWorkCentre(String companyId, String letsWorkCentre, String city, String state, int page) {

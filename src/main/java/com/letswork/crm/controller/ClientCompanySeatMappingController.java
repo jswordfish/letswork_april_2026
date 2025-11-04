@@ -1,6 +1,9 @@
 package com.letswork.crm.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.letswork.crm.dtos.BulkSeatAssignmentRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ClientCompanySeatMapping;
 import com.letswork.crm.service.ClientCompanySeatMappingService;
@@ -39,6 +43,16 @@ public class ClientCompanySeatMappingController {
 
         PaginatedResponseDto response = service.listByLetsWorkCentre(companyId, letsWorkCentre, city, state, page);
         return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/assign-multiple")
+    public ResponseEntity<?> assignMultipleSeats(@RequestBody BulkSeatAssignmentRequest request, @RequestParam String token) {
+        try {
+            List<ClientCompanySeatMapping> saved = service.assignMultipleSeats(request);
+            return ResponseEntity.ok(saved);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping("/list-by-clientCompany")
