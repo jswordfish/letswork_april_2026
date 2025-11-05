@@ -299,6 +299,15 @@ public class ClientServiceImpl implements ClientService {
         }
     }
 
+	@Override
+	public Client getByEmail(String email, String companyId) {
+		
+		Client client = repo.findByEmailAndCompanyId(email, companyId);
+		
+		return client;
+		
+	}
+
 	
 	
 

@@ -1,6 +1,6 @@
 package com.letswork.crm.controller;
 
-import java.util.List;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -87,6 +87,7 @@ public class ClientController {
 	@GetMapping
 	public ResponseEntity<PaginatedResponseDto> getIndividualClients(
 	        @RequestParam String companyId,
+	        @RequestParam(required = false) String email,
 	        @RequestParam(required = false) String letsWorkCentre,
 	        @RequestParam(required = false) String city,
 	        @RequestParam(required = false) String state,
@@ -95,9 +96,29 @@ public class ClientController {
 
 	    PaginatedResponseDto response;
 
-	    if (letsWorkCentre != null && city != null && state != null) {
+	    if (letsWorkCentre != null && city != null && state != null && email==null) {
 	        response = service.getIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId, city, state, page);
-	    } else {
+	    }
+	    else if(email != null) {
+	    	Client client = service.getByEmail(email, companyId);
+	        response = new PaginatedResponseDto();
+	        if (client != null) {
+	            response.setRecordsFrom(1);
+	            response.setRecordsTo(1);
+	            response.setTotalNumberOfRecords(1);
+	            response.setTotalNumberOfPages(1);
+	            response.setSelectedPage(0);
+	            response.setList(Collections.singletonList(client));
+	        } else {
+	            response.setRecordsFrom(0);
+	            response.setRecordsTo(0);
+	            response.setTotalNumberOfRecords(0);
+	            response.setTotalNumberOfPages(0);
+	            response.setSelectedPage(0);
+	            response.setList(Collections.emptyList());
+	        }
+	    }
+	    else {
 	        response = service.getIndividualClients(companyId, page);
 	    }
 

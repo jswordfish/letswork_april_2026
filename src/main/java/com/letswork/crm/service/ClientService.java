@@ -14,6 +14,7 @@ public interface ClientService {
 	
 	String saveOrUpdate(Client client);
 	
+	Client getByEmail(String email, String companyId);
 	
 	String deleteClient(Client client);
 	
