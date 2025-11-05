@@ -26,6 +26,7 @@ import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.SeatAvailabilityDto;
 import com.letswork.crm.dtos.SeatExcelDto;
 import com.letswork.crm.dtos.SeatMappingResponseDto;
+import com.letswork.crm.entities.Cabin;
 import com.letswork.crm.entities.ClientCompanySeatMapping;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
@@ -74,37 +75,49 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public Seat saveOrUpdate(Seat seat) {
-        
+
         Tenant tenant = tenantService.findTenantByCompanyId(seat.getCompanyId());
-        
-        if(tenant == null) {
+        if (tenant == null) {
             throw new RuntimeException("CompanyId invalid - " + seat.getCompanyId());
         }
-        
-        LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(seat.getLetsWorkCentre(), seat.getCompanyId(), seat.getCity(), seat.getState());
-        
-        if(loc == null) {
-            throw new RuntimeException("This letsWorkCentre does not exists");
+
+        LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+                seat.getLetsWorkCentre(), seat.getCompanyId(), seat.getCity(), seat.getState());
+
+        if (loc == null) {
+            throw new RuntimeException("This letsWorkCentre does not exist");
         }
-        
-        // This is the correct logic for SHARED_CABIN seats
-        if (seat.getSeatType() == SeatType.SHARED_CABIN) {
+
+        // ✅ Cabin-related validation
+        if (seat.getSeatType() == SeatType.SHARED_CABIN || seat.getSeatType() == SeatType.CABIN_DESK) {
             if (!StringUtils.hasText(seat.getCabinName())) {
-                throw new RuntimeException("Cabin name is required for SHARED_CABIN seat type");
+                throw new RuntimeException("Cabin name is required for SHARED_CABIN or CABIN_DESK seat type");
             }
 
-            boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndState(
-                    seat.getCabinName(), seat.getCompanyId(), seat.getLetsWorkCentre(), seat.getCity(), seat.getState());
-            if (!cabinExists) {
+            Cabin cabin = cabinRepository.findByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndState(
+                    seat.getCabinName(), seat.getCompanyId(), seat.getLetsWorkCentre(),
+                    seat.getCity(), seat.getState());
+
+            if (cabin == null) {
                 throw new RuntimeException("Cabin does not exist: " + seat.getCabinName());
             }
+
+            // ✅ Check current seat count in cabin
+            long currentSeatCount = seatRepository.countByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndState(
+                    seat.getCabinName(), seat.getCompanyId(), seat.getLetsWorkCentre(),
+                    seat.getCity(), seat.getState());
+
+            if (currentSeatCount >= cabin.getTotalSeats()) {
+                throw new RuntimeException("Cabin " + seat.getCabinName() + " is full. Cannot add more seats.");
+            }
         } else {
-            // Enforce null cabin name for other types at the persistence layer
             seat.setCabinName(null);
         }
-        
-        
-        Optional<Seat> existingSeatOpt = seatRepository.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndState(seat.getSeatType(), seat.getCompanyId(), seat.getLetsWorkCentre(), seat.getSeatNumber(), seat.getCity(), seat.getState());
+
+        // ✅ Check for duplicate seat (same seatType, seatNumber, etc.)
+        Optional<Seat> existingSeatOpt = seatRepository.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndState(
+                seat.getSeatType(), seat.getCompanyId(), seat.getLetsWorkCentre(),
+                seat.getSeatNumber(), seat.getCity(), seat.getState());
 
         if (existingSeatOpt.isPresent()) {
             Seat existingSeat = existingSeatOpt.get();
@@ -116,7 +129,6 @@ public class SeatServiceImpl implements SeatService {
         } else {
             seat.setCreateDate(new Date());
             seat.setPublished(false);
-            
             return seatRepository.save(seat);
         }
     }
@@ -540,5 +552,10 @@ public class SeatServiceImpl implements SeatService {
 
         return new PageImpl<>(paginatedList, PageRequest.of(page, size), combinedList.size());
     }
+	
+	@Override
+	public List<Seat> listSeatsInCabin(String companyId, String letsWorkCentre, String city, String state, String cabinName) {
+	    return seatRepository.findByCabinDetails(companyId, letsWorkCentre, city, state, cabinName);
+	}
     
 }

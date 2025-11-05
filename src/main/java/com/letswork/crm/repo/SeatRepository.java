@@ -28,6 +28,14 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 	        String city,
 	        String state);
 	
+	@Query("SELECT s FROM Seat s WHERE s.companyId = :companyId AND s.letsWorkCentre = :letsWorkCentre " +
+		       "AND s.city = :city AND s.state = :state AND s.cabinName = :cabinName")
+		List<Seat> findByCabinDetails(@Param("companyId") String companyId,
+		                              @Param("letsWorkCentre") String letsWorkCentre,
+		                              @Param("city") String city,
+		                              @Param("state") String state,
+		                              @Param("cabinName") String cabinName);
+	
 	Page<Seat> findByCompanyId(String companyId, Pageable pageable);
 
     @Query("SELECT s FROM Seat s WHERE s.companyId = :companyId "
@@ -39,6 +47,9 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
                              @Param("city") String city,
                              @Param("state") String state,
                              Pageable pageable);
+    
+    long countByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndState(
+            String cabinName, String companyId, String letsWorkCentre, String city, String state);
 	
 	@Query("SELECT COUNT(s) FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre AND s.seatType = :seatType AND s.companyId = :companyId AND s.city = :city AND s.state = :state")
 	long countByCompanyIdAndLetsWorkCentreAndSeatTypeAndCityAndState(@Param("companyId") String companyId,

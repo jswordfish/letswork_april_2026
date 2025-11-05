@@ -1,5 +1,7 @@
 package com.letswork.crm.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,5 +45,7 @@ public interface SeatService {
             String state,
             int page,
             int size);
+    
+    public List<Seat> listSeatsInCabin(String companyId, String letsWorkCentre, String city, String state, String cabinName);
 
 }

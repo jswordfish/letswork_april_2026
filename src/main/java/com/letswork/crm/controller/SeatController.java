@@ -1,5 +1,7 @@
 package com.letswork.crm.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -112,6 +114,17 @@ public class SeatController {
                 companyId, letsWorkCentre, city, state, page);
 
         return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/cabin-seats")
+    public ResponseEntity<List<Seat>> listSeatsInCabin(
+            @RequestParam String companyId,
+            @RequestParam String letsWorkCentre,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam String cabinName,
+            @RequestParam String token) {
+        return ResponseEntity.ok(seatService.listSeatsInCabin(companyId, letsWorkCentre, city, state, cabinName));
     }
     
     @GetMapping("/mappings")
