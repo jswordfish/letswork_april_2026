@@ -501,7 +501,7 @@ public class SeatServiceImpl implements SeatService {
                         client.getEndDate(),
                         client.getCity(),
                         client.getState(),
-                        "CLIENT"
+                        "CLIENT_COMPANY"
                 ))
                 .collect(Collectors.toList());
 
