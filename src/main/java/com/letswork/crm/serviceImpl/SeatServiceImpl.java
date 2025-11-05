@@ -1,6 +1,8 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -23,10 +25,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.SeatAvailabilityDto;
 import com.letswork.crm.dtos.SeatExcelDto;
+import com.letswork.crm.dtos.SeatMappingResponseDto;
+import com.letswork.crm.entities.ClientCompanySeatMapping;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.entities.SeatKey;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.entities.UserSeatMapping;
 import com.letswork.crm.enums.SeatType;
 import com.letswork.crm.repo.CabinRepository;
 import com.letswork.crm.repo.ClientCompanySeatMappingRepository;
@@ -451,5 +456,89 @@ public class SeatServiceImpl implements SeatService {
 	    return "seat does not exist";
 		
 	}
+	
+	@Override
+	public Page<SeatMappingResponseDto> getAllSeatMappings(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            int page,
+            int size) {
+
+        List<SeatMappingResponseDto> combinedList = new ArrayList<>();
+
+        
+        List<UserSeatMapping> users = userSeatMappingRepository.findByCompanyId(companyId);
+
+        
+        List<ClientCompanySeatMapping> clients = clientCompanySeatMappingRepository.findByCompanyId(companyId);
+
+        
+        List<SeatMappingResponseDto> userDtos = users.stream()
+                .map(user -> new SeatMappingResponseDto(
+                        user.getId(),
+                        user.getEmail(),
+                        user.getLetsWorkCentre(),
+                        user.getSeatType(),
+                        user.getSeatNumber(),
+                        user.getStartDate(),
+                        user.getEndDate(),
+                        user.getCity(),
+                        user.getState(),
+                        "USER"
+                ))
+                .collect(Collectors.toList());
+
+        List<SeatMappingResponseDto> clientDtos = clients.stream()
+                .map(client -> new SeatMappingResponseDto(
+                        client.getId(),
+                        client.getClientCompanyName(),
+                        client.getLetsWorkCentre(),
+                        client.getSeatType(),
+                        client.getSeatNumber(),
+                        client.getStartDate(),
+                        client.getEndDate(),
+                        client.getCity(),
+                        client.getState(),
+                        "CLIENT"
+                ))
+                .collect(Collectors.toList());
+
+        combinedList.addAll(userDtos);
+        combinedList.addAll(clientDtos);
+
+        
+        if (letsWorkCentre != null && !letsWorkCentre.isBlank()) {
+            combinedList = combinedList.stream()
+                    .filter(m -> letsWorkCentre.equalsIgnoreCase(m.getLetsWorkCentre()))
+                    .collect(Collectors.toList());
+        }
+
+        if (city != null && !city.isBlank()) {
+            combinedList = combinedList.stream()
+                    .filter(m -> city.equalsIgnoreCase(m.getCity()))
+                    .collect(Collectors.toList());
+        }
+
+        if (state != null && !state.isBlank()) {
+            combinedList = combinedList.stream()
+                    .filter(m -> state.equalsIgnoreCase(m.getState()))
+                    .collect(Collectors.toList());
+        }
+
+        
+        combinedList = combinedList.stream()
+                .sorted(Comparator.comparing(SeatMappingResponseDto::getStartDate,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .collect(Collectors.toList());
+
+        
+        int start = (int) PageRequest.of(page, size).getOffset();
+        int end = Math.min(start + size, combinedList.size());
+        List<SeatMappingResponseDto> paginatedList = combinedList.subList(start, end);
+
+        return new PageImpl<>(paginatedList, PageRequest.of(page, size), combinedList.size());
+    }
     
 }

@@ -1,8 +1,7 @@
 package com.letswork.crm.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.dtos.SeatMappingResponseDto;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.enums.SeatType;
 import com.letswork.crm.service.SeatService;
@@ -112,6 +112,21 @@ public class SeatController {
                 companyId, letsWorkCentre, city, state, page);
 
         return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/mappings")
+    public ResponseEntity<Page<SeatMappingResponseDto>> getAllSeatMappings(
+            @RequestParam String companyId,
+            @RequestParam(required = false) String letsWorkCentre,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String state,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String token) {
+
+        return ResponseEntity.ok(
+        		seatService.getAllSeatMappings(companyId, letsWorkCentre, city, state, page, size)
+        );
     }
     
     @GetMapping

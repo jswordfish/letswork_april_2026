@@ -1,10 +1,10 @@
 package com.letswork.crm.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.dtos.SeatMappingResponseDto;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.enums.SeatType;
 
@@ -35,5 +35,13 @@ public interface SeatService {
             String city,
             String state,
             int page);
+    
+    public Page<SeatMappingResponseDto> getAllSeatMappings(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            int page,
+            int size);
 
 }

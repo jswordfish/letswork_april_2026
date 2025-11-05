@@ -36,6 +36,8 @@ public interface ClientCompanySeatMappingRepository extends JpaRepository<Client
             @Param("city") String city,
             @Param("state") String state,
             Pageable pageable);
+    
+    List<ClientCompanySeatMapping> findByCompanyId(String companyId);
 
     @Query("SELECT c FROM ClientCompanySeatMapping c WHERE c.companyId = :companyId")
     Page<ClientCompanySeatMapping> findByCompanyId(@Param("companyId") String companyId, Pageable pageable);
