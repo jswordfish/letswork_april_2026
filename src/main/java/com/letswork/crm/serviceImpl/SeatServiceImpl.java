@@ -107,7 +107,7 @@ public class SeatServiceImpl implements SeatService {
                     seat.getCabinName(), seat.getCompanyId(), seat.getLetsWorkCentre(),
                     seat.getCity(), seat.getState());
 
-            if (currentSeatCount >= cabin.getTotalSeats()) {
+            if (currentSeatCount > cabin.getTotalSeats()) {
                 throw new RuntimeException("Cabin " + seat.getCabinName() + " is full. Cannot add more seats.");
             }
         } else {
