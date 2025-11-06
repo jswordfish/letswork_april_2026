@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.dtos.SeatAvailabilityDto;
 import com.letswork.crm.dtos.SeatMappingResponseDto;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.enums.SeatType;
@@ -102,16 +103,15 @@ public class SeatController {
     }
     
     @GetMapping("/availability")
-    public ResponseEntity<PaginatedResponseDto> getAllSeatsWithAvailability(
+    public ResponseEntity<List<SeatAvailabilityDto>> getAllSeatsWithAvailability(
             @RequestParam String companyId,
             @RequestParam String letsWorkCentre,
             @RequestParam String city,
             @RequestParam String state,
-            @RequestParam String token,
-            @RequestParam(defaultValue = "0") int page) {
+            @RequestParam String token) {
 
-        PaginatedResponseDto response = seatService.getAllSeatsWithAvailability(
-                companyId, letsWorkCentre, city, state, page);
+        List<SeatAvailabilityDto> response = seatService.getAllSeatsWithAvailability(
+                companyId, letsWorkCentre, city, state);
 
         return ResponseEntity.ok(response);
     }

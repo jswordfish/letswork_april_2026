@@ -298,12 +298,8 @@ public class SeatServiceImpl implements SeatService {
     }
     
     @Override
-    public PaginatedResponseDto getAllSeatsWithAvailability(
-            String companyId,
-            String letsWorkCentre,
-            String city,
-            String state,
-            int page) {
+    public List<SeatAvailabilityDto> getAllSeatsWithAvailability(
+            String companyId, String letsWorkCentre, String city, String state) {
 
         // 1️⃣ Fetch all seats for this LetsWorkCentre, city, state, and company
         List<Seat> allSeats = seatRepository.findAllByCompanyIdAndLetsWorkCentreAndCityAndState(
@@ -323,7 +319,7 @@ public class SeatServiceImpl implements SeatService {
         occupiedSeatKeys.addAll(companyOccupiedSeatKeys);
 
         // 5️⃣ Map all seats with availability info
-        List<SeatAvailabilityDto> seatAvailabilityList = allSeats.stream()
+        return allSeats.stream()
                 .map(seat -> {
                     SeatKey key = new SeatKey(
                             seat.getLetsWorkCentre(),
@@ -337,26 +333,6 @@ public class SeatServiceImpl implements SeatService {
                     return new SeatAvailabilityDto(seat, !isOccupied);
                 })
                 .collect(Collectors.toList());
-
-        // 6️⃣ Pagination logic
-        int pageSize = 10;
-        int totalRecords = seatAvailabilityList.size();
-        int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
-        int start = Math.min(page * pageSize, totalRecords);
-        int end = Math.min(start + pageSize, totalRecords);
-
-        List<SeatAvailabilityDto> paginatedSeats = seatAvailabilityList.subList(start, end);
-
-        // 7️⃣ Prepare paginated response DTO
-        PaginatedResponseDto response = new PaginatedResponseDto();
-        response.setRecordsFrom(start + 1);
-        response.setRecordsTo(end);
-        response.setTotalNumberOfRecords(totalRecords);
-        response.setTotalNumberOfPages(totalPages);
-        response.setSelectedPage(page);
-        response.setList(paginatedSeats);
-
-        return response;
     }
     
     
