@@ -24,7 +24,7 @@ public interface UserSeatMappingRepository extends JpaRepository<UserSeatMapping
 	List<UserSeatMapping> findByCompanyId(String companyId);
 	
 	
-	@Query("SELECT new com.letswork.crm.entities.SeatKey(u.letsWorkCentre, u.city, u.state, u.companyId, u.seatType, u.seatNumber) " +
+	@Query("SELECT DISTINCT new com.letswork.crm.entities.SeatKey(u.letsWorkCentre, u.city, u.state, u.companyId, u.seatType, u.seatNumber) " +
 		       "FROM UserSeatMapping u " +
 		       "WHERE u.companyId = :companyId AND u.letsWorkCentre = :letsWorkCentre " +
 		       "AND u.city = :city AND u.state = :state")

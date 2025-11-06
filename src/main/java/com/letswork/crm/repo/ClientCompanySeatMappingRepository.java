@@ -74,7 +74,7 @@ public interface ClientCompanySeatMappingRepository extends JpaRepository<Client
     	        @Param("city") String city,
     	        @Param("state") String state);
     
-    @Query("SELECT new com.letswork.crm.entities.SeatKey(c.letsWorkCentre, c.city, c.state, c.companyId, c.seatType, c.seatNumber) " +
+    @Query("SELECT DISTINCT new com.letswork.crm.entities.SeatKey(c.letsWorkCentre, c.city, c.state, c.companyId, c.seatType, c.seatNumber) " +
     	       "FROM ClientCompanySeatMapping c " +
     	       "WHERE c.companyId = :companyId AND c.letsWorkCentre = :letsWorkCentre " +
     	       "AND c.city = :city AND c.state = :state")
