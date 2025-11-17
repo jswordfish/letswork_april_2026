@@ -30,7 +30,6 @@ public class Booking extends Base{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-    private String clientName;
     
     private String clientEmail;
     
@@ -103,6 +102,9 @@ public class Booking extends Base{
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    
+    private String city;
+    private String state;
 
     private String qrCodePath; // Store QR code image path
     private String bookingCode; // Unique code for verification

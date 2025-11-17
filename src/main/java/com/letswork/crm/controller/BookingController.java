@@ -28,7 +28,6 @@ public class BookingController {
 	
 	@PostMapping
     public ResponseEntity<Booking> createBooking(
-            @RequestParam String clientName,
             @RequestParam String clientEmail,
             @RequestParam String conferenceRoomName,
             @RequestParam String companyId,
@@ -36,9 +35,11 @@ public class BookingController {
             @RequestParam String clientCompanyName,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
+            @RequestParam String city,
+            @RequestParam String state,
             @RequestParam String token) throws Exception {
 
-        Booking booking = service.createBooking(clientName, clientEmail, conferenceRoomName, companyId, letsWorkCentre, clientCompanyName, startTime, endTime);
+        Booking booking = service.createBooking(clientEmail, conferenceRoomName, companyId, letsWorkCentre, clientCompanyName, startTime, endTime, city, state);
         return ResponseEntity.ok(booking);
     }
 

@@ -9,8 +9,8 @@ import com.letswork.crm.entities.Booking;
 
 public interface BookingService {
 	
-	public Booking createBooking(String clientName, String clientEmail, String conferenceRoomName, String companyId, String letsWorkCentre,
-            String clientCompanyName, LocalDateTime startTime, LocalDateTime endTime) throws Exception;
+	public Booking createBooking(String clientEmail, String conferenceRoomName, String companyId, String letsWorkCentre,
+            String clientCompanyName, LocalDateTime startTime, LocalDateTime endTime, String city, String state) throws Exception;
 	
 	public String cancelBooking(String bookingCode);
 	

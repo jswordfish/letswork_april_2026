@@ -75,23 +75,23 @@ public class BookingServiceImpl implements BookingService {
 	S3Service s3Service;
 
 	@Override
-	public Booking createBooking(String clientName, String clientEmail, String conferenceRoomName,
+	public Booking createBooking(String clientEmail, String conferenceRoomName,
 	                             String companyId, String letsWorkCentre, String clientCompanyName,
-	                             LocalDateTime startTime, LocalDateTime endTime) throws Exception {
+	                             LocalDateTime startTime, LocalDateTime endTime, String city, String state) throws Exception {
 
 	    // 1. Validate client
 	    Client client = clientRepository.findByEmailAndCompanyId( clientEmail, companyId);
 	    if (client == null) throw new IllegalArgumentException("Client not found with provided details.");
 
 	    // 2. Validate client company IGNORE THIS FOR NOW, ADDED NEW ATTRIBUTES, CITY AND STATE	
-//	    ClientCompany clientCompany = clientCompanyRepository.findByClientCompanyNameAndCompanyId(
-//	            clientCompanyName, companyId);
-//	    if (clientCompany == null) throw new IllegalArgumentException("Client company not found with provided details.");
+	    ClientCompany clientCompany = clientCompanyRepository.findByClientCompanyNameAndCompanyIdAndCityAndStateAndLetsWorkCentre(
+	    		clientCompanyName, companyId, city, state, letsWorkCentre);
+	    if (clientCompany == null) throw new IllegalArgumentException("Client company not found with provided details.");
 
 	    // 3. Validate conference room IGNORE THIS FOR NOW, ADDED NEW ATTRIBUTES, CITY AND STATE	
-//	    ConferenceRoom room = conferenceRoomRepository.findByNameAndLetsWorkCentreAndCompanyId(
-//	            conferenceRoomName, letsWorkCentre, companyId);
-//	    if (room == null) throw new IllegalArgumentException("Conference room not found with provided details.");
+	    ConferenceRoom room = conferenceRoomRepository.findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
+	            conferenceRoomName, letsWorkCentre, companyId, city, state);
+	    if (room == null) throw new IllegalArgumentException("Conference room not found with provided details.");
 
 	    // 4. Validate time range
 	    if (!endTime.isAfter(startTime))
@@ -151,7 +151,6 @@ public class BookingServiceImpl implements BookingService {
 
 	    // 12. Save booking
 	    Booking booking = Booking.builder()
-	            .clientName(clientName)
 	            .clientEmail(clientEmail)
 	            .clientCompany(clientCompanyName)
 	            .conferenceRoomName(conferenceRoomName)
@@ -159,6 +158,8 @@ public class BookingServiceImpl implements BookingService {
 	            .letsWorkCentre(letsWorkCentre)
 	            .startTime(startTime)
 	            .endTime(endTime)
+	            .city(city)
+	            .state(state)
 	            .bookingCode(bookingCode)
 	            .qrCodePath(qrPath)
 	            .s3Path(s3Path)
