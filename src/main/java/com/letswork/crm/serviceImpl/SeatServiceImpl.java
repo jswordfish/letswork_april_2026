@@ -177,9 +177,9 @@ public class SeatServiceImpl implements SeatService {
 		}
         
         
-        if ("SHARED_CABIN".equalsIgnoreCase(dto.getSeatType())) {
+        if ("SHARED_CABIN".equalsIgnoreCase(dto.getSeatType()) || "CABIN_DESK".equalsIgnoreCase(dto.getSeatType())) {
             if (dto.getCabinName() == null || dto.getCabinName().trim().isEmpty()) {
-                return "Cabin name must exist when seat type is SHARED_CABIN";
+                return "Cabin name must exist when seat type is SHARED_CABIN or CABIN_DESK";
             }
             
             boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndState(
@@ -194,19 +194,7 @@ public class SeatServiceImpl implements SeatService {
             return "Cabin name must be empty for seat type: " + dto.getSeatType();
         }
         
-        if ("CABIN_DESK".equalsIgnoreCase(dto.getSeatType())) {
-            if (dto.getCabinName() == null || dto.getCabinName().trim().isEmpty()) {
-                return "Cabin name must exist when seat type is CABIN_DESK";
-            }
-            
-            boolean cabinExists = cabinRepository.existsByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndState(
-                        dto.getCabinName(), dto.getCompanyId(), dto.getLetsWorkCentre(), dto.getCity(), dto.getState());
-
-            if (!cabinExists) {
-                return "Cabin with name " + dto.getCabinName() + " does not exist for the given company and location";
-            }
-            
-        }
+        
         
         
         
