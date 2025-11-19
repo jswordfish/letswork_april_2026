@@ -29,7 +29,7 @@ public class BookingController {
 	
 	@PostMapping
     public ResponseEntity<Booking> createBooking(
-            @RequestParam(required = false) String clientEmail,
+            @RequestParam(required = false) String clientEmail,//either this or client company name
             @RequestParam String conferenceRoomName,
             @RequestParam String companyId,
             @RequestParam String letsWorkCentre,
