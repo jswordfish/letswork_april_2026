@@ -1,6 +1,7 @@
 package com.letswork.crm.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,11 +29,11 @@ public class BookingController {
 	
 	@PostMapping
     public ResponseEntity<Booking> createBooking(
-            @RequestParam String clientEmail,
+            @RequestParam(required = false) String clientEmail,
             @RequestParam String conferenceRoomName,
             @RequestParam String companyId,
             @RequestParam String letsWorkCentre,
-            @RequestParam String clientCompanyName,
+            @RequestParam(required = false) String clientCompanyName,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
             @RequestParam String city,
@@ -42,6 +43,11 @@ public class BookingController {
         Booking booking = service.createBooking(clientEmail, conferenceRoomName, companyId, letsWorkCentre, clientCompanyName, startTime, endTime, city, state);
         return ResponseEntity.ok(booking);
     }
+	
+	@GetMapping
+	public ResponseEntity<List<Booking>> getAllBookings(@RequestParam String token) {
+	    return ResponseEntity.ok(service.getAllBookings());
+	}
 
     @GetMapping("/validate")
     public ResponseEntity<BookingValidationResponse> validateBooking(@RequestParam String bookingCode, @RequestParam String token) {

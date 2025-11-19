@@ -1,6 +1,7 @@
 package com.letswork.crm.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.letswork.crm.dtos.BookingValidationResponse;
 import com.letswork.crm.dtos.PaginatedResponseDto;
@@ -17,5 +18,7 @@ public interface BookingService {
 	public BookingValidationResponse validateBooking(String bookingCode);
 	
 	PaginatedResponseDto listAllBookings(String companyId, int page, int size);
+	
+	public List<Booking> getAllBookings();
 
 }

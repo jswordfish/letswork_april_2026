@@ -79,19 +79,42 @@ public class BookingServiceImpl implements BookingService {
 	                             String companyId, String letsWorkCentre, String clientCompanyName,
 	                             LocalDateTime startTime, LocalDateTime endTime, String city, String state) throws Exception {
 
-	    // 1. Validate client
-	    Client client = clientRepository.findByEmailAndCompanyId( clientEmail, companyId);
-	    if (client == null) throw new IllegalArgumentException("Client not found with provided details.");
+		boolean emailProvided = clientEmail != null && !clientEmail.trim().isEmpty();
+	    boolean companyProvided = clientCompanyName != null && !clientCompanyName.trim().isEmpty();
 
-	    // 2. Validate client company IGNORE THIS FOR NOW, ADDED NEW ATTRIBUTES, CITY AND STATE	
-	    ClientCompany clientCompany = clientCompanyRepository.findByClientCompanyNameAndCompanyIdAndCityAndStateAndLetsWorkCentre(
-	    		clientCompanyName, companyId, city, state, letsWorkCentre);
-	    if (clientCompany == null) throw new IllegalArgumentException("Client company not found with provided details.");
+	    if (emailProvided == companyProvided) {  
+	        throw new IllegalArgumentException(
+	                "Provide either clientEmail OR clientCompanyName, not both or none."
+	        );
+	    }
 
-	    // 3. Validate conference room IGNORE THIS FOR NOW, ADDED NEW ATTRIBUTES, CITY AND STATE	
-	    ConferenceRoom room = conferenceRoomRepository.findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
-	            conferenceRoomName, letsWorkCentre, companyId, city, state);
-	    if (room == null) throw new IllegalArgumentException("Conference room not found with provided details.");
+	    // 1️⃣ Validate user based on email
+	    Client client = null;
+	    ClientCompany clientCompany = null;
+
+	    if (emailProvided) {
+	        client = clientRepository.findByEmailAndCompanyId(clientEmail, companyId);
+	        if (client == null)
+	            throw new IllegalArgumentException("Client not found with provided email and companyId.");
+	    }
+
+	    // 2️⃣ Validate user based on company name
+	    if (companyProvided) {
+	        clientCompany = clientCompanyRepository
+	                .findByClientCompanyNameAndCompanyIdAndCityAndStateAndLetsWorkCentre(
+	                        clientCompanyName, companyId, city, state, letsWorkCentre);
+
+	        if (clientCompany == null)
+	            throw new IllegalArgumentException("Client company not found with provided details.");
+	    }
+
+	    // 3️⃣ Validate conference room
+	    ConferenceRoom room = conferenceRoomRepository
+	            .findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
+	                    conferenceRoomName, letsWorkCentre, companyId, city, state);
+
+	    if (room == null)
+	        throw new IllegalArgumentException("Conference room not found with provided details.");
 
 	    // 4. Validate time range
 	    if (!endTime.isAfter(startTime))
@@ -151,8 +174,8 @@ public class BookingServiceImpl implements BookingService {
 
 	    // 12. Save booking
 	    Booking booking = Booking.builder()
-	            .clientEmail(clientEmail)
-	            .clientCompany(clientCompanyName)
+	            .clientEmail(emailProvided ? clientEmail : null)
+	            .clientCompany(companyProvided ? clientCompanyName : null)
 	            .conferenceRoomName(conferenceRoomName)
 	            .companyId(companyId)
 	            .letsWorkCentre(letsWorkCentre)
@@ -304,4 +327,9 @@ public String cancelBooking(String bookingCode) {
         
         return response;
     }
+
+	@Override
+	public List<Booking> getAllBookings() {
+	    return bookingRepository.findAll();
+	}
 }
