@@ -148,11 +148,14 @@ public class SeatController {
             @RequestParam(required = false) String letsWorkCentre,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
+            @RequestParam(required = false) SeatType seatType,
             @RequestParam String token,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        return ResponseEntity.ok(seatService.listSeats(companyId, letsWorkCentre, city, state, page, size));
+        return ResponseEntity.ok(
+                seatService.listSeats(companyId, letsWorkCentre, city, state, seatType, page, size)
+        );
     }
     
     @PostMapping("/publish")

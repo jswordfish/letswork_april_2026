@@ -251,22 +251,27 @@ public class SeatServiceImpl implements SeatService {
 
 
     @Override
-    public PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize) {
+    public PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, String city, String state,
+                                          SeatType seatType, int pageNo, int pageSize) {
+
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("id").descending());
 
         Page<Seat> page;
 
-        // Dynamic filtering logic
-        if ((letsWorkCentre == null || letsWorkCentre.isEmpty()) &&
-            (city == null || city.isEmpty()) &&
-            (state == null || state.isEmpty())) {
+        // If no filters provided
+        if ((letsWorkCentre == null || letsWorkCentre.isEmpty())
+                && (city == null || city.isEmpty())
+                && (state == null || state.isEmpty())
+                && seatType == null) {
 
-            // No filters → list all for company
+            // No filters → return all seats for the company
             page = seatRepository.findByCompanyId(companyId, pageable);
 
         } else {
-            // Apply filters dynamically
-            page = seatRepository.findByFilters(companyId, letsWorkCentre, city, state, pageable);
+            // Use dynamic filter query
+            page = seatRepository.findByFilters(
+                    companyId, letsWorkCentre, city, state, seatType, pageable
+            );
         }
 
         PaginatedResponseDto response = new PaginatedResponseDto();

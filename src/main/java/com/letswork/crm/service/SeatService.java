@@ -15,7 +15,8 @@ public interface SeatService {
 	
 	Seat saveOrUpdate(Seat seat);
 
-    PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize);
+    PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, String city, String state,
+            SeatType seatType, int pageNo, int pageSize);
     
     PaginatedResponseDto listPublishedSeats(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize);
 

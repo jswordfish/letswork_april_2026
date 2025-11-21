@@ -89,6 +89,7 @@ public class BookingServiceImpl implements BookingService {
 	    // 1️⃣ Validate user based on email
 	    Client client = null;
 	    ClientCompany clientCompany = null;
+	    
 
 	    if (emailProvided) {
 	        client = clientRepository.findByEmailAndCompanyId(dto.getClientEmail(), dto.getCompanyId());
