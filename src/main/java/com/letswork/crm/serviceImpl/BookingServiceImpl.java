@@ -1,7 +1,6 @@
 
 package com.letswork.crm.serviceImpl;
 
-import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -184,8 +183,8 @@ public class BookingServiceImpl implements BookingService {
 	            .city(city)
 	            .state(state)
 	            .bookingCode(bookingCode)
-	            .qrCodePath(qrPath)
-	            .s3Path(s3Path)
+//	            .qrCodePath(qrPath)
+//	            .s3Path(s3Path)
 	            .currentStatus(BookingStatus.ACTIVE)
 	            .isActive(true)
 	            .build();
