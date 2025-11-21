@@ -1,17 +1,16 @@
 package com.letswork.crm.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import com.letswork.crm.dtos.BookingValidationResponse;
+import com.letswork.crm.dtos.ConferenceRoomBookingDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Booking;
 
 
 public interface BookingService {
 	
-	public Booking createBooking(String clientEmail, String conferenceRoomName, String companyId, String letsWorkCentre,
-            String clientCompanyName, LocalDateTime startTime, LocalDateTime endTime, String city, String state) throws Exception;
+	public Booking createBooking(ConferenceRoomBookingDto dto) throws Exception;
 	
 	public String cancelBooking(String bookingCode);
 	

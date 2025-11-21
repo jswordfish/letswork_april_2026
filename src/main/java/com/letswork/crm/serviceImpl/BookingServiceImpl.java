@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.letswork.crm.dtos.BookingValidationResponse;
+import com.letswork.crm.dtos.ConferenceRoomBookingDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Booking;
 import com.letswork.crm.entities.Client;
@@ -74,12 +75,10 @@ public class BookingServiceImpl implements BookingService {
 	S3Service s3Service;
 
 	@Override
-	public Booking createBooking(String clientEmail, String conferenceRoomName,
-	                             String companyId, String letsWorkCentre, String clientCompanyName,
-	                             LocalDateTime startTime, LocalDateTime endTime, String city, String state) throws Exception {
+	public Booking createBooking(ConferenceRoomBookingDto dto) throws Exception {
 
-		boolean emailProvided = clientEmail != null && !clientEmail.trim().isEmpty();
-	    boolean companyProvided = clientCompanyName != null && !clientCompanyName.trim().isEmpty();
+		boolean emailProvided = dto.getClientEmail() != null && !dto.getClientEmail().trim().isEmpty();
+	    boolean companyProvided = dto.getClientCompanyName() != null && !dto.getClientCompanyName().trim().isEmpty();
 
 	    if (emailProvided == companyProvided) {  
 	        throw new IllegalArgumentException(
@@ -92,7 +91,7 @@ public class BookingServiceImpl implements BookingService {
 	    ClientCompany clientCompany = null;
 
 	    if (emailProvided) {
-	        client = clientRepository.findByEmailAndCompanyId(clientEmail, companyId);
+	        client = clientRepository.findByEmailAndCompanyId(dto.getClientEmail(), dto.getCompanyId());
 	        if (client == null)
 	            throw new IllegalArgumentException("Client not found with provided email and companyId.");
 	    }
@@ -101,7 +100,7 @@ public class BookingServiceImpl implements BookingService {
 	    if (companyProvided) {
 	        clientCompany = clientCompanyRepository
 	                .findByClientCompanyNameAndCompanyIdAndCityAndStateAndLetsWorkCentre(
-	                        clientCompanyName, companyId, city, state, letsWorkCentre);
+	                		dto.getClientCompanyName(), dto.getCompanyId(), dto.getCity(), dto.getState(), dto.getLetsWorkCentre());
 
 	        if (clientCompany == null)
 	            throw new IllegalArgumentException("Client company not found with provided details.");
@@ -110,37 +109,37 @@ public class BookingServiceImpl implements BookingService {
 	    // 3️⃣ Validate conference room
 	    ConferenceRoom room = conferenceRoomRepository
 	            .findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
-	                    conferenceRoomName, letsWorkCentre, companyId, city, state);
+	                    dto.getConferenceRoomName(), dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getCity(), dto.getState());
 
 	    if (room == null)
 	        throw new IllegalArgumentException("Conference room not found with provided details.");
 
 	    // 4. Validate time range
-	    if (!endTime.isAfter(startTime))
+	    if (!dto.getEndTime().isAfter(dto.getStartTime()))
 	        throw new IllegalArgumentException("End time must be after start time.");
 
-	    long durationMinutes = Duration.between(startTime, endTime).toMinutes();
+	    long durationMinutes = Duration.between(dto.getStartTime(), dto.getEndTime()).toMinutes();
 	    if (durationMinutes < 30)
 	        throw new IllegalArgumentException("Minimum booking duration is 30 minutes.");
 
 	    // 5. Prevent past bookings
-	    if (startTime.isBefore(LocalDateTime.now()))
+	    if (dto.getStartTime().isBefore(LocalDateTime.now()))
 	        throw new IllegalArgumentException("Start time cannot be in the past.");
 
 	    // 6. Prevent booking too far in future (max 3 months)
-	    if (startTime.isAfter(LocalDateTime.now().plusMonths(3)))
+	    if (dto.getStartTime().isAfter(LocalDateTime.now().plusMonths(3)))
 	        throw new IllegalArgumentException("You cannot book a room more than 3 months in advance.");
 
 	    // 7. Prevent booking outside allowed hours
 	    LocalTime startLimit = LocalTime.of(7, 0);
 	    LocalTime endLimit = LocalTime.of(23, 0);
-	    if (startTime.toLocalTime().isBefore(startLimit) || endTime.toLocalTime().isAfter(endLimit)) {
+	    if (dto.getStartTime().toLocalTime().isBefore(startLimit) || dto.getEndTime().toLocalTime().isAfter(endLimit)) {
 	        throw new IllegalArgumentException("Bookings are only allowed between 7 AM and 11 PM.");
 	    }
 
 	    // 8. Check for booking conflicts
 	    List<Booking> conflicts = bookingRepository.findConflictingBookings(
-	            conferenceRoomName, letsWorkCentre, companyId, startTime, endTime);
+	    		dto.getConferenceRoomName(), dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getStartTime(), dto.getEndTime());
 	    if (!conflicts.isEmpty()) {
 	        throw new IllegalArgumentException("Booking conflict: Conference room is already booked in this slot.");
 	    }
@@ -173,15 +172,15 @@ public class BookingServiceImpl implements BookingService {
 
 	    // 12. Save booking
 	    Booking booking = Booking.builder()
-	            .clientEmail(emailProvided ? clientEmail : null)
-	            .clientCompany(companyProvided ? clientCompanyName : null)
-	            .conferenceRoomName(conferenceRoomName)
-	            .companyId(companyId)
-	            .letsWorkCentre(letsWorkCentre)
-	            .startTime(startTime)
-	            .endTime(endTime)
-	            .city(city)
-	            .state(state)
+	            .clientEmail(emailProvided ? dto.getClientEmail() : null)
+	            .clientCompany(companyProvided ? dto.getClientCompanyName() : null)
+	            .conferenceRoomName(dto.getConferenceRoomName())
+	            .companyId(dto.getCompanyId())
+	            .letsWorkCentre(dto.getLetsWorkCentre())
+	            .startTime(dto.getStartTime())
+	            .endTime(dto.getEndTime())
+	            .city(dto.getCity())
+	            .state(dto.getState())
 	            .bookingCode(bookingCode)
 //	            .qrCodePath(qrPath)
 //	            .s3Path(s3Path)
