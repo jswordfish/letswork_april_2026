@@ -166,11 +166,11 @@ public class BookingServiceImpl implements BookingService {
 
 	    // 11. Generate QR & upload
 	    String bookingCode = UUID.randomUUID().toString();
-	    String qrPath = qrCodeService.generateQRCodeWithBookingCodeRGB(bookingCode);
+//	    String qrPath = qrCodeService.generateQRCodeWithBookingCodeRGB(bookingCode);
 //      whatsAppService.sendBookingQRCode(client2.getPhone(), qrPath);
-	    File file = new File(qrPath);
-	    String s3Path = s3Service.uploadQRCode("myapp-bucket-1758037822620", companyId, clientEmail,
-	            startTime + "To" + endTime, file);
+//	    File file = new File(qrPath);
+//	    String s3Path = s3Service.uploadQRCode("myapp-bucket-1758037822620", companyId, clientEmail,
+//	            startTime + "To" + endTime, file);
 
 	    // 12. Save booking
 	    Booking booking = Booking.builder()
