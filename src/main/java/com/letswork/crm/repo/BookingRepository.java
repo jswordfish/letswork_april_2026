@@ -33,6 +33,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
                                           @Param("companyId") String companyId,
                                           @Param("startTime") LocalDateTime startTime,
                                           @Param("endTime") LocalDateTime endTime);
+    
+    List<Booking> findByLetsWorkCentreAndCityAndStateAndCompanyId(String letsWorkCentre, String city, String state, String companyId);
 
 
 

@@ -146,23 +146,23 @@ public class BookingServiceImpl implements BookingService {
 	        throw new IllegalArgumentException("Booking conflict: Conference room is already booked in this slot.");
 	    }
 
-	    // 9. Calculate credits
-	    int requiredCredits = calculateCreditCost(conferenceRoomName, letsWorkCentre, companyId, durationMinutes);
-
-	    // 10. Debit credits
-	    try {
-	        UserCreditTransactionLog debitTransaction = UserCreditTransactionLog.builder()
-	                .userEmail(clientEmail)
-	                .companyId(companyId)
-	                .totalCredits(requiredCredits)
-	                .creditTransactionType(CreditTransactionType.debit)
-	                .creditsUsedOn(conferenceRoomName + " booking from " + startTime + " to " + endTime)
-	                .build();
-
-	        transactionService.logAndProcessTransaction(debitTransaction);
-	    } catch (InsufficientCreditsException e) {
-	        throw new Exception("Credit debit failed: " + e.getMessage());
-	    }
+//	    // 9. Calculate credits
+//	    int requiredCredits = calculateCreditCost(conferenceRoomName, letsWorkCentre, companyId, durationMinutes);
+//
+//	    // 10. Debit credits
+//	    try {
+//	        UserCreditTransactionLog debitTransaction = UserCreditTransactionLog.builder()
+//	                .userEmail(clientEmail)
+//	                .companyId(companyId)
+//	                .totalCredits(requiredCredits)
+//	                .creditTransactionType(CreditTransactionType.debit)
+//	                .creditsUsedOn(conferenceRoomName + " booking from " + startTime + " to " + endTime)
+//	                .build();
+//
+//	        transactionService.logAndProcessTransaction(debitTransaction);
+//	    } catch (InsufficientCreditsException e) {
+//	        throw new Exception("Credit debit failed: " + e.getMessage());
+//	    }
 
 	    // 11. Generate QR & upload
 	    String bookingCode = UUID.randomUUID().toString();
@@ -329,7 +329,7 @@ public String cancelBooking(String bookingCode) {
     }
 
 	@Override
-	public List<Booking> getAllBookings() {
-	    return bookingRepository.findAll();
+	public List<Booking> getBookings(String letsWorkCentre, String city, String state, String companyId) {
+	    return bookingRepository.findByLetsWorkCentreAndCityAndStateAndCompanyId(letsWorkCentre, city, state, companyId);
 	}
 }

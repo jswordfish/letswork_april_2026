@@ -19,6 +19,6 @@ public interface BookingService {
 	
 	PaginatedResponseDto listAllBookings(String companyId, int page, int size);
 	
-	public List<Booking> getAllBookings();
+	public List<Booking> getBookings(String letsWorkCentre, String city, String state, String companyId);
 
 }

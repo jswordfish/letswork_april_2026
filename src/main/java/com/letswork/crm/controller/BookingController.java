@@ -29,7 +29,7 @@ public class BookingController {
 	
 	@PostMapping
     public ResponseEntity<Booking> createBooking(
-            @RequestParam(required = false) String clientEmail,//either this or client company name
+            @RequestParam(required = false) String clientEmail,
             @RequestParam String conferenceRoomName,
             @RequestParam String companyId,
             @RequestParam String letsWorkCentre,
@@ -45,8 +45,13 @@ public class BookingController {
     }
 	
 	@GetMapping
-	public ResponseEntity<List<Booking>> getAllBookings(@RequestParam String token) {
-	    return ResponseEntity.ok(service.getAllBookings());
+	public ResponseEntity<List<Booking>> getAllBookings(
+			@RequestParam String letsWorkCentre,
+			@RequestParam String city,
+			@RequestParam String state,
+			@RequestParam String companyId,
+			@RequestParam String token) {
+	    return ResponseEntity.ok(service.getBookings(letsWorkCentre, city, state, companyId));
 	}
 
     @GetMapping("/validate")
