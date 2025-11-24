@@ -33,6 +33,7 @@ public interface ClientService {
 	public String uploadClientsFromExcel(MultipartFile file);
 	
 	public PaginatedResponseDto listClients(String companyId,
+			String email,
             String letsWorkCentre,
             String city,
             String state,

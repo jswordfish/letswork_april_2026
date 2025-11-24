@@ -139,7 +139,7 @@ public class ClientController {
 	        @RequestParam String token) {
 
 	    PaginatedResponseDto response = service.listClients(
-	            companyId, letsWorkCentre, city, state, search, sortBy, sortDir, page
+	            companyId, email, letsWorkCentre, city, state, search, sortBy, sortDir, page
 	    );
 
 	    return ResponseEntity.ok(response);

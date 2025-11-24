@@ -2,6 +2,7 @@ package com.letswork.crm.serviceImpl;
 
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -310,6 +311,7 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	public PaginatedResponseDto listClients(String companyId,
+											String email,
 	                                        String letsWorkCentre,
 	                                        String city,
 	                                        String state,
@@ -317,6 +319,30 @@ public class ClientServiceImpl implements ClientService {
 	                                        String sortBy,
 	                                        String sortDir,
 	                                        int pageNo) {
+		
+		if(email!=null){
+			Client client = repo.findByEmailAndCompanyId(email, companyId);
+
+		    PaginatedResponseDto response = new PaginatedResponseDto();
+
+		    if (client != null) {
+		        response.setRecordsFrom(1);
+		        response.setRecordsTo(1);
+		        response.setTotalNumberOfRecords(1);
+		        response.setTotalNumberOfPages(1);
+		        response.setSelectedPage(0);
+		        response.setList(Collections.singletonList(client));
+		    } else {
+		        response.setRecordsFrom(0);
+		        response.setRecordsTo(0);
+		        response.setTotalNumberOfRecords(0);
+		        response.setTotalNumberOfPages(0);
+		        response.setSelectedPage(0);
+		        response.setList(Collections.emptyList());
+		    }
+
+		    return response;
+		}
 
 	    Sort sort = sortDir.equalsIgnoreCase("asc") ?
 	            Sort.by(sortBy).ascending() :
