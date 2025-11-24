@@ -84,6 +84,47 @@ public class ClientController {
 		
 	}
 	
+//	@GetMapping
+//	public ResponseEntity<PaginatedResponseDto> getIndividualClients(
+//	        @RequestParam String companyId,
+//	        @RequestParam(required = false) String email,
+//	        @RequestParam(required = false) String letsWorkCentre,
+//	        @RequestParam(required = false) String city,
+//	        @RequestParam(required = false) String state,
+//	        @RequestParam(defaultValue = "0") int page,
+//	        @RequestParam String token) {
+//
+//	    PaginatedResponseDto response;
+//
+//	    if (letsWorkCentre != null && city != null && state != null && email==null) {
+//	        response = service.getIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId, city, state, page);
+//	    }
+//	    else if(email != null) {
+//	    	Client client = service.getByEmail(email, companyId);
+//	        response = new PaginatedResponseDto();
+//	        if (client != null) {
+//	            response.setRecordsFrom(1);
+//	            response.setRecordsTo(1);
+//	            response.setTotalNumberOfRecords(1);
+//	            response.setTotalNumberOfPages(1);
+//	            response.setSelectedPage(0);
+//	            response.setList(Collections.singletonList(client));
+//	        } else {
+//	            response.setRecordsFrom(0);
+//	            response.setRecordsTo(0);
+//	            response.setTotalNumberOfRecords(0);
+//	            response.setTotalNumberOfPages(0);
+//	            response.setSelectedPage(0);
+//	            response.setList(Collections.emptyList());
+//	        }
+//	    }
+//	    else {
+//	        response = service.getIndividualClients(companyId, page);
+//	    }
+//
+//	    return ResponseEntity.ok(response);
+//	}
+	
 	@GetMapping
 	public ResponseEntity<PaginatedResponseDto> getIndividualClients(
 	        @RequestParam String companyId,
@@ -91,36 +132,15 @@ public class ClientController {
 	        @RequestParam(required = false) String letsWorkCentre,
 	        @RequestParam(required = false) String city,
 	        @RequestParam(required = false) String state,
+	        @RequestParam(required = false) String search,
+	        @RequestParam(required = false, defaultValue = "id") String sortBy,
+	        @RequestParam(required = false, defaultValue = "desc") String sortDir,
 	        @RequestParam(defaultValue = "0") int page,
 	        @RequestParam String token) {
 
-	    PaginatedResponseDto response;
-
-	    if (letsWorkCentre != null && city != null && state != null && email==null) {
-	        response = service.getIndividualClientsByLetsWorkCentre(letsWorkCentre, companyId, city, state, page);
-	    }
-	    else if(email != null) {
-	    	Client client = service.getByEmail(email, companyId);
-	        response = new PaginatedResponseDto();
-	        if (client != null) {
-	            response.setRecordsFrom(1);
-	            response.setRecordsTo(1);
-	            response.setTotalNumberOfRecords(1);
-	            response.setTotalNumberOfPages(1);
-	            response.setSelectedPage(0);
-	            response.setList(Collections.singletonList(client));
-	        } else {
-	            response.setRecordsFrom(0);
-	            response.setRecordsTo(0);
-	            response.setTotalNumberOfRecords(0);
-	            response.setTotalNumberOfPages(0);
-	            response.setSelectedPage(0);
-	            response.setList(Collections.emptyList());
-	        }
-	    }
-	    else {
-	        response = service.getIndividualClients(companyId, page);
-	    }
+	    PaginatedResponseDto response = service.listClients(
+	            companyId, letsWorkCentre, city, state, search, sortBy, sortDir, page
+	    );
 
 	    return ResponseEntity.ok(response);
 	}

@@ -188,7 +188,7 @@ public class ClientServiceImpl implements ClientService {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("id").descending());
         Page<Client> clientPage = repo.findIndividualClients(companyId, pageable);
         return buildPaginatedResponse(clientPage, page);
-    }
+    }	
 
     // ✅ Get individual clients by letsWorkCentre
     @Override
@@ -308,7 +308,36 @@ public class ClientServiceImpl implements ClientService {
 		
 	}
 
-	
+	@Override
+	public PaginatedResponseDto listClients(String companyId,
+	                                        String letsWorkCentre,
+	                                        String city,
+	                                        String state,
+	                                        String search,
+	                                        String sortBy,
+	                                        String sortDir,
+	                                        int pageNo) {
+
+	    Sort sort = sortDir.equalsIgnoreCase("asc") ?
+	            Sort.by(sortBy).ascending() :
+	            Sort.by(sortBy).descending();
+
+	    Pageable pageable = PageRequest.of(pageNo, 10, sort);
+
+	    Page<Client> page = repo.searchClients(
+	            companyId, letsWorkCentre, city, state, search, pageable
+	    );
+
+	    PaginatedResponseDto response = new PaginatedResponseDto();
+	    response.setRecordsFrom(pageNo * 10 + 1);
+	    response.setRecordsTo((int) Math.min((pageNo + 1) * 10, page.getTotalElements()));
+	    response.setTotalNumberOfRecords((int) page.getTotalElements());
+	    response.setTotalNumberOfPages(page.getTotalPages());
+	    response.setSelectedPage(pageNo);
+	    response.setList(page.getContent());
+
+	    return response;
+	}
 	
 
 }

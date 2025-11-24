@@ -72,4 +72,27 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     Long getCountOfClientsInClientCompany(@Param("clientCompanyName") String clientCompanyName,
                                                           @Param("companyId") String companyId);	
     
+    @Query(
+            "SELECT c FROM Client c " +
+            "WHERE c.companyId = :companyId " +
+            "AND (:letsWorkCentre IS NULL OR c.letsWorkCentre = :letsWorkCentre) " +
+            "AND (:city IS NULL OR c.city = :city) " +
+            "AND (:state IS NULL OR c.state = :state) " +
+            "AND (" +
+            "    :search IS NULL " +
+            "    OR c.firstName LIKE %:search% " +
+            "    OR c.lastName LIKE %:search% " +
+            "    OR c.email LIKE %:search% " +
+            "    OR c.phone LIKE %:search% " +
+            "    OR c.clientCompanyName LIKE %:search% " +
+            "    OR c.businessCategory LIKE %:search%" +
+            ")"
+    )
+    	Page<Client> searchClients(@Param("companyId") String companyId,
+    	                           @Param("letsWorkCentre") String letsWorkCentre,
+    	                           @Param("city") String city,
+    	                           @Param("state") String state,
+    	                           @Param("search") String search,
+    	                           Pageable pageable);
+    
 }
