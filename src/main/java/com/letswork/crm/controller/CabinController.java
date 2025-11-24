@@ -46,21 +46,24 @@ public class CabinController {
             @RequestParam(required = false) String letsWorkCentre,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String sort,
             @RequestParam String token,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        PaginatedResponseDto response;
-
-        if (letsWorkCentre != null && city != null && state != null) {
-            
-            response = cabinService.findByLetsWorkCentre(letsWorkCentre, companyId, city, state, page);
-        } else {
-            
-            response = cabinService.listAll(companyId, page, size);
-        }
-
-        return ResponseEntity.ok(response);
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+                cabinService.listCabins(
+                        companyId,
+                        letsWorkCentre,
+                        city,
+                        state,
+                        search,
+                        sort,
+                        page,
+                        size
+                )
+        );
     }
 
     

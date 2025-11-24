@@ -53,10 +53,17 @@ public class LetsWorkCentreController {
 //	}
 	
 	@GetMapping
-    public ResponseEntity<PaginatedResponseDto> getAllLetsWorkCentres(
-            @RequestParam(defaultValue = "0") int page, @RequestParam String token, @RequestParam String companyId) {
-        return ResponseEntity.ok(service.getAllLetsWorkCentres(page, companyId));
-    }
+	public ResponseEntity<PaginatedResponseDto> getAllLetsWorkCentres(
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam String token,
+	        @RequestParam String companyId,
+	        @RequestParam(required = false) String search,
+	        @RequestParam(required = false) String sort
+	) {
+	    return ResponseEntity.ok(
+	            service.getAllLetsWorkCentres(page, companyId, search, sort)
+	    );
+	}
 	
 //	@GetMapping("/fetch-amenities")
 //    public ResponseEntity<List<String>> getAmenitiesForCentre(

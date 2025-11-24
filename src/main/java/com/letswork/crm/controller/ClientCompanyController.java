@@ -67,18 +67,25 @@ public class ClientCompanyController {
 	        @RequestParam(required = false) String letsWorkCentre,
 	        @RequestParam(required = false) String city,
 	        @RequestParam(required = false) String state,
+	        @RequestParam(required = false) String search,
+	        @RequestParam(required = false) String sort,
 	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam String token) {
+	        @RequestParam(defaultValue = "10") int size,
+	        @RequestParam String token
+	) {
 
-	    PaginatedResponseDto response;
-
-	    if (letsWorkCentre != null && city != null && state != null) {
-	        response = service.getClientCompaniesByLetsWorkCentre(letsWorkCentre, companyId, city, state, page);
-	    } else {
-	        response = service.getClientCompanies(companyId, page);
-	    }
-
-	    return ResponseEntity.ok(response);
+	    return ResponseEntity.ok(
+	            service.listClientCompanies(
+	                    companyId,
+	                    letsWorkCentre,
+	                    city,
+	                    state,
+	                    search,
+	                    sort,
+	                    page,
+	                    size
+	            )
+	    );
 	}
 
     

@@ -74,19 +74,25 @@ public class ConferenceRoomController {
 	        @RequestParam(required = false) String letsWorkCentre,
 	        @RequestParam(required = false) String city,
 	        @RequestParam(required = false) String state,
+	        @RequestParam(required = false) String search,
+	        @RequestParam(required = false) String sort,   // example: name=asc
 	        @RequestParam String token,
 	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size) {
+	        @RequestParam(defaultValue = "10") int size
+	) {
 
-	    PaginatedResponseDto response;
-
-	    if (letsWorkCentre != null && city != null && state != null) {
-	        response = service.findByLetsWorkCentre(letsWorkCentre, companyId, city, state, page);
-	    } else {
-	        response = service.listAll(companyId, page, size);
-	    }
-
-	    return ResponseEntity.ok(response);
+	    return ResponseEntity.ok(
+	            service.listConferenceRooms(
+	                    companyId,
+	                    letsWorkCentre,
+	                    city,
+	                    state,
+	                    search,
+	                    sort,
+	                    page,
+	                    size
+	            )
+	    );
 	}
 
     

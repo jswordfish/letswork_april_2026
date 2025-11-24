@@ -227,4 +227,49 @@ public class CabinServiceImpl implements CabinService {
         return response;
     }
     
+    @Override
+    public PaginatedResponseDto listCabins(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            String search,
+            String sort,
+            int page,
+            int size
+    ) {
+
+        // Default sort (id desc)
+        Sort sortSpec = Sort.by("id").descending();
+
+        // Parse sort like: cabinName=asc
+        if (sort != null && !sort.isEmpty()) {
+            String[] parts = sort.split("=");
+
+            if (parts.length == 2) {
+                String field = parts[0];
+                String direction = parts[1];
+
+                sortSpec = direction.equalsIgnoreCase("asc")
+                        ? Sort.by(field).ascending()
+                        : Sort.by(field).descending();
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sortSpec);
+
+        Page<Cabin> pageData =
+        		cabinRepository.searchCabins(companyId, letsWorkCentre, city, state, search, pageable);
+
+        PaginatedResponseDto response = new PaginatedResponseDto();
+        response.setRecordsFrom(page * size + 1);
+        response.setRecordsTo((int) Math.min((page + 1) * size, pageData.getTotalElements()));
+        response.setTotalNumberOfRecords((int) pageData.getTotalElements());
+        response.setTotalNumberOfPages(pageData.getTotalPages());
+        response.setSelectedPage(page);
+        response.setList(pageData.getContent());
+
+        return response;
+    }
+    
 }

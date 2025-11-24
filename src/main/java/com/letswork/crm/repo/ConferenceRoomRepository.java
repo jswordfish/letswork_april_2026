@@ -21,6 +21,27 @@ public interface ConferenceRoomRepository extends JpaRepository<ConferenceRoom, 
 //    List<ConferenceRoom> findByAvailable(Boolean available);
 //    
 //    Page<ConferenceRoom> findByAvailable(Boolean available, Pageable pageable);
+	
+	@Query(
+	        "SELECT r FROM ConferenceRoom r " +
+	        "WHERE r.companyId = :companyId " +
+	        "AND (:letsWorkCentre IS NULL OR r.letsWorkCentre = :letsWorkCentre) " +
+	        "AND (:city IS NULL OR r.city = :city) " +
+	        "AND (:state IS NULL OR r.state = :state) " +
+	        "AND ( " +
+	        "     :search IS NULL " +
+	        "     OR r.name LIKE %:search% " +
+	        "     OR r.letsWorkCentre LIKE %:search% " +
+	        "     OR r.city LIKE %:search% " +
+	        "     OR r.state LIKE %:search% " +
+	        ")"
+	)
+	Page<ConferenceRoom> searchConferenceRooms(@Param("companyId") String companyId,
+	                                           @Param("letsWorkCentre") String letsWorkCentre,
+	                                           @Param("city") String city,
+	                                           @Param("state") String state,
+	                                           @Param("search") String search,
+	                                           Pageable pageable);
 
 	@Query("SELECT c FROM ConferenceRoom c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
 	List<ConferenceRoom> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre,

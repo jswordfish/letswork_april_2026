@@ -17,6 +17,27 @@ import com.letswork.crm.entities.User;
 @Repository
 public interface UserRepo extends CrudRepository<User, Long> {
 	
+	@Query(
+	        "SELECT u FROM User u " +
+	        "WHERE u.companyId = :companyId " +
+	        "AND ( " +
+	        "     :search IS NULL " +
+	        "     OR u.firstName LIKE %:search% " +
+	        "     OR u.lastName LIKE %:search% " +
+	        "     OR u.email LIKE %:search% " +
+	        "     OR u.empId LIKE %:search% " +
+	        "     OR u.roleOrDesig LIKE %:search% " +
+	        "     OR u.department LIKE %:search% " +
+	        "     OR u.city LIKE %:search% " +
+	        "     OR u.state LIKE %:search% " +
+	        ")"
+	)
+	Page<User> searchUsers(
+	        @Param("companyId") String companyId,
+	        @Param("search") String search,
+	        Pageable pageable
+	);
+	
 	@Query("select u from User u where u.email =:email and u.companyId =:companyId")
 	public User findByEmail( @Param("email") String email,@Param("companyId") String companyId);
 	

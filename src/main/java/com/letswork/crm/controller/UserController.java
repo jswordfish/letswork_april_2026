@@ -93,17 +93,37 @@ public class UserController {
 //	}
 	
 	@GetMapping
-    public ResponseEntity<Page<User>> getUsers(
-            @RequestParam String companyId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam String token) {
+	public ResponseEntity<Page<User>> getUsers(
+	        @RequestParam String companyId,
+	        @RequestParam(required = false) String search,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size,
+	        @RequestParam(required = false) String sort,
+	        @RequestParam String token
+	) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        Page<User> users = service.getUsers(companyId, pageable);
+	    // Default sort
+	    String sortField = "id";
+	    String sortDirection = "desc";
 
-        return ResponseEntity.ok(users);
-    }
-	
+	    // Parse `sort=field=asc`
+	    if (sort != null && sort.contains("=")) {
+	        String[] parts = sort.split("=");
+	        sortField = parts[0];
+	        sortDirection = parts.length > 1 ? parts[1] : "asc";
+	    }
+
+	    Pageable pageable = PageRequest.of(
+	            page,
+	            size,
+	            sortDirection.equalsIgnoreCase("asc")
+	                    ? Sort.by(sortField).ascending()
+	                    : Sort.by(sortField).descending()
+	    );
+
+	    Page<User> users = service.getUsers(companyId, search, pageable);
+
+	    return ResponseEntity.ok(users);
+	}
 
 }

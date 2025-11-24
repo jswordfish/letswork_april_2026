@@ -24,5 +24,16 @@ public interface ConferenceRoomService {
 	public String uploadConferenceRooms(MultipartFile file) throws IOException;
 	
 	public PaginatedResponseDto listAll(String companyId, int page, int size);
+	
+	public PaginatedResponseDto listConferenceRooms(
+	        String companyId,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
+	        String search,
+	        String sort,
+	        int page,
+	        int size
+	);
 
 }

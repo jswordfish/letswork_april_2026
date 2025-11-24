@@ -15,6 +15,12 @@ import com.letswork.crm.entities.User;
 
 public interface UserService {
 	
+	public Page<User> getUsers(
+	        String companyId,
+	        String search,
+	        Pageable pageable
+	);
+	
 	public User findByEmail(String email, String companyId);
 	
 	

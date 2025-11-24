@@ -13,7 +13,16 @@ public interface ClientCompanyService {
 	
 	String saveOrUpdate(ClientCompany clientCompany);
 	
-	
+	public PaginatedResponseDto listClientCompanies(
+	        String companyId,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
+	        String search,
+	        String sort,
+	        int page,
+	        int size
+	);
 	
 	List<ClientCompany> listAll();
 	

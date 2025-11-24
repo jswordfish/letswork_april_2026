@@ -325,5 +325,14 @@ public class UserServiceImpl implements UserService{
 		// TODO Auto-generated method stub
 		return repo.findUsersByCompanyId(companyId);
 	}
+	
+	@Override
+	public Page<User> getUsers(
+	        String companyId,
+	        String search,
+	        Pageable pageable
+	) {
+	    return repo.searchUsers(companyId, search, pageable);
+	}
 
 }

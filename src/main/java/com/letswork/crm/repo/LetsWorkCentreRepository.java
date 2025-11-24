@@ -22,6 +22,24 @@ public interface LetsWorkCentreRepository extends JpaRepository<LetsWorkCentre, 
 //    LetsWorkCentre findByNameAndCompanyId(@Param("name") String name,
 //                                    @Param("companyId") String companyId);
 	
+	@Query(
+	        "SELECT l FROM LetsWorkCentre l " +
+	        "WHERE l.companyId = :companyId " +
+	        "AND (" +
+	        "   :search IS NULL OR " +
+	        "   LOWER(l.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+	        "   LOWER(l.address) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+	        "   LOWER(l.city) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+	        "   LOWER(l.state) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+	        "   LOWER(l.amenities) LIKE LOWER(CONCAT('%', :search, '%'))" +
+	        ")"
+	)
+	Page<LetsWorkCentre> search(
+	        @Param("companyId") String companyId,
+	        @Param("search") String search,
+	        Pageable pageable
+	);
+	
 	@Query("SELECT l FROM LetsWorkCentre l WHERE l.name = :name AND l.companyId = :companyId AND l.city = :city AND l.state = :state")
 	LetsWorkCentre findByNameAndCompanyIdAndCityAndState(@Param("name") String name,
 	                                                     @Param("companyId") String companyId,

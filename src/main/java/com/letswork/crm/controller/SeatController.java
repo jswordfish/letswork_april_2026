@@ -149,12 +149,17 @@ public class SeatController {
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
             @RequestParam(required = false) SeatType seatType,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String sort,
             @RequestParam String token,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity.ok(
-                seatService.listSeats(companyId, letsWorkCentre, city, state, seatType, page, size)
+                seatService.listSeats(
+                        companyId, letsWorkCentre, city, state, seatType,
+                        search, sort, page, size
+                )
         );
     }
     

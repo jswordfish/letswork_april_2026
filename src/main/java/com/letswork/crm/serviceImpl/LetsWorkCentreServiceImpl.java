@@ -275,12 +275,44 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	private static final int PAGE_SIZE = 10; 
 
 	@Override
-    public PaginatedResponseDto getAllLetsWorkCentres(int page, String companyId) {
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("name").ascending());
-        Page<LetsWorkCentre> letsWorkCentrePage = repo.findAllByCompanyId(companyId, pageable);
+	public PaginatedResponseDto getAllLetsWorkCentres(
+	        int pageNo,
+	        String companyId,
+	        String search,
+	        String sort
+	) {
+	    // Default sort
+	    Sort sorting = Sort.by("id").descending();
 
-        return buildPaginatedResponse(letsWorkCentrePage, page);
-    }
+	    // Apply custom sort if provided
+	    if (sort != null && !sort.isBlank()) {
+	        try {
+	            String[] parts = sort.split("=");
+	            String field = parts[0];
+	            String dir = parts[1];
+
+	            if ("desc".equalsIgnoreCase(dir)) {
+	                sorting = Sort.by(field).descending();
+	            } else {
+	                sorting = Sort.by(field).ascending();
+	            }
+	        } catch (Exception e) {
+	            sorting = Sort.by("id").descending(); // fallback
+	        }
+	    }
+
+	    Pageable pageable = PageRequest.of(pageNo, PAGE_SIZE, sorting);
+
+	    // Normalize empty search
+	    if (search != null && search.trim().isEmpty()) {
+	        search = null;
+	    }
+
+	    Page<LetsWorkCentre> centrePage =
+	            repo.search(companyId, search, pageable);
+
+	    return buildPaginatedResponse(centrePage, pageNo);
+	}
 	
 	@Override
     public List<String> getAmenitiesForCentre(String name, String companyId, String city, String state) {

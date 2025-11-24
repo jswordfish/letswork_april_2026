@@ -26,4 +26,26 @@ public interface CabinRepository extends JpaRepository<Cabin, Long> {
 	@Query("SELECT c FROM Cabin c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
     Page<Cabin> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre, @Param("companyId") String companyId, @Param("city") String city, @Param("state") String state, Pageable pageable);
     
+	@Query(
+		       "SELECT c FROM Cabin c " +
+		       "WHERE c.companyId = :companyId " +
+		       "AND (:letsWorkCentre IS NULL OR c.letsWorkCentre = :letsWorkCentre) " +
+		       "AND (:city IS NULL OR c.city = :city) " +
+		       "AND (:state IS NULL OR c.state = :state) " +
+		       "AND ( " +
+		       "     :search IS NULL " +
+		       "     OR c.cabinName LIKE %:search% " +
+		       "     OR c.cabinNumber LIKE %:search% " +
+		       "     OR c.city LIKE %:search% " +
+		       "     OR c.state LIKE %:search% " +
+		       "     OR c.letsWorkCentre LIKE %:search% " +
+		       ")"
+		)
+		Page<Cabin> searchCabins(@Param("companyId") String companyId,
+		                         @Param("letsWorkCentre") String letsWorkCentre,
+		                         @Param("city") String city,
+		                         @Param("state") String state,
+		                         @Param("search") String search,
+		                         Pageable pageable);
+	
 }

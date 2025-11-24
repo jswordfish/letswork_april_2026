@@ -18,7 +18,12 @@ public interface LetsWorkCentreService {
     
     String deleteLetsWorkCentre(LetsWorkCentre letsWorkCentre);
     
-    PaginatedResponseDto getAllLetsWorkCentres(int page, String companyId);
+    public PaginatedResponseDto getAllLetsWorkCentres(
+            int pageNo,
+            String companyId,
+            String search,
+            String sort
+    );
     
     List<String> getAllAmenities(String companyId);
     

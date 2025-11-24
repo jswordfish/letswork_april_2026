@@ -251,28 +251,28 @@ public class SeatServiceImpl implements SeatService {
 
 
     @Override
-    public PaginatedResponseDto listSeats(String companyId, String letsWorkCentre, String city, String state,
-                                          SeatType seatType, int pageNo, int pageSize) {
+    public PaginatedResponseDto listSeats(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            SeatType seatType,
+            String search,
+            String sort,
+            int pageNo,
+            int pageSize) {
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("id").descending());
+        Pageable pageable = buildPageable(sort, pageNo, pageSize);
 
-        Page<Seat> page;
-
-        // If no filters provided
-        if ((letsWorkCentre == null || letsWorkCentre.isEmpty())
-                && (city == null || city.isEmpty())
-                && (state == null || state.isEmpty())
-                && seatType == null) {
-
-            // No filters → return all seats for the company
-            page = seatRepository.findByCompanyId(companyId, pageable);
-
-        } else {
-            // Use dynamic filter query
-            page = seatRepository.findByFilters(
-                    companyId, letsWorkCentre, city, state, seatType, pageable
-            );
-        }
+        Page<Seat> page = seatRepository.findWithFilters(
+                companyId,
+                emptyToNull(letsWorkCentre),
+                emptyToNull(city),
+                emptyToNull(state),
+                seatType,
+                emptyToNull(search),
+                pageable
+        );
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom(pageNo * pageSize + 1);
@@ -283,6 +283,26 @@ public class SeatServiceImpl implements SeatService {
         response.setList(page.getContent());
 
         return response;
+    }
+    
+    private Pageable buildPageable(String sort, int pageNo, int pageSize) {
+
+        String sortField = "id";
+        Sort.Direction direction = Sort.Direction.DESC;
+
+        if (sort != null && sort.contains("=")) {
+            String[] parts = sort.split("=", 2);
+            sortField = parts[0].trim();
+            direction = parts[1].equalsIgnoreCase("asc")
+                    ? Sort.Direction.ASC
+                    : Sort.Direction.DESC;
+        }
+
+        return PageRequest.of(pageNo, pageSize, Sort.by(direction, sortField));
+    }
+    
+    private String emptyToNull(String val) {
+        return (val == null || val.trim().isEmpty()) ? null : val;
     }
     
     @Override
