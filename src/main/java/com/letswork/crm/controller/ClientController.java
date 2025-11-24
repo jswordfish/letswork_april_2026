@@ -126,21 +126,21 @@ public class ClientController {
 //	}
 	
 	@GetMapping
-	public ResponseEntity<PaginatedResponseDto> getIndividualClients(
+	public ResponseEntity<PaginatedResponseDto> getClients(
 	        @RequestParam String companyId,
 	        @RequestParam(required = false) String email,
 	        @RequestParam(required = false) String letsWorkCentre,
 	        @RequestParam(required = false) String city,
 	        @RequestParam(required = false) String state,
 	        @RequestParam(required = false) String search,
-	        @RequestParam(required = false, defaultValue = "id") String sortBy,
-	        @RequestParam(required = false, defaultValue = "desc") String sortDir,
+	        @RequestParam(required = false) String sort,
 	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam String token) {
+	        @RequestParam(defaultValue = "10") int size,
+	        @RequestParam String token
+	) {
 
-	    PaginatedResponseDto response = service.listClients(
-	            companyId, email, letsWorkCentre, city, state, search, sortBy, sortDir, page
-	    );
+		PaginatedResponseDto response =
+	            service.getClients(companyId, email, letsWorkCentre, city, state, search, sort, page, size);
 
 	    return ResponseEntity.ok(response);
 	}

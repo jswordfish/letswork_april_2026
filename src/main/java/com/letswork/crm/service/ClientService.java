@@ -32,14 +32,8 @@ public interface ClientService {
 	
 	public String uploadClientsFromExcel(MultipartFile file);
 	
-	public PaginatedResponseDto listClients(String companyId,
-			String email,
-            String letsWorkCentre,
-            String city,
-            String state,
-            String search,
-            String sortBy,
-            String sortDir,
-            int pageNo);
+	public PaginatedResponseDto getClients(String companyId, String email, String letsWorkCentre, String city,
+            String state, String search, String sort,
+            int pageNo, int pageSize);
 
 }

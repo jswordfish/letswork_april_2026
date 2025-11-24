@@ -310,15 +310,9 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
-	public PaginatedResponseDto listClients(String companyId,
-											String email,
-	                                        String letsWorkCentre,
-	                                        String city,
-	                                        String state,
-	                                        String search,
-	                                        String sortBy,
-	                                        String sortDir,
-	                                        int pageNo) {
+	public PaginatedResponseDto getClients(String companyId, String email, String letsWorkCentre, String city,
+	                                       String state, String search, String sort,
+	                                       int pageNo, int pageSize) {
 		
 		if(email!=null){
 			Client client = repo.findByEmailAndCompanyId(email, companyId);
@@ -344,25 +338,30 @@ public class ClientServiceImpl implements ClientService {
 		    return response;
 		}
 
-	    Sort sort = sortDir.equalsIgnoreCase("asc") ?
-	            Sort.by(sortBy).ascending() :
-	            Sort.by(sortBy).descending();
+		Sort sorting = Sort.by("id").descending(); // default sorting
 
-	    Pageable pageable = PageRequest.of(pageNo, 10, sort);
+	    if (sort != null && !sort.isBlank()) {
+	        try {
+	            String[] parts = sort.split("=");
+	            String field = parts[0];
+	            String dir = parts[1];
 
-	    Page<Client> page = repo.searchClients(
-	            companyId, letsWorkCentre, city, state, search, pageable
-	    );
+	            if ("desc".equalsIgnoreCase(dir)) {
+	                sorting = Sort.by(field).descending();
+	            } else {
+	                sorting = Sort.by(field).ascending();
+	            }
+	        } catch (Exception e) {
+	            // fallback to default
+	            sorting = Sort.by("id").descending();
+	        }
+	    }
 
-	    PaginatedResponseDto response = new PaginatedResponseDto();
-	    response.setRecordsFrom(pageNo * 10 + 1);
-	    response.setRecordsTo((int) Math.min((pageNo + 1) * 10, page.getTotalElements()));
-	    response.setTotalNumberOfRecords((int) page.getTotalElements());
-	    response.setTotalNumberOfPages(page.getTotalPages());
-	    response.setSelectedPage(pageNo);
-	    response.setList(page.getContent());
+	    Pageable pageable = PageRequest.of(pageNo, pageSize, sorting);
 
-	    return response;
+	    Page<Client> page = repo.searchClients(companyId, letsWorkCentre, city, state, search, pageable);
+
+	    return buildPaginatedResponse(page, pageNo);
 	}
 	
 
