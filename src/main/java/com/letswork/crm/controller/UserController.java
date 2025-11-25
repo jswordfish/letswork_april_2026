@@ -106,7 +106,7 @@ public class UserController {
 	    String sortField = "id";
 	    String sortDirection = "desc";
 
-	    // Parse `sort=field=asc`
+	    // Parse `sort=field=asc
 	    if (sort != null && sort.contains("=")) {
 	        String[] parts = sort.split("=");
 	        sortField = parts[0];
