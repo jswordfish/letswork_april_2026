@@ -44,7 +44,7 @@ public class LestworkUserServiceImpl implements LetsworkUserService {
 	LetsworkUserRepository repo;
 	
 	@Autowired
-	LetsWorkClient clientCompanyRepo;
+	LetsWorkClientRepository clientCompanyRepo;
 	
 	@Autowired
 	TenantService tenantService;
