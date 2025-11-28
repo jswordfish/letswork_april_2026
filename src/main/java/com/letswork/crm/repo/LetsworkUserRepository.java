@@ -84,7 +84,7 @@ public interface LetsworkUserRepository extends JpaRepository<LetsworkUser, Long
             "    OR c.lastName LIKE %:search% " +
             "    OR c.email LIKE %:search% " +
             "    OR c.phone LIKE %:search% " +
-            "    OR c.clientCompanyName LIKE %:search% " +
+            "    OR c.companyIfApplicable LIKE %:search% " +
             "    OR c.businessCategory LIKE %:search%" +
             ")"
     )
