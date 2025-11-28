@@ -193,53 +193,53 @@ public class BookingServiceImpl implements BookingService {
 	    return bookingRepository.save(booking);
 	}
     
-private int calculateCreditCost(String roomName, String letsWorkCentre, String companyId, long durationMinutes) {
-        
-        
-        CreditConferenceRoomMapping mapping = mappingRepository.findByConferenceRoomNameAndLetsWorkCentreAndCompanyId(roomName, letsWorkCentre, companyId);
-        
-        if (mapping == null) {
-            
-            throw new IllegalStateException("Credit mapping not found for conference room: " + roomName);
-        }
-
-        int totalCredits = 0;
-        long remainingMinutes = durationMinutes;
-
-        
-        int priceFor4Hrs = mapping.getPriceFor4Hrs();
-        int priceFor2Hrs = mapping.getPriceFor2Hrs();
-        int priceFor1Hr = mapping.getPriceFor1Hr();
-        int priceFor30Mins = mapping.getPriceFor30Mins();
-
-        
-        
-        
-        while (remainingMinutes >= 240) {
-            totalCredits += priceFor4Hrs;
-            remainingMinutes -= 240;
-        }
-
-        
-        while (remainingMinutes >= 120) {
-            totalCredits += priceFor2Hrs;
-            remainingMinutes -= 120;
-        }
-
-        
-        while (remainingMinutes >= 60) {
-            totalCredits += priceFor1Hr;
-            remainingMinutes -= 60;
-        }
-        
-        
-        if (remainingMinutes > 0) {
-             
-             totalCredits += priceFor30Mins;
-        }
-
-        return totalCredits;
-    }
+//private int calculateCreditCost(String roomName, String letsWorkCentre, String companyId, long durationMinutes) {
+//        
+//        
+//        CreditConferenceRoomMapping mapping = mappingRepository.findByConferenceRoomNameAndLetsWorkCentreAndCompanyId(roomName, letsWorkCentre, companyId);
+//        
+//        if (mapping == null) {
+//            
+//            throw new IllegalStateException("Credit mapping not found for conference room: " + roomName);
+//        }
+//
+//        int totalCredits = 0;
+//        long remainingMinutes = durationMinutes;
+//
+//        
+//        int priceFor4Hrs = mapping.getPriceFor4Hrs();
+//        int priceFor2Hrs = mapping.getPriceFor2Hrs();
+//        int priceFor1Hr = mapping.getPriceFor1Hr();
+//        int priceFor30Mins = mapping.getPriceFor30Mins();
+//
+//        
+//        
+//        
+//        while (remainingMinutes >= 240) {
+//            totalCredits += priceFor4Hrs;
+//            remainingMinutes -= 240;
+//        }
+//
+//        
+//        while (remainingMinutes >= 120) {
+//            totalCredits += priceFor2Hrs;
+//            remainingMinutes -= 120;
+//        }
+//
+//        
+//        while (remainingMinutes >= 60) {
+//            totalCredits += priceFor1Hr;
+//            remainingMinutes -= 60;
+//        }
+//        
+//        
+//        if (remainingMinutes > 0) {
+//             
+//             totalCredits += priceFor30Mins;
+//        }
+//
+//        return totalCredits;
+//    }
 
 
 @Override
@@ -256,17 +256,17 @@ public String cancelBooking(String bookingCode) {
 
                 // Refund credits
                 int durationMinutes = (int) Duration.between(booking.getStartTime(), booking.getEndTime()).toMinutes();
-                int refundCredits = calculateCreditCost(
-                        booking.getConferenceRoomName(),
-                        booking.getLetsWorkCentre(),
-                        booking.getCompanyId(),
-                        durationMinutes
-                );
+//                int refundCredits = calculateCreditCost(
+//                        booking.getConferenceRoomName(),
+//                        booking.getLetsWorkCentre(),
+//                        booking.getCompanyId(),
+//                        durationMinutes
+//                );
 
                 UserCreditTransactionLog refundTransaction = UserCreditTransactionLog.builder()
                         .userEmail(booking.getClientEmail())
                         .companyId(booking.getCompanyId())
-                        .totalCredits(refundCredits)
+                        .totalCredits(0)
                         .creditTransactionType(CreditTransactionType.credit)
                         .creditsUsedOn("Refund for cancelled booking: " + booking.getConferenceRoomName())
                         .build();
