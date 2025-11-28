@@ -33,7 +33,7 @@ public class Amenities extends Base{
 	
 	private String name;
 	
-	private String desc;
+	private String description;
 	
 	@Enumerated(EnumType.STRING)
 	private AmenityType amenityType;
