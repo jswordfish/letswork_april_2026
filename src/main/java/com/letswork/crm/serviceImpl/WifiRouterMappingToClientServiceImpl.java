@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
-import com.letswork.crm.entities.Client;
+import com.letswork.crm.entities.LetsworkUser;
 import com.letswork.crm.entities.WifiRouter;
 import com.letswork.crm.entities.WifiRouterMappingToClient;
-import com.letswork.crm.repo.ClientRepository;
+import com.letswork.crm.repo.LetsworkUserRepository;
 import com.letswork.crm.repo.WifiRouterMappingToClientRepository;
 import com.letswork.crm.repo.WifiRouterRepository;
 import com.letswork.crm.service.WifiRouterMappingToClientService;
@@ -30,7 +30,7 @@ public class WifiRouterMappingToClientServiceImpl implements WifiRouterMappingTo
 	WifiRouterRepository wifiRouterRepo;
 	
 	@Autowired
-	ClientRepository clientRepo;
+	LetsworkUserRepository clientRepo;
 
 	@Override
 	public String saveOrUpdate(WifiRouterMappingToClient mapping) {
@@ -42,7 +42,7 @@ public class WifiRouterMappingToClientServiceImpl implements WifiRouterMappingTo
 			return "Wifi router with name "+mapping.getWifiName()+" does not exists";
 		}
 		
-		Client client = clientRepo.findByEmailAndCompanyId( mapping.getClientEmail(), mapping.getCompanyId());
+		LetsworkUser client = clientRepo.findByEmailAndCompanyId( mapping.getClientEmail(), mapping.getCompanyId());
 		
 		if(client==null) {
 			return "Client with name "+mapping.getClientName()+" does not exists";
@@ -87,7 +87,7 @@ public class WifiRouterMappingToClientServiceImpl implements WifiRouterMappingTo
 	public PaginatedResponseDto getClientsByWifi(String wifiName, String letsWorkCentre, String companyId, int page) {
 		// TODO Auto-generated method stub
 		Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        Page<Client> resultPage = repo.findClientsByWifi(wifiName, letsWorkCentre, companyId, pageable);
+        Page<LetsworkUser> resultPage = repo.findClientsByWifi(wifiName, letsWorkCentre, companyId, pageable);
         return buildPaginatedResponse(resultPage, page);
 	}
 

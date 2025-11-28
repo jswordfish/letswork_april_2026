@@ -1,5 +1,7 @@
 package com.letswork.crm.serviceImpl;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +31,11 @@ public class CreditConferenceRoomMappingServiceImpl implements CreditConferenceR
     @Override
     public CreditConferenceRoomMapping saveOrUpdate(CreditConferenceRoomMapping mapping) {
     	
-//    	ConferenceRoom room = conferenceRoomRepository.findByNameAndLetsWorkCentreAndCompanyId(mapping.getConferenceRoomName(), mapping.getLetsWorkCentre(), mapping.getCompanyId());
-//    	
-//    	if(room==null) {
-//    		throw new RuntimeException("Conference room does not exists");
-//    	} REMOVING FOR NOW DUE TO CITY AND STATE
+    	ConferenceRoom room = conferenceRoomRepository.findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(mapping.getConferenceRoomName(), mapping.getLetsWorkCentre(), mapping.getCompanyId(), mapping.getCity(), mapping.getState());
+    	
+    	if(room==null) {
+    		throw new RuntimeException("Conference room does not exists");
+    	} 
     	
         if (mapping.getId() != null) {
             Optional<CreditConferenceRoomMapping> existingMappingOpt = mappingRepository.findById(mapping.getId());
@@ -43,10 +45,11 @@ public class CreditConferenceRoomMappingServiceImpl implements CreditConferenceR
                 // Manually update attributes to avoid changing Base properties inadvertently
                 existingMapping.setConferenceRoomName(mapping.getConferenceRoomName());
                 existingMapping.setLetsWorkCentre(mapping.getLetsWorkCentre());
-                existingMapping.setPriceFor30Mins(mapping.getPriceFor30Mins());
-                existingMapping.setPriceFor1Hr(mapping.getPriceFor1Hr());
-                existingMapping.setPriceFor2Hrs(mapping.getPriceFor2Hrs());
-                existingMapping.setPriceFor4Hrs(mapping.getPriceFor4Hrs());
+                existingMapping.setCity(mapping.getCity());
+                existingMapping.setState(mapping.getState());
+                existingMapping.setNumberOfHours(mapping.getNumberOfHours());
+                existingMapping.setCreditsUsed(mapping.getCreditsUsed());
+                existingMapping.setUpdateDate(new Date());
                 
                 return mappingRepository.save(existingMapping);
             }
@@ -80,5 +83,12 @@ public class CreditConferenceRoomMappingServiceImpl implements CreditConferenceR
     public Optional<CreditConferenceRoomMapping> findById(Long id) {
         return mappingRepository.findById(id);
     }
+
+	@Override
+	public List<CreditConferenceRoomMapping> listByCentre(String letsWorkCentre, String room, String companyId,
+			String city, String state) {
+		// TODO Auto-generated method stub
+		return mappingRepository.findByConferenceRoomNameAndLetsWorkCentreAndCompanyIdAndCityAndState(room, letsWorkCentre, companyId, city, state);
+	}
 
 }

@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.letswork.crm.entities.Client;
+import com.letswork.crm.entities.LetsworkUser;
 import com.letswork.crm.entities.WifiRouter;
 import com.letswork.crm.entities.WifiRouterMappingToClient;
 
@@ -22,7 +22,7 @@ public interface WifiRouterMappingToClientRepository extends JpaRepository<WifiR
 	@Query("SELECT c FROM Client c " +
 	           "JOIN WifiRouterMappingToClient m ON c.email = m.clientEmail " +
 	           "WHERE m.wifiName = :wifiName AND m.letsWorkCentre = :letsWorkCentre AND m.companyId = :companyId")
-	    Page<Client> findClientsByWifi(@Param("wifiName") String wifiName,
+	    Page<LetsworkUser> findClientsByWifi(@Param("wifiName") String wifiName,
 	                                   @Param("letsWorkCentre") String letsWorkCentre,
 	                                   @Param("companyId") String companyId,
 	                                   Pageable pageable);

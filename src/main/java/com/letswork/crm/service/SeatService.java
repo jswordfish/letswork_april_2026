@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.SeatAvailabilityDto;
 import com.letswork.crm.dtos.SeatMappingResponseDto;
+import com.letswork.crm.dtos.SeatPublishRequest;
+import com.letswork.crm.dtos.SeatPublishResponse;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.enums.SeatType;
 
@@ -39,7 +41,7 @@ public interface SeatService {
     
     PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page);
     
-    String publishSeats(String letsWorkCentre, String companyId, String city, String state, SeatType seatType, String seatNumber);
+    public SeatPublishResponse publishSeats(List<SeatPublishRequest> requests);
     
     public List<SeatAvailabilityDto> getAllSeatsWithAvailability(
             String companyId, String letsWorkCentre, String city, String state);

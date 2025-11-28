@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.SeatAvailabilityDto;
 import com.letswork.crm.dtos.SeatMappingResponseDto;
+import com.letswork.crm.dtos.SeatPublishRequest;
+import com.letswork.crm.dtos.SeatPublishResponse;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.enums.SeatType;
 import com.letswork.crm.service.SeatService;
@@ -164,17 +166,11 @@ public class SeatController {
     }
     
     @PostMapping("/publish")
-    public ResponseEntity<String> publishSeat(
-            @RequestParam String letsWorkCentre,
-            @RequestParam String companyId,
-            @RequestParam String city,
-            @RequestParam String state,
-            @RequestParam SeatType seatType,
-            @RequestParam String seatNumber,
+    public ResponseEntity<SeatPublishResponse> publishSeats(
+            @RequestBody List<SeatPublishRequest> requests,
             @RequestParam String token) {
 
-       
-        String response = seatService.publishSeats(letsWorkCentre, companyId, city, state, seatType, seatNumber);
+        SeatPublishResponse response = seatService.publishSeats(requests);
         return ResponseEntity.ok(response);
     }
     

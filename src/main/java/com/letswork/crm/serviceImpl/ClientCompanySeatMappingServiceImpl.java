@@ -17,13 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.letswork.crm.dtos.BulkSeatAssignmentRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.SeatAssignmentDto;
-import com.letswork.crm.entities.ClientCompany;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.ClientCompanySeatMapping;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.entities.UserSeatMapping;
-import com.letswork.crm.repo.ClientCompanyRepository;
+import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.ClientCompanySeatMappingRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SeatRepository;
@@ -48,7 +48,7 @@ public class ClientCompanySeatMappingServiceImpl implements ClientCompanySeatMap
     LetsWorkCentreRepository letsWorkCentreRepo;
 	
 	@Autowired
-	ClientCompanyRepository clientCompanyRepo;
+	LetsWorkClientRepository clientCompanyRepo;
 	
 	@Autowired
 	UserSeatMappingRepository userSeatMappingRepository;
@@ -80,7 +80,7 @@ public class ClientCompanySeatMappingServiceImpl implements ClientCompanySeatMap
 	        throw new RuntimeException("Seat does not exist or is not published");
 	    }
 	    
-	    ClientCompany company = clientCompanyRepo.findByClientCompanyNameAndCompanyIdAndCityAndStateAndLetsWorkCentre(mapping.getClientCompanyName(), mapping.getCompanyId(), mapping.getCity(), mapping.getState(), mapping.getLetsWorkCentre());
+	    LetsWorkClient company = clientCompanyRepo.findByClientCompanyNameAndCompanyIdAndCityAndStateAndLetsWorkCentre(mapping.getClientCompanyName(), mapping.getCompanyId(), mapping.getCity(), mapping.getState(), mapping.getLetsWorkCentre());
 	    
 	    if(company==null) {
 	    	throw new RuntimeException("This company does not exists");

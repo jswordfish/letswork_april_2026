@@ -1,12 +1,19 @@
 package com.letswork.crm.entities;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.letswork.crm.enums.AmenityType;
+import com.letswork.crm.enums.BookingStatus;
+import com.letswork.crm.enums.SeatType;
+
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,23 +25,17 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class CreditConferenceRoomMapping extends Base {
+public class Amenities extends Base{
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-	private String conferenceRoomName;
+	private String name;
 	
-	private String letsWorkCentre;
+	private String desc;
 	
-	private String city;
-	
-	private String state;
-	
-	private int numberOfHours;
-	
-	private int creditsUsed;
-	
+	@Enumerated(EnumType.STRING)
+	private AmenityType amenityType;
 
 }

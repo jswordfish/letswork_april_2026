@@ -26,6 +26,8 @@ import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.SeatAvailabilityDto;
 import com.letswork.crm.dtos.SeatExcelDto;
 import com.letswork.crm.dtos.SeatMappingResponseDto;
+import com.letswork.crm.dtos.SeatPublishRequest;
+import com.letswork.crm.dtos.SeatPublishResponse;
 import com.letswork.crm.entities.Cabin;
 import com.letswork.crm.entities.ClientCompanySeatMapping;
 import com.letswork.crm.entities.LetsWorkCentre;
@@ -452,25 +454,48 @@ public class SeatServiceImpl implements SeatService {
     }
 
 	@Override
-	public String publishSeats(String letsWorkCentre, String companyId, String city, String state, SeatType seatType,
-			String seatNumber) {
-		
-		Optional<Seat> existingSeatOpt = seatRepository.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndState(seatType, companyId, letsWorkCentre, seatNumber, city, state);
-		
-		if (existingSeatOpt.isPresent()) {
-	        Seat existingSeat = existingSeatOpt.get();
+	public SeatPublishResponse publishSeats(List<SeatPublishRequest> requests) {
 
-	        if (Boolean.TRUE.equals(existingSeat.getPublished())) {
-	            return "seat already published";
+	    SeatPublishResponse response = new SeatPublishResponse();
+
+	    for (SeatPublishRequest req : requests) {
+
+	        Optional<Seat> existingSeatOpt =
+	                seatRepository.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndState(
+	                        req.getSeatType(),
+	                        req.getCompanyId(),
+	                        req.getLetsWorkCentre(),
+	                        req.getSeatNumber(),
+	                        req.getCity(),
+	                        req.getState()
+	                );
+
+	        if (existingSeatOpt.isPresent()) {
+
+	            Seat seat = existingSeatOpt.get();
+
+	            if (Boolean.TRUE.equals(seat.getPublished())) {
+	                response.getAlreadyPublished().add(
+	                        seat.getSeatNumber() + " already published"
+	                );
+	                continue;
+	            }
+
+	            seat.setPublished(true);
+	            seat.setUpdateDate(new Date());
+	            saveOrUpdate(seat);
+
+	            response.getPublished().add(
+	                    seat.getSeatNumber() + " published successfully"
+	            );
+	        } else {
+	            response.getNotFound().add(
+	                    req.getSeatNumber() + " not found"
+	            );
 	        }
-
-	        existingSeat.setPublished(true);
-	        existingSeat.setUpdateDate(new Date());
-	        saveOrUpdate(existingSeat);
-	        return "seat published successfully";
 	    }
 
-	    return "seat does not exist";
+	    return response;
 		
 	}
 	

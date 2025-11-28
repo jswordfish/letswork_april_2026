@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,23 +19,23 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class CreditConferenceRoomMapping extends Base {
-	
-	@Id
+public class LetsWorkClient extends Base{
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-	
-	private String conferenceRoomName;
-	
-	private String letsWorkCentre;
-	
-	private String city;
-	
+
+    @NotBlank
+    private String clientCompanyName;
+
+    //private Integer totalEmployees;
+
+    private String industry;
+    
+    private String letsWorkCentre;
+    
 	private String state;
 	
-	private int numberOfHours;
-	
-	private int creditsUsed;
-	
+	private String city;
 
 }

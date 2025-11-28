@@ -1,5 +1,7 @@
 package com.letswork.crm.repo;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +14,6 @@ public interface CreditConferenceRoomMappingRepository extends JpaRepository<Cre
 	
 	Page<CreditConferenceRoomMapping> findByCompanyId(String companyId, Pageable pageable);
 	
-	CreditConferenceRoomMapping findByConferenceRoomNameAndLetsWorkCentreAndCompanyId(String roomName, String letsWorkCentre, String companyId);
+	List<CreditConferenceRoomMapping> findByConferenceRoomNameAndLetsWorkCentreAndCompanyIdAndCityAndState(String roomName, String letsWorkCentre, String companyId, String city, String state);
 
 }

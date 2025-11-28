@@ -1,5 +1,7 @@
 package com.letswork.crm.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,7 +32,7 @@ public class CreditConferenceRoomMappingController {
         return ResponseEntity.ok(savedMapping);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<PaginatedResponseDto> listMappings(
         @RequestParam String companyId, 
         @RequestParam(defaultValue = "0") int page,
@@ -39,6 +41,18 @@ public class CreditConferenceRoomMappingController {
             
         PaginatedResponseDto response = mappingService.listAll(companyId, page, size);
         return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/by-centre")
+    public List<CreditConferenceRoomMapping> listByCentre(@RequestParam String roomName,
+    		@RequestParam String letsWorkCentre,
+    		@RequestParam String city,
+    		@RequestParam String state,
+    		@RequestParam String companyId,
+    		@RequestParam String token){
+    	
+    	return mappingService.listByCentre(roomName, letsWorkCentre, companyId, city, state);
+    	
     }
 
     @DeleteMapping

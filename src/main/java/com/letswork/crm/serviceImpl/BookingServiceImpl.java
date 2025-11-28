@@ -19,16 +19,16 @@ import com.letswork.crm.dtos.BookingValidationResponse;
 import com.letswork.crm.dtos.ConferenceRoomBookingDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Booking;
-import com.letswork.crm.entities.Client;
-import com.letswork.crm.entities.ClientCompany;
+import com.letswork.crm.entities.LetsworkUser;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.ConferenceRoom;
 import com.letswork.crm.entities.CreditConferenceRoomMapping;
 import com.letswork.crm.entities.UserCreditTransactionLog;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.CreditTransactionType;
 import com.letswork.crm.repo.BookingRepository;
-import com.letswork.crm.repo.ClientCompanyRepository;
-import com.letswork.crm.repo.ClientRepository;
+import com.letswork.crm.repo.LetsWorkClientRepository;
+import com.letswork.crm.repo.LetsworkUserRepository;
 import com.letswork.crm.repo.ConferenceRoomRepository;
 import com.letswork.crm.repo.CreditConferenceRoomMappingRepository;
 import com.letswork.crm.service.BookingService;
@@ -48,10 +48,10 @@ public class BookingServiceImpl implements BookingService {
     BookingRepository bookingRepository;
 	
 	@Autowired
-    ClientRepository clientRepository;
+    LetsworkUserRepository clientRepository;
 	
 	@Autowired
-    ClientCompanyRepository clientCompanyRepository;
+    LetsWorkClientRepository clientCompanyRepository;
 	
 	@Autowired
     ConferenceRoomRepository conferenceRoomRepository;
@@ -76,6 +76,7 @@ public class BookingServiceImpl implements BookingService {
 
 	@Override
 	public Booking createBooking(ConferenceRoomBookingDto dto) throws Exception {
+		
 
 		boolean emailProvided = dto.getClientEmail() != null && !dto.getClientEmail().trim().isEmpty();
 	    boolean companyProvided = dto.getClientCompanyName() != null && !dto.getClientCompanyName().trim().isEmpty();
@@ -87,8 +88,8 @@ public class BookingServiceImpl implements BookingService {
 	    }
 
 	    // 1️⃣ Validate user based on email
-	    Client client = null;
-	    ClientCompany clientCompany = null;
+	    LetsworkUser client = null;
+	    LetsWorkClient clientCompany = null;
 	    
 
 	    if (emailProvided) {

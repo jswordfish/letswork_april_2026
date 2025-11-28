@@ -11,14 +11,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
-import com.letswork.crm.entities.Client;
+import com.letswork.crm.entities.LetsworkUser;
 import com.letswork.crm.entities.ClientCompanySeatMapping;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.entities.UserSeatMapping;
 import com.letswork.crm.repo.ClientCompanySeatMappingRepository;
-import com.letswork.crm.repo.ClientRepository;
+import com.letswork.crm.repo.LetsworkUserRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SeatRepository;
 import com.letswork.crm.repo.UserRepo;
@@ -50,7 +50,7 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
 	LetsWorkCentreService letsWorkCentreService;
     
     @Autowired
-    ClientRepository clientRepo;
+    LetsworkUserRepository clientRepo;
     
     @Autowired
     ClientCompanySeatMappingRepository clientCompanySeatRepo;
@@ -66,7 +66,7 @@ public class UserSeatMappingServiceImpl implements UserSeatMappingService {
 			
 		}
     	
-    	Client client = clientRepo.findByEmailAndCompanyId(mapping.getEmail(), mapping.getCompanyId());
+    	LetsworkUser client = clientRepo.findByEmailAndCompanyId(mapping.getEmail(), mapping.getCompanyId());
     	
     	if(client==null) {
     		
