@@ -19,7 +19,7 @@ public interface WifiRouterMappingToClientRepository extends JpaRepository<WifiR
     
 	WifiRouterMappingToClient findByWifiNameAndClientEmailAndLetsWorkCentre(String wifiName, String clientEmail, String letsWorkCentre);
 
-	@Query("SELECT c FROM Client c " +
+	@Query("SELECT c FROM LetsworkUser c " +
 	           "JOIN WifiRouterMappingToClient m ON c.email = m.clientEmail " +
 	           "WHERE m.wifiName = :wifiName AND m.letsWorkCentre = :letsWorkCentre AND m.companyId = :companyId")
 	    Page<LetsworkUser> findClientsByWifi(@Param("wifiName") String wifiName,
