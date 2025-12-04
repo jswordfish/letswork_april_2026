@@ -28,12 +28,12 @@ public class Rbac_entity extends Base{
 	
 	private String menu_items;
 	
-	private Boolean create;
+	private Boolean page_create;
 	
-	private Boolean edit;
+	private Boolean page_edit;
 	
-	private Boolean delete;
+	private Boolean page_delete;
 	
-	private Boolean view;
+	private Boolean page_view;
 
 }
