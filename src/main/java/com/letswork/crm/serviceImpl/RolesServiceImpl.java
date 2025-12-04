@@ -7,8 +7,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.letswork.crm.entities.Roles;
+import com.letswork.crm.entities.OrgHierarchy;
+import com.letswork.crm.entities.Rbac_entity;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.repo.OrgHierarchyRepo;
 import com.letswork.crm.repo.RolesRepository;
 import com.letswork.crm.service.RolesService;
 import com.letswork.crm.service.TenantService;
@@ -18,6 +20,9 @@ public class RolesServiceImpl implements RolesService {
 
     @Autowired
     private RolesRepository repo;
+    
+    @Autowired
+    OrgHierarchyRepo orgRepo;
 
     @Autowired
     private TenantService tenantService;
@@ -25,16 +30,21 @@ public class RolesServiceImpl implements RolesService {
     ModelMapper mapper = new ModelMapper();
 
     @Override
-    public Roles saveOrUpdate(Roles role) {
+    public Rbac_entity saveOrUpdate(Rbac_entity role) {
 
         // Validate company
         Tenant tenant = tenantService.findTenantByCompanyId(role.getCompanyId());
         if (tenant == null) {
             throw new RuntimeException("Invalid companyId - " + role.getCompanyId());
         }
+        
+        OrgHierarchy org = orgRepo.findByRoleOrDesig(role.getName(), role.getCompanyId());
+        if(org==null) {
+        	throw new RuntimeException("This role does not exists");
+        }
 
         // Check if role already exists
-        Roles existing = repo.findByNameAndCompanyId(role.getName(), role.getCompanyId());
+        Rbac_entity existing = repo.findByNameAndCompanyId(role.getName(), role.getCompanyId());
 
         if (existing != null) {
             // Update existing
@@ -54,7 +64,7 @@ public class RolesServiceImpl implements RolesService {
     }
 
     @Override
-    public List<Roles> listByCompanyId(String companyId) {
+    public List<Rbac_entity> listByCompanyId(String companyId) {
         return repo.findByCompanyId(companyId);
     }
 }

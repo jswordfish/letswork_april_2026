@@ -1,7 +1,5 @@
 package com.letswork.crm.entities;
 
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,14 +17,23 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Roles extends Base{
+public class Rbac_entity extends Base{
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
+	
 	private String name;
 	
-	private String modules;
+	private String menu_items;
+	
+	private Boolean create;
+	
+	private Boolean edit;
+	
+	private Boolean delete;
+	
+	private Boolean view;
 
 }

@@ -28,7 +28,7 @@ public class AmenitiesController {
 
     // Create or Update
     @PostMapping
-    public ResponseEntity<Amenities> saveOrUpdate(@RequestBody Amenities amenities) {
+    public ResponseEntity<Amenities> saveOrUpdate(@RequestBody Amenities amenities, @RequestParam String token) {
         Amenities saved = service.saveOrUpdate(amenities);
         return ResponseEntity.ok(saved);
     }
@@ -37,14 +37,15 @@ public class AmenitiesController {
     @GetMapping
     public ResponseEntity<List<Amenities>> list(
             @RequestParam String companyId,
-            @RequestParam AmenityType type) {
+            @RequestParam AmenityType type,
+            @RequestParam String token) {
 
         return ResponseEntity.ok(service.listByAmenityType(companyId, type));
     }
 
     // Delete
     @DeleteMapping
-    public ResponseEntity<String> delete(@PathVariable Long id) {
+    public ResponseEntity<String> delete(@PathVariable Long id, @RequestParam String token) {
         service.deleteAmenity(id);
         return ResponseEntity.ok("Deleted Successfully");
     }

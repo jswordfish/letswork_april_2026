@@ -2,12 +2,12 @@ package com.letswork.crm.service;
 
 import java.util.List;
 
-import com.letswork.crm.entities.Roles;
+import com.letswork.crm.entities.Rbac_entity;
 
 public interface RolesService {
 	
-	Roles saveOrUpdate(Roles role);
+	Rbac_entity saveOrUpdate(Rbac_entity role);
 
-    List<Roles> listByCompanyId(String companyId);
+    List<Rbac_entity> listByCompanyId(String companyId);
 
 }
