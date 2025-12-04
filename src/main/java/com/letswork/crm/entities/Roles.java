@@ -27,6 +27,6 @@ public class Roles extends Base{
 	
 	private String name;
 	
-	private List<String> modules;
+	private String modules;
 
 }
