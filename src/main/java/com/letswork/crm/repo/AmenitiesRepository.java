@@ -15,4 +15,6 @@ public interface AmenitiesRepository extends JpaRepository<Amenities, Long> {
 
     List<Amenities> findByAmenityTypeAndCompanyId(AmenityType amenityType, String companyId);
     
+    List<Amenities> findByCompanyId(String companyId);
+    
 }

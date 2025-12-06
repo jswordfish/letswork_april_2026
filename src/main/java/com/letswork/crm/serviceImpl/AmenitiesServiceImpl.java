@@ -67,4 +67,10 @@ public class AmenitiesServiceImpl implements AmenitiesService {
         }
         repo.deleteById(id);
     }
+
+	@Override
+	public List<Amenities> listByCompanyId(String companyId) {
+		// TODO Auto-generated method stub
+		return repo.findByCompanyId(companyId);
+	}
 }

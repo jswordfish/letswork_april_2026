@@ -10,6 +10,8 @@ public interface AmenitiesService {
 	Amenities saveOrUpdate(Amenities amenities);
 
     List<Amenities> listByAmenityType(String companyId, AmenityType type);
+    
+    List<Amenities> listByCompanyId(String companyId);
 
     void deleteAmenity(Long id);
 

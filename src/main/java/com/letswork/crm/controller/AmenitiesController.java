@@ -37,10 +37,13 @@ public class AmenitiesController {
     @GetMapping
     public ResponseEntity<List<Amenities>> list(
             @RequestParam String companyId,
-            @RequestParam AmenityType type,
+            @RequestParam(required=false) AmenityType type,
             @RequestParam String token) {
-
+    	
+    	if(type!=null) {
         return ResponseEntity.ok(service.listByAmenityType(companyId, type));
+    	}
+    	else return ResponseEntity.ok(service.listByCompanyId(companyId));
     }
 
     // Delete
