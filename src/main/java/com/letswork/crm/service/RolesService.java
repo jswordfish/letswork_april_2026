@@ -9,5 +9,7 @@ public interface RolesService {
 	Rbac_entity saveOrUpdate(Rbac_entity role);
 
     List<Rbac_entity> listByCompanyId(String companyId);
+    
+    List<Rbac_entity> listByRole(String role, String companyId);
 
 }

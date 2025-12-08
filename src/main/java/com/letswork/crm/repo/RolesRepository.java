@@ -10,8 +10,10 @@ import com.letswork.crm.entities.Rbac_entity;
 @Repository
 public interface RolesRepository extends JpaRepository<Rbac_entity, Long> {
 	
-	Rbac_entity findByNameAndCompanyId(String name, String companyId);
+	Rbac_entity findByNameAndCompanyIdAndMenuItem(String name, String companyId, String manuItem);
 
     List<Rbac_entity> findByCompanyId(String companyId);
+    
+    List<Rbac_entity> findByNameAndCompanyId(String role, String companyId);
 
 }

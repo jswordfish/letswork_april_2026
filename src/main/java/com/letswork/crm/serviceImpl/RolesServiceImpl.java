@@ -44,7 +44,7 @@ public class RolesServiceImpl implements RolesService {
         }
 
         // Check if role already exists
-        Rbac_entity existing = repo.findByNameAndCompanyId(role.getName(), role.getCompanyId());
+        Rbac_entity existing = repo.findByNameAndCompanyIdAndMenuItem(role.getName(), role.getCompanyId(), role.getMenuItem());
 
         if (existing != null) {
             // Update existing
@@ -67,4 +67,10 @@ public class RolesServiceImpl implements RolesService {
     public List<Rbac_entity> listByCompanyId(String companyId) {
         return repo.findByCompanyId(companyId);
     }
+
+	@Override
+	public List<Rbac_entity> listByRole(String role, String companyId) {
+		// TODO Auto-generated method stub
+		return repo.findByNameAndCompanyId(role, companyId);
+	}
 }

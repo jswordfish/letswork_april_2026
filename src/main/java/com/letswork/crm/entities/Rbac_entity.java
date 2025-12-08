@@ -26,7 +26,7 @@ public class Rbac_entity extends Base{
 	
 	private String name;
 	
-	private String menu_items;
+	private String menuItem;
 	
 	private Boolean page_create;
 	
@@ -37,3 +37,4 @@ public class Rbac_entity extends Base{
 	private Boolean page_view;
 
 }
+
