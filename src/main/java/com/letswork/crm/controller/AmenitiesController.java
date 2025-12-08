@@ -48,7 +48,7 @@ public class AmenitiesController {
 
     // Delete
     @DeleteMapping
-    public ResponseEntity<String> delete(@PathVariable Long id, @RequestParam String token) {
+    public ResponseEntity<String> delete(@RequestParam Long id, @RequestParam String token) {
         service.deleteAmenity(id);
         return ResponseEntity.ok("Deleted Successfully");
     }
