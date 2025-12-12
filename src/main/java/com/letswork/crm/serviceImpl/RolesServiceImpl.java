@@ -90,6 +90,10 @@ public class RolesServiceImpl implements RolesService {
 
         for (Rbac_entity e : list) {
 
+            if (e.getMenuItem() == null || e.getMenuItem().trim().isEmpty()) {
+                continue; // skip invalid/null menu items
+            }
+
             MenuPermissionDTO perm = new MenuPermissionDTO();
             perm.setPage_create(e.getPage_create());
             perm.setPage_edit(e.getPage_edit());
