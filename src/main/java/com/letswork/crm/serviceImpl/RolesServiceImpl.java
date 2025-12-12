@@ -1,12 +1,16 @@
 package com.letswork.crm.serviceImpl;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.letswork.crm.dtos.MenuPermissionDTO;
+import com.letswork.crm.dtos.RbacRoleResponseDTO;
 import com.letswork.crm.entities.OrgHierarchy;
 import com.letswork.crm.entities.Rbac_entity;
 import com.letswork.crm.entities.Tenant;
@@ -73,4 +77,30 @@ public class RolesServiceImpl implements RolesService {
 		// TODO Auto-generated method stub
 		return repo.findByNameAndCompanyId(role, companyId);
 	}
+	
+	@Override
+    public RbacRoleResponseDTO getRoleGrouped(String role, String companyId) {
+
+        List<Rbac_entity> list = repo.findByNameAndCompanyId(role, companyId);
+
+        RbacRoleResponseDTO dto = new RbacRoleResponseDTO();
+        dto.setName(role);
+
+        Map<String, MenuPermissionDTO> menuItems = new HashMap<>();
+
+        for (Rbac_entity e : list) {
+
+            MenuPermissionDTO perm = new MenuPermissionDTO();
+            perm.setPage_create(e.getPage_create());
+            perm.setPage_edit(e.getPage_edit());
+            perm.setPage_delete(e.getPage_delete());
+            perm.setPage_view(e.getPage_view());
+
+            menuItems.put(e.getMenuItem(), perm);
+        }
+
+        dto.setMenu_items(menuItems);
+        return dto;
+    }
+	
 }

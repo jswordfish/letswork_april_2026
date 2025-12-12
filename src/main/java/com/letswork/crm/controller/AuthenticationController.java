@@ -106,7 +106,7 @@ public class AuthenticationController {
 			}
 			else {
 				//System.out.println("passed pwd "+user.getPassword()+" db pwd "+u.getPassword());
-					if(user.getPassword().equals(u.getPassword()) && superFlag.equals("yes")) {
+					if(user.getPassword().equals(u.getPassword())) {
 						String token =  tokenService.generateToken(u.getOrgHierarchy().getRoleOrDesig(), u.getEmail());
 						response.setToken(token);
 						return ResponseEntity.ok(response);

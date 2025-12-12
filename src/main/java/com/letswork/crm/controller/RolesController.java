@@ -30,11 +30,17 @@ public class RolesController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Rbac_entity>> list(@RequestParam String companyId, @RequestParam String token,
-    		@RequestParam(required = false) String role) {
-    	if(role==null) {
-        return ResponseEntity.ok(service.listByCompanyId(companyId));
-    	}
-    	else return ResponseEntity.ok(service.listByRole(role, companyId));
+    public ResponseEntity<?> list(
+            @RequestParam String companyId,
+            @RequestParam String token,
+            @RequestParam(required = false) String role) {
+
+        if (role == null) {
+            return ResponseEntity.ok(service.listByCompanyId(companyId));
+        } 
+        else {
+            
+            return ResponseEntity.ok(service.getRoleGrouped(role, companyId));
+        }
     }
 }
