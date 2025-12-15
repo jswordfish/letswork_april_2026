@@ -35,12 +35,10 @@ public class RolesController {
             @RequestParam String token,
             @RequestParam(required = false) String role) {
 
-        if (role == null) {
+        if (role == null || role.trim().isEmpty()) {
             return ResponseEntity.ok(service.listByCompanyId(companyId));
-        } 
-        else {
-            
-            return ResponseEntity.ok(service.getRoleGrouped(role, companyId));
         }
+
+        return ResponseEntity.ok(service.getRoleGrouped(role, companyId));
     }
 }

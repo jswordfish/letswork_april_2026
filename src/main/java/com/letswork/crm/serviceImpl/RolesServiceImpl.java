@@ -1,7 +1,7 @@
 package com.letswork.crm.serviceImpl;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,32 +79,42 @@ public class RolesServiceImpl implements RolesService {
 	}
 	
 	@Override
-    public RbacRoleResponseDTO getRoleGrouped(String role, String companyId) {
+	public RbacRoleResponseDTO getRoleGrouped(String role, String companyId) {
 
-        List<Rbac_entity> list = repo.findByNameAndCompanyId(role, companyId);
+	    List<Rbac_entity> list = repo.findByNameAndCompanyId(role, companyId);
 
-        RbacRoleResponseDTO dto = new RbacRoleResponseDTO();
-        dto.setName(role);
+	    RbacRoleResponseDTO dto = new RbacRoleResponseDTO();
+	    dto.setName(role);
 
-        Map<String, MenuPermissionDTO> menuItems = new HashMap<>();
+	    // LinkedHashMap to preserve insertion order
+	    Map<String, MenuPermissionDTO> menuItems = new LinkedHashMap<>();
 
-        for (Rbac_entity e : list) {
+	    for (Rbac_entity e : list) {
 
-            if (e.getMenuItem() == null || e.getMenuItem().trim().isEmpty()) {
-                continue; // skip invalid/null menu items
-            }
+	        if (e.getMenuItem() == null || e.getMenuItem().trim().isEmpty()) {
+	            continue; // skip invalid menu items
+	        }
 
-            MenuPermissionDTO perm = new MenuPermissionDTO();
-            perm.setPage_create(e.getPage_create());
-            perm.setPage_edit(e.getPage_edit());
-            perm.setPage_delete(e.getPage_delete());
-            perm.setPage_view(e.getPage_view());
+	        String normalizedMenuItem = normalizeMenuItem(e.getMenuItem());
 
-            menuItems.put(e.getMenuItem(), perm);
-        }
+	        MenuPermissionDTO perm = new MenuPermissionDTO();
+	        perm.setPage_create(Boolean.TRUE.equals(e.getPage_create()));
+	        perm.setPage_edit(Boolean.TRUE.equals(e.getPage_edit()));
+	        perm.setPage_delete(Boolean.TRUE.equals(e.getPage_delete()));
+	        perm.setPage_view(Boolean.TRUE.equals(e.getPage_view()));
 
-        dto.setMenu_items(menuItems);
-        return dto;
-    }
+	        menuItems.put(normalizedMenuItem, perm);
+	    }
+
+	    dto.setMenu_items(menuItems);
+	    return dto;
+	}
+	
+	private String normalizeMenuItem(String menuItem) {
+	    return menuItem
+	            .toLowerCase()
+	            .trim()
+	            .replaceAll("\\s+", " ");
+	}
 	
 }
