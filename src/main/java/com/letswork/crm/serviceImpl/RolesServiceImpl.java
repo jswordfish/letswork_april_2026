@@ -35,37 +35,47 @@ public class RolesServiceImpl implements RolesService {
     ModelMapper mapper = new ModelMapper();
 
     @Override
-    public Rbac_entity saveOrUpdate(Rbac_entity role) {
+    public RbacRoleResponseDTO saveOrUpdateGrouped(RbacRoleResponseDTO dto, String companyId) {
 
-        // Validate company
-        Tenant tenant = tenantService.findTenantByCompanyId(role.getCompanyId());
+        // 1️⃣ Validate company
+        Tenant tenant = tenantService.findTenantByCompanyId(companyId);
         if (tenant == null) {
-            throw new RuntimeException("Invalid companyId - " + role.getCompanyId());
-        }
-        
-        OrgHierarchy org = orgRepo.findByRoleOrDesig(role.getName(), role.getCompanyId());
-        if(org==null) {
-        	throw new RuntimeException("This role does not exists");
+            throw new RuntimeException("Invalid companyId - " + companyId);
         }
 
-        // Check if role already exists
-        Rbac_entity existing = repo.findByNameAndCompanyIdAndMenuItem(role.getName(), role.getCompanyId(), role.getMenuItem());
-
-        if (existing != null) {
-            // Update existing
-            role.setId(existing.getId());
-            role.setCreateDate(existing.getCreateDate());
-            role.setUpdateDate(new Date());
-
-            mapper.map(role, existing);
-            return repo.save(existing);
-
-        } else {
-            // Save new role
-            role.setCreateDate(new Date());
-            role.setUpdateDate(new Date());
-            return repo.save(role);
+        // 2️⃣ Validate role exists in OrgHierarchy
+        OrgHierarchy org = orgRepo.findByRoleOrDesig(dto.getName(), companyId);
+        if (org == null) {
+            throw new RuntimeException("Role does not exist - " + dto.getName());
         }
+
+        // 3️⃣ Delete existing permissions for role (FULL REPLACE)
+        repo.deleteByNameAndCompanyId(dto.getName(), companyId);
+
+        // 4️⃣ Insert new permissions
+        for (Map.Entry<String, MenuPermissionDTO> entry : dto.getMenu_items().entrySet()) {
+
+            String menuItem = normalizeMenuItem(entry.getKey());
+            MenuPermissionDTO perm = entry.getValue();
+
+            Rbac_entity entity = new Rbac_entity();
+            entity.setName(dto.getName());
+            entity.setCompanyId(companyId);
+            entity.setMenuItem(menuItem);
+
+            entity.setPage_create(Boolean.TRUE.equals(perm.getPage_create()));
+            entity.setPage_edit(Boolean.TRUE.equals(perm.getPage_edit()));
+            entity.setPage_delete(Boolean.TRUE.equals(perm.getPage_delete()));
+            entity.setPage_view(Boolean.TRUE.equals(perm.getPage_view()));
+
+            entity.setCreateDate(new Date());
+            entity.setUpdateDate(new Date());
+
+            repo.save(entity);
+        }
+
+        // 5️⃣ Return grouped response
+        return getRoleGrouped(dto.getName(), companyId);
     }
 
     @Override

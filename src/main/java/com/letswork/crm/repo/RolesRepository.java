@@ -15,5 +15,7 @@ public interface RolesRepository extends JpaRepository<Rbac_entity, Long> {
     List<Rbac_entity> findByCompanyId(String companyId);
     
     List<Rbac_entity> findByNameAndCompanyId(String role, String companyId);
+    
+    void deleteByNameAndCompanyId(String name, String companyId);
 
 }

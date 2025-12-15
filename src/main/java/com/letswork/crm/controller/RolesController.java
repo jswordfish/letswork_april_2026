@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.letswork.crm.dtos.RbacRoleResponseDTO;
 import com.letswork.crm.entities.Rbac_entity;
 import com.letswork.crm.service.RolesService;
 
@@ -24,9 +25,12 @@ public class RolesController {
     private RolesService service;
 
     @PostMapping
-    public ResponseEntity<Rbac_entity> saveOrUpdate(@RequestBody Rbac_entity role, @RequestParam String token) {
-        Rbac_entity saved = service.saveOrUpdate(role);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<RbacRoleResponseDTO> saveOrUpdate(
+            @RequestParam String companyId,
+            @RequestParam String token,
+            @RequestBody RbacRoleResponseDTO dto) {
+
+        return ResponseEntity.ok(service.saveOrUpdateGrouped(dto, companyId));
     }
 
     @GetMapping

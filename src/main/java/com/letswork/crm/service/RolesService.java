@@ -7,7 +7,7 @@ import com.letswork.crm.entities.Rbac_entity;
 
 public interface RolesService {
 	
-	Rbac_entity saveOrUpdate(Rbac_entity role);
+	RbacRoleResponseDTO saveOrUpdateGrouped(RbacRoleResponseDTO dto, String companyId);
 
 	List<RbacRoleResponseDTO> listGroupedByCompany(String companyId);
     
