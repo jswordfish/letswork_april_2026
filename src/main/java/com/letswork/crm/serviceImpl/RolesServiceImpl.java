@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.Transactional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import com.letswork.crm.service.RolesService;
 import com.letswork.crm.service.TenantService;
 
 @Service
+@Transactional
 public class RolesServiceImpl implements RolesService {
 
     @Autowired
