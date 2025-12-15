@@ -1,5 +1,6 @@
 package com.letswork.crm.serviceImpl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -68,8 +69,41 @@ public class RolesServiceImpl implements RolesService {
     }
 
     @Override
-    public List<Rbac_entity> listByCompanyId(String companyId) {
-        return repo.findByCompanyId(companyId);
+    public List<RbacRoleResponseDTO> listGroupedByCompany(String companyId) {
+
+        List<Rbac_entity> list = repo.findByCompanyId(companyId);
+
+        // roleName -> DTO
+        Map<String, RbacRoleResponseDTO> roleMap = new LinkedHashMap<>();
+
+        for (Rbac_entity e : list) {
+
+            if (e.getName() == null || e.getMenuItem() == null) {
+                continue;
+            }
+
+            String role = e.getName().trim();
+            String menuItem = normalizeMenuItem(e.getMenuItem());
+
+            // Create role DTO if not exists
+            RbacRoleResponseDTO roleDto =
+                    roleMap.computeIfAbsent(role, r -> {
+                        RbacRoleResponseDTO dto = new RbacRoleResponseDTO();
+                        dto.setName(r);
+                        dto.setMenu_items(new LinkedHashMap<>());
+                        return dto;
+                    });
+
+            MenuPermissionDTO perm = new MenuPermissionDTO();
+            perm.setPage_create(Boolean.TRUE.equals(e.getPage_create()));
+            perm.setPage_edit(Boolean.TRUE.equals(e.getPage_edit()));
+            perm.setPage_delete(Boolean.TRUE.equals(e.getPage_delete()));
+            perm.setPage_view(Boolean.TRUE.equals(e.getPage_view()));
+
+            roleDto.getMenu_items().put(menuItem, perm);
+        }
+
+        return new ArrayList<>(roleMap.values());
     }
 
 	@Override

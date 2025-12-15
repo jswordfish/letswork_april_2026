@@ -36,7 +36,7 @@ public class RolesController {
             @RequestParam(required = false) String role) {
 
         if (role == null || role.trim().isEmpty()) {
-            return ResponseEntity.ok(service.listByCompanyId(companyId));
+            return ResponseEntity.ok(service.listGroupedByCompany(companyId));
         }
 
         return ResponseEntity.ok(service.getRoleGrouped(role, companyId));
