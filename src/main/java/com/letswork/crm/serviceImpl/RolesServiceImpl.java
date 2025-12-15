@@ -58,7 +58,7 @@ public class RolesServiceImpl implements RolesService {
         // 4️⃣ Insert new permissions
         for (Map.Entry<String, MenuPermissionDTO> entry : dto.getMenu_items().entrySet()) {
 
-            String menuItem = normalizeMenuItem(entry.getKey());
+            String menuItem = entry.getKey();
             MenuPermissionDTO perm = entry.getValue();
 
             Rbac_entity entity = new Rbac_entity();
@@ -96,7 +96,7 @@ public class RolesServiceImpl implements RolesService {
             }
 
             String role = e.getName().trim();
-            String menuItem = normalizeMenuItem(e.getMenuItem());
+            String menuItem = e.getMenuItem();
 
             // Create role DTO if not exists
             RbacRoleResponseDTO roleDto =
@@ -142,7 +142,7 @@ public class RolesServiceImpl implements RolesService {
 	            continue; // skip invalid menu items
 	        }
 
-	        String normalizedMenuItem = normalizeMenuItem(e.getMenuItem());
+	        String normalizedMenuItem = e.getMenuItem();
 
 	        MenuPermissionDTO perm = new MenuPermissionDTO();
 	        perm.setPage_create(Boolean.TRUE.equals(e.getPage_create()));
@@ -157,11 +157,6 @@ public class RolesServiceImpl implements RolesService {
 	    return dto;
 	}
 	
-	private String normalizeMenuItem(String menuItem) {
-	    return menuItem
-	            .toLowerCase()
-	            .trim()
-	            .replaceAll("\\s+", " ");
-	}
+	
 	
 }
