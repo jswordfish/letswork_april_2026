@@ -1,5 +1,6 @@
 package com.letswork.crm.serviceImpl;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.dtos.LetsWorkCentreExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.LetsWorkCentreImage;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.service.LetsWorkCentreService;
@@ -42,48 +44,95 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	@Autowired
 	TenantService tenantService;
 	
+	@Autowired
+    private S3Service s3Service;
+	
+	private String bucketName = "myapp-bucket-1758037822620";
 	
 	
 	ModelMapper mapper = new ModelMapper();
 
 	@Override
-	public String saveOrUpdate(LetsWorkCentre letsWorkCentre) {
-		// TODO Auto-generated method stub
-		
-		Tenant tenant = tenantService.findTenantByCompanyId(letsWorkCentre.getCompanyId());
-		
-		if(tenant==null) {
-			
-			throw new RuntimeException("CompanyId invalid - "+letsWorkCentre.getCompanyId());
-			
-		}
-		
-		validateTimeOrder("Weekdays", letsWorkCentre.getStartTimeRegular(), letsWorkCentre.getEndTimeRegular());
-		
-	    validateTimeOrder("Saturday", letsWorkCentre.getStartTimeSat(), letsWorkCentre.getEndTimeSat());
-		
-		
-		LetsWorkCentre loc = repo.findByNameAndCompanyIdAndCityAndState(letsWorkCentre.getName(), letsWorkCentre.getCompanyId(), letsWorkCentre.getCity(), letsWorkCentre.getState());
-		
-		if(loc!=null) {
-			
+    public String saveOrUpdate(
+            LetsWorkCentre centre,
+            List<MultipartFile> images
+    ) throws IOException {
 
-			letsWorkCentre.setId(loc.getId());
-			letsWorkCentre.setUpdateDate(new Date());
-			mapper.map(letsWorkCentre, loc);
-			
-			repo.save(loc);
-			return "record updated";
-		}
-		
-		else {
-			letsWorkCentre.setCreateDate(new Date());
-			repo.save(letsWorkCentre);
-			return "record saved";
-		}
-		
-		
-	}
+        Tenant tenant = tenantService.findTenantByCompanyId(centre.getCompanyId());
+        if (tenant == null) {
+            throw new RuntimeException(
+                    "CompanyId invalid - " + centre.getCompanyId());
+        }
+
+        validateTimeOrder(
+                "Weekdays",
+                centre.getStartTimeRegular(),
+                centre.getEndTimeRegular()
+        );
+
+        validateTimeOrder(
+                "Saturday",
+                centre.getStartTimeSat(),
+                centre.getEndTimeSat()
+        );
+
+        LetsWorkCentre existing =
+                repo.findByNameAndCompanyIdAndCityAndState(
+                        centre.getName(),
+                        centre.getCompanyId(),
+                        centre.getCity(),
+                        centre.getState()
+                );
+
+        LetsWorkCentre savedCentre;
+
+        if (existing != null) {
+            centre.setId(existing.getId());
+            centre.setCreateDate(existing.getCreateDate());
+            centre.setUpdateDate(new Date());
+            mapper.map(centre, existing);
+
+            existing.getImages().clear();
+            savedCentre = repo.save(existing);
+        } else {
+            centre.setCreateDate(new Date());
+            centre.setUpdateDate(new Date());
+            savedCentre = repo.save(centre);
+        }
+
+        /* Upload images */
+        if (images != null && !images.isEmpty()) {
+
+            for (MultipartFile mf : images) {
+
+                File tempFile = File.createTempFile(
+                        "centre_", mf.getOriginalFilename());
+                mf.transferTo(tempFile);
+
+                String s3Url = s3Service.uploadLetsWorkCentreImage(
+                        bucketName,
+                        centre.getCompanyId(),
+                        centre.getName(),
+                        mf.getOriginalFilename(),
+                        tempFile
+                );
+
+                LetsWorkCentreImage img = new LetsWorkCentreImage();
+                img.setFileName(mf.getOriginalFilename());
+                img.setS3Path(s3Url);
+                img.setLetsWorkCentre(savedCentre);
+
+                savedCentre.getImages().add(img);
+
+                tempFile.delete();
+            }
+
+            repo.save(savedCentre);
+        }
+
+        return existing != null ? "record updated" : "record saved";
+    }
+
 	
 	private void validateTimeOrder(String label, LocalTime startTime, LocalTime endTime) {
 	    if (startTime == null || endTime == null) {
@@ -213,29 +262,29 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
         		}
         	}
             
-            List<String> responses = letsWorkCentres.stream().map(dto -> {
-            	
-            	LocalTime startRegular = parseTime(dto.getStartTimeRegular());
-                LocalTime endRegular = parseTime(dto.getEndTimeRegular());
-                LocalTime startSat = parseTime(dto.getStartTimeSat());
-                LocalTime endSat = parseTime(dto.getEndTimeSat());
-            	
-            	LetsWorkCentre letsWorkCentre = LetsWorkCentre.builder()
-                        .name(dto.getName().trim())
-                        .totalConferenceRooms(dto.getTotalConferenceRooms())
-                        .address(dto.getAddress().trim())
-                        .companyId(dto.getCompanyId().trim())
-                        .state(dto.getState().trim())
-                        .city(dto.getCity().trim())
-                        .hasCafe(dto.getHasCafe())
-                        .amenities(dto.getAmenities().trim())
-                        .startTimeRegular(startRegular)
-                        .endTimeRegular(endRegular)
-                        .startTimeSat(startSat)
-                        .endTimeSat(endSat)
-                        .build();
-                return saveOrUpdate(letsWorkCentre);
-            }).collect(Collectors.toList());
+//            List<String> responses = letsWorkCentres.stream().map(dto -> {
+//            	
+//            	LocalTime startRegular = parseTime(dto.getStartTimeRegular());
+//                LocalTime endRegular = parseTime(dto.getEndTimeRegular());
+//                LocalTime startSat = parseTime(dto.getStartTimeSat());
+//                LocalTime endSat = parseTime(dto.getEndTimeSat());
+//            	
+//            	LetsWorkCentre letsWorkCentre = LetsWorkCentre.builder()
+//                        .name(dto.getName().trim())
+//                        .totalConferenceRooms(dto.getTotalConferenceRooms())
+//                        .address(dto.getAddress().trim())
+//                        .companyId(dto.getCompanyId().trim())
+//                        .state(dto.getState().trim())
+//                        .city(dto.getCity().trim())
+//                        .hasCafe(dto.getHasCafe())
+//                        .amenities(dto.getAmenities().trim())
+//                        .startTimeRegular(startRegular)
+//                        .endTimeRegular(endRegular)
+//                        .startTimeSat(startSat)
+//                        .endTimeSat(endSat)
+//                        .build();
+//                return saveOrUpdate(letsWorkCentre);
+//            }).collect(Collectors.toList());
 
 //            return "Processed " + letsWorkCentres.size() + " LetsWorkCentre successfully.\n"
 //                    + String.join("\n", responses);

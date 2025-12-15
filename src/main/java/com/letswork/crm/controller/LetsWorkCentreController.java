@@ -1,8 +1,10 @@
 package com.letswork.crm.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,12 +30,19 @@ public class LetsWorkCentreController {
 	@Autowired
 	LetsWorkCentreService service;
 	
-	@PostMapping
-	public String createOrUpdate(@RequestBody LetsWorkCentre letsWorkCentre, @RequestParam String token) {
-		
-		return service.saveOrUpdate(letsWorkCentre);
-		
-	}
+	@PostMapping(
+		    value = "/letswork-centre",
+		    consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+		)
+		public ResponseEntity<String> createOrUpdate(
+		        @RequestPart("centre") LetsWorkCentre letsWorkCentre,
+		        @RequestPart(value = "images", required = false) List<MultipartFile> images,
+		        @RequestParam String token
+		) throws IOException {
+
+		    String result = service.saveOrUpdate(letsWorkCentre, images);
+		    return ResponseEntity.ok(result);
+		}
 	
 	@PostMapping(
 		    value = "/upload-excel",

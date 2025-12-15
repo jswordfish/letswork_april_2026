@@ -100,6 +100,36 @@ public class S3Service {
             .key(key)
             .build());
     }
+    
+    public String uploadLetsWorkCentreImage(
+            String bucketName,
+            String companyId,
+            String centreName,
+            String fileName,
+            File file
+    ) {
+        String sanitizedCentre =
+                centreName.trim().replaceAll("\\s+", "_").toLowerCase();
+
+        String keyName =
+                companyId + "/letswork-centres/" + sanitizedCentre + "/" + fileName;
+
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(keyName)
+                        .contentType("image/jpeg")
+                        .build(),
+                file.toPath()
+        );
+
+        String region = s3Client.serviceClientConfiguration().region().id();
+        String endpoint = region.equals("us-east-1")
+                ? "https://" + bucketName + ".s3.amazonaws.com/"
+                : "https://" + bucketName + ".s3." + region + ".amazonaws.com/";
+
+        return endpoint + keyName;
+    }
 
     
 }

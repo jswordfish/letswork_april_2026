@@ -1,5 +1,6 @@
 package com.letswork.crm.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -10,7 +11,10 @@ import com.letswork.crm.entities.LetsWorkCentre;
 
 public interface LetsWorkCentreService {
 	
-    String saveOrUpdate(LetsWorkCentre letsWorkCentre);
+	public String saveOrUpdate(
+            LetsWorkCentre centre,
+            List<MultipartFile> images
+    ) throws IOException;
     
     LetsWorkCentre findByName(String name, String companyId, String city, String state);
     
