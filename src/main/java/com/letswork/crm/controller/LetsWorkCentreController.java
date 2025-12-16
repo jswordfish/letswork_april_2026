@@ -31,6 +31,9 @@ public class LetsWorkCentreController {
 	@Autowired
 	LetsWorkCentreService service;
 	
+	@Autowired
+	private ObjectMapper objectMapper;
+	
 	@PostMapping(
 		    value = "/letswork-centre",
 		    consumes = MediaType.MULTIPART_FORM_DATA_VALUE
@@ -41,9 +44,8 @@ public class LetsWorkCentreController {
 		        @RequestParam String token
 		) throws IOException {
 
-		    ObjectMapper mapper = new ObjectMapper();
 		    LetsWorkCentre centre =
-		            mapper.readValue(centreJson, LetsWorkCentre.class);
+		            objectMapper.readValue(centreJson, LetsWorkCentre.class);
 
 		    String result = service.saveOrUpdate(centre, images);
 		    return ResponseEntity.ok(result);
