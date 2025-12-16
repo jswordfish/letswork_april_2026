@@ -147,6 +147,58 @@ public class S3Service {
         // 4️⃣ Return browser-accessible URL
         return presignedRequest.url().toString();
     }
+    
+    public String uploadSolutionImage(
+            String bucketName,
+            String companyId,
+            String centreName,
+            String solutionName,
+            String fileName,
+            File file
+    ) {
+
+        String sanitizedCentre =
+                centreName.trim().replaceAll("\\s+", "_").toLowerCase();
+
+        String sanitizedSolution =
+                solutionName.trim().replaceAll("\\s+", "_").toLowerCase();
+
+        String keyName =
+                companyId +
+                "/letswork-centres/" +
+                sanitizedCentre +
+                "/solutions/" +
+                sanitizedSolution +
+                "/" +
+                fileName;
+
+        // 1️⃣ Upload object (PRIVATE by default)
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(keyName)
+                        .contentType("image/jpeg")
+                        .build(),
+                file.toPath()
+        );
+
+        // 2️⃣ Create GET request
+        GetObjectRequest getObjectRequest =
+                GetObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(keyName)
+                        .build();
+
+        // 3️⃣ Generate pre-signed URL (15 mins)
+        PresignedGetObjectRequest presignedRequest =
+                s3Presigner.presignGetObject(p -> p
+                        .getObjectRequest(getObjectRequest)
+                        .signatureDuration(Duration.ofMinutes(15))
+                );
+
+        // 4️⃣ Return browser-accessible URL
+        return presignedRequest.url().toString();
+    }
 
     
 }
