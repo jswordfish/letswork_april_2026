@@ -1,23 +1,29 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.File;
+import java.time.Duration;
 
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.core.sync.RequestBody;
 
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 @Service
 public class S3Service {
 
 	private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
-    public S3Service(S3Client s3Client) {
+    public S3Service(S3Client s3Client, S3Presigner s3Presigner) {
         this.s3Client = s3Client;
+        this.s3Presigner = s3Presigner;
     }
     
    
@@ -108,12 +114,14 @@ public class S3Service {
             String fileName,
             File file
     ) {
+
         String sanitizedCentre =
                 centreName.trim().replaceAll("\\s+", "_").toLowerCase();
 
         String keyName =
                 companyId + "/letswork-centres/" + sanitizedCentre + "/" + fileName;
 
+        // 1️⃣ Upload object (PRIVATE by default – this is good)
         s3Client.putObject(
                 PutObjectRequest.builder()
                         .bucket(bucketName)
@@ -123,12 +131,21 @@ public class S3Service {
                 file.toPath()
         );
 
-        String region = s3Client.serviceClientConfiguration().region().id();
-        String endpoint = region.equals("us-east-1")
-                ? "https://" + bucketName + ".s3.amazonaws.com/"
-                : "https://" + bucketName + ".s3." + region + ".amazonaws.com/";
+        // 2️⃣ Create GET request
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(keyName)
+                .build();
 
-        return endpoint + keyName;
+        // 3️⃣ Generate pre-signed URL (valid for 15 minutes)
+        PresignedGetObjectRequest presignedRequest =
+                s3Presigner.presignGetObject(p -> p
+                        .getObjectRequest(getObjectRequest)
+                        .signatureDuration(Duration.ofMinutes(15))
+                );
+
+        // 4️⃣ Return browser-accessible URL
+        return presignedRequest.url().toString();
     }
 
     
