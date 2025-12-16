@@ -47,7 +47,7 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	@Autowired
     private S3Service s3Service;
 	
-	private String bucketName = "myapp-bucket-1758037822620";
+	private String bucketName = "letsworkcentres";
 	
 	
 	ModelMapper mapper = new ModelMapper();
