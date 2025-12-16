@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.service.LetsWorkCentreService;
@@ -35,12 +36,16 @@ public class LetsWorkCentreController {
 		    consumes = MediaType.MULTIPART_FORM_DATA_VALUE
 		)
 		public ResponseEntity<String> createOrUpdate(
-		        @RequestPart("centre") LetsWorkCentre letsWorkCentre,
+		        @RequestPart("centre") String centreJson,
 		        @RequestPart(value = "images", required = false) List<MultipartFile> images,
 		        @RequestParam String token
 		) throws IOException {
 
-		    String result = service.saveOrUpdate(letsWorkCentre, images);
+		    ObjectMapper mapper = new ObjectMapper();
+		    LetsWorkCentre centre =
+		            mapper.readValue(centreJson, LetsWorkCentre.class);
+
+		    String result = service.saveOrUpdate(centre, images);
 		    return ResponseEntity.ok(result);
 		}
 	

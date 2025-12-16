@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -63,6 +64,7 @@ public class LetsWorkCentre extends Base{
     
     private String longitude;
     
+    @JsonIgnore
     @OneToMany(
             mappedBy = "letsWorkCentre",
             cascade = CascadeType.ALL,
