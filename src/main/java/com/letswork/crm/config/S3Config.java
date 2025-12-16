@@ -15,7 +15,7 @@ public class S3Config {
         return S3Client.builder()
                 .region(Region.AP_SOUTH_1) // change region as per your bucket
                 .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create("AKIATTNDRE7EMASKPY5A", "TJ8AsCgHkzuRwTNT3ZeQPwahAo91dYDJuhdwTiPd")
+                        AwsBasicCredentials.create("AKIAV4XIACUNK2STTVGS", "10DBzNXOPsHkw472gpr1jjffSLSutYQz3oehxCOX")
                 ))
                 .build();
     }
