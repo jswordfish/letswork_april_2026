@@ -102,6 +102,16 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
+		    	if(url.endsWith("send")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
+		    	if(url.endsWith("verify")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
 		    	
 		    String token = httpRequest.getParameter("token");
 		    Enumeration<String> headerNames = httpRequest.getHeaderNames();

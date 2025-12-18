@@ -44,7 +44,7 @@ public class SolutionsController {
 	    return ResponseEntity.ok(result);
 	}
 	
-	@GetMapping
+	@GetMapping("/solution")
 	public ResponseEntity<?> getSolutions(
 	        @RequestParam String companyId,                       
 	        @RequestParam(required = false) String letsWorkCentre, 
