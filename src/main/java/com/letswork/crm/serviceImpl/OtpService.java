@@ -18,7 +18,7 @@ public class OtpService {
     @Autowired
     private MailJetOtpService mailService;
 
-    public void sendOtp(String email, String name) {
+    public void sendOtp(String email) {
         String otp = generateOtp();
 
         EmailOtp emailOtp = new EmailOtp();
@@ -29,7 +29,7 @@ public class OtpService {
 
         otpRepository.save(emailOtp);
 
-        mailService.sendOtpEmail(email, name, otp);
+        mailService.sendOtpEmail(email, otp);
     }
 
     public boolean verifyOtp(String email, String otp) {
