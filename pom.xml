@@ -100,6 +100,12 @@
             <artifactId>aws-lambda-java-log4j2</artifactId>
             <version>1.5.1</version>
         </dependency>
+        
+        <dependency>
+    <groupId>com.mailjet</groupId>
+    <artifactId>mailjet-client</artifactId>
+    <version>5.2.5</version>
+</dependency>
 
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
