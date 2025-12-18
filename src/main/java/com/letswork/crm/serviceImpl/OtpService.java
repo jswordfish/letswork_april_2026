@@ -32,9 +32,9 @@ public class OtpService {
         mailService.sendOtpEmail(email, name, otp);
     }
 
-    public boolean verifyOtp(String email, String otp, String companyId) {
+    public boolean verifyOtp(String email, String otp) {
         EmailOtp emailOtp = otpRepository
-                .findTopByEmailAndCompanyIdAndVerifiedFalseOrderByExpiresAtDesc(email, companyId)
+                .findTopByEmailAndVerifiedFalseOrderByExpiresAtDesc(email)
                 .orElseThrow(() -> new RuntimeException("OTP not found"));
 
         if (emailOtp.getExpiresAt().isBefore(LocalDateTime.now())) {

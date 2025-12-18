@@ -10,9 +10,6 @@ import com.letswork.crm.entities.EmailOtp;
 @Repository
 public interface EmailOtpRepository extends JpaRepository<EmailOtp, Long> {
 
-	Optional<EmailOtp> findTopByEmailAndCompanyIdAndVerifiedFalseOrderByExpiresAtDesc(
-	        String email,
-	        String companyId
-	);
+    Optional<EmailOtp> findTopByEmailAndVerifiedFalseOrderByExpiresAtDesc(String email);
     
 }

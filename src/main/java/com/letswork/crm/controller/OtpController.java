@@ -30,10 +30,9 @@ public class OtpController {
     public ResponseEntity<String> verifyOtp(
             @RequestParam String email,
             @RequestParam String otp,
-            @RequestParam String companyId,
             @RequestParam String token) {
 
-        boolean verified = otpService.verifyOtp(email, otp, companyId);
+        boolean verified = otpService.verifyOtp(email, otp);
 
         if (verified) {
             return ResponseEntity.ok("OTP verified successfully");
