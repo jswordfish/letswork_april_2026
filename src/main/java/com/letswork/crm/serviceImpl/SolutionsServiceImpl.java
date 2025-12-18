@@ -3,6 +3,7 @@ package com.letswork.crm.serviceImpl;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -111,5 +112,23 @@ public class SolutionsServiceImpl implements SolutionsService{
                 ? "solution updated"
                 : "solution created";
     }
+
+	@Override
+	public List<Solutions> findByCompanyId(String companyId) {
+		// TODO Auto-generated method stub
+		return repo.findByCompanyId(companyId);
+	}
+
+	@Override
+	public List<Solutions> findByLetsWorkCentreAndCompanyId(String letsWorkCentre, String companyId) {
+		// TODO Auto-generated method stub
+		return repo.findByLetsWorkCentreAndCompanyId(letsWorkCentre, companyId);
+	}
+
+	@Override
+	public Solutions findByNameAndLetsWorkCentreAndCompanyId(String name, String letsWorkCentre, String companyId) {
+		// TODO Auto-generated method stub
+		return repo.findByNameAndLetsWorkCentreAndCompanyId(name, letsWorkCentre, companyId);
+	}
 
 }

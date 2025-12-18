@@ -1,11 +1,13 @@
 package com.letswork.crm.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -40,6 +42,35 @@ public class SolutionsController {
 	            solutionsService.saveOrUpdate(solution, image);
 
 	    return ResponseEntity.ok(result);
+	}
+	
+	@GetMapping
+	public ResponseEntity<?> getSolutions(
+	        @RequestParam String companyId,                       
+	        @RequestParam(required = false) String letsWorkCentre, 
+	        @RequestParam(required = false) String name,           
+	        @RequestParam String token           
+	) {
+
+	    
+	    if (name != null && letsWorkCentre != null) {
+	        Solutions solution = solutionsService
+	                .findByNameAndLetsWorkCentreAndCompanyId(name, letsWorkCentre, companyId);
+	        return ResponseEntity.ok(solution);
+	    }
+
+	    
+	    if (letsWorkCentre != null) {
+	        List<Solutions> solutions = solutionsService
+	                .findByLetsWorkCentreAndCompanyId(letsWorkCentre, companyId);
+	        return ResponseEntity.ok(solutions);
+	    }
+
+	    
+	    List<Solutions> solutions = solutionsService.findByCompanyId(companyId);
+	    
+	    return ResponseEntity.ok(solutions);
+	    
 	}
 
 }
