@@ -18,8 +18,7 @@ public class OtpController {
 
     @PostMapping("/send-otp")
     public ResponseEntity<String> sendOtp(
-            @RequestParam String email,
-            @RequestParam String token) {
+            @RequestParam String email) {
 
         otpService.sendOtp(email);
         return ResponseEntity.ok("OTP sent successfully");
@@ -28,8 +27,7 @@ public class OtpController {
     @PostMapping("/verify-otp")
     public ResponseEntity<String> verifyOtp(
             @RequestParam String email,
-            @RequestParam String otp,
-            @RequestParam String token) {
+            @RequestParam String otp) {
 
         boolean verified = otpService.verifyOtp(email, otp);
 
