@@ -92,6 +92,16 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
+		    	if(url.endsWith("send-otp")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
+		    	if(url.endsWith("verify-otp")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
 		    	
 		    String token = httpRequest.getParameter("token");
 		    Enumeration<String> headerNames = httpRequest.getHeaderNames();

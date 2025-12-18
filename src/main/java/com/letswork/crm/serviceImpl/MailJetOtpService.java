@@ -20,7 +20,7 @@ public class MailJetOtpService {
     private static final String SECRET_KEY = "184fc8e67edae36b2b5ad191e8bd2e53";
     private static final String SENDER_EMAIL = "sales@zimulate.me";
 
-    public void sendOtpEmail(String email, String name, String otp) {
+    public void sendOtpEmail(String email, String otp) {
 
         ClientOptions options = ClientOptions.builder()
                 .apiKey(API_KEY)
@@ -30,7 +30,7 @@ public class MailJetOtpService {
         MailjetClient client = new MailjetClient(options);
 
         Map<String, String> variables = new HashMap<>();
-        variables.put("name", name);
+        variables.put("name", "user");
         variables.put("otp", otp);
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
