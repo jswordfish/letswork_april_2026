@@ -26,8 +26,7 @@ public class NewUserRegisterServiceImpl
     @Autowired
     private TenantService tenantService;
 
-    @Autowired
-    private ModelMapper mapper;
+    ModelMapper mapper = new ModelMapper();
 
     @Override
     public NewUserRegister saveOrUpdate(NewUserRegister user) {
