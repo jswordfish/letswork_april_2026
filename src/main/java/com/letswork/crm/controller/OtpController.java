@@ -17,8 +17,7 @@ public class OtpController {
     @Autowired
     private OtpService otpService;
     
-    @Autowired
-    TokenService2 tokenService;
+    TokenService2 tokenService = new TokenService2();
 
     @PostMapping("/send-otp")
     public ResponseEntity<String> sendOtp(
