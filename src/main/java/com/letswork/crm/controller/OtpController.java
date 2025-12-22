@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.serviceImpl.OtpService;
+import com.letswork.crm.util.TokenService2;
 
 @RestController
 @RequestMapping("/auth")
@@ -15,6 +16,9 @@ public class OtpController {
 
     @Autowired
     private OtpService otpService;
+    
+    @Autowired
+    TokenService2 tokenService;
 
     @PostMapping("/send-otp")
     public ResponseEntity<String> sendOtp(
@@ -32,7 +36,8 @@ public class OtpController {
         boolean verified = otpService.verifyOtp(email, otp);
 
         if (verified) {
-            return ResponseEntity.ok("OTP verified successfully");
+        	String token = tokenService.generateToken("App User", email);
+            return ResponseEntity.ok(token);
         }
         return ResponseEntity.badRequest().body("Invalid OTP");
     }
