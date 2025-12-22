@@ -32,5 +32,7 @@ public class EmailOtp extends Base{
     private LocalDateTime expiresAt;
 
     private boolean verified;
+    
+    private Boolean registered;
 
 }

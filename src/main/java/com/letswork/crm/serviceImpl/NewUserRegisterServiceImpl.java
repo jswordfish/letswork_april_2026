@@ -40,9 +40,7 @@ public class NewUserRegisterServiceImpl
                     "CompanyId invalid - " + user.getCompanyId());
         }
 
-        NewUserRegister existing =repo.findByEmailAndCompanyId(
-                        user.getEmail(),
-                        user.getCompanyId());
+        NewUserRegister existing =repo.findByEmailAndCompanyId(user.getEmail(), user.getCompanyId());
 
         if (existing != null) {
 

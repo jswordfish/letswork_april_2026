@@ -12,30 +12,35 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.service.NewUserRegisterService;
+import com.letswork.crm.util.TokenService2;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/NewUsers")
 public class NewUserRegisterController {
 
     @Autowired
     private NewUserRegisterService service;
+    
+    TokenService2 tokenService = new TokenService2();
 
-    @PostMapping
-    public ResponseEntity<NewUserRegister> saveOrUpdate(
-            @RequestBody NewUserRegister user,
-            @RequestParam String token) {
+    @PostMapping("/NewUsers-save")
+    public ResponseEntity<String> saveOrUpdate(
+            @RequestBody NewUserRegister user) {
 
         NewUserRegister saved =service.saveOrUpdate(user);
+        
+        System.out.println("new user saved "+saved);
+        
+        String token = tokenService.generateToken("App User", user.getEmail());
 
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(token);
     }
 
-    @GetMapping
+    @GetMapping("/NewUsers-get")
     public ResponseEntity<?> getUsers(
             @RequestParam String companyId,
-            @RequestParam(required = false) String email,
-            @RequestParam String token) {
+            @RequestParam(required = false) String email
+            ) {
 
         if (email != null && !email.isEmpty()) {
 
