@@ -41,25 +41,22 @@ public class OtpController {
             @RequestParam String otp) {
 
         boolean verified = otpService.verifyOtp(email, otp);
-        
-        Optional<EmailOtp> existing = emailOtpRepository.findTopByEmailAndVerifiedFalseOrderByExpiresAtDesc(email);
-        if (existing.isPresent()) {
 
-            EmailOtp emailOtp = existing.get();
+        if (!verified) {
+            return ResponseEntity.badRequest().body("Invalid OTP");
+        }
 
-            if (Boolean.TRUE.equals(emailOtp.getRegistered())) {
-            	if (verified) {
-                	String token = tokenService.generateToken("App User", email);
-                    return ResponseEntity.ok(token);
-                }
-            	else return ResponseEntity.ok("invalid OTP");
-            	
-            }
-            else return ResponseEntity.ok("User not registered");
-            
-            }
+        Optional<EmailOtp> existing =
+                emailOtpRepository
+                        .findTopByEmailAndVerifiedTrueOrderByExpiresAtDesc(email);
 
-        
-        return ResponseEntity.badRequest().body("Invalid OTP");
+        if (existing.isPresent()
+                && Boolean.TRUE.equals(existing.get().getRegistered())) {
+
+            String token = tokenService.generateToken("App User", email);
+            return ResponseEntity.ok(token);
+        }
+
+        return ResponseEntity.ok("User not registered");
     }
 }
