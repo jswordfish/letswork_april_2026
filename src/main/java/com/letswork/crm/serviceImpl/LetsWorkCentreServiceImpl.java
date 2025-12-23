@@ -53,36 +53,34 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	ModelMapper mapper = new ModelMapper();
 
 	@Override
+	@Transactional
 	public String saveOrUpdate(
 	        LetsWorkCentre centre,
 	        List<MultipartFile> images
 	) throws IOException {
 
+	    
 	    Tenant tenant = tenantService.findTenantByCompanyId(centre.getCompanyId());
 	    if (tenant == null) {
 	        throw new RuntimeException("CompanyId invalid - " + centre.getCompanyId());
 	    }
 
-	    validateTimeOrder("Weekdays",
-	            centre.getStartTimeRegular(),
-	            centre.getEndTimeRegular());
+	    
+	    validateTimeOrder("Weekdays", centre.getStartTimeRegular(), centre.getEndTimeRegular());
+	    validateTimeOrder("Saturday", centre.getStartTimeSat(), centre.getEndTimeSat());
 
-	    validateTimeOrder("Saturday",
-	            centre.getStartTimeSat(),
-	            centre.getEndTimeSat());
-
-	    LetsWorkCentre existing =
-	            repo.findByNameAndCompanyIdAndCityAndState(
-	                    centre.getName(),
-	                    centre.getCompanyId(),
-	                    centre.getCity(),
-	                    centre.getState()
-	            );
+	    
+	    LetsWorkCentre existing = repo.findByNameAndCompanyIdAndCityAndState(
+	            centre.getName(),
+	            centre.getCompanyId(),
+	            centre.getCity(),
+	            centre.getState()
+	    );
 
 	    LetsWorkCentre savedCentre;
 
 	    if (existing != null) {
-
+	        // Prepare for Update
 	        centre.setId(existing.getId());
 	        centre.setCreateDate(existing.getCreateDate());
 	        centre.setUpdateDate(new Date());
@@ -94,9 +92,8 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	        mapper.map(centre, existing);
 
 	        savedCentre = repo.save(existing);
-
 	    } else {
-
+	        
 	        centre.setCreateDate(new Date());
 	        centre.setUpdateDate(new Date());
 	        savedCentre = repo.save(centre);
@@ -104,32 +101,36 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 
 	    
 	    if (images != null && !images.isEmpty()) {
-
 	        for (MultipartFile mf : images) {
-
-	            File tempFile =
-	                    File.createTempFile("centre_", mf.getOriginalFilename());
+	            File tempFile = File.createTempFile("centre_", mf.getOriginalFilename());
 	            mf.transferTo(tempFile);
 
-	            String s3Url =
-	                    s3Service.uploadLetsWorkCentreImage(
-	                            bucketName,
-	                            savedCentre.getCompanyId(),
-	                            savedCentre.getName(),
-	                            mf.getOriginalFilename(),
-	                            tempFile
-	                    );
+	            try {
+	                String s3Url = s3Service.uploadLetsWorkCentreImage(
+	                        bucketName,
+	                        savedCentre.getCompanyId(),
+	                        savedCentre.getName(),
+	                        mf.getOriginalFilename(),
+	                        tempFile
+	                );
 
-	            LetsWorkCentreImage img = new LetsWorkCentreImage();
-	            img.setFileName(mf.getOriginalFilename());
-	            img.setS3Path(s3Url);
-	            img.setLetsWorkCentre(savedCentre);
+	                LetsWorkCentreImage img = new LetsWorkCentreImage();
+	                img.setFileName(mf.getOriginalFilename());
+	                img.setS3Path(s3Url);
+	                
+	                // Establish bidirectional link
+	                img.setLetsWorkCentre(savedCentre); 
+	                savedCentre.getImages().add(img);
 
-	            savedCentre.getImages().add(img);
-
-	            tempFile.delete();
+	            } finally {
+	                // Ensure temp file is deleted even if S3 upload fails
+	                if (tempFile.exists()) {
+	                    tempFile.delete();
+	                }
+	            }
 	        }
 
+	        // Final save to persist the new collection items
 	        repo.save(savedCentre);
 	    }
 

@@ -44,7 +44,7 @@ public class LetsWorkCentre extends Base{
     
     private String city;
     
-    private Boolean hasCafe;
+    
     
     private String amenities;
     
@@ -71,5 +71,13 @@ public class LetsWorkCentre extends Base{
             orphanRemoval = true
         )
         private List<LetsWorkCentreImage> images = new ArrayList<>();
+    
+    public void setImages(List<LetsWorkCentreImage> images) {
+        this.images.clear();
+        if (images != null) {
+            this.images.addAll(images);
+        }
+    }
+    
 
 }

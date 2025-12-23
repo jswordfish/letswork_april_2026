@@ -40,78 +40,80 @@ public class SolutionsServiceImpl implements SolutionsService{
 
 	@Override
 	public String saveOrUpdate(
-            Solutions solution,
-            MultipartFile image
-    ) throws IOException {
+	        Solutions solution,
+	        MultipartFile image
+	) throws IOException {
 
-        // ✅ Validate company
-        Tenant tenant =
-                tenantService.findTenantByCompanyId(
-                        solution.getCompanyId());
+	    // ✅ Validate company
+	    Tenant tenant =
+	            tenantService.findTenantByCompanyId(
+	                    solution.getCompanyId()
+	            );
 
-        if (tenant == null) {
-            throw new RuntimeException(
-                    "Invalid companyId - " +
-                    solution.getCompanyId());
-        }
+	    if (tenant == null) {
+	        throw new RuntimeException(
+	                "Invalid companyId - " + solution.getCompanyId()
+	        );
+	    }
 
-        Solutions existing =
-                repo.findByNameAndLetsWorkCentreAndCompanyId(
-                        solution.getName(),
-                        solution.getLetsWorkCentre(),
-                        solution.getCompanyId()
-                );
+	    // ✅ Check existing by business key
+	    Solutions existing =
+	            repo.findByNameAndLetsWorkCentreAndCompanyId(
+	                    solution.getName(),
+	                    solution.getLetsWorkCentre(),
+	                    solution.getCompanyId()
+	            );
 
-        Solutions saved;
+	    Solutions saved;
 
-        if (existing != null) {
+	    if (existing != null) {
 
-            // 🔥 ObjectMapper copy (IGNORE id & audit fields)
-            objectMapper.updateValue(existing, solution);
+	        // ✅ Safe merge (ID is protected)
+	        objectMapper.updateValue(existing, solution);
 
-            existing.setId(existing.getId());
-            existing.setCreateDate(existing.getCreateDate());
-            existing.setUpdateDate(new Date());
+	        existing.setUpdateDate(new Date());
 
-            saved = repo.save(existing);
+	        saved = repo.save(existing);
 
-        } else {
-            solution.setCreateDate(new Date());
-            solution.setUpdateDate(new Date());
-            saved = repo.save(solution);
-        }
+	    } else {
 
-        // ✅ Upload image
-        if (image != null && !image.isEmpty()) {
+	        solution.setCreateDate(new Date());
+	        solution.setUpdateDate(new Date());
 
-            File tempFile =
-                    File.createTempFile(
-                            "solution_",
-                            image.getOriginalFilename()
-                    );
+	        saved = repo.save(solution);
+	    }
 
-            image.transferTo(tempFile);
+	    // ✅ Upload image (AFTER save)
+	    if (image != null && !image.isEmpty()) {
 
-            String s3Key =
-                    s3Service.uploadSolutionImage(
-                            bucketName,
-                            solution.getCompanyId(),
-                            solution.getLetsWorkCentre(),
-                            solution.getName(),
-                            image.getOriginalFilename(),
-                            tempFile
-                    );
+	        File tempFile =
+	                File.createTempFile(
+	                        "solution_",
+	                        image.getOriginalFilename()
+	                );
 
-            saved.setS3Path(s3Key); // 👈 KEY, not URL
-            repo.save(saved);
+	        image.transferTo(tempFile);
 
-            tempFile.delete();
-        }
+	        String s3Key =
+	                s3Service.uploadSolutionImage(
+	                        bucketName,
+	                        saved.getCompanyId(),
+	                        saved.getLetsWorkCentre(),
+	                        saved.getName(),
+	                        image.getOriginalFilename(),
+	                        tempFile
+	                );
 
-        return existing != null
-                ? "solution updated"
-                : "solution created";
-    }
+	        saved.setS3Path(s3Key); // store KEY, not URL
+	        repo.save(saved);
+
+	        tempFile.delete();
+	    }
+
+	    return existing != null
+	            ? "solution updated"
+	            : "solution created";
+	}
 
 	@Override
 	public List<Solutions> findByCompanyId(String companyId) {
