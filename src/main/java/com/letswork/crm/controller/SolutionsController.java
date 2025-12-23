@@ -36,7 +36,10 @@ public class SolutionsController {
 	) throws IOException {
 
 	    Solutions solution =
-	            new ObjectMapper().readValue(solutionJson, Solutions.class);
+	            new ObjectMapper().readValue(
+	                    solutionJson,
+	                    Solutions.class
+	            );
 
 	    String result =
 	            solutionsService.saveOrUpdate(solution, image);

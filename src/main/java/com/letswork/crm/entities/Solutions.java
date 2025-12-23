@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @JsonIgnoreProperties(
-	    value = {"id", "createDate", "updateDate"},
+	    value = {"id", "createDate", "updateDate", "s3Path"},
 	    allowGetters = true
 	)
 public class Solutions extends Base{

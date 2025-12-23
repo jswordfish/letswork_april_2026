@@ -49,7 +49,6 @@ public class SolutionsServiceImpl implements SolutionsService{
 	        MultipartFile image
 	) throws IOException {
 
-	    // ✅ Validate company
 	    Tenant tenant =
 	            tenantService.findTenantByCompanyId(
 	                    solution.getCompanyId()
@@ -60,14 +59,19 @@ public class SolutionsServiceImpl implements SolutionsService{
 	                "Invalid companyId - " + solution.getCompanyId()
 	        );
 	    }
-	    
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(solution.getLetsWorkCentre(), solution.getCompanyId(), solution.getCity(), solution.getState());
-		
-		if(centre==null) {
-			throw new RuntimeException("This LetsWorkCentre does not exists");
-		}
 
-	    // ✅ Check existing by business key
+	    LetsWorkCentre centre =
+	            letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+	                    solution.getLetsWorkCentre(),
+	                    solution.getCompanyId(),
+	                    solution.getCity(),
+	                    solution.getState()
+	            );
+
+	    if (centre == null) {
+	        throw new RuntimeException("This LetsWorkCentre does not exist");
+	    }
+
 	    Solutions existing =
 	            repo.findByNameAndLetsWorkCentreAndCompanyId(
 	                    solution.getName(),
@@ -79,9 +83,8 @@ public class SolutionsServiceImpl implements SolutionsService{
 
 	    if (existing != null) {
 
-	        // ✅ Safe merge (ID is protected)
+	        // ✅ SAFE MERGE (s3Path protected by @JsonIgnoreProperties)
 	        objectMapper.updateValue(existing, solution);
-
 	        existing.setUpdateDate(new Date());
 
 	        saved = repo.save(existing);
@@ -94,7 +97,7 @@ public class SolutionsServiceImpl implements SolutionsService{
 	        saved = repo.save(solution);
 	    }
 
-	    // ✅ Upload image (AFTER save)
+	    // ✅ Image update ONLY if explicitly provided
 	    if (image != null && !image.isEmpty()) {
 
 	        File tempFile =
@@ -115,7 +118,7 @@ public class SolutionsServiceImpl implements SolutionsService{
 	                        tempFile
 	                );
 
-	        saved.setS3Path(s3Key); // store KEY, not URL
+	        saved.setS3Path(s3Key);
 	        repo.save(saved);
 
 	        tempFile.delete();
