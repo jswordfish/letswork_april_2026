@@ -53,85 +53,86 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	ModelMapper mapper = new ModelMapper();
 
 	@Override
-    public String saveOrUpdate(
-            LetsWorkCentre centre,
-            List<MultipartFile> images
-    ) throws IOException {
+	public String saveOrUpdate(
+	        LetsWorkCentre centre,
+	        List<MultipartFile> images
+	) throws IOException {
 
-        Tenant tenant = tenantService.findTenantByCompanyId(centre.getCompanyId());
-        if (tenant == null) {
-            throw new RuntimeException(
-                    "CompanyId invalid - " + centre.getCompanyId());
-        }
+	    Tenant tenant =
+	            tenantService.findTenantByCompanyId(centre.getCompanyId());
+	    if (tenant == null) {
+	        throw new RuntimeException("CompanyId invalid - " + centre.getCompanyId());
+	    }
 
-        validateTimeOrder(
-                "Weekdays",
-                centre.getStartTimeRegular(),
-                centre.getEndTimeRegular()
-        );
+	    validateTimeOrder("Weekdays",
+	            centre.getStartTimeRegular(),
+	            centre.getEndTimeRegular());
 
-        validateTimeOrder(
-                "Saturday",
-                centre.getStartTimeSat(),
-                centre.getEndTimeSat()
-        );
+	    validateTimeOrder("Saturday",
+	            centre.getStartTimeSat(),
+	            centre.getEndTimeSat());
 
-        LetsWorkCentre existing =
-                repo.findByNameAndCompanyIdAndCityAndState(
-                        centre.getName(),
-                        centre.getCompanyId(),
-                        centre.getCity(),
-                        centre.getState()
-                );
+	    LetsWorkCentre existing =
+	            repo.findByNameAndCompanyIdAndCityAndState(
+	                    centre.getName(),
+	                    centre.getCompanyId(),
+	                    centre.getCity(),
+	                    centre.getState()
+	            );
 
-        LetsWorkCentre savedCentre;
+	    LetsWorkCentre savedCentre;
 
-        if (existing != null) {
-            centre.setId(existing.getId());
-            centre.setCreateDate(existing.getCreateDate());
-            centre.setUpdateDate(new Date());
-            mapper.map(centre, existing);
+	    if (existing != null) {
 
-            existing.getImages().clear();
-            savedCentre = repo.save(existing);
-        } else {
-            centre.setCreateDate(new Date());
-            centre.setUpdateDate(new Date());
-            savedCentre = repo.save(centre);
-        }
+	        centre.setId(existing.getId());
+	        centre.setCreateDate(existing.getCreateDate());
+	        centre.setUpdateDate(new Date());
 
-        /* Upload images */
-        if (images != null && !images.isEmpty()) {
+	        // ✅ CRITICAL FIX
+	        existing.getImages().clear();
 
-            for (MultipartFile mf : images) {
+	        mapper.map(centre, existing);
+	        savedCentre = repo.save(existing);
 
-                File tempFile = File.createTempFile(
-                        "centre_", mf.getOriginalFilename());
-                mf.transferTo(tempFile);
+	    } else {
 
-                String s3Url = s3Service.uploadLetsWorkCentreImage(
-                        bucketName,
-                        centre.getCompanyId(),
-                        centre.getName(),
-                        mf.getOriginalFilename(),
-                        tempFile
-                );
+	        centre.setCreateDate(new Date());
+	        centre.setUpdateDate(new Date());
+	        savedCentre = repo.save(centre);
+	    }
 
-                LetsWorkCentreImage img = new LetsWorkCentreImage();
-                img.setFileName(mf.getOriginalFilename());
-                img.setS3Path(s3Url);
-                img.setLetsWorkCentre(savedCentre);
+	    if (images != null && !images.isEmpty()) {
 
-                savedCentre.getImages().add(img);
+	        for (MultipartFile mf : images) {
 
-                tempFile.delete();
-            }
+	            File tempFile =
+	                    File.createTempFile("centre_", mf.getOriginalFilename());
+	            mf.transferTo(tempFile);
 
-            repo.save(savedCentre);
-        }
+	            String s3Url =
+	                    s3Service.uploadLetsWorkCentreImage(
+	                            bucketName,
+	                            savedCentre.getCompanyId(),
+	                            savedCentre.getName(),
+	                            mf.getOriginalFilename(),
+	                            tempFile
+	                    );
 
-        return existing != null ? "record updated" : "record saved";
-    }
+	            LetsWorkCentreImage img = new LetsWorkCentreImage();
+	            img.setFileName(mf.getOriginalFilename());
+	            img.setS3Path(s3Url);
+	            img.setLetsWorkCentre(savedCentre);
+
+	            savedCentre.getImages().add(img);
+
+	            tempFile.delete();
+	        }
+
+	        repo.save(savedCentre);
+	    }
+
+	    return existing != null ? "record updated" : "record saved";
+	}
 
 	
 	private void validateTimeOrder(String label, LocalTime startTime, LocalTime endTime) {
