@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +44,10 @@ public class NewUserRegisterController {
         return ResponseEntity.ok(response);
     }
     
-    @PostMapping("/profile-image")
+    @PostMapping(
+	        value = "/profile-image",
+	        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+	)
     public ResponseEntity<Map<String, Object>> uploadProfileImage(
             @RequestParam String companyId,
             @RequestParam String email,
