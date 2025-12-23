@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Solutions;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SolutionsRepository;
 import com.letswork.crm.service.SolutionsService;
 import com.letswork.crm.service.TenantService;
@@ -28,6 +30,9 @@ public class SolutionsServiceImpl implements SolutionsService{
 
     @Autowired
     private TenantService tenantService;
+    
+    @Autowired
+    LetsWorkCentreRepository letsWorkCentreRepo;
 
     @Autowired
     private S3Service s3Service;
@@ -55,6 +60,12 @@ public class SolutionsServiceImpl implements SolutionsService{
 	                "Invalid companyId - " + solution.getCompanyId()
 	        );
 	    }
+	    
+		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(solution.getLetsWorkCentre(), solution.getCompanyId(), solution.getCity(), solution.getState());
+		
+		if(centre==null) {
+			throw new RuntimeException("This LetsWorkCentre does not exists");
+		}
 
 	    // ✅ Check existing by business key
 	    Solutions existing =

@@ -35,6 +35,10 @@ public class Solutions extends Base{
 	
 	private String letsWorkCentre;
 	
+	private String city;
+	
+	private String state;
+	
 	private String s3Path;
 
 }
