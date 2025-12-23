@@ -11,6 +11,8 @@ import com.letswork.crm.entities.NewUserRegister;
 public interface NewUserRegisterRepository extends JpaRepository<NewUserRegister, Long> {
 
     NewUserRegister findByEmailAndCompanyId(String email, String companyId);
+    
+    
 
     List<NewUserRegister> findByCompanyId(String companyId);
     

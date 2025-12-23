@@ -199,6 +199,46 @@ public class S3Service {
         // 4️⃣ Return browser-accessible URL
         return presignedRequest.url().toString();
     }
+    
+    
+    public String uploadUserProfileImage(
+            String bucketName,
+            String companyId,
+            String email,
+            String fileName,
+            File file
+    ) {
+
+        String sanitizedEmail =
+                email.trim().replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
+
+        String keyName =
+                companyId +
+                "/users/" +
+                sanitizedEmail +
+                "/profile/" +
+                fileName;
+
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(keyName)
+                        .contentType("image/jpeg")
+                        .build(),
+                file.toPath()
+        );
+
+        PresignedGetObjectRequest presignedRequest =
+                s3Presigner.presignGetObject(p -> p
+                        .getObjectRequest(GetObjectRequest.builder()
+                                .bucket(bucketName)
+                                .key(keyName)
+                                .build())
+                        .signatureDuration(Duration.ofDays(7))
+                );
+
+        return presignedRequest.url().toString();
+    }
 
     
 }

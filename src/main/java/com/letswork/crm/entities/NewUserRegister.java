@@ -35,5 +35,7 @@ public class NewUserRegister extends Base{
 	
 	@Temporal(TemporalType.DATE)
 	private Date dob;
+	
+	private String profileImagePath;
 
 }
