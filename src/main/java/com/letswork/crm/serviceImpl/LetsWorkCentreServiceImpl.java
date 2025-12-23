@@ -58,8 +58,7 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	        List<MultipartFile> images
 	) throws IOException {
 
-	    Tenant tenant =
-	            tenantService.findTenantByCompanyId(centre.getCompanyId());
+	    Tenant tenant = tenantService.findTenantByCompanyId(centre.getCompanyId());
 	    if (tenant == null) {
 	        throw new RuntimeException("CompanyId invalid - " + centre.getCompanyId());
 	    }
@@ -88,10 +87,12 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	        centre.setCreateDate(existing.getCreateDate());
 	        centre.setUpdateDate(new Date());
 
-	        // ✅ CRITICAL FIX
+	        
 	        existing.getImages().clear();
 
+	        
 	        mapper.map(centre, existing);
+
 	        savedCentre = repo.save(existing);
 
 	    } else {
@@ -101,6 +102,7 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	        savedCentre = repo.save(centre);
 	    }
 
+	    
 	    if (images != null && !images.isEmpty()) {
 
 	        for (MultipartFile mf : images) {
