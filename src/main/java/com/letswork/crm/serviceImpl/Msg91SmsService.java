@@ -41,7 +41,18 @@ public class Msg91SmsService {
 
         System.out.println("MSG91 SEND RESPONSE: " + response.getBody());
 
-        return (String) response.getBody().get("reqId");
+        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            throw new RuntimeException("Failed to send OTP via MSG91");
+        }
+
+        String type = (String) response.getBody().get("type");
+        String reqId = (String) response.getBody().get("message");
+
+        if (!"success".equalsIgnoreCase(type) || reqId == null) {
+            throw new RuntimeException("Invalid MSG91 sendOtp response");
+        }
+
+        return reqId; 
     }
 
     public boolean verifyOtp(String reqId, String otp) {
@@ -65,7 +76,7 @@ public class Msg91SmsService {
 
         System.out.println("MSG91 VERIFY RESPONSE: " + response.getBody());
 
-        Boolean success = (Boolean) response.getBody().get("success");
-        return Boolean.TRUE.equals(success);
+        String type = (String) response.getBody().get("type");
+        return "success".equalsIgnoreCase(type);
     }
 }
