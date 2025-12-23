@@ -45,5 +45,7 @@ public class ConferenceRoom extends Base{
 	private String state;
 	
 	private String city;
+	
+	private String amenities; 
     
 }

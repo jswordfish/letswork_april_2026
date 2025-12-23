@@ -40,5 +40,7 @@ public class Solutions extends Base{
 	private String state;
 	
 	private String s3Path;
+	
+	private String amenities;
 
 }
