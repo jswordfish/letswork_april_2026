@@ -6,7 +6,7 @@ import com.letswork.crm.entities.NewUserRegister;
 
 public interface NewUserRegisterService {
 	
-	NewUserRegister saveOrUpdate(NewUserRegister user);
+	public NewUserRegister save(NewUserRegister user);
 
     List<NewUserRegister> getAllByCompanyId(String companyId);
 

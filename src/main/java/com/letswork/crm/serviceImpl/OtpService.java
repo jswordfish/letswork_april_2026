@@ -24,21 +24,21 @@ public class OtpService {
     private MailJetOtpService mailService;
 
     public void sendOtp(String email, String companyId) {
+
         String otp = generateOtp();
 
+        boolean registered =
+                newUserRegisterRepository
+                        .findByEmailAndCompanyId(email, companyId) != null;
+
         EmailOtp emailOtp = new EmailOtp();
-        NewUserRegister existing = newUserRegisterRepository.findByEmailAndCompanyId(email, companyId);
-        if(existing==null) {
-        	emailOtp.setRegistered(false);
-        }
-        else emailOtp.setRegistered(true);
         emailOtp.setEmail(email);
         emailOtp.setOtp(otp);
         emailOtp.setExpiresAt(LocalDateTime.now().plusMinutes(5));
         emailOtp.setVerified(false);
+        emailOtp.setRegistered(registered);
 
         otpRepository.save(emailOtp);
-
         mailService.sendOtpEmail(email, otp);
     }
 

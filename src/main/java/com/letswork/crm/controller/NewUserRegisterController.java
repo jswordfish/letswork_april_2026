@@ -1,12 +1,14 @@
 package com.letswork.crm.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,17 +25,20 @@ public class NewUserRegisterController {
     
     TokenService2 tokenService = new TokenService2();
 
-    @PostMapping("/NewUsers-save")
-    public ResponseEntity<String> saveOrUpdate(
+    @PostMapping("/register")
+    public ResponseEntity<Map<String, Object>> register(
             @RequestBody NewUserRegister user) {
 
-        NewUserRegister saved =service.saveOrUpdate(user);
-        
-        System.out.println("new user saved "+saved);
-        
-        String token = tokenService.generateToken("App User", user.getEmail());
+        NewUserRegister saved = service.save(user);
 
-        return ResponseEntity.ok(token);
+        String token =
+                tokenService.generateToken("App User", saved.getEmail());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("user", saved);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/NewUsers-get")

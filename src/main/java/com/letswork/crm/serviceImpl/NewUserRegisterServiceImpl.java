@@ -29,36 +29,26 @@ public class NewUserRegisterServiceImpl
     ModelMapper mapper = new ModelMapper();
 
     @Override
-    public NewUserRegister saveOrUpdate(NewUserRegister user) {
+    public NewUserRegister save(NewUserRegister user) {
 
         Tenant tenant =
-                tenantService.findTenantByCompanyId(
-                        user.getCompanyId());
+                tenantService.findTenantByCompanyId(user.getCompanyId());
 
         if (tenant == null) {
-            throw new RuntimeException(
-                    "CompanyId invalid - " + user.getCompanyId());
+            throw new RuntimeException("Invalid companyId: " + user.getCompanyId());
         }
 
-        NewUserRegister existing =repo.findByEmailAndCompanyId(user.getEmail(), user.getCompanyId());
+        NewUserRegister existing =
+                repo.findByEmailAndCompanyId(user.getEmail(), user.getCompanyId());
 
         if (existing != null) {
-
-            user.setId(existing.getId());
-            user.setCreateDate(existing.getCreateDate());
-            user.setUpdateDate(new Date());
-
-            mapper.map(user, existing);
-
-            return repo.save(existing);
-
-        } else {
-
-            user.setCreateDate(new Date());
-            user.setUpdateDate(new Date());
-
-            return repo.save(user);
+            throw new RuntimeException("User already registered with this email");
         }
+
+        user.setCreateDate(new Date());
+        user.setUpdateDate(new Date());
+
+        return repo.save(user);
     }
 
     @Override

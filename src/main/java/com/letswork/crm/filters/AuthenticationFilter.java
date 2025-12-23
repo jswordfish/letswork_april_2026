@@ -112,7 +112,7 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
-		    	if(url.endsWith("NewUsers-save")) {
+		    	if(url.endsWith("register")) {
 		    		chain.doFilter(req, res);
 		    		return;
 		    	}

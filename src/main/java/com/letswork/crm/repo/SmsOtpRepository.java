@@ -10,6 +10,8 @@ import com.letswork.crm.entities.SmsOtp;
 @Repository
 public interface SmsOtpRepository extends JpaRepository<SmsOtp, Long> {
 
-	Optional<SmsOtp> findTopByMobileAndVerifiedFalseOrderByCreatedAtDesc(String mobile);
+	 Optional<SmsOtp> findTopByMobileAndVerifiedFalseOrderByCreatedAtDesc(String mobile);
+
+	 Optional<SmsOtp> findTopByMobileAndVerifiedTrueOrderByExpiresAtDesc(String mobile);
     
 }

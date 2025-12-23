@@ -35,6 +35,8 @@ public class SmsOtp extends Base {
 
     private Boolean verified;
 
+    private Boolean registered;
+
     private LocalDateTime expiresAt;
 
     private LocalDateTime createdAt;

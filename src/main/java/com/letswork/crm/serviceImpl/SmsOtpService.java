@@ -1,12 +1,17 @@
 package com.letswork.crm.serviceImpl;
 
 import java.time.LocalDateTime;
-import java.util.Random;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.SmsOtp;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.SmsOtpRepository;
+import com.letswork.crm.util.TokenService2;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,10 +21,19 @@ public class SmsOtpService {
 
     private final SmsOtpRepository smsOtpRepository;
     private final Msg91SmsService msg91SmsService;
+    
+    @Autowired
+    NewUserRegisterRepository newUserRegisterRepository;
+    
+    TokenService2 tokenService = new TokenService2();
 
     private static final int OTP_EXPIRY_MINUTES = 5;
 
-    public void sendOtp(String mobile) {
+    public void sendOtp(String mobile, String companyId) {
+
+        boolean registered =
+                newUserRegisterRepository
+                        .findByPhoneNumberAndCompanyId(mobile, companyId) != null;
 
         String reqId = msg91SmsService.sendOtp(mobile);
 
@@ -27,6 +41,7 @@ public class SmsOtpService {
                 .mobile(mobile)
                 .reqId(reqId)
                 .verified(false)
+                .registered(registered)
                 .expiresAt(LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES))
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -34,7 +49,10 @@ public class SmsOtpService {
         smsOtpRepository.save(smsOtp);
     }
 
-    public boolean verifyOtp(String mobile, String otp) {
+    public Map<String, Object> verifyOtp(
+            String mobile,
+            String otp,
+            String companyId) {
 
         SmsOtp smsOtp = smsOtpRepository
                 .findTopByMobileAndVerifiedFalseOrderByCreatedAtDesc(mobile)
@@ -54,6 +72,25 @@ public class SmsOtpService {
         smsOtp.setVerified(true);
         smsOtpRepository.save(smsOtp);
 
-        return true;
+        Map<String, Object> response = new HashMap<>();
+
+        if (Boolean.TRUE.equals(smsOtp.getRegistered())) {
+
+            NewUserRegister user =
+                    newUserRegisterRepository
+                            .findByPhoneNumberAndCompanyId(mobile, companyId);
+
+            String token =
+                    tokenService.generateToken("App User", user.getEmail());
+
+            response.put("status", "REGISTERED");
+            response.put("token", token);
+            response.put("user", user);
+
+            return response;
+        }
+
+        response.put("status", "OTP_VERIFIED");
+        return response;
     }
 }
