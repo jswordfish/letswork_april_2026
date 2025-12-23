@@ -141,7 +141,7 @@ public class S3Service {
         PresignedGetObjectRequest presignedRequest =
                 s3Presigner.presignGetObject(p -> p
                         .getObjectRequest(getObjectRequest)
-                        .signatureDuration(Duration.ofMinutes(15))
+                        .signatureDuration(Duration.ofDays(7))
                 );
 
         // 4️⃣ Return browser-accessible URL
@@ -193,7 +193,7 @@ public class S3Service {
         PresignedGetObjectRequest presignedRequest =
                 s3Presigner.presignGetObject(p -> p
                         .getObjectRequest(getObjectRequest)
-                        .signatureDuration(Duration.ofMinutes(15))
+                        .signatureDuration(Duration.ofDays(7))
                 );
 
         // 4️⃣ Return browser-accessible URL
