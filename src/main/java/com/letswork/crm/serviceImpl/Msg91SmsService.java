@@ -15,39 +15,57 @@ import org.springframework.web.client.RestTemplate;
 public class Msg91SmsService {
 
     
-    private String authKey = "483622ARnNMxn2xl69440651P1";
+    private String authKey = "465510ALJwcdtTox068a6e636P1";
 
-    
-    private String senderId = "DJ69";
-
-    
-    private String templateId = "69440b815185cd2fcf561365";
+    private String widgetId = "356875697332333837383330";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public void sendOtp(String mobile, String otp) {
+    public String sendOtp(String mobile) {
 
-        String url = "https://api.msg91.com/api/v5/flow/";
+        String url = "https://api.msg91.com/api/v5/widget/sendOtp";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("authkey", authKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> body = new HashMap<>();
-        body.put("template_id", templateId);
-        body.put("sender", senderId);
-        body.put("mobiles", "91" + mobile);
-
-        // ⚠️ Variable name MUST match template exactly
-        body.put("OTP", otp);
+        body.put("widgetId", widgetId);
+        body.put("identifier", "91" + mobile);
 
         HttpEntity<Map<String, Object>> request =
                 new HttpEntity<>(body, headers);
 
-        ResponseEntity<String> response =
-                restTemplate.postForEntity(url, request, String.class);
+        ResponseEntity<Map> response =
+                restTemplate.postForEntity(url, request, Map.class);
 
-        System.out.println("MSG91 STATUS: " + response.getStatusCode());
-        System.out.println("MSG91 RESPONSE: " + response.getBody());
+        System.out.println("MSG91 SEND RESPONSE: " + response.getBody());
+
+        return (String) response.getBody().get("reqId");
+    }
+
+    public boolean verifyOtp(String reqId, String otp) {
+
+        String url = "https://api.msg91.com/api/v5/widget/verifyOtp";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("authkey", authKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("widgetId", widgetId);
+        body.put("reqId", reqId);
+        body.put("otp", otp);
+
+        HttpEntity<Map<String, Object>> request =
+                new HttpEntity<>(body, headers);
+
+        ResponseEntity<Map> response =
+                restTemplate.postForEntity(url, request, Map.class);
+
+        System.out.println("MSG91 VERIFY RESPONSE: " + response.getBody());
+
+        Boolean success = (Boolean) response.getBody().get("success");
+        return Boolean.TRUE.equals(success);
     }
 }

@@ -19,7 +19,8 @@ public class SmsOtpController {
 
     @PostMapping("/send")
     public ResponseEntity<String> sendOtp(
-            @RequestParam String mobile) {
+            @RequestParam String mobile
+    ) {
         smsOtpService.sendOtp(mobile);
         return ResponseEntity.ok("OTP sent successfully");
     }

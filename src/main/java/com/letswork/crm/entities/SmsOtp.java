@@ -23,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class SmsOtp  extends Base{
+public class SmsOtp extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,11 +31,12 @@ public class SmsOtp  extends Base{
 
     private String mobile;
 
-    private String otp;
+    private String reqId;
 
     private Boolean verified;
 
     private LocalDateTime expiresAt;
 
     private LocalDateTime createdAt;
+    
 }
