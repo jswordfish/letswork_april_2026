@@ -2,6 +2,7 @@ package com.letswork.crm.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.entities.NewUserRegister;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.util.TokenService2;
 
@@ -25,6 +27,9 @@ public class NewUserRegisterController {
 
     @Autowired
     private NewUserRegisterService service;
+    
+    @Autowired
+    NewUserRegisterRepository newUserRegisterRepository;
     
     TokenService2 tokenService = new TokenService2();
 
@@ -41,6 +46,36 @@ public class NewUserRegisterController {
         response.put("token", token);
         response.put("user", saved);
 
+        return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/checkRegister")
+    public ResponseEntity<Map<String, String>> checkRegister(
+            @RequestParam String email,
+            @RequestParam String number,
+            @RequestParam String companyId) {
+
+        Map<String, String> response = new HashMap<>();
+
+        Optional<NewUserRegister> emailUser =
+        		newUserRegisterRepository
+                        .findByEmailAndCompanyId(email, companyId);
+
+        if (emailUser.isPresent()) {
+            response.put("status", "EMAIL_ALREADY_REGISTERED");
+            return ResponseEntity.ok(response);
+        }
+
+        Optional<NewUserRegister> phoneUser =
+        		newUserRegisterRepository
+                        .findByPhoneNumberAndCompanyId(number, companyId);
+
+        if (phoneUser.isPresent()) {
+            response.put("status", "PHONE_ALREADY_REGISTERED");
+            return ResponseEntity.ok(response);
+        }
+
+        response.put("status", "NEW_USER");
         return ResponseEntity.ok(response);
     }
     

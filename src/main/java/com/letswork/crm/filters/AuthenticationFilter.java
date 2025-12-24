@@ -122,6 +122,11 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
+		    	if(url.endsWith("checkRegister")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
 		    	
 		    String token = httpRequest.getParameter("token");
 		    Enumeration<String> headerNames = httpRequest.getHeaderNames();
