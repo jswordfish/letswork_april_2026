@@ -19,13 +19,22 @@ public class SmsOtpController {
 
     private final SmsOtpService smsOtpService;
 
-    @PostMapping("/send")
-    public ResponseEntity<String> sendOtp(
+    @PostMapping("/registerSend")
+    public ResponseEntity<String> registerSendOtp(
             @RequestParam String mobile,
             @RequestParam String companyId) {
 
-        smsOtpService.sendOtp(mobile, companyId);
-        return ResponseEntity.ok("OTP sent successfully");
+        String res = smsOtpService.registerSendOtp(mobile, companyId);
+        return ResponseEntity.ok(res);
+    }
+    
+    @PostMapping("/loginSend")
+    public ResponseEntity<String> loginSendOtp(
+            @RequestParam String mobile,
+            @RequestParam String companyId) {
+
+        String res = smsOtpService.loginSendOtp(mobile, companyId);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("/verify")

@@ -29,13 +29,18 @@ public class SmsOtpService {
 
     private static final int OTP_EXPIRY_MINUTES = 5;
 
-    public void sendOtp(String mobile, String companyId) {
+    public String registerSendOtp(String mobile, String companyId) {
 
         boolean registered =
                 newUserRegisterRepository
                         .findByPhoneNumberAndCompanyId(mobile, companyId)
                         .isPresent();
-
+        
+        if(registered) {
+        	return "User is already registered";
+        }
+        
+        else {
         String reqId = msg91SmsService.sendOtp(mobile);
 
         if (reqId == null || reqId.isEmpty()) {
@@ -52,6 +57,40 @@ public class SmsOtpService {
                 .build();
 
         smsOtpRepository.save(smsOtp);
+        return "otp sent successfully";
+        }
+    }
+    
+    public String loginSendOtp(String mobile, String companyId) {
+
+        boolean registered =
+                newUserRegisterRepository
+                        .findByPhoneNumberAndCompanyId(mobile, companyId)
+                        .isPresent();
+        
+        if(!registered) {
+        	return "User is not registered";
+        }
+        
+        else {
+        String reqId = msg91SmsService.sendOtp(mobile);
+
+        if (reqId == null || reqId.isEmpty()) {
+            throw new RuntimeException("Failed to generate OTP");
+        }
+
+        SmsOtp smsOtp = SmsOtp.builder()
+                .mobile(mobile)
+                .reqId(reqId)
+                .verified(false)
+                .registered(registered)
+                .expiresAt(LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES))
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        smsOtpRepository.save(smsOtp);
+        return "otp sent successfully";
+        }
     }
 
     public Map<String, Object> verifyOtp(

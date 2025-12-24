@@ -92,7 +92,12 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
-		    	if(url.endsWith("send-otp")) {
+		    	if(url.endsWith("send-otp-register")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
+		    	if(url.endsWith("send-otp-login")) {
 		    		chain.doFilter(req, res);
 		    		return;
 		    	}
@@ -102,7 +107,12 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
-		    	if(url.endsWith("send")) {
+		    	if(url.endsWith("registerSend")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
+		    	if(url.endsWith("loginSend")) {
 		    		chain.doFilter(req, res);
 		    		return;
 		    	}

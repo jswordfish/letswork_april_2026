@@ -33,13 +33,22 @@ public class OtpController {
     
     TokenService2 tokenService = new TokenService2();
 
-    @PostMapping("/send-otp")
-    public ResponseEntity<String> sendOtp(
+    @PostMapping("/send-otp-register")
+    public ResponseEntity<String> registerSendOtp(
             @RequestParam String email,
             @RequestParam String companyId) {
 
-        otpService.sendOtp(email, companyId);
-        return ResponseEntity.ok("OTP sent successfully");
+        String res = otpService.registerSendOtp(email, companyId);
+        return ResponseEntity.ok(res);
+    }
+    
+    @PostMapping("/send-otp-login")
+    public ResponseEntity<String> loginSendOtp(
+            @RequestParam String email,
+            @RequestParam String companyId) {
+
+        String res = otpService.loginSendOtp(email, companyId);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("/verify-otp")

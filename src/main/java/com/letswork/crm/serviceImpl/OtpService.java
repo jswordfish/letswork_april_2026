@@ -23,7 +23,7 @@ public class OtpService {
     @Autowired
     private MailJetOtpService mailService;
 
-    public void sendOtp(String email, String companyId) {
+    public String registerSendOtp(String email, String companyId) {
 
         String otp = generateOtp();
 
@@ -38,9 +38,43 @@ public class OtpService {
         emailOtp.setExpiresAt(LocalDateTime.now().plusMinutes(5));
         emailOtp.setVerified(false);
         emailOtp.setRegistered(registered);
-
+        
+        if(registered) {
+        	return "The user is already registered";
+        }
+        
+        else {
         otpRepository.save(emailOtp);
         mailService.sendOtpEmail(email, otp);
+        return "otp sent successfully";
+        }
+    }
+    
+    public String loginSendOtp(String email, String companyId) {
+
+        String otp = generateOtp();
+
+        boolean registered =
+                newUserRegisterRepository
+                        .findByEmailAndCompanyId(email, companyId)
+                        .isPresent();
+
+        EmailOtp emailOtp = new EmailOtp();
+        emailOtp.setEmail(email);
+        emailOtp.setOtp(otp);
+        emailOtp.setExpiresAt(LocalDateTime.now().plusMinutes(5));
+        emailOtp.setVerified(false);
+        emailOtp.setRegistered(registered);
+        
+        if(!registered) {
+        	return "The user is not registered";
+        }
+        
+        else {
+        otpRepository.save(emailOtp);
+        mailService.sendOtpEmail(email, otp);
+        return "otp sent successfully";
+        }
     }
 
     public boolean verifyOtp(String email, String otp) {
