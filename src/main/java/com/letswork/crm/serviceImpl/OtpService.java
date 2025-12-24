@@ -29,7 +29,8 @@ public class OtpService {
 
         boolean registered =
                 newUserRegisterRepository
-                        .findByEmailAndCompanyId(email, companyId) != null;
+                        .findByEmailAndCompanyId(email, companyId)
+                        .isPresent();
 
         EmailOtp emailOtp = new EmailOtp();
         emailOtp.setEmail(email);
