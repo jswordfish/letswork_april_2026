@@ -63,9 +63,10 @@ public class OtpController {
         if (emailOtp.isPresent()
                 && Boolean.TRUE.equals(emailOtp.get().getRegistered())) {
 
-            NewUserRegister user =
-                    newUserRegisterRepository
-                            .findByEmailAndCompanyId(email, companyId);
+        	NewUserRegister user =
+        	        newUserRegisterRepository
+        	                .findByEmailAndCompanyId(email, companyId)
+        	                .orElseThrow(() -> new RuntimeException("User not found"));
 
             String token =
                     tokenService.generateToken("App User", email);

@@ -33,9 +33,14 @@ public class SmsOtpService {
 
         boolean registered =
                 newUserRegisterRepository
-                        .findByPhoneNumberAndCompanyId(mobile, companyId) != null;
+                        .findByPhoneNumberAndCompanyId(mobile, companyId)
+                        .isPresent();
 
         String reqId = msg91SmsService.sendOtp(mobile);
+
+        if (reqId == null || reqId.isEmpty()) {
+            throw new RuntimeException("Failed to generate OTP");
+        }
 
         SmsOtp smsOtp = SmsOtp.builder()
                 .mobile(mobile)
@@ -54,16 +59,21 @@ public class SmsOtpService {
             String otp,
             String companyId) {
 
-        SmsOtp smsOtp = smsOtpRepository
-                .findTopByMobileAndVerifiedFalseOrderByCreatedAtDesc(mobile)
-                .orElseThrow(() -> new RuntimeException("OTP not found"));
+        SmsOtp smsOtp =
+                smsOtpRepository
+                        .findTopByMobileAndVerifiedFalseOrderByCreatedAtDesc(mobile)
+                        .orElseThrow(() ->
+                                new RuntimeException("OTP not found"));
 
         if (smsOtp.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("OTP expired");
         }
 
         boolean verified =
-                msg91SmsService.verifyOtp(smsOtp.getReqId(), otp);
+                msg91SmsService.verifyOtp(
+                        smsOtp.getReqId(),
+                        otp
+                );
 
         if (!verified) {
             throw new RuntimeException("Invalid OTP");
@@ -78,10 +88,15 @@ public class SmsOtpService {
 
             NewUserRegister user =
                     newUserRegisterRepository
-                            .findByPhoneNumberAndCompanyId(mobile, companyId);
+                            .findByPhoneNumberAndCompanyId(mobile, companyId)
+                            .orElseThrow(() ->
+                                    new RuntimeException("Registered user not found"));
 
             String token =
-                    tokenService.generateToken("App User", user.getEmail());
+                    tokenService.generateToken(
+                            "App User",
+                            user.getEmail()
+                    );
 
             response.put("status", "REGISTERED");
             response.put("token", token);

@@ -43,11 +43,16 @@ public class NewUserRegisterServiceImpl
             throw new RuntimeException("Invalid companyId: " + user.getCompanyId());
         }
 
-        NewUserRegister existing =
-                repo.findByEmailAndCompanyId(user.getEmail(), user.getCompanyId());
+        if (repo.findByEmailAndCompanyId(
+                user.getEmail(), user.getCompanyId()).isPresent()) {
 
-        if (existing != null) {
             throw new RuntimeException("User already registered with this email");
+        }
+
+        if (repo.findByPhoneNumberAndCompanyId(
+                user.getPhoneNumber(), user.getCompanyId()).isPresent()) {
+
+            throw new RuntimeException("User already registered with this phone number");
         }
 
         user.setCreateDate(new Date());
@@ -63,22 +68,24 @@ public class NewUserRegisterServiceImpl
             MultipartFile imageFile) {
 
         NewUserRegister user =
-                repo.findByEmailAndCompanyId(email, companyId);
-        
-        if(user==null) {
-        	throw new RuntimeException("User not found");
-        }
-                        
+                repo.findByEmailAndCompanyId(email, companyId)
+                    .orElseThrow(() ->
+                            new RuntimeException(
+                                    "User not found for email: " + email));
 
         File tempFile;
         try {
-            tempFile = File.createTempFile("profile-", imageFile.getOriginalFilename());
+            tempFile = File.createTempFile(
+                    "profile-",
+                    imageFile.getOriginalFilename()
+            );
             imageFile.transferTo(tempFile);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to process image", e);
+            throw new RuntimeException(
+                    "Failed to process image", e);
         }
 
-        String imageUrl =
+        String imagePath =
                 s3Service.uploadUserProfileImage(
                         "letsworkcentres",
                         companyId,
@@ -87,7 +94,7 @@ public class NewUserRegisterServiceImpl
                         tempFile
                 );
 
-        user.setProfileImagePath(imageUrl);
+        user.setProfileImagePath(imagePath); // store KEY or PATH
         user.setUpdateDate(new Date());
 
         return repo.save(user);
@@ -104,21 +111,11 @@ public class NewUserRegisterServiceImpl
     @Override
     public NewUserRegister getByEmailAndCompanyId(
             String email,
-            String companyId
-    ) {
+            String companyId) {
 
-        NewUserRegister user =
-                repo.findByEmailAndCompanyId(
-                        email,
-                        companyId
-                );
-
-        if (user == null) {
-            throw new RuntimeException(
-                    "User not found for email: " + email
-            );
-        }
-
-        return user;
+        return repo.findByEmailAndCompanyId(email, companyId)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "User not found for email: " + email));
     }
 }
