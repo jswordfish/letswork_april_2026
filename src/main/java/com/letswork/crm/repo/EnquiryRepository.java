@@ -23,7 +23,7 @@ public interface EnquiryRepository extends JpaRepository<Enquiry, Long> {
 		    "AND (:phone IS NULL OR e.phoneNumber = :phone) " +
 		    "AND (:solution IS NULL OR e.solution = :solution) " +
 		    "AND (:fromDate IS NULL OR e.date >= :fromDate) " +
-		    "AND (:toDate IS NULL OR e.date <= :toDate)" +
+		    "AND (:toDate IS NULL OR e.date <= :toDate) " +
 		    "AND (:enquiryType IS NULL OR e.enquiryType = :enquiryType"
 		)
 		List<Enquiry> findByFilters(
