@@ -56,82 +56,112 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	@Transactional
 	public String saveOrUpdate(
 	        LetsWorkCentre centre,
-	        List<MultipartFile> images
+	        List<MultipartFile> images,
+	        MultipartFile bookTourVideo
 	) throws IOException {
 
-	    
 	    Tenant tenant = tenantService.findTenantByCompanyId(centre.getCompanyId());
 	    if (tenant == null) {
 	        throw new RuntimeException("CompanyId invalid - " + centre.getCompanyId());
 	    }
 
-	    
-	    validateTimeOrder("Weekdays", centre.getStartTimeRegular(), centre.getEndTimeRegular());
-	    validateTimeOrder("Saturday", centre.getStartTimeSat(), centre.getEndTimeSat());
+	    validateTimeOrder("Weekdays",
+	            centre.getStartTimeRegular(),
+	            centre.getEndTimeRegular());
 
-	    
-	    LetsWorkCentre existing = repo.findByNameAndCompanyIdAndCityAndState(
-	            centre.getName(),
-	            centre.getCompanyId(),
-	            centre.getCity(),
-	            centre.getState()
-	    );
+	    validateTimeOrder("Saturday",
+	            centre.getStartTimeSat(),
+	            centre.getEndTimeSat());
+
+	    LetsWorkCentre existing =
+	            repo.findByNameAndCompanyIdAndCityAndState(
+	                    centre.getName(),
+	                    centre.getCompanyId(),
+	                    centre.getCity(),
+	                    centre.getState()
+	            );
 
 	    LetsWorkCentre savedCentre;
 
 	    if (existing != null) {
-	        // Prepare for Update
+
 	        centre.setId(existing.getId());
 	        centre.setCreateDate(existing.getCreateDate());
 	        centre.setUpdateDate(new Date());
 
-	        
-	        existing.getImages().clear();
+	        // ❗ Images replaced ONLY if new images are sent
+	        if (images != null && !images.isEmpty()) {
+	            existing.getImages().clear();
+	        }
 
-	        
 	        mapper.map(centre, existing);
-
 	        savedCentre = repo.save(existing);
+
 	    } else {
-	        
+
 	        centre.setCreateDate(new Date());
 	        centre.setUpdateDate(new Date());
 	        savedCentre = repo.save(centre);
 	    }
 
-	    
+	    /* ---------- IMAGE UPLOAD ---------- */
 	    if (images != null && !images.isEmpty()) {
+
 	        for (MultipartFile mf : images) {
-	            File tempFile = File.createTempFile("centre_", mf.getOriginalFilename());
+
+	            File tempFile =
+	                    File.createTempFile("centre_", mf.getOriginalFilename());
 	            mf.transferTo(tempFile);
 
 	            try {
-	                String s3Url = s3Service.uploadLetsWorkCentreImage(
-	                        bucketName,
-	                        savedCentre.getCompanyId(),
-	                        savedCentre.getName(),
-	                        mf.getOriginalFilename(),
-	                        tempFile
-	                );
+	                String s3Path =
+	                        s3Service.uploadLetsWorkCentreImage(
+	                                bucketName,
+	                                savedCentre.getCompanyId(),
+	                                savedCentre.getName(),
+	                                mf.getOriginalFilename(),
+	                                tempFile
+	                        );
 
 	                LetsWorkCentreImage img = new LetsWorkCentreImage();
 	                img.setFileName(mf.getOriginalFilename());
-	                img.setS3Path(s3Url);
-	                
-	                // Establish bidirectional link
-	                img.setLetsWorkCentre(savedCentre); 
+	                img.setS3Path(s3Path);
+	                img.setLetsWorkCentre(savedCentre);
+
 	                savedCentre.getImages().add(img);
 
 	            } finally {
-	                // Ensure temp file is deleted even if S3 upload fails
-	                if (tempFile.exists()) {
-	                    tempFile.delete();
-	                }
+	                tempFile.delete();
 	            }
 	        }
 
-	        // Final save to persist the new collection items
 	        repo.save(savedCentre);
+	    }
+
+	    /* ---------- VIDEO UPLOAD (NEW) ---------- */
+	    if (bookTourVideo != null && !bookTourVideo.isEmpty()) {
+
+	        File tempVideo =
+	                File.createTempFile("centre_video_",
+	                        bookTourVideo.getOriginalFilename());
+	        bookTourVideo.transferTo(tempVideo);
+
+	        try {
+	            String videoPath =
+	                    s3Service.uploadLetsWorkCentreImage(
+	                            bucketName,
+	                            savedCentre.getCompanyId(),
+	                            savedCentre.getName(),
+	                            bookTourVideo.getOriginalFilename(),
+	                            tempVideo
+	                    );
+
+	            savedCentre.setBookTourVideoPath(videoPath);
+	            repo.save(savedCentre);
+
+	        } finally {
+	            tempVideo.delete();
+	        }
 	    }
 
 	    return existing != null ? "record updated" : "record saved";

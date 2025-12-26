@@ -35,21 +35,31 @@ public class LetsWorkCentreController {
 	private ObjectMapper objectMapper;
 	
 	@PostMapping(
-		    value = "/letswork-centre",
-		    consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-		)
-		public ResponseEntity<String> createOrUpdate(
-		        @RequestPart("centre") String centreJson,
-		        @RequestPart(value = "images", required = false) List<MultipartFile> images,
-		        @RequestParam String token
-		) throws IOException {
+	        value = "/letswork-centre",
+	        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+	)
+	public ResponseEntity<String> createOrUpdate(
+	        @RequestPart("centre") String centreJson,
+	        @RequestPart(value = "images", required = false)
+	                List<MultipartFile> images,
+	        @RequestPart(value = "bookTourVideo", required = false)
+	                MultipartFile bookTourVideo,
+	        @RequestParam String token
+	) throws IOException {
 
-		    LetsWorkCentre centre =
-		            objectMapper.readValue(centreJson, LetsWorkCentre.class);
 
-		    String result = service.saveOrUpdate(centre, images);
-		    return ResponseEntity.ok(result);
-		}
+	    LetsWorkCentre centre =
+	            objectMapper.readValue(centreJson, LetsWorkCentre.class);
+
+	    String result =
+	            service.saveOrUpdate(
+	                    centre,
+	                    images,
+	                    bookTourVideo
+	            );
+
+	    return ResponseEntity.ok(result);
+	}
 	
 	@PostMapping(
 		    value = "/upload-excel",

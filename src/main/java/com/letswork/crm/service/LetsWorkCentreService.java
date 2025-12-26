@@ -12,9 +12,10 @@ import com.letswork.crm.entities.LetsWorkCentre;
 public interface LetsWorkCentreService {
 	
 	public String saveOrUpdate(
-            LetsWorkCentre centre,
-            List<MultipartFile> images
-    ) throws IOException;
+	        LetsWorkCentre centre,
+	        List<MultipartFile> images,
+	        MultipartFile bookTourVideo
+	) throws IOException;
     
     LetsWorkCentre findByName(String name, String companyId, String city, String state);
     

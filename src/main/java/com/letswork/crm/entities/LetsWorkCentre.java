@@ -44,7 +44,7 @@ public class LetsWorkCentre extends Base{
     
     private String city;
     
-    
+    private String bookTourVideoPath;
     
     private String amenities;
     
