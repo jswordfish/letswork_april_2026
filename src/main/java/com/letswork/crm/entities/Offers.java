@@ -1,16 +1,13 @@
 package com.letswork.crm.entities;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import com.letswork.crm.enums.Solution;
+import com.letswork.crm.enums.BookingStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Enquiry extends Base{
+public class Offers extends Base{
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,23 +29,14 @@ public class Enquiry extends Base{
 	
 	private String name;
 	
-	private String email;
+	private String code;
 	
-	private String phoneNumber;
+	private String discount;
 	
-	private Date date;
+	private String minDiscountValue;
 	
-	private LocalDateTime time;
+	private LocalDateTime startDate;
 	
-	@Enumerated(EnumType.STRING)
-	private Solution solution;
-	
-	private String description;
-	
-	private String letsWorkCentre;
-	
-	private String city;
-	
-	private String state;
+	private LocalDateTime endDate;
 
 }

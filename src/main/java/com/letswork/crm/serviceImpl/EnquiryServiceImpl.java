@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.letswork.crm.entities.Enquiry;
+import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.Solution;
 import com.letswork.crm.repo.EnquiryRepository;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.service.EnquiryService;
 import com.letswork.crm.service.TenantService;
 
@@ -23,6 +25,9 @@ public class EnquiryServiceImpl implements EnquiryService {
     
     @Autowired
     TenantService tenantService;
+    
+    @Autowired
+	LetsWorkCentreRepository letsWorkCentreRepo;
 
     @Override
     public Enquiry createEnquiry(Enquiry enquiry) {
@@ -33,6 +38,12 @@ public class EnquiryServiceImpl implements EnquiryService {
 			
 			throw new RuntimeException("CompanyId invalid - "+enquiry.getCompanyId());
 			
+		}
+		
+		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(enquiry.getLetsWorkCentre(), enquiry.getCompanyId(), enquiry.getCity(), enquiry.getState());
+		
+		if(centre==null) {
+			throw new RuntimeException("This LetsWorkCentre does not exists");
 		}
 
         enquiry.setCreateDate(new Date());
