@@ -8,12 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.entities.Enquiry;
+import com.letswork.crm.enums.EnquiryType;
 import com.letswork.crm.enums.Solution;
 import com.letswork.crm.service.EnquiryService;
 
@@ -54,7 +54,9 @@ public class EnquiryController {
 
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            Date toDate
+            Date toDate,
+            
+            @RequestParam(required = false) EnquiryType enquiryType
     ) {
 
         return ResponseEntity.ok(
@@ -65,7 +67,8 @@ public class EnquiryController {
                         phone,
                         solution,
                         fromDate,
-                        toDate
+                        toDate,
+                        enquiryType
                 )
         );
     }

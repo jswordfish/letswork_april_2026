@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.letswork.crm.entities.Enquiry;
+import com.letswork.crm.enums.EnquiryType;
 import com.letswork.crm.enums.Solution;
 
 public interface EnquiryService {
@@ -17,7 +18,8 @@ public interface EnquiryService {
             String phone,
             Solution solution,
             Date fromDate,
-            Date toDate
+            Date toDate,
+            EnquiryType enquireType
     );
 
 }

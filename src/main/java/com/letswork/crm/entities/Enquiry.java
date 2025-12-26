@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.letswork.crm.enums.EnquiryType;
 import com.letswork.crm.enums.Solution;
 
 import lombok.AllArgsConstructor;
@@ -50,5 +51,8 @@ public class Enquiry extends Base{
 	private String city;
 	
 	private String state;
+	
+	@Enumerated(EnumType.STRING)
+	private EnquiryType enquiryType;
 
 }

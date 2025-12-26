@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.Enquiry;
+import com.letswork.crm.enums.EnquiryType;
 import com.letswork.crm.enums.Solution;
 
 @Repository
@@ -22,7 +23,8 @@ public interface EnquiryRepository extends JpaRepository<Enquiry, Long> {
 		    "AND (:phone IS NULL OR e.phoneNumber = :phone) " +
 		    "AND (:solution IS NULL OR e.solution = :solution) " +
 		    "AND (:fromDate IS NULL OR e.date >= :fromDate) " +
-		    "AND (:toDate IS NULL OR e.date <= :toDate)"
+		    "AND (:toDate IS NULL OR e.date <= :toDate)" +
+		    "AND (:enquiryType IS NULL OR e.enquiryType = :enquiryType"
 		)
 		List<Enquiry> findByFilters(
 		        @Param("companyId") String companyId,
@@ -31,6 +33,7 @@ public interface EnquiryRepository extends JpaRepository<Enquiry, Long> {
 		        @Param("phone") String phone,
 		        @Param("solution") Solution solution,
 		        @Param("fromDate") Date fromDate,
-		        @Param("toDate") Date toDate
+		        @Param("toDate") Date toDate,
+		        @Param("enquiryType") EnquiryType enquiryType
 		);
 }

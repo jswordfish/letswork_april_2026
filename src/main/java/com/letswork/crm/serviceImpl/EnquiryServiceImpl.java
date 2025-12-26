@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.letswork.crm.entities.Enquiry;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.enums.EnquiryType;
 import com.letswork.crm.enums.Solution;
 import com.letswork.crm.repo.EnquiryRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
@@ -60,7 +61,8 @@ public class EnquiryServiceImpl implements EnquiryService {
             String phone,
             Solution solution,
             Date fromDate,
-            Date toDate
+            Date toDate,
+            EnquiryType enquiryType
     ) {
 
         return enquiryRepository.findByFilters(
@@ -70,7 +72,8 @@ public class EnquiryServiceImpl implements EnquiryService {
                 phone,
                 solution,
                 fromDate,
-                toDate
+                toDate,
+                enquiryType
         );
     }
 }
