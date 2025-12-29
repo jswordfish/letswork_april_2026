@@ -46,6 +46,8 @@ public class LetsWorkCentre extends Base{
     
     private String bookTourVideoPath;
     
+    private String oneDayPrice;
+    
     private String amenities;
     
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm a")

@@ -104,7 +104,6 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	        savedCentre = repo.save(centre);
 	    }
 
-	    /* ---------- IMAGE UPLOAD ---------- */
 	    if (images != null && !images.isEmpty()) {
 
 	        for (MultipartFile mf : images) {
@@ -138,7 +137,6 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	        repo.save(savedCentre);
 	    }
 
-	    /* ---------- VIDEO UPLOAD (NEW) ---------- */
 	    if (bookTourVideo != null && !bookTourVideo.isEmpty()) {
 
 	        File tempVideo =

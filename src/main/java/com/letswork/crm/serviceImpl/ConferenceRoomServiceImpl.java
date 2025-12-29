@@ -160,9 +160,6 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	                    .capacity(dto.getCapacity())
 	                    .letsWorkCentre(dto.getLetsWorkCentre().trim())
 	                    .companyId(dto.getCompanyId().trim())
-	                    .hasProjector(dto.getHasProjector())
-	                    .hasWhiteBoard(dto.getHasWhiteBoard())
-	                    .hasChargingPorts(dto.getHasChargingPorts())
 	                    .city(dto.getCity().trim())
 	                    .state(dto.getState().trim())
 	                    .build();

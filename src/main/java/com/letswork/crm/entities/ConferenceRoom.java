@@ -36,11 +36,7 @@ public class ConferenceRoom extends Base{
 
     private String letsWorkCentre;
     
-    private Boolean hasProjector;
-    
-    private Boolean hasWhiteBoard;
-    
-    private Boolean hasChargingPorts;
+    private String halfHourPrice;
     
 	private String state;
 	
