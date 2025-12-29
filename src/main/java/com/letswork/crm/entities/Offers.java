@@ -38,5 +38,7 @@ public class Offers extends Base{
 	private LocalDateTime startDate;
 	
 	private LocalDateTime endDate;
+	
+	private String letsWorkCentres;
 
 }
