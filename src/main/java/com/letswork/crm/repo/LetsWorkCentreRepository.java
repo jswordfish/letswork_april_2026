@@ -54,6 +54,6 @@ public interface LetsWorkCentreRepository extends JpaRepository<LetsWorkCentre, 
     
     @Query("SELECT l FROM LetsWorkCentre l WHERE l.companyId = :companyId")
     List<LetsWorkCentre> findAllByCompanyId(@Param("companyId") String companyId);
-    
+        
     
 }
