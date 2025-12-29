@@ -39,6 +39,6 @@ public class Offers extends Base{
 	
 	private LocalDateTime endDate;
 	
-	private String letsWorkCentres;
+	private String letsWorkCentres; // added without the mapping table
 
 }
