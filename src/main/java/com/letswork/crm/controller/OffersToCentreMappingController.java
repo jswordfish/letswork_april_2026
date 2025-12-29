@@ -38,8 +38,9 @@ public class OffersToCentreMappingController {
     @GetMapping
     public ResponseEntity<List<OffersToCentreMapping>> getByOfferName(
             @RequestParam String offerName,
+            @RequestParam String companyId,
             @RequestParam String token
     ) {
-        return ResponseEntity.ok(service.getByOfferName(offerName));
+        return ResponseEntity.ok(service.getByOfferName(offerName, companyId));
     }
 }

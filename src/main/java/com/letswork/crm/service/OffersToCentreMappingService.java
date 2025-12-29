@@ -9,6 +9,6 @@ public interface OffersToCentreMappingService {
 	
 	String saveOrUpdate(OfferLetsworkCentreMappingDto dto);
 
-    List<OffersToCentreMapping> getByOfferName(String offerName);
+    List<OffersToCentreMapping> getByOfferName(String offerName, String companyId);
 
 }

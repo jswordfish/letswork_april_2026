@@ -10,5 +10,7 @@ public class OfferLetsworkCentreMappingDto {
 	String offerName;
 	
 	List<Long> centerIds;
+	
+	String companyId;
 
 }

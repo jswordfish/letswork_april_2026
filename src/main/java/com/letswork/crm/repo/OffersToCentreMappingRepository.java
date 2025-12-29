@@ -11,8 +11,8 @@ import com.letswork.crm.entities.OffersToCentreMapping;
 public interface OffersToCentreMappingRepository
         extends JpaRepository<OffersToCentreMapping, Long> {
 
-    List<OffersToCentreMapping> findByOfferName(String offerName);
+    List<OffersToCentreMapping> findByOfferNameAndCompanyId(String offerName, String companyId);
 
-    void deleteByOfferName(String offerName);
+    void deleteByOfferNameAndCompanyId(String offerName, String companyId);
     
 }

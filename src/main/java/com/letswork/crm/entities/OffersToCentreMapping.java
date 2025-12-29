@@ -21,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class OffersToCentreMapping {
+public class OffersToCentreMapping extends Base{
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
