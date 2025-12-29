@@ -1,7 +1,9 @@
 package com.letswork.crm.serviceImpl;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -46,20 +48,20 @@ public class OffersToCentreMappingServiceImpl
         if (dto.getCenterIds() == null || dto.getCenterIds().isEmpty()) {
             throw new RuntimeException("At least one centre must be selected");
         }
-        
-		Tenant tenant = tenantService.findTenantByCompanyId(dto.getCompanyId());
-		
-		if(tenant==null) {
-			
-			throw new RuntimeException("CompanyId invalid - "+dto.getCompanyId());
-			
-		}
-		
-		
 
-        mappingRepo.deleteByOfferNameAndCompanyId(dto.getOfferName(), dto.getCompanyId());
+        Tenant tenant = tenantService.findTenantByCompanyId(dto.getCompanyId());
+        if (tenant == null) {
+            throw new RuntimeException("CompanyId invalid - " + dto.getCompanyId());
+        }
 
-        for (Long centreId : dto.getCenterIds()) {
+        String offerName = dto.getOfferName().trim();
+        String companyId = dto.getCompanyId().trim();
+
+        mappingRepo.deleteByOfferNameAndCompanyId(offerName, companyId);
+
+        Set<Long> uniqueCentreIds = new HashSet<>(dto.getCenterIds());
+
+        for (Long centreId : uniqueCentreIds) {
 
             LetsWorkCentre centre = centreRepo.findById(centreId)
                     .orElseThrow(() ->
@@ -67,8 +69,8 @@ public class OffersToCentreMappingServiceImpl
                     );
 
             OffersToCentreMapping mapping = new OffersToCentreMapping();
-            mapping.setOfferName(dto.getOfferName());
-            mapping.setCompanyId(dto.getCompanyId());
+            mapping.setOfferName(offerName);
+            mapping.setCompanyId(companyId);
             mapping.setLetsWorkCentre(centre);
             mapping.setCreateDate(new Date());
             mapping.setUpdateDate(new Date());

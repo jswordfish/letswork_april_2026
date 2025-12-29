@@ -14,5 +14,5 @@ public interface OffersToCentreMappingRepository
     List<OffersToCentreMapping> findByOfferNameAndCompanyId(String offerName, String companyId);
 
     void deleteByOfferNameAndCompanyId(String offerName, String companyId);
-    
+        
 }
