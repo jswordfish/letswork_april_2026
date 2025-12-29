@@ -30,7 +30,7 @@ public class OffersToCentreMapping extends Base{
 	@Column(nullable = false)
     private String offerName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "centre_id", nullable = false)
     private LetsWorkCentre letsWorkCentre;
 
