@@ -1,5 +1,6 @@
 package com.letswork.crm.serviceImpl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -67,7 +68,10 @@ public class OffersToCentreMappingServiceImpl
 
             OffersToCentreMapping mapping = new OffersToCentreMapping();
             mapping.setOfferName(dto.getOfferName());
+            mapping.setCompanyId(dto.getCompanyId());
             mapping.setLetsWorkCentre(centre);
+            mapping.setCreateDate(new Date());
+            mapping.setUpdateDate(new Date());
 
             mappingRepo.save(mapping);
         }
