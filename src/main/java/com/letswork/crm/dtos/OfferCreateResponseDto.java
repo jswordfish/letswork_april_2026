@@ -8,9 +8,9 @@ import com.letswork.crm.entities.LetsWorkCentre;
 import lombok.Data;
 
 @Data
-public class OfferCreateRequestDto {
-
-    private String name;
+public class OfferCreateResponseDto {
+	
+	private String name;
     private String code;
     private String discount;
     private String minDiscountValue;
@@ -19,6 +19,8 @@ public class OfferCreateRequestDto {
 
     private List<Long> centreIds;
     
+    private List<LetsWorkCentre> letsWorkCentres;
+
     private String companyId;
-    
+
 }

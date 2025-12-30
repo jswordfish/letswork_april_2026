@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.OfferCreateRequestDto;
+import com.letswork.crm.dtos.OfferCreateResponseDto;
 import com.letswork.crm.entities.Offers;
 import com.letswork.crm.entities.OffersToCentreMapping;
 import com.letswork.crm.service.OfferManagementService;
@@ -47,7 +48,7 @@ public class OfferManagementController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OfferCreateRequestDto>> getOffers(
+    public ResponseEntity<List<OfferCreateResponseDto>> getOffers(
             @RequestParam String companyId,
             @RequestParam String token,
             @RequestParam(required = false) String code,
@@ -64,7 +65,7 @@ public class OfferManagementController {
             offers = offersService.getAllByCompanyId(companyId);
         }
 
-        List<OfferCreateRequestDto> response = offers.stream()
+        List<OfferCreateResponseDto> response = offers.stream()
                 .map(offer -> {
 
                     List<OffersToCentreMapping> mappings =
@@ -86,7 +87,7 @@ public class OfferManagementController {
                         }
                     }
 
-                    OfferCreateRequestDto dto = new OfferCreateRequestDto();
+                    OfferCreateResponseDto dto = new OfferCreateResponseDto();
 
                     dto.setName(offer.getName());
                     dto.setCode(offer.getCode());
