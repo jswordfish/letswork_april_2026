@@ -1,13 +1,13 @@
 package com.letswork.crm.entities;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+
+import com.letswork.crm.enums.BookingStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,25 +21,20 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class NewUserRegister extends Base{
+public class BuyDayPassBundle extends Base{
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-	private String name;
+	private LocalDateTime purchaseDate;
+	
+	private Long bundleId;
 	
 	private String email;
 	
-	private String phoneNumber;
+	private String numberOfDays;
 	
-	@Temporal(TemporalType.DATE)
-	private Date dob;
-	
-	private String profileImagePath;
-	
-	private Integer credits;
-	
-	private Integer dayPass;
+	private LocalDateTime expiryDate;
 
 }

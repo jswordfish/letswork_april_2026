@@ -118,4 +118,34 @@ public class NewUserRegisterServiceImpl
                         new RuntimeException(
                                 "User not found for email: " + email));
     }
+
+	@Override
+	public void updateDayPass(String numberOfDays, String email, String companyId) {
+		// TODO Auto-generated method stub
+		
+		if (numberOfDays == null) {
+            return; 
+        }
+
+        int daysToAdd = Integer.parseInt(numberOfDays);
+
+        NewUserRegister user =
+                repo.findByEmailAndCompanyId(email, companyId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "User not found for email: " + email
+                                )
+                        );
+
+        Integer existingDays =
+                user.getDayPass() == null ? 0 : user.getDayPass();
+
+        user.setDayPass(existingDays + daysToAdd);
+        user.setUpdateDate(new Date());
+
+        repo.save(user);
+    
+		
+		
+	}
 }

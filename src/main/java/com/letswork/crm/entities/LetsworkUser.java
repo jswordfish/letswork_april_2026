@@ -51,5 +51,6 @@ public class LetsworkUser extends Base{
     
     private String state;
     
+    private Integer credits;
     
 }
