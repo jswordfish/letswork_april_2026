@@ -56,11 +56,12 @@ public class DayPassBundleServiceImpl implements DayPassBundleService {
         }
 
         DayPassBundle existing =
-                repo.findByLetsWorkCentreAndCompanyIdAndCityAndState(
+                repo.findByLetsWorkCentreAndCompanyIdAndCityAndStateAndNumberOfDays(
                         bundle.getLetsWorkCentre(),
                         bundle.getCompanyId(),
                         bundle.getCity(),
-                        bundle.getState()
+                        bundle.getState(),
+                        bundle.getNumberOfDays()
                 );
 
         if (existing != null) {
@@ -80,4 +81,10 @@ public class DayPassBundleServiceImpl implements DayPassBundleService {
     public List<DayPassBundle> getAllByCompanyId(String companyId) {
         return repo.findAllByCompanyId(companyId);
     }
+
+	@Override
+	public List<DayPassBundle> getByCentres(String letsWorkCentre, String companyId, String city, String state) {
+		// TODO Auto-generated method stub
+		return repo.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state);
+	}
 }

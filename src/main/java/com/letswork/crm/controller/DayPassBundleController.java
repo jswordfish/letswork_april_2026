@@ -36,8 +36,17 @@ public class DayPassBundleController {
     @GetMapping
     public ResponseEntity<List<DayPassBundle>> getAll(
             @RequestParam String companyId,
+            @RequestParam(required = false) String letsWorkCentre,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String state,
             @RequestParam String token
     ) {
+    	
+    	if((letsWorkCentre!=null)&&(city != null)&&(state != null)) {
+    		return ResponseEntity.ok(service.getByCentres(letsWorkCentre, companyId, city, state));
+    	}
+    	
+    	else
         return ResponseEntity.ok(service.getAllByCompanyId(companyId));
     }
 }

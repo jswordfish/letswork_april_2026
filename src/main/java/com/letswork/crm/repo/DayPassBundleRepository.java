@@ -11,12 +11,18 @@ import com.letswork.crm.entities.DayPassBundle;
 public interface DayPassBundleRepository
         extends JpaRepository<DayPassBundle, Long> {
 
-    DayPassBundle findByLetsWorkCentreAndCompanyIdAndCityAndState(
+    List<DayPassBundle> findByLetsWorkCentreAndCompanyIdAndCityAndState(
             String letsWorkCentre,
             String companyId,
             String city,
             String state
     );
+    
+    DayPassBundle findByLetsWorkCentreAndCompanyIdAndCityAndStateAndNumberOfDays(String letsWorkCentre,
+            String companyId,
+            String city,
+            String state,
+            String numberOfDays);
 
     List<DayPassBundle> findAllByCompanyId(String companyId);
 }
