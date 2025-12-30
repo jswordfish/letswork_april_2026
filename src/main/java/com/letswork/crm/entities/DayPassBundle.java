@@ -32,5 +32,7 @@ public class DayPassBundle extends Base{
 	private String numberOfDays;
 	
 	private String validForDays;
+	
+	private String discountPercentage;
 
 }

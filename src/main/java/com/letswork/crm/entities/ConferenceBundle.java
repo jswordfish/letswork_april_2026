@@ -28,6 +28,6 @@ public class ConferenceBundle extends Base{
 	
 	private String price;
 		
-	private String validForMonths;
+	private String validForDays;
 
 }
