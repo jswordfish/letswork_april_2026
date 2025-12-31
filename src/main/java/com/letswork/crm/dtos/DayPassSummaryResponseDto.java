@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class DayPassSummaryResponseDto {
 
-    private Integer totalDayPassCredits;
+    private Long totalDayPassCredits;
     
     private List<CentreDayPassSummaryDto> letsWorkCentreCredit;
     

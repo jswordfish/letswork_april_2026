@@ -42,8 +42,8 @@ public class DayPassSummaryService {
                         state
                 );
 
-        int total = centreWise.stream()
-                .mapToInt(CentreDayPassSummaryDto::getTotalDayPassCredits)
+        long total = centreWise.stream()
+                .mapToLong(CentreDayPassSummaryDto::getTotalDayPassCredits)
                 .sum();
 
         DayPassSummaryResponseDto response = new DayPassSummaryResponseDto();
