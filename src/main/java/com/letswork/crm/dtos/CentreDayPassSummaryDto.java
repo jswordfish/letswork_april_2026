@@ -13,6 +13,6 @@ public class CentreDayPassSummaryDto {
     
     private String state;
     
-    private Integer totalDayPassCredits;
+    private Long totalDayPassCredits;
     
 }
