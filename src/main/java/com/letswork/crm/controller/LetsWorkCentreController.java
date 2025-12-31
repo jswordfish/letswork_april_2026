@@ -18,8 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.LetsWorkCentreImage;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.service.LetsWorkCentreService;
 
 
@@ -30,6 +31,9 @@ public class LetsWorkCentreController {
 	
 	@Autowired
 	LetsWorkCentreService service;
+	
+	@Autowired
+	LetsWorkCentreRepository repo;
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -61,6 +65,26 @@ public class LetsWorkCentreController {
 	    return ResponseEntity.ok(result);
 	}
 	
+	@GetMapping("/images")
+    public ResponseEntity<List<LetsWorkCentreImage>> getCentreImages(
+            @RequestParam String centreName,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam String companyId,
+            @RequestParam String token
+    ) {
+
+
+        return ResponseEntity.ok(
+                service.getImagesByCentre(
+                        centreName,
+                        city,
+                        state,
+                        companyId
+                )
+        );
+    }
+	
 	@PostMapping(
 		    value = "/upload-excel",
 		    consumes = "multipart/form-data"
@@ -80,13 +104,22 @@ public class LetsWorkCentreController {
 //	}
 	
 	@GetMapping
-	public ResponseEntity<PaginatedResponseDto> getAllLetsWorkCentres(
+	public ResponseEntity<?> getAllLetsWorkCentres(
 	        @RequestParam(defaultValue = "0") int page,
 	        @RequestParam String token,
 	        @RequestParam String companyId,
 	        @RequestParam(required = false) String search,
-	        @RequestParam(required = false) String sort
+	        @RequestParam(required = false) String sort,
+	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) String city,
+	        @RequestParam(required = false) String state
 	) {
+		
+		if((letsWorkCentre!=null)&&(city!=null)&&(state!=null)) {
+			return ResponseEntity.ok(repo.findByNameAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state));
+		}
+		
+		
 	    return ResponseEntity.ok(
 	            service.getAllLetsWorkCentres(page, companyId, search, sort)
 	    );

@@ -36,5 +36,11 @@ public class BuyDayPassBundle extends Base{
 	private String numberOfDays;
 	
 	private LocalDateTime expiryDate;
+	
+	private String letsWorkCentre;
+	
+	private String city;
+	
+	private String state;
 
 }

@@ -85,7 +85,9 @@ public class BuyDayPassBundleServiceImpl
         buy.setEmail(dto.getEmail());
         buy.setBundleId(bundle.getId());
         buy.setNumberOfDays(bundle.getNumberOfDays());
-
+        buy.setLetsWorkCentre(bundle.getLetsWorkCentre());
+        buy.setCity(bundle.getCity());
+        buy.setState(bundle.getState());
         LocalDateTime now = LocalDateTime.now();
         buy.setPurchaseDate(now);
 

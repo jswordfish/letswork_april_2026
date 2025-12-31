@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.LetsWorkCentreImage;
 
 
 public interface LetsWorkCentreService {
@@ -35,5 +36,12 @@ public interface LetsWorkCentreService {
     public List<String> getAmenitiesForCentre(String name, String companyId, String city, String state);
     
     public String uploadLetsWorkCentresFromExcel(MultipartFile file);
+    
+    List<LetsWorkCentreImage> getImagesByCentre(
+            String centreName,
+            String city,
+            String state,
+            String companyId
+    );
     
 }

@@ -89,7 +89,6 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	        centre.setCreateDate(existing.getCreateDate());
 	        centre.setUpdateDate(new Date());
 
-	        // ❗ Images replaced ONLY if new images are sent
 	        if (images != null && !images.isEmpty()) {
 	            existing.getImages().clear();
 	        }
@@ -164,11 +163,34 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 
 	    return existing != null ? "record updated" : "record saved";
 	}
+	
+	@Override
+    public List<LetsWorkCentreImage> getImagesByCentre(
+            String centreName,
+            String city,
+            String state,
+            String companyId
+    ) {
+
+        LetsWorkCentre centre =
+                repo.findByNameAndCompanyIdAndCityAndState(
+                        centreName,
+                        companyId,
+                        city,
+                        state
+                );
+
+        if (centre == null) {
+            throw new RuntimeException("LetsWorkCentre not found");
+        }
+
+        return centre.getImages();
+    }
 
 	
 	private void validateTimeOrder(String label, LocalTime startTime, LocalTime endTime) {
 	    if (startTime == null || endTime == null) {
-	        return; // skip validation if not provided
+	        return; 
 	    }
 
 	    if (startTime.equals(endTime)) {
