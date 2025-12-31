@@ -110,20 +110,19 @@ public class BuyDayPassBundleServiceImpl
     public List<BuyDayPassBundle> get(
             String companyId,
             String email,
-            Long bundleId
+            Long bundleId,
+            String letsWorkCentre,
+            String city,
+            String state
     ) {
 
-        if (email != null && !email.isBlank()) {
-            return buyRepo.findByEmailAndCompanyId(email, companyId);
-        }
-
-        if (bundleId != null) {
-            return buyRepo.findByBundleIdAndCompanyId(
-                    bundleId,
-                    companyId
-            );
-        }
-
-        return buyRepo.findByCompanyId(companyId);
+        return buyRepo.findByFilters(
+                companyId,
+                email,
+                bundleId,
+                letsWorkCentre,
+                city,
+                state
+        );
     }
 }

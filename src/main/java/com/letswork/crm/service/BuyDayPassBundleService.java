@@ -9,10 +9,13 @@ public interface BuyDayPassBundleService {
 	
 	BuyDayPassBundle purchase(BuyDayPassRequestDto dto);
 
-    List<BuyDayPassBundle> get(
-            String companyId,
-            String email,
-            Long bundleId
-    );
+	public List<BuyDayPassBundle> get(
+	        String companyId,
+	        String email,
+	        Long bundleId,
+	        String letsWorkCentre,
+	        String city,
+	        String state
+	);
 
 }

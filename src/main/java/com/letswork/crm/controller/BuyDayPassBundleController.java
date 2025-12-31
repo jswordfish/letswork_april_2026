@@ -39,10 +39,22 @@ public class BuyDayPassBundleController {
             @RequestParam String companyId,
             @RequestParam String token,
             @RequestParam(required = false) String email,
-            @RequestParam(required = false) Long bundleId
+            @RequestParam(required = false) Long bundleId,
+            @RequestParam(required = false) String letsWorkCentre,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String state
     ) {
+
+
         return ResponseEntity.ok(
-                service.get(companyId, email, bundleId)
+                service.get(
+                        companyId,
+                        email,
+                        bundleId,
+                        letsWorkCentre,
+                        city,
+                        state
+                )
         );
     }
 }
