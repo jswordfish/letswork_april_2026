@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.letswork.crm.dtos.DayPassScanResponse;
 import com.letswork.crm.entities.BookDayPass;
 import com.letswork.crm.service.BookDayPassService;
 
@@ -30,6 +31,23 @@ public class BookDayPassController {
             @RequestBody BookDayPass request
     ) {
         return ResponseEntity.ok(service.book(request));
+    }
+    
+    @PostMapping("/scan")
+    public ResponseEntity<DayPassScanResponse> scanDayPass(
+            @RequestParam String qrData,
+            @RequestParam String token
+    ) {
+        // Example qrData: DAYPASS|abc-123
+        String bookingCode = qrData.split("\\|")[1];
+
+        BookDayPass booking = service.scanAndConsume(
+                bookingCode
+        );
+
+        return ResponseEntity.ok(
+                DayPassScanResponse.from(booking)
+        );
     }
 
     @GetMapping

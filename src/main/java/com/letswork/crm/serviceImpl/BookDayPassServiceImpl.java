@@ -147,4 +147,26 @@ public class BookDayPassServiceImpl implements BookDayPassService {
                 date
         );
     }
+
+	@Override
+	public BookDayPass scanAndConsume(String bookingCode) {
+		
+		BookDayPass booking = bookRepo
+                .findByBookingCode(bookingCode)
+                .orElseThrow(() ->
+                        new RuntimeException("Invalid or expired Day Pass")
+                );
+
+        if (Boolean.TRUE.equals(booking.getUsed())) {
+            throw new RuntimeException("Day Pass already used");
+        }
+
+        
+
+        booking.setUsed(true);
+
+        return bookRepo.save(booking);
+    }
+		
 }
+

@@ -17,5 +17,7 @@ public interface BookDayPassService {
             String state,
             LocalDate date
     );
+    
+    public BookDayPass scanAndConsume(String bookingCode);
 
 }

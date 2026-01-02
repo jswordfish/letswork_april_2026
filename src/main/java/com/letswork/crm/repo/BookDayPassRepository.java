@@ -2,6 +2,7 @@ package com.letswork.crm.repo;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +19,8 @@ public interface BookDayPassRepository extends JpaRepository<BookDayPass, Long> 
     List<BookDayPass> findByEmailAndCompanyId(String email, String companyId);
 
     List<BookDayPass> findByLetsWorkCentreAndCompanyId(String letsWorkCentre, String companyId);
+    
+    Optional<BookDayPass> findByBookingCode(String bookingCode);
 
     @Query("SELECT b FROM BookDayPass b " +
     	       "WHERE b.companyId = :companyId " +
