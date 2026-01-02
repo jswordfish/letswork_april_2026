@@ -29,7 +29,7 @@ import com.letswork.crm.service.QRCodeService;
 @Transactional
 public class QRCodeServiceImpl implements QRCodeService {
 	
-	private static final String QR_CODE_DIR = "C:\\Users\\User\\Desktop\\Dhruv\\images\\";
+	private static final String QR_CODE_DIR = "C:\\Users\\hp\\Desktop\\Dhruv2025\\Images\\";
 
 	@Override
 	public String generateQRCode(String text, String fileName) throws WriterException, IOException {
