@@ -26,11 +26,10 @@ public class BookDayPassController {
 
     @PostMapping
     public ResponseEntity<BookDayPass> book(
-            @RequestParam String companyId,
             @RequestParam String token,
             @RequestBody BookDayPass request
     ) {
-        return ResponseEntity.ok(service.book(request, companyId));
+        return ResponseEntity.ok(service.book(request));
     }
 
     @GetMapping
