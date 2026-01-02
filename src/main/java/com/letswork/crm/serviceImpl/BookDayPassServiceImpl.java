@@ -27,13 +27,11 @@ public class BookDayPassServiceImpl implements BookDayPassService {
     private final NewUserRegisterService newUserRegisterService;
 
     @Override
-    public BookDayPass book(BookDayPass request, String companyId) {
+    public BookDayPass book(BookDayPass request) {
 
-        request.setCompanyId(companyId);
-        request.setDateOfPurchase(LocalDateTime.now());
 
         if (Boolean.TRUE.equals(request.getBundleUsed())) {
-            consumeBundleCredits(request, companyId);
+            consumeBundleCredits(request, request.getCompanyId());
         }
 
         return bookRepo.save(request);

@@ -7,7 +7,7 @@ import com.letswork.crm.entities.BookDayPass;
 
 public interface BookDayPassService {
 	
-	BookDayPass book(BookDayPass request, String companyId);
+	BookDayPass book(BookDayPass request);
 
     List<BookDayPass> get(
             String companyId,
