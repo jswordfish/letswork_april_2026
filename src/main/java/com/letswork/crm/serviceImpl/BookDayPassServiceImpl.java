@@ -1,8 +1,11 @@
 package com.letswork.crm.serviceImpl;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import javax.transaction.Transactional;
 
@@ -14,6 +17,7 @@ import com.letswork.crm.repo.BookDayPassRepository;
 import com.letswork.crm.repo.BuyDayPassBundleRepository;
 import com.letswork.crm.service.BookDayPassService;
 import com.letswork.crm.service.NewUserRegisterService;
+import com.letswork.crm.service.QRCodeService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,16 +29,61 @@ public class BookDayPassServiceImpl implements BookDayPassService {
     private final BookDayPassRepository bookRepo;
     private final BuyDayPassBundleRepository bundleRepo;
     private final NewUserRegisterService newUserRegisterService;
+    private final QRCodeService qrService;
+    private final S3Service s3Service;
 
     @Override
     public BookDayPass book(BookDayPass request) {
 
+        request.setBookingCode(UUID.randomUUID().toString());
+        request.setUsed(false);
 
         if (Boolean.TRUE.equals(request.getBundleUsed())) {
             consumeBundleCredits(request, request.getCompanyId());
         }
 
-        return bookRepo.save(request);
+        File qrFile;
+        try {
+            String qrPath = qrService.generateQRCodeWithBookingCodeRGB(
+                    "DAYPASS|" + request.getBookingCode()
+            );
+
+            qrFile = new File(qrPath);
+
+            String s3Path = s3Service.uploadBookDayPassQrCode(
+                    "letsworkcentres",
+                    request.getCompanyId(),
+                    request.getEmail(),
+                    request.getBookingCode(),
+                    qrFile
+            );
+
+            request.setQrS3Path(s3Path);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate/upload QR code", e);
+        }
+
+        BookDayPass saved = bookRepo.save(request);
+
+        
+//        try {
+//            byte[] qrBytes = Files.readAllBytes(qrFile.toPath());
+//
+//            mailJetDayPassService.sendDayPassEmail(
+//                    saved.getEmail(),
+//                    saved.getNumberOfDays(),
+//                    saved.getBookingCode(),
+//                    qrBytes
+//            );
+//
+//        } catch (Exception e) {
+//            // Email failure should NOT break booking
+//            log.error("Failed to send Day Pass email for bookingCode={}",
+//                    saved.getBookingCode(), e);
+//        }
+
+        return saved;
     }
 
     private void consumeBundleCredits(BookDayPass request, String companyId) {

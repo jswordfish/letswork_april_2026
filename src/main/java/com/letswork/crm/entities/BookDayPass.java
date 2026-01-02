@@ -40,5 +40,11 @@ public class BookDayPass extends Base{
 	private String city;
 	
 	private String state;
+	
+	private String bookingCode;   
+	
+	private String qrS3Path;    
+	
+	private Boolean used;  
 
 }
