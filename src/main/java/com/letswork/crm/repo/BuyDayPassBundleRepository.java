@@ -1,5 +1,6 @@
 package com.letswork.crm.repo;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -59,5 +60,18 @@ public interface BuyDayPassBundleRepository extends JpaRepository<BuyDayPassBund
 	            @Param("city") String city,
 	            @Param("state") String state
 	    );
+	
+	@Query("SELECT b FROM BuyDayPassBundle b " +
+		       "WHERE b.email = :email " +
+		       "AND b.companyId = :companyId " +
+		       "AND b.letsWorkCentre = :centre " +
+		       "AND b.expiryDate > :now " +
+		       "ORDER BY b.expiryDate ASC")
+		List<BuyDayPassBundle> findActiveBundles(
+		        @Param("email") String email,
+		        @Param("companyId") String companyId,
+		        @Param("centre") String centre,
+		        @Param("now") LocalDateTime now
+		);
 
 }
