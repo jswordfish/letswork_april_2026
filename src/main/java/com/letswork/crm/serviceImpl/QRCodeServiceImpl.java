@@ -76,16 +76,24 @@ public class QRCodeServiceImpl implements QRCodeService {
 	
 	@Override
 	public String generateQRCodeWithBookingCodeRGB(String bookingCode) throws Exception {
-	    Path path = Paths.get(QR_CODE_DIR + bookingCode + ".png");
-	    Files.createDirectories(path.getParent());
+
+	    String baseDir = QR_CODE_DIR; 
+
+	    if (baseDir == null || baseDir.isBlank()) {
+	        throw new IllegalStateException("QR_CODE_DIR is not configured");
+	    }
+
+	    Path dirPath = Paths.get(baseDir);
+	    Files.createDirectories(dirPath); 
+
+	    // 2️⃣ File path
+	    Path filePath = dirPath.resolve(bookingCode + ".png");
 
 	    BitMatrix matrix = new MultiFormatWriter()
 	            .encode(bookingCode, BarcodeFormat.QR_CODE, 250, 250);
 
-	    // Convert BitMatrix → BufferedImage
 	    BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(matrix);
 
-	    // Create an RGB image (forces 8-bit RGB instead of indexed color)
 	    BufferedImage rgbImage = new BufferedImage(
 	            qrImage.getWidth(),
 	            qrImage.getHeight(),
@@ -93,13 +101,12 @@ public class QRCodeServiceImpl implements QRCodeService {
 	    );
 
 	    Graphics2D g = rgbImage.createGraphics();
-	    g.drawImage(qrImage, 0, 0, Color.WHITE, null); // Draw with white background
+	    g.drawImage(qrImage, 0, 0, Color.WHITE, null);
 	    g.dispose();
 
-	    // Save as PNG in RGB
-	    ImageIO.write(rgbImage, "png", path.toFile());
+	    ImageIO.write(rgbImage, "png", filePath.toFile());
 
-	    return path.toString();
+	    return filePath.toAbsolutePath().toString();
 	}
 	
 }
