@@ -148,4 +148,42 @@ public class NewUserRegisterServiceImpl
 		
 		
 	}
+	
+	
+	@Override
+	public void updateConferenceCredits(
+	        String numberOfHours,
+	        String email,
+	        String companyId
+	) {
+
+	    if (numberOfHours == null) {
+	        return;
+	    }
+
+	    int hours = Integer.parseInt(numberOfHours);
+
+	    int creditsToAdd = hours * 2;
+
+	    NewUserRegister user =
+	            repo.findByEmailAndCompanyId(email, companyId)
+	                    .orElseThrow(() ->
+	                            new RuntimeException(
+	                                    "User not found for email: " + email
+	                            )
+	                    );
+
+	    Integer existingCredits =
+	            user.getConferenceCredits() == null
+	                    ? 0
+	                    : user.getConferenceCredits();
+
+	    user.setConferenceCredits(
+	            existingCredits + creditsToAdd
+	    );
+
+	    user.setUpdateDate(new Date());
+	    repo.save(user);
+	}
+	
 }

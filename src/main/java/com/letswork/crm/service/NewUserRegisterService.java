@@ -22,5 +22,11 @@ public interface NewUserRegisterService {
             MultipartFile imageFile);
     
     void updateDayPass(String numberOfDays, String email, String companyId);
+    
+    void updateConferenceCredits(
+            String numberOfHours,
+            String email,
+            String companyId
+    );
 
 }
