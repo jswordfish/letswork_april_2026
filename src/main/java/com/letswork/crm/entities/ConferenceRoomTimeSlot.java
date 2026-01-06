@@ -18,22 +18,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(
-    name = "conference_room_time_slots",
-    uniqueConstraints = {
-        @UniqueConstraint(
-            columnNames = {
-                "company_id",
-                "lets_work_centre",
-                "city",
-                "state",
-                "room_name",
-                "slot_date",
-                "start_time"
-            }
-        )
-    }
-)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
