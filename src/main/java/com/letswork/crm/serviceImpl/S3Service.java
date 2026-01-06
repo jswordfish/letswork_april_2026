@@ -279,6 +279,50 @@ public class S3Service {
 
         return presignedRequest.url().toString();
     }
+    
+    public String uploadConferenceRoomQrCode(
+            String bucketName,
+            String companyId,
+            String email,
+            String bookingCode,
+            File qrFile
+    ) {
+
+        String sanitizedEmail =
+                email.trim()
+                     .replaceAll("[^a-zA-Z0-9]", "_")
+                     .toLowerCase();
+
+        String keyName =
+                companyId +
+                "/users/" +
+                sanitizedEmail +
+                "/conference-room/" +
+                bookingCode +
+                ".png";
+
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(keyName)
+                        .contentType("image/png")
+                        .build(),
+                qrFile.toPath()
+        );
+
+        PresignedGetObjectRequest presignedRequest =
+                s3Presigner.presignGetObject(p -> p
+                        .getObjectRequest(
+                                GetObjectRequest.builder()
+                                        .bucket(bucketName)
+                                        .key(keyName)
+                                        .build()
+                        )
+                        .signatureDuration(Duration.ofDays(7))
+                );
+
+        return presignedRequest.url().toString();
+    }
 
     
 }

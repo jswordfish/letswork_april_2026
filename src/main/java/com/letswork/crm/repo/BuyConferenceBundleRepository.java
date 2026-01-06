@@ -1,5 +1,6 @@
 package com.letswork.crm.repo;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,4 +37,16 @@ public interface BuyConferenceBundleRepository
             @Param("email") String email,
             @Param("bundleId") Long bundleId
     );
+    
+    @Query("SELECT b FROM BuyConferenceBundle b " +
+            "WHERE b.email = :email " +
+            "AND b.companyId = :companyId " +
+            "AND b.expiryDate > :now " +
+            "ORDER BY b.expiryDate ASC")
+     List<BuyConferenceBundle> findActiveBundles(
+             @Param("email") String email,
+             @Param("companyId") String companyId,
+             @Param("now") LocalDateTime now
+     );
+    
 }
