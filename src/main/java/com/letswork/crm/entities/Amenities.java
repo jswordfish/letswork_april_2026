@@ -37,5 +37,7 @@ public class Amenities extends Base{
 	
 	@Enumerated(EnumType.STRING)
 	private AmenityType amenityType;
+	
+	private String s3Path;
 
 }

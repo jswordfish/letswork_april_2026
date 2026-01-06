@@ -1,11 +1,16 @@
 package com.letswork.crm.entities;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,6 +31,10 @@ public class BookConferenceRoom extends Base{
     private Long id;
 	
 	private LocalDateTime dateOfPurchase;
+	
+	private LocalDate dateOfBooking;
+	
+	private Integer numberOfGuests;
 		
 	private Integer numberOfHours;
 	
@@ -46,5 +55,12 @@ public class BookConferenceRoom extends Base{
 	private String qrS3Path;    
 	
 	private Boolean used;  
+	
+	@OneToMany(
+	        mappedBy = "booking",
+	        cascade = CascadeType.ALL,
+	        orphanRemoval = true
+	    )
+	    private List<ConferenceRoomTimeSlot> slots = new ArrayList<>();
 
 }

@@ -3,19 +3,25 @@ package com.letswork.crm.serviceImpl;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
 import com.letswork.crm.entities.BookConferenceRoom;
 import com.letswork.crm.entities.BuyConferenceBundle;
 import com.letswork.crm.entities.ConferenceRoom;
+import com.letswork.crm.entities.ConferenceRoomTimeSlot;
 import com.letswork.crm.repo.BookConferenceRoomRepository;
 import com.letswork.crm.repo.BuyConferenceBundleRepository;
 import com.letswork.crm.repo.ConferenceRoomRepository;
+import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
 import com.letswork.crm.service.BookConferenceRoomService;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.QRCodeService;
@@ -27,6 +33,9 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class BookConferenceRoomServiceImpl
         implements BookConferenceRoomService {
+	
+	@Autowired
+	ConferenceRoomTimeSlotRepository timeSlotRepo;
 
     private final BookConferenceRoomRepository bookRepo;
     private final BuyConferenceBundleRepository bundleRepo;
@@ -36,9 +45,12 @@ public class BookConferenceRoomServiceImpl
     private final S3Service s3Service;
 
     @Override
-    public BookConferenceRoom book(BookConferenceRoom request) {
+    public BookConferenceRoom book(
+            BookConferenceRoom request,
+            LocalDate slotDate,
+            List<ConferenceRoomSlotRequest> slotRequests
+    ) {
 
-        // 1️⃣ Validate conference room exists
         ConferenceRoom room =
                 conferenceRoomRepo
                         .findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
@@ -53,47 +65,83 @@ public class BookConferenceRoomServiceImpl
             throw new RuntimeException("Conference room does not exist");
         }
 
-        request.setBookingCode(UUID.randomUUID().toString());
-        request.setUsed(false);
+        validateConsecutiveSlots(slotRequests);
 
-        // 2️⃣ Consume bundle credits if used
-        if (Boolean.TRUE.equals(request.getBundleUsed())) {
-            consumeConferenceCredits(
-                    request,
-                    request.getCompanyId()
-            );
+        for (ConferenceRoomSlotRequest slot : slotRequests) {
+            if (timeSlotRepo.existsByCompanyIdAndLetsWorkCentreAndCityAndStateAndRoomNameAndSlotDateAndStartTime(
+                    request.getCompanyId(),
+                    request.getLetsWorkCentre(),
+                    request.getCity(),
+                    request.getState(),
+                    request.getRoomName(),
+                    slotDate,
+                    slot.getStartTime()
+            )) {
+                throw new RuntimeException("One or more selected slots already booked");
+            }
         }
 
-        // 3️⃣ Generate QR & upload
+        if (slotRequests.size() % 2 != 0) {
+            throw new RuntimeException("Slots must complete full hours");
+        }
+
+        int hours = slotRequests.size() / 2;
+        request.setNumberOfHours(hours);
+
+        request.setBookingCode(UUID.randomUUID().toString());
+        request.setUsed(false);
+        request.setDateOfPurchase(LocalDateTime.now());
+        request.setDateOfBooking(slotDate);
+
+        if (Boolean.TRUE.equals(request.getBundleUsed())) {
+            consumeConferenceCredits(request, request.getCompanyId());
+        }
+
+        BookConferenceRoom savedBooking = bookRepo.save(request);
+
+        List<ConferenceRoomTimeSlot> slots = new ArrayList<>();
+
+        for (ConferenceRoomSlotRequest s : slotRequests) {
+            ConferenceRoomTimeSlot t = new ConferenceRoomTimeSlot();
+            t.setCompanyId(request.getCompanyId());
+            t.setLetsWorkCentre(request.getLetsWorkCentre());
+            t.setCity(request.getCity());
+            t.setState(request.getState());
+            t.setRoomName(request.getRoomName());
+            t.setSlotDate(slotDate);
+            t.setStartTime(s.getStartTime());
+            t.setEndTime(s.getEndTime());
+            t.setBooking(savedBooking);
+            slots.add(t);
+        }
+
+        timeSlotRepo.saveAll(slots);
+
         try {
-            String qrPath = qrService.generateQRCodeWithBookingCodeRGB(
-                    "CONFROOM|" + request.getBookingCode()
-            );
+            String qrPath =
+                    qrService.generateQRCodeWithBookingCodeRGB(
+                            "CONFROOM|" + savedBooking.getBookingCode()
+                    );
 
             File qrFile = new File(qrPath);
 
             String s3Path =
                     s3Service.uploadConferenceRoomQrCode(
                             "letsworkcentres",
-                            request.getCompanyId(),
-                            request.getEmail(),
-                            request.getBookingCode(),
+                            savedBooking.getCompanyId(),
+                            savedBooking.getEmail(),
+                            savedBooking.getBookingCode(),
                             qrFile
                     );
 
-            request.setQrS3Path(s3Path);
+            savedBooking.setQrS3Path(s3Path);
+            return bookRepo.save(savedBooking);
 
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Failed to generate/upload QR code",
-                    e
-            );
+            throw new RuntimeException("QR generation failed", e);
         }
-
-        return bookRepo.save(request);
     }
 
-    // 🔥 CREDIT CONSUMPTION LOGIC
     private void consumeConferenceCredits(
             BookConferenceRoom request,
             String companyId
@@ -196,5 +244,30 @@ public class BookConferenceRoomServiceImpl
                 state,
                 date
         );
+    }
+    
+    private void validateConsecutiveSlots(
+            List<ConferenceRoomSlotRequest> slots
+    ) {
+
+        if (slots == null || slots.isEmpty()) {
+            throw new RuntimeException("No slots selected");
+        }
+
+        slots.sort(Comparator.comparing(ConferenceRoomSlotRequest::getStartTime));
+
+        for (int i = 0; i < slots.size(); i++) {
+
+            ConferenceRoomSlotRequest s = slots.get(i);
+
+            if (!s.getEndTime().equals(s.getStartTime().plusMinutes(30))) {
+                throw new RuntimeException("Each slot must be 30 minutes");
+            }
+
+            if (i > 0 &&
+                !slots.get(i - 1).getEndTime().equals(s.getStartTime())) {
+                throw new RuntimeException("Slots must be consecutive");
+            }
+        }
     }
 }

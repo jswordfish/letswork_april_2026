@@ -1,5 +1,6 @@
 package com.letswork.crm.serviceImpl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,46 +48,99 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	@Autowired
 	TenantService tenantService;
 	
+	@Autowired
+    S3Service s3Service;
+	
+	private String bucketName = "letsworkcentres";
+	
 	ModelMapper mapper = new ModelMapper();
 
 	@Override
-	public String saveOrUpdate(ConferenceRoom conferenceRoom) {
-		// TODO Auto-generated method stub
-		
-		Tenant tenant = tenantService.findTenantByCompanyId(conferenceRoom.getCompanyId());
-		
-		if(tenant==null) {
-			
-			throw new RuntimeException("CompanyId invalid - "+conferenceRoom.getCompanyId());
-			
-		}
-		
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(conferenceRoom.getLetsWorkCentre(), conferenceRoom.getCompanyId(), conferenceRoom.getCity(), conferenceRoom.getState());
-		
-		if(centre==null) {
-			throw new RuntimeException("This LetsWorkCentre does not exists");
-		}
-		
-		ConferenceRoom room = repo.findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(conferenceRoom.getName(), conferenceRoom.getLetsWorkCentre(), conferenceRoom.getCompanyId(), conferenceRoom.getCity(), conferenceRoom.getState());
-		
-		if(room!=null) {
-			
+	public String saveOrUpdate(
+	        ConferenceRoom conferenceRoom,
+	        MultipartFile image
+	) throws IOException {
 
-			conferenceRoom.setId(room.getId());
-			conferenceRoom.setUpdateDate(new Date());
-			mapper.map(conferenceRoom, room);
-			
-			repo.save(room);
-			return "record updated";
-			
-		}
-		
-		else {
-			conferenceRoom.setCreateDate(new Date());
-			repo.save(conferenceRoom);
-			return "record saved";
-		}
-		
+	    Tenant tenant =
+	            tenantService.findTenantByCompanyId(
+	                    conferenceRoom.getCompanyId()
+	            );
+
+	    if (tenant == null) {
+	        throw new RuntimeException(
+	                "Invalid companyId - " + conferenceRoom.getCompanyId()
+	        );
+	    }
+
+	    LetsWorkCentre centre =
+	            letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+	                    conferenceRoom.getLetsWorkCentre(),
+	                    conferenceRoom.getCompanyId(),
+	                    conferenceRoom.getCity(),
+	                    conferenceRoom.getState()
+	            );
+
+	    if (centre == null) {
+	        throw new RuntimeException(
+	                "This LetsWorkCentre does not exist"
+	        );
+	    }
+
+	    ConferenceRoom existing =
+	            repo.findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
+	                    conferenceRoom.getName(),
+	                    conferenceRoom.getLetsWorkCentre(),
+	                    conferenceRoom.getCompanyId(),
+	                    conferenceRoom.getCity(),
+	                    conferenceRoom.getState()
+	            );
+
+	    ConferenceRoom saved;
+
+	    if (existing != null) {
+
+	    	mapper.map(conferenceRoom, existing);
+	        existing.setUpdateDate(new Date());
+
+	        saved = repo.save(existing);
+
+	    } else {
+
+	        conferenceRoom.setCreateDate(new Date());
+	        conferenceRoom.setUpdateDate(new Date());
+
+	        saved = repo.save(conferenceRoom);
+	    }
+
+	    if (image != null && !image.isEmpty()) {
+
+	        File tempFile =
+	                File.createTempFile(
+	                        "conf_room_",
+	                        image.getOriginalFilename()
+	                );
+
+	        image.transferTo(tempFile);
+
+	        String s3Url =
+	                s3Service.uploadConferenceRoomImage(
+	                        bucketName,
+	                        saved.getCompanyId(),
+	                        saved.getLetsWorkCentre(),
+	                        saved.getName(),
+	                        image.getOriginalFilename(),
+	                        tempFile
+	                );
+
+	        saved.setS3Path(s3Url);
+	        repo.save(saved);
+
+	        tempFile.delete();
+	    }
+
+	    return existing != null
+	            ? "conference room updated"
+	            : "conference room created";
 	}
 	
 	private String validate(ConferenceRoomExcelDto dto) {
@@ -167,7 +221,8 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	            
 
 	           
-	            String result = saveOrUpdate(room);
+//	            String result = saveOrUpdate(room);
+	            String result = "";
 
 	            responses.add(result + ": " + room.getName());
 	        } catch (Exception e) {

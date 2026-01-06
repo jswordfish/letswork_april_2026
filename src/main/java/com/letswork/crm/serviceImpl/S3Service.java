@@ -200,6 +200,100 @@ public class S3Service {
         return presignedRequest.url().toString();
     }
     
+    public String uploadConferenceRoomImage(
+            String bucketName,
+            String companyId,
+            String centreName,
+            String roomName,
+            String fileName,
+            File file
+    ) {
+
+        String sanitizedCentre =
+                centreName.trim()
+                        .replaceAll("\\s+", "_")
+                        .toLowerCase();
+
+        String sanitizedRoom =
+                roomName.trim()
+                        .replaceAll("\\s+", "_")
+                        .toLowerCase();
+
+        String keyName =
+                companyId +
+                "/letswork-centres/" +
+                sanitizedCentre +
+                "/conference-rooms/" +
+                sanitizedRoom +
+                "/" +
+                fileName;
+
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(keyName)
+                        .contentType("image/jpeg")
+                        .build(),
+                file.toPath()
+        );
+
+        PresignedGetObjectRequest presignedRequest =
+                s3Presigner.presignGetObject(p -> p
+                        .getObjectRequest(
+                                GetObjectRequest.builder()
+                                        .bucket(bucketName)
+                                        .key(keyName)
+                                        .build()
+                        )
+                        .signatureDuration(Duration.ofDays(7))
+                );
+
+        return presignedRequest.url().toString();
+    }
+    
+    public String uploadAmenityImage(
+            String bucketName,
+            String companyId,
+            String amenityName,
+            String fileName,
+            File file
+    ) {
+
+        String sanitizedAmenity =
+                amenityName.trim()
+                        .replaceAll("\\s+", "_")
+                        .toLowerCase();
+
+        String keyName =
+                companyId +
+                "/amenities/" +
+                sanitizedAmenity +
+                "/" +
+                fileName;
+
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(keyName)
+                        .contentType("image/jpeg")
+                        .build(),
+                file.toPath()
+        );
+
+        PresignedGetObjectRequest presignedRequest =
+                s3Presigner.presignGetObject(p -> p
+                        .getObjectRequest(
+                                GetObjectRequest.builder()
+                                        .bucket(bucketName)
+                                        .key(keyName)
+                                        .build()
+                        )
+                        .signatureDuration(Duration.ofDays(7))
+                );
+
+        return presignedRequest.url().toString();
+    }
+    
     
     public String uploadUserProfileImage(
             String bucketName,

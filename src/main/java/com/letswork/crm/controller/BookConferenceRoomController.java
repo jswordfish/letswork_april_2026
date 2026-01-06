@@ -3,6 +3,7 @@ package com.letswork.crm.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.letswork.crm.dtos.BookConferenceRoomRequest;
 import com.letswork.crm.dtos.ConferenceRoomScanResponse;
 import com.letswork.crm.entities.BookConferenceRoom;
+import com.letswork.crm.entities.ConferenceRoomTimeSlot;
+import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
 import com.letswork.crm.service.BookConferenceRoomService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,15 +26,25 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/book-conference-room")
 @RequiredArgsConstructor
 public class BookConferenceRoomController {
+	
+	@Autowired
+	ConferenceRoomTimeSlotRepository timeSlotRepo;
 
     private final BookConferenceRoomService service;
 
     @PostMapping
     public ResponseEntity<BookConferenceRoom> book(
             @RequestParam String token,
-            @RequestBody BookConferenceRoom request
+            @RequestBody BookConferenceRoomRequest request
     ) {
-        return ResponseEntity.ok(service.book(request));
+
+        return ResponseEntity.ok(
+                service.book(
+                        request.getBooking(),
+                        request.getSlotDate(),
+                        request.getSlots()
+                )
+        );
     }
 
     @PostMapping("/scan")
@@ -68,6 +82,28 @@ public class BookConferenceRoomController {
                         letsWorkCentre,
                         city,
                         state,
+                        date
+                )
+        );
+    }
+    
+    @GetMapping("/availability")
+    public ResponseEntity<List<ConferenceRoomTimeSlot>> getBookedSlots(
+            @RequestParam String companyId,
+            @RequestParam String letsWorkCentre,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam String roomName,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam String token
+    ) {
+        return ResponseEntity.ok(
+                timeSlotRepo.findBookedSlots(
+                        companyId,
+                        letsWorkCentre,
+                        city,
+                        state,
+                        roomName,
                         date
                 )
         );

@@ -43,5 +43,7 @@ public class ConferenceRoom extends Base{
 	private String city;
 	
 	private String amenities; 
+	
+	private String s3Path;
     
 }

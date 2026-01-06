@@ -11,7 +11,10 @@ import com.letswork.crm.entities.ConferenceRoom;
 
 public interface ConferenceRoomService {
 	
-	String saveOrUpdate(ConferenceRoom conferenceRoom);
+	public String saveOrUpdate(
+	        ConferenceRoom conferenceRoom,
+	        MultipartFile image
+	) throws IOException;
 	
 	List<ConferenceRoom> findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state);
 	
