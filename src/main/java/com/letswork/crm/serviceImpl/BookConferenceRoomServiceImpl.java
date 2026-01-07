@@ -233,7 +233,8 @@ public class BookConferenceRoomServiceImpl
             String letsWorkCentre,
             String city,
             String state,
-            LocalDate date
+            LocalDate date,
+            String roomName
     ) {
 
         return bookRepo.filter(
@@ -242,7 +243,8 @@ public class BookConferenceRoomServiceImpl
                 letsWorkCentre,
                 city,
                 state,
-                date
+                date,
+                roomName
         );
     }
     

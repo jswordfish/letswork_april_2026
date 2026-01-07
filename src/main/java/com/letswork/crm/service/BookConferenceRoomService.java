@@ -24,7 +24,8 @@ public interface BookConferenceRoomService {
             String letsWorkCentre,
             String city,
             String state,
-            LocalDate date
+            LocalDate date,
+            String roomName
     );
 
 }

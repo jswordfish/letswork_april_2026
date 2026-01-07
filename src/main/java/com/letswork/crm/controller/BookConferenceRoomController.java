@@ -73,7 +73,8 @@ public class BookConferenceRoomController {
             @RequestParam(required = false) String state,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate date
+            LocalDate date,
+            @RequestParam(required = false) String roomName
     ) {
         return ResponseEntity.ok(
                 service.get(
@@ -82,7 +83,8 @@ public class BookConferenceRoomController {
                         letsWorkCentre,
                         city,
                         state,
-                        date
+                        date,
+                        roomName
                 )
         );
     }
