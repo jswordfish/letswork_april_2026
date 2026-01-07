@@ -10,7 +10,6 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,7 +21,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-//rename it as VisitorEntry
 public class Visitor extends Base{
 
     @Id
@@ -37,7 +35,18 @@ public class Visitor extends Base{
     @Email
     private String email;
 
-    private Boolean oneDayPass = false;
-
-    private LocalDate visitDate = LocalDate.now();
+    private LocalDate visitDate;
+    
+    private String emailOfVisitor;
+    
+    private String bookingCode;
+    
+    private String qrS3Path;
+    
+    private String letsWorkCentre;
+    
+    private String city;
+    
+    private String state;
+    
 }

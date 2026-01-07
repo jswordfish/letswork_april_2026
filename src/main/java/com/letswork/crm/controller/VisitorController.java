@@ -28,10 +28,13 @@ public class VisitorController {
 	VisitorService service;
 	
 	@PostMapping
-	public String createOrUpdate(@RequestBody Visitor visitor, @RequestParam String token) {
-		
-		return service.saveOrUpdate(visitor);
-		
+	public ResponseEntity<String> saveOrUpdate(
+	        @RequestBody Visitor visitor,
+	        @RequestParam String token
+	) {
+	    return ResponseEntity.ok(
+	            service.saveOrUpdate(visitor)
+	    );
 	}
 	
 //	@GetMapping("/view visitor by date")
@@ -42,6 +45,33 @@ public class VisitorController {
 //	}
 	
 	@GetMapping
+	public ResponseEntity<List<Visitor>> filterVisitors(
+	        @RequestParam String companyId,
+	        @RequestParam(required = false) String name,
+	        @RequestParam(required = false) String email,
+	        @RequestParam(required = false) String emailOfVisitor,
+	        @RequestParam(required = false) LocalDate visitDate,
+	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) String city,
+	        @RequestParam(required = false) String state,
+	        @RequestParam String token
+	) {
+
+	    return ResponseEntity.ok(
+	            service.filter(
+	                    companyId,
+	                    name,
+	                    email,
+	                    emailOfVisitor,
+	                    visitDate,
+	                    letsWorkCentre,
+	                    city,
+	                    state
+	            )
+	    );
+	}
+	
+	@GetMapping("/date")
     public ResponseEntity<PaginatedResponseDto> viewByDate(
             @RequestParam LocalDate visitDate,
             @RequestParam String companyId,

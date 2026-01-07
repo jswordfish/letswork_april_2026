@@ -28,7 +28,7 @@ public interface BookDayPassRepository extends JpaRepository<BookDayPass, Long> 
     	       "AND (:centre IS NULL OR b.letsWorkCentre = :centre) " +
     	       "AND (:city IS NULL OR b.city = :city) " +
     	       "AND (:state IS NULL OR b.state = :state) " +
-    	       "AND (:date IS NULL OR DATE(b.dateOfPurchase) = :date)")
+    	       "AND (:date IS NULL OR b.dateOfBooking = :date)")
     	List<BookDayPass> filter(
     	        @Param("companyId") String companyId,
     	        @Param("email") String email,

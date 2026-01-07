@@ -37,6 +37,8 @@ public class BookDayPassServiceImpl implements BookDayPassService {
 
         request.setBookingCode(UUID.randomUUID().toString());
         request.setUsed(false);
+        
+        
 
         if (Boolean.TRUE.equals(request.getBundleUsed())) {
             consumeBundleCredits(request, request.getCompanyId());

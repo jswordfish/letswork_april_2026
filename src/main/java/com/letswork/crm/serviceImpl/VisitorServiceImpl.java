@@ -1,8 +1,12 @@
 package com.letswork.crm.serviceImpl;
 
+import java.io.File;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,43 +16,139 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.entities.Visitor;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.VisitorRepository;
+import com.letswork.crm.service.QRCodeService;
+import com.letswork.crm.service.TenantService;
 import com.letswork.crm.service.VisitorService;
+
+import lombok.RequiredArgsConstructor;
 
 
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class VisitorServiceImpl implements VisitorService {
 	
 	@Autowired
 	VisitorRepository repo;
+	
+	@Autowired
+	TenantService tenantService;
+	
+	@Autowired
+	LetsWorkCentreRepository letsWorkCentreRepo;
+	
+	private final QRCodeService qrService;
+    private final S3Service s3Service;
+    
+	ModelMapper mapper = new ModelMapper();
 
 	@Override
 	public String saveOrUpdate(Visitor visitor) {
-		// TODO Auto-generated method stub
+
+	    Tenant tenant =
+	            tenantService.findTenantByCompanyId(visitor.getCompanyId());
+
+	    if (tenant == null) {
+	        throw new RuntimeException(
+	                "Invalid companyId - " + visitor.getCompanyId()
+	        );
+	    }
+	    
+		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(visitor.getLetsWorkCentre(), visitor.getCompanyId(), visitor.getCity(), visitor.getState());
 		
-		Visitor vit = repo.findByNameAndEmail(visitor.getName(), visitor.getEmail());
-		
-		if(vit!=null) {
-			
-			vit.setName(visitor.getName());
-			vit.setPhone(visitor.getPhone());
-			vit.setEmail(visitor.getEmail());
-			vit.setOneDayPass(visitor.getOneDayPass());
-			
-			
-			repo.save(vit);
-			return "record updated";
-			
+		if(centre==null) {
+			throw new RuntimeException("This LetsWorkCentre does not exists");
 		}
-		
-		else {
-			repo.save(visitor);
-			return "record saved";
-		}
-		
+
+	    Visitor existing =
+	            repo.findByCompanyIdAndEmailOfVisitorAndVisitDate(
+	                    visitor.getCompanyId(),
+	                    visitor.getEmailOfVisitor(),
+	                    visitor.getVisitDate()
+	            );
+
+	    Visitor saved;
+
+	    if (existing != null) {
+
+	        mapper.map(visitor, existing);
+	        existing.setUpdateDate(new Date());
+
+	        saved = repo.save(existing);
+	        return "visitor updated";
+
+	    } else {
+
+	        visitor.setBookingCode(UUID.randomUUID().toString());
+	        visitor.setCreateDate(new Date());
+	        visitor.setUpdateDate(new Date());
+
+	        saved = repo.save(visitor);
+
+	        generateAndUploadQr(saved);
+	        return "visitor created";
+	    }
+	}
+	
+	private void generateAndUploadQr(Visitor visitor) {
+
+	    try {
+	        String qrPath =
+	                qrService.generateQRCodeWithBookingCodeRGB(
+	                        "VISITOR|" + visitor.getBookingCode()
+	                );
+
+	        File qrFile = new File(qrPath);
+
+	        String s3Path =
+	                s3Service.uploadVisitorQrCode(
+	                        "letsworkcentres",
+	                        visitor.getCompanyId(),
+	                        visitor.getEmailOfVisitor(),
+	                        visitor.getBookingCode(),
+	                        qrFile
+	                );
+
+	        visitor.setQrS3Path(s3Path);
+	        repo.save(visitor);
+
+	        qrFile.delete();
+
+	    } catch (Exception e) {
+	        throw new RuntimeException(
+	                "QR generation/upload failed", e
+	        );
+	    }
+	}
+	
+	@Override
+	public List<Visitor> filter(
+	        String companyId,
+	        String name,
+	        String email,
+	        String emailOfVisitor,
+	        LocalDate visitDate,
+	        String centre,
+	        String city,
+	        String state
+	) {
+
+	    return repo.filter(
+	            companyId,
+	            name,
+	            email,
+	            emailOfVisitor,
+	            visitDate,
+	            centre,
+	            city,
+	            state
+	    );
 	}
 
 	@Override

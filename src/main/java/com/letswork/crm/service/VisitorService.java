@@ -16,5 +16,16 @@ public interface VisitorService {
 	PaginatedResponseDto viewByDate(LocalDate visitDate, String companyId, int page);
 	
 	String deleteVisitor(Visitor visitor);
+	
+	public List<Visitor> filter(
+	        String companyId,
+	        String name,
+	        String email,
+	        String emailOfVisitor,
+	        LocalDate visitDate,
+	        String centre,
+	        String city,
+	        String state
+	);
 
 }
