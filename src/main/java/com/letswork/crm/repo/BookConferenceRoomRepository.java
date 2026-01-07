@@ -30,7 +30,7 @@ public interface BookConferenceRoomRepository
            "AND (:centre IS NULL OR b.letsWorkCentre = :centre) " +
            "AND (:city IS NULL OR b.city = :city) " +
            "AND (:state IS NULL OR b.state = :state) " +
-           "AND (:date IS NULL OR DATE(b.dateOfBooking) = :date) " +
+           "AND (:date IS NULL OR b.dateOfBooking = :date) " +
            "AND (:roomName IS NULL OR b.roomName = :roomName)")
     List<BookConferenceRoom> filter(
             @Param("companyId") String companyId,
