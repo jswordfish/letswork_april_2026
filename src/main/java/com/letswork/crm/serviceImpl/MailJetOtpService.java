@@ -1,6 +1,6 @@
 package com.letswork.crm.serviceImpl;
 
-import java.util.Base64;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
 import com.mailjet.client.errors.MailjetException;
-import com.mailjet.client.transactional.Attachment;
 import com.mailjet.client.transactional.SendContact;
 import com.mailjet.client.transactional.SendEmailsRequest;
 import com.mailjet.client.transactional.TransactionalEmail;
@@ -59,8 +58,10 @@ public class MailJetOtpService {
     public void sendDayPassEmail(
             String email,
             int numberOfDays,
-            String bookingId,
-            byte[] qrCodeBytes
+            Long bookingId,
+            String letsWorkCentre,
+            String qrCodePath,
+            String name
     ) {
 
         ClientOptions options = ClientOptions.builder()
@@ -73,21 +74,67 @@ public class MailJetOtpService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("bookingId", bookingId);
         variables.put("numberOfDays", numberOfDays);
+        variables.put("letsworkCenter", letsWorkCentre);
+        variables.put("QR_Code", qrCodePath);
+        variables.put("user", name);
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
                 .from(new SendContact(SENDER_EMAIL, "Zimulate"))
                 .subject("Your Day Pass Booking Confirmation")
-                .templateID(7612345L)
+                .templateID(7636985L)
                 .templateLanguage(true)
                 .variables(variables)
-                .attachment(
-                        Attachment.builder()
-                                .contentType("image/png")
-                                .filename("day-pass-qr.png")
-                                .base64Content(Base64.getEncoder().encodeToString(qrCodeBytes))
-                                .build()
-                )
+                .build();
+
+        SendEmailsRequest request = SendEmailsRequest.builder()
+                .message(emailMessage)
+                .build();
+
+        try {
+            request.sendWith(client);
+        } catch (MailjetException e) {
+            throw new RuntimeException("Failed to send Day Pass email", e);
+        }
+    }
+    
+    
+    public void sendConferenceEmail(
+            String email,
+            LocalDate dateOfBooking,
+            Long bookingId,
+            String letsWorkCentre,
+            String qrCodePath,
+            String name,
+            String startTime,
+            String endTime,
+            String roomName
+    ) {
+
+        ClientOptions options = ClientOptions.builder()
+                .apiKey(API_KEY)
+                .apiSecretKey(SECRET_KEY)
+                .build();
+
+        MailjetClient client = new MailjetClient(options);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("bookingId", bookingId);
+        variables.put("dateOfBooking", dateOfBooking);
+        variables.put("letsworkCenter", letsWorkCentre);
+        variables.put("QR_Code", qrCodePath);
+        variables.put("conferenceRoomName", roomName);
+        variables.put("user", name);
+        variables.put("startTime", startTime);
+        variables.put("endTime", endTime);
+
+        TransactionalEmail emailMessage = TransactionalEmail.builder()
+                .to(List.of(new SendContact(email)))
+                .from(new SendContact(SENDER_EMAIL, "Zimulate"))
+                .subject("Your Conference Room Booking Confirmation")
+                .templateID(7637073L)
+                .templateLanguage(true)
+                .variables(variables)
                 .build();
 
         SendEmailsRequest request = SendEmailsRequest.builder()

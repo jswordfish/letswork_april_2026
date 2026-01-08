@@ -3,6 +3,7 @@ package com.letswork.crm.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.DayPassScanResponse;
 import com.letswork.crm.entities.BookDayPass;
+import com.letswork.crm.entities.NewUserRegister;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.BookDayPassService;
+import com.letswork.crm.serviceImpl.MailJetOtpService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +26,12 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/book-day-pass")
 @RequiredArgsConstructor
 public class BookDayPassController {
+	
+	@Autowired
+	MailJetOtpService mailService;
+	
+	@Autowired
+	NewUserRegisterRepository userRepo;
 
     private final BookDayPassService service;
 
@@ -30,7 +40,14 @@ public class BookDayPassController {
             @RequestParam String token,
             @RequestBody BookDayPass request
     ) {
-        return ResponseEntity.ok(service.book(request));
+    	
+    	BookDayPass dayPass = service.book(request);
+    	
+    	NewUserRegister user = userRepo.findByEmailAndCompanyId(dayPass.getEmail(), dayPass.getCompanyId()).orElseThrow(() -> new RuntimeException("This user does not exists"));
+    	
+    	mailService.sendDayPassEmail(dayPass.getEmail(), dayPass.getNumberOfDays(), dayPass.getId(), dayPass.getLetsWorkCentre(), dayPass.getQrS3Path(), user.getName());
+    	
+        return ResponseEntity.ok(dayPass);
     }
     
     @PostMapping("/scan")

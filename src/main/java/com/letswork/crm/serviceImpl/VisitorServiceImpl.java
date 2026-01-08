@@ -72,9 +72,7 @@ public class VisitorServiceImpl implements VisitorService {
 			throw new RuntimeException("This LetsWorkCentre does not exists");
 		}
 		
-		NewUserRegister user = userRepo.findByEmailAndCompanyId(visitor.getEmail(), visitor.getCompanyId()).orElseThrow(() ->
-        new RuntimeException("This user does not exists")
-);
+		NewUserRegister user = userRepo.findByEmailAndCompanyId(visitor.getEmail(), visitor.getCompanyId()).orElseThrow(() -> new RuntimeException("This user does not exists"));
 
 	    Visitor existing =
 	            repo.findByCompanyIdAndEmailOfVisitorAndVisitDate(

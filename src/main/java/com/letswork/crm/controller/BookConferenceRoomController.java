@@ -1,6 +1,7 @@
 package com.letswork.crm.controller;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.BookConferenceRoomRequest;
 import com.letswork.crm.dtos.ConferenceRoomScanResponse;
+import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
 import com.letswork.crm.entities.BookConferenceRoom;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
+import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.BookConferenceRoomService;
+import com.letswork.crm.serviceImpl.MailJetOtpService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +34,12 @@ public class BookConferenceRoomController {
 	
 	@Autowired
 	ConferenceRoomTimeSlotRepository timeSlotRepo;
+	
+	@Autowired
+	MailJetOtpService mailService;
+	
+	@Autowired
+	NewUserRegisterRepository userRepo;
 
     private final BookConferenceRoomService service;
 
@@ -38,13 +49,52 @@ public class BookConferenceRoomController {
             @RequestBody BookConferenceRoomRequest request
     ) {
 
-        return ResponseEntity.ok(
+        BookConferenceRoom booking =
                 service.book(
                         request.getBooking(),
                         request.getSlotDate(),
                         request.getSlots()
-                )
+                );
+
+        NewUserRegister user =
+                userRepo.findByEmailAndCompanyId(
+                        booking.getEmail(),
+                        booking.getCompanyId()
+                ).orElseThrow(() ->
+                        new RuntimeException("This user does not exist")
+                );
+
+        LocalTime startTime =
+                request.getSlots()
+                       .stream()
+                       .map(ConferenceRoomSlotRequest::getStartTime)
+                       .min(LocalTime::compareTo)
+                       .orElseThrow(() ->
+                               new RuntimeException("Invalid slot data")
+                       );
+
+        LocalTime endTime =
+                request.getSlots()
+                       .stream()
+                       .map(ConferenceRoomSlotRequest::getEndTime)
+                       .max(LocalTime::compareTo)
+                       .orElseThrow(() ->
+                               new RuntimeException("Invalid slot data")
+                       );
+
+        mailService.sendConferenceEmail(
+                booking.getEmail(),
+                request.getSlotDate(),                 
+                booking.getId(),
+                booking.getLetsWorkCentre(),
+                booking.getQrS3Path(),
+                user.getName(),
+                startTime.toString(),                  
+                endTime.toString(),
+                booking.getRoomName()
         );
+
+        return ResponseEntity.ok(booking);
     }
 
     @PostMapping("/scan")
