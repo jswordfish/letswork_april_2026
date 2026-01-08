@@ -1,6 +1,7 @@
 package com.letswork.crm.entities;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -37,11 +38,15 @@ public class Visitor extends Base{
 
     private LocalDate visitDate;
     
+    private LocalTime timeOfVisit;
+    
     private String emailOfVisitor;
     
     private String bookingCode;
     
     private String qrS3Path;
+    
+    private Integer numberOfGuests;
     
     private String letsWorkCentre;
     

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.entities.Visitor;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.VisitorRepository;
 import com.letswork.crm.service.QRCodeService;
 import com.letswork.crm.service.TenantService;
@@ -43,6 +46,9 @@ public class VisitorServiceImpl implements VisitorService {
 	@Autowired
 	LetsWorkCentreRepository letsWorkCentreRepo;
 	
+	@Autowired
+	NewUserRegisterRepository userRepo;
+	
 	private final QRCodeService qrService;
     private final S3Service s3Service;
     
@@ -65,6 +71,10 @@ public class VisitorServiceImpl implements VisitorService {
 		if(centre==null) {
 			throw new RuntimeException("This LetsWorkCentre does not exists");
 		}
+		
+		NewUserRegister user = userRepo.findByEmailAndCompanyId(visitor.getEmail(), visitor.getCompanyId()).orElseThrow(() ->
+        new RuntimeException("This user does not exists")
+);
 
 	    Visitor existing =
 	            repo.findByCompanyIdAndEmailOfVisitorAndVisitDate(
@@ -136,19 +146,50 @@ public class VisitorServiceImpl implements VisitorService {
 	        LocalDate visitDate,
 	        String centre,
 	        String city,
-	        String state
+	        String state,
+	        String type
 	) {
 
-	    return repo.filter(
-	            companyId,
-	            name,
-	            email,
-	            emailOfVisitor,
-	            visitDate,
-	            centre,
-	            city,
-	            state
-	    );
+	    List<Visitor> visitors =
+	            repo.filter(
+	                    companyId,
+	                    name,
+	                    email,
+	                    emailOfVisitor,
+	                    visitDate,
+	                    centre,
+	                    city,
+	                    state
+	            );
+
+	    if (type == null || type.trim().isEmpty()) {
+	        return visitors;
+	    }
+
+	    LocalDate today = LocalDate.now();
+
+	    if ("upcoming".equalsIgnoreCase(type)) {
+
+	        return visitors.stream()
+	                .filter(v ->
+	                        v.getVisitDate() != null &&
+	                        !v.getVisitDate().isBefore(today)
+	                )
+	                .collect(Collectors.toList());
+
+	    }
+
+	    if ("history".equalsIgnoreCase(type)) {
+
+	        return visitors.stream()
+	                .filter(v ->
+	                        v.getVisitDate() != null &&
+	                        v.getVisitDate().isBefore(today)
+	                )
+	                .collect(Collectors.toList());
+	    }
+
+	    return visitors;
 	}
 
 	@Override

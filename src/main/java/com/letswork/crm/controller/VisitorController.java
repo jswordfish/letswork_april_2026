@@ -54,6 +54,7 @@ public class VisitorController {
 	        @RequestParam(required = false) String letsWorkCentre,
 	        @RequestParam(required = false) String city,
 	        @RequestParam(required = false) String state,
+	        @RequestParam(required = false) String type,   
 	        @RequestParam String token
 	) {
 
@@ -66,7 +67,8 @@ public class VisitorController {
 	                    visitDate,
 	                    letsWorkCentre,
 	                    city,
-	                    state
+	                    state,
+	                    type
 	            )
 	    );
 	}

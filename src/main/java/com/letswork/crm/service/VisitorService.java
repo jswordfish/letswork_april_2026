@@ -17,7 +17,7 @@ public interface VisitorService {
 	
 	String deleteVisitor(Visitor visitor);
 	
-	public List<Visitor> filter(
+	List<Visitor> filter(
 	        String companyId,
 	        String name,
 	        String email,
@@ -25,7 +25,8 @@ public interface VisitorService {
 	        LocalDate visitDate,
 	        String centre,
 	        String city,
-	        String state
+	        String state,
+	        String type
 	);
 
 }
