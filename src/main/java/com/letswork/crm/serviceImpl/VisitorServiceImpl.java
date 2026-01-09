@@ -104,12 +104,12 @@ public class VisitorServiceImpl implements VisitorService {
 	        saved = repo.save(visitor);
 
 	        generateAndUploadQr(saved);
-	        try {
-				whatsAppService.sendBookingQRCode("918652769926", "C:\\Users\\hp\\Desktop\\Dhruv2025\\Images\\QR.png");
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//	        try {
+//				whatsAppService.sendBookingQRCode("918652769926", "C:\\Users\\hp\\Desktop\\Dhruv2025\\Images\\QR.png");
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 	        return "visitor created";
 	    }
 	}
