@@ -15,7 +15,7 @@ public class DayPassScanResponse {
     private String email;
     private Integer numberOfDays;
     private String centre;
-    private boolean used;
+    private Integer used;
 
     public static DayPassScanResponse from(BookDayPass b) {
         return DayPassScanResponse.builder()

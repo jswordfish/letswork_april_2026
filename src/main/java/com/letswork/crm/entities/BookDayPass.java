@@ -43,6 +43,6 @@ public class BookDayPass extends Base{
 	
 	private String qrS3Path;    
 	
-	private Boolean used;  
+	private Integer used;  
 
 }

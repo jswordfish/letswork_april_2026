@@ -36,7 +36,7 @@ public class BookDayPassServiceImpl implements BookDayPassService {
     public BookDayPass book(BookDayPass request) {
 
         request.setBookingCode(UUID.randomUUID().toString());
-        request.setUsed(false);
+        request.setUsed(0);
         
         
 
@@ -165,7 +165,7 @@ public class BookDayPassServiceImpl implements BookDayPassService {
 
         
 
-        booking.setUsed(true);
+//        booking.setUsed(true);
 
         return bookRepo.save(booking);
     }

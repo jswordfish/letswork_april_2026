@@ -18,8 +18,10 @@ import com.letswork.crm.dtos.BookConferenceRoomRequest;
 import com.letswork.crm.dtos.ConferenceRoomScanResponse;
 import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
 import com.letswork.crm.entities.BookConferenceRoom;
+import com.letswork.crm.entities.BookDayPass;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
 import com.letswork.crm.entities.NewUserRegister;
+import com.letswork.crm.repo.BookConferenceRoomRepository;
 import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.BookConferenceRoomService;
@@ -40,6 +42,9 @@ public class BookConferenceRoomController {
 	
 	@Autowired
 	NewUserRegisterRepository userRepo;
+	
+	@Autowired
+	BookConferenceRoomRepository repo;
 
     private final BookConferenceRoomService service;
 
@@ -97,20 +102,33 @@ public class BookConferenceRoomController {
         return ResponseEntity.ok(booking);
     }
 
-    @PostMapping("/scan")
-    public ResponseEntity<ConferenceRoomScanResponse> scan(
+    @GetMapping("/scan")
+    public ResponseEntity<BookConferenceRoom> scan(
             @RequestParam String qrData,
             @RequestParam String token
     ) {
         // Example: CONFROOM|uuid
         String bookingCode = qrData.split("\\|")[1];
 
-        BookConferenceRoom booking =
-                service.scanAndConsume(bookingCode);
+        BookConferenceRoom booking = repo.findByBookingCode(bookingCode).orElseThrow(() ->
+        new RuntimeException("Booking not found")
+);
+                
 
-        return ResponseEntity.ok(
-                ConferenceRoomScanResponse.from(booking)
-        );
+        return ResponseEntity.ok(booking);
+        
+    }
+    
+    @PostMapping("/allow")
+    public ResponseEntity<BookConferenceRoom> allow(@RequestBody BookConferenceRoom request, @RequestParam String token){
+    	
+    	
+    	
+    	request.setUsed(true);
+    	repo.save(request);
+    	
+    	return ResponseEntity.ok(request);
+    	
     }
 
     @GetMapping

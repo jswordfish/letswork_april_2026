@@ -54,4 +54,6 @@ public class Visitor extends Base{
     
     private String state;
     
+    private Boolean visited;
+    
 }

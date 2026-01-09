@@ -63,4 +63,6 @@ public interface VisitorRepository extends JpaRepository<Visitor, Long> {
             @Param("state") String state
     );
     
+    Visitor findByBookingCode(String bookingCode);
+    
 }

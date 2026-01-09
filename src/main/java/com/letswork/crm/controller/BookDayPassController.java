@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.letswork.crm.dtos.DayPassScanResponse;
 import com.letswork.crm.entities.BookDayPass;
 import com.letswork.crm.entities.NewUserRegister;
+import com.letswork.crm.repo.BookDayPassRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.BookDayPassService;
 import com.letswork.crm.serviceImpl.MailJetOtpService;
@@ -32,6 +33,9 @@ public class BookDayPassController {
 	
 	@Autowired
 	NewUserRegisterRepository userRepo;
+	
+	@Autowired
+	BookDayPassRepository bookRepo;
 
     private final BookDayPassService service;
 
@@ -50,21 +54,44 @@ public class BookDayPassController {
         return ResponseEntity.ok(dayPass);
     }
     
-    @PostMapping("/scan")
-    public ResponseEntity<DayPassScanResponse> scanDayPass(
+    @GetMapping("/scan")
+    public ResponseEntity<BookDayPass> scanDayPass(
             @RequestParam String qrData,
             @RequestParam String token
     ) {
         // Example qrData: DAYPASS|abc-123
         String bookingCode = qrData.split("\\|")[1];
+        
+        BookDayPass booking = bookRepo
+                .findByBookingCode(bookingCode)
+                .orElseThrow(() ->
+                        new RuntimeException("Invalid or expired Day Pass")
+                );
 
-        BookDayPass booking = service.scanAndConsume(
-                bookingCode
-        );
-
-        return ResponseEntity.ok(
-                DayPassScanResponse.from(booking)
-        );
+//        BookDayPass booking = service.scanAndConsume(
+//                bookingCode
+//        );
+//
+//        return ResponseEntity.ok(
+//                DayPassScanResponse.from(booking)
+//        );
+        return ResponseEntity.ok(booking);
+    }
+    
+    @PostMapping("/allow")
+    public ResponseEntity<BookDayPass> allow(@RequestBody BookDayPass request, @RequestParam String token){
+    	
+    	int used = request.getUsed();
+    	
+    	if(used==request.getNumberOfDays()) {
+    		throw new RuntimeException("Limit of day passes reached");
+    	}
+    	
+    	request.setUsed(used+1);
+    	bookRepo.save(request);
+    	
+    	return ResponseEntity.ok(request);
+    	
     }
 
     @GetMapping

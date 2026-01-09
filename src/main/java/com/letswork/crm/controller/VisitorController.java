@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.BookConferenceRoom;
 import com.letswork.crm.entities.Visitor;
+import com.letswork.crm.repo.VisitorRepository;
 import com.letswork.crm.service.VisitorService;
 
 
@@ -26,6 +28,9 @@ public class VisitorController {
 	
 	@Autowired
 	VisitorService service;
+	
+	@Autowired
+	VisitorRepository repo;
 	
 	@PostMapping
 	public ResponseEntity<String> saveOrUpdate(
@@ -43,6 +48,35 @@ public class VisitorController {
 //		return service.viewByDate(visitDate);
 //		
 //	}
+	
+	@GetMapping("/scan")
+	public ResponseEntity<Visitor> scan(
+            @RequestParam String qrData,
+            @RequestParam String token
+    ) {
+       
+        String bookingCode = qrData.split("\\|")[1];
+
+        Visitor visitor = repo.findByBookingCode(bookingCode);
+        
+        if(visitor==null) {
+        	throw new RuntimeException("Visitor not found");
+        }
+
+        return ResponseEntity.ok(visitor);
+        
+    }
+	
+	@PostMapping("/allow")
+	public ResponseEntity<Visitor> allow(@RequestBody Visitor request, @RequestParam String token){
+    	
+    	request.setVisited(true);
+    	repo.save(request);
+    	
+    	return ResponseEntity.ok(request);
+    	
+    }
+	
 	
 	@GetMapping
 	public ResponseEntity<List<Visitor>> filterVisitors(
