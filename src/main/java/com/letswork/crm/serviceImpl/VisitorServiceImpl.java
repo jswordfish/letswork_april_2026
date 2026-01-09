@@ -60,7 +60,8 @@ public class VisitorServiceImpl implements VisitorService {
 
 	@Override
 	public String saveOrUpdate(Visitor visitor) {
-
+		
+		visitor.setVisited(false);
 	    Tenant tenant =
 	            tenantService.findTenantByCompanyId(visitor.getCompanyId());
 
