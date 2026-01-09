@@ -70,6 +70,9 @@ public class VisitorController {
 	@PostMapping("/allow")
 	public ResponseEntity<Visitor> allow(@RequestBody Visitor request, @RequestParam String token){
     	
+		if(request.getVisited()==true) {
+			throw new RuntimeException("Already Used");
+		}
     	request.setVisited(true);
     	repo.save(request);
     	

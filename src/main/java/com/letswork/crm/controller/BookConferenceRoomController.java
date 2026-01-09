@@ -122,7 +122,9 @@ public class BookConferenceRoomController {
     @PostMapping("/allow")
     public ResponseEntity<BookConferenceRoom> allow(@RequestBody BookConferenceRoom request, @RequestParam String token){
     	
-    	
+    	if(request.getUsed()==true) {
+			throw new RuntimeException("Already Used");
+		}
     	
     	request.setUsed(true);
     	repo.save(request);
