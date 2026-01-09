@@ -7,9 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.letswork.crm.entities.EmailOtp;
-import com.letswork.crm.entities.NewUserRegister;
+import com.letswork.crm.entities.User;
 import com.letswork.crm.repo.EmailOtpRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
+import com.letswork.crm.repo.UserRepo;
 
 @Service
 public class OtpService {
@@ -19,45 +20,59 @@ public class OtpService {
     
     @Autowired
     private NewUserRegisterRepository newUserRegisterRepository;
+    
+    @Autowired
+    UserRepo userRepo;
 
     @Autowired
     private MailJetOtpService mailService;
 
     public String registerSendOtp(String email, String companyId) {
 
-        String otp = generateOtp();
-
         boolean registered =
                 newUserRegisterRepository
                         .findByEmailAndCompanyId(email, companyId)
                         .isPresent();
+
+        User internalUser = userRepo.findByEmail(email, companyId);
+
+        if (registered) {
+            return "The user is already registered";
+        }
+
+        if (internalUser != null) {
+            return "Internal LetsWork staff cannot register";
+        }
+
+        String otp = generateOtp();
 
         EmailOtp emailOtp = new EmailOtp();
         emailOtp.setEmail(email);
         emailOtp.setOtp(otp);
         emailOtp.setExpiresAt(LocalDateTime.now().plusMinutes(5));
         emailOtp.setVerified(false);
-        emailOtp.setRegistered(registered);
-        
-        if(registered) {
-        	return "The user is already registered";
-        }
-        
-        else {
+        emailOtp.setRegistered(false);
+
         otpRepository.save(emailOtp);
         mailService.sendOtpEmail(email, otp);
+
         return "otp sent successfully";
-        }
     }
     
     public String loginSendOtp(String email, String companyId) {
 
-        String otp = generateOtp();
-
         boolean registered =
                 newUserRegisterRepository
                         .findByEmailAndCompanyId(email, companyId)
                         .isPresent();
+
+        User internalUser = userRepo.findByEmail(email, companyId);
+
+        if (!registered && internalUser == null) {
+            return "User does not exist";
+        }
+
+        String otp = generateOtp();
 
         EmailOtp emailOtp = new EmailOtp();
         emailOtp.setEmail(email);
@@ -65,16 +80,11 @@ public class OtpService {
         emailOtp.setExpiresAt(LocalDateTime.now().plusMinutes(5));
         emailOtp.setVerified(false);
         emailOtp.setRegistered(registered);
-        
-        if(!registered) {
-        	return "The user is not registered";
-        }
-        
-        else {
+
         otpRepository.save(emailOtp);
         mailService.sendOtpEmail(email, otp);
+
         return "otp sent successfully";
-        }
     }
 
     public boolean verifyOtp(String email, String otp) {
