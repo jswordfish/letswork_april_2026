@@ -27,6 +27,7 @@ import com.letswork.crm.repo.VisitorRepository;
 import com.letswork.crm.service.QRCodeService;
 import com.letswork.crm.service.TenantService;
 import com.letswork.crm.service.VisitorService;
+import com.letswork.crm.service.WhatsAppService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,6 +49,9 @@ public class VisitorServiceImpl implements VisitorService {
 	
 	@Autowired
 	NewUserRegisterRepository userRepo;
+	
+	@Autowired
+	WhatsAppService whatsAppService;
 	
 	private final QRCodeService qrService;
     private final S3Service s3Service;
@@ -100,6 +104,12 @@ public class VisitorServiceImpl implements VisitorService {
 	        saved = repo.save(visitor);
 
 	        generateAndUploadQr(saved);
+	        try {
+				whatsAppService.sendBookingQRCode("918652769926", visitor.getQrS3Path());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	        return "visitor created";
 	    }
 	}

@@ -32,7 +32,7 @@ public class WhatsAppServiceImpl implements WhatsAppService {
     private String phoneNumberId = "676000862274443";
 
     
-    private String accessToken = "EAARpd5e53n0BPpYwxH1sKZANDZAiI8C1k6jpPJshB792znxHZCV5ZC6eBRjOIxL2fIaeQDphHxNAUBryjIUu10q27YxGx6UF8i7EyQPxFNEb1pt5d4ouVnNQfz6XFQKcacPWEac89BA6jDc6uMq9H89PrK4ZBrVXI1qSJUatr34zADNbAe5n7GGzBjQ7O8cBi7xmi10A0ztHZCdp2LiE6a1j6cEFrAZCRt7XNHbQmH1DAZDZD";
+    private String accessToken = "EAARpd5e53n0BQfxWCWPEsTf8PWa03VYKoGegbsYFbQK3SFlkf8EHwx5sYR2YPtGcqbf04uap0avYMkh3tFeLMjigrZA4MaARAsOFwnLJGMAZAXMt8936ERbOBuRX7TJiQehGxd1fsPZCftWXZBvjlFSXSNm9lPiAeDfEKAjcp5INjxOi4m1ZB5ZAhpz1SgdASRGW4o756JZA5j7dhfM7eZAd9B5xRbeye0VTMEOqYyllh7WncmkGhhc29hKCUl8ZAXRhIRwZCwUMN0yB7jHtYAqQ4m";
 
     @Override
     public String uploadMedia(String filePath) throws Exception {
