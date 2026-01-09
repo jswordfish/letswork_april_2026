@@ -105,7 +105,7 @@ public class VisitorServiceImpl implements VisitorService {
 
 	        generateAndUploadQr(saved);
 	        try {
-				whatsAppService.sendBookingQRCode("918652769926", visitor.getQrS3Path());
+				whatsAppService.sendBookingQRCode("918652769926", "C:\\Users\\hp\\Desktop\\Dhruv2025\\Images\\QR.png");
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
