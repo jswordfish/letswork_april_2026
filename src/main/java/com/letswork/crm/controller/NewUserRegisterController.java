@@ -49,6 +49,25 @@ public class NewUserRegisterController {
         return ResponseEntity.ok(response);
     }
     
+    @PostMapping("/set-monthly")
+    public ResponseEntity<NewUserRegister> setMonthly(
+            @RequestParam String email,
+            @RequestParam String companyId
+    ) {
+        return ResponseEntity.ok(
+                service.setUserMonthly(email, companyId)
+        );
+    }
+    
+    @PostMapping("/reset-monthly-benefits")
+    public ResponseEntity<String> resetMonthlyBenefits(
+            @RequestParam String companyId
+    ) {
+        return ResponseEntity.ok(
+                service.resetMonthlyBenefits(companyId)
+        );
+    }
+    
     @GetMapping("/checkRegister")
     public ResponseEntity<Map<String, String>> checkRegister(
             @RequestParam String email,

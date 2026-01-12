@@ -166,12 +166,11 @@ public class BookConferenceRoomServiceImpl
         for (BuyConferenceBundle bundle : bundles) {
 
             int availableCredits =
-                    Integer.parseInt(bundle.getNumberOfHours()); // actually credits
+                    Integer.parseInt(bundle.getNumberOfHours()); // credits
 
             if (availableCredits <= 0) continue;
 
-            int usedCredits =
-                    Math.min(availableCredits, remainingCredits);
+            int usedCredits = Math.min(availableCredits, remainingCredits);
 
             bundle.setNumberOfHours(
                     String.valueOf(availableCredits - usedCredits)
@@ -181,14 +180,15 @@ public class BookConferenceRoomServiceImpl
 
             remainingCredits -= usedCredits;
 
-            if (remainingCredits == 0) break;
+            if (remainingCredits == 0) {
+                break;
+            }
         }
 
         if (remainingCredits > 0) {
             throw new RuntimeException("Insufficient conference credits");
         }
 
-        // newUserRegisterService.updateConferenceCredits(...)
     }
 
     @Override

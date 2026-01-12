@@ -185,5 +185,39 @@ public class NewUserRegisterServiceImpl
 	    user.setUpdateDate(new Date());
 	    repo.save(user);
 	}
+
+	@Override
+	public NewUserRegister setUserMonthly(String email, String companyId) {
+		// TODO Auto-generated method stub
+		NewUserRegister user =
+                repo.findByEmailAndCompanyId(email, companyId)
+                        .orElseThrow(() ->
+                                new RuntimeException("User not found")
+                        );
+
+        user.setMonthly(true);
+        return repo.save(user);
+	}
+
+	@Override
+	public String resetMonthlyBenefits(String companyId) {
+		// TODO Auto-generated method stub
+		List<NewUserRegister> monthlyUsers =
+                repo.findByMonthlyTrueAndCompanyId(companyId);
+
+        if (monthlyUsers.isEmpty()) {
+            return "No monthly users found";
+        }
+
+        for (NewUserRegister user : monthlyUsers) {
+            user.setFreeConferenceCredits(4);
+            user.setFreeDayPass(5);
+        }
+
+        repo.saveAll(monthlyUsers);
+
+        return "Monthly benefits reset successfully";
+    }
+	
 	
 }

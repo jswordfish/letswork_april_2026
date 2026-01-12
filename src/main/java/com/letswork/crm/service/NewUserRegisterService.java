@@ -28,5 +28,12 @@ public interface NewUserRegisterService {
             String email,
             String companyId
     );
+    
+    public NewUserRegister setUserMonthly(
+            String email,
+            String companyId
+    );
+    
+    public String resetMonthlyBenefits(String companyId);
 
 }

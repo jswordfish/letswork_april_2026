@@ -19,6 +19,8 @@ public interface NewUserRegisterRepository extends JpaRepository<NewUserRegister
 
     List<NewUserRegister> findByCompanyId(String companyId);
     
-    
+    List<NewUserRegister> findByMonthlyTrueAndCompanyId(
+            String companyId
+    );
     
 }
