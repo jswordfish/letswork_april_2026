@@ -36,7 +36,7 @@ public class BookConferenceRoom extends Base{
 	
 	private Integer numberOfGuests;
 		
-	private Integer numberOfHours;
+	private Float numberOfHours;
 	
 	private String email;
 	

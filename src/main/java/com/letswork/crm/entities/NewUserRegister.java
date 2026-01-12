@@ -41,5 +41,11 @@ public class NewUserRegister extends Base{
 	private Integer conferenceCredits;
 	
 	private Integer dayPass;
+	
+	private Integer freeConferenceCredits;
+	
+	private Integer freeDayPass;
+	
+	private Boolean monthly;
 
 }

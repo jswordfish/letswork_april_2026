@@ -65,8 +65,10 @@ public class BookConferenceRoomServiceImpl
             throw new RuntimeException("Conference room does not exist");
         }
 
+        // Ensure slots are consecutive
         validateConsecutiveSlots(slotRequests);
 
+        // Check slot availability
         for (ConferenceRoomSlotRequest slot : slotRequests) {
             if (timeSlotRepo.existsByCompanyIdAndLetsWorkCentreAndCityAndStateAndRoomNameAndSlotDateAndStartTime(
                     request.getCompanyId(),
@@ -81,11 +83,9 @@ public class BookConferenceRoomServiceImpl
             }
         }
 
-        if (slotRequests.size() % 2 != 0) {
-            throw new RuntimeException("Slots must complete full hours");
-        }
-
-        int hours = slotRequests.size() / 2;
+        
+        int creditsRequired = slotRequests.size();
+        float hours = creditsRequired / 2.0f;
         request.setNumberOfHours(hours);
 
         request.setBookingCode(UUID.randomUUID().toString());
@@ -99,6 +99,7 @@ public class BookConferenceRoomServiceImpl
 
         BookConferenceRoom savedBooking = bookRepo.save(request);
 
+        // Save booked slots
         List<ConferenceRoomTimeSlot> slots = new ArrayList<>();
 
         for (ConferenceRoomSlotRequest s : slotRequests) {
@@ -117,6 +118,7 @@ public class BookConferenceRoomServiceImpl
 
         timeSlotRepo.saveAll(slots);
 
+        // QR generation + upload
         try {
             String qrPath =
                     qrService.generateQRCodeWithBookingCodeRGB(
@@ -147,8 +149,8 @@ public class BookConferenceRoomServiceImpl
             String companyId
     ) {
 
-        int hoursRequired = request.getNumberOfHours();
-        int creditsRequired = hoursRequired * 2;
+        
+    	int creditsRequired = Math.round(request.getNumberOfHours() * 2);
 
         List<BuyConferenceBundle> bundles =
                 bundleRepo.findActiveBundles(
@@ -158,28 +160,27 @@ public class BookConferenceRoomServiceImpl
                 );
 
         if (bundles.isEmpty()) {
-            throw new RuntimeException(
-                    "No active conference bundles found"
-            );
+            throw new RuntimeException("No active conference bundles found");
         }
 
         int remainingCredits = creditsRequired;
 
         for (BuyConferenceBundle bundle : bundles) {
 
+            
             int availableCredits =
-                    Integer.parseInt(bundle.getNumberOfHours()) * 2;
+                    Integer.parseInt(bundle.getNumberOfHours());
 
             if (availableCredits <= 0) continue;
 
             int usedCredits =
                     Math.min(availableCredits, remainingCredits);
 
-            int remainingHours =
-                    (availableCredits - usedCredits) / 2;
+            int updatedCredits =
+                    availableCredits - usedCredits;
 
             bundle.setNumberOfHours(
-                    String.valueOf(remainingHours)
+                    String.valueOf(updatedCredits)
             );
 
             bundleRepo.save(bundle);
@@ -190,14 +191,12 @@ public class BookConferenceRoomServiceImpl
         }
 
         if (remainingCredits > 0) {
-            throw new RuntimeException(
-                    "Insufficient conference credits"
-            );
+            throw new RuntimeException("Insufficient conference credits");
         }
 
-        // Update user credits
+        
         newUserRegisterService.updateConferenceCredits(
-                String.valueOf(-hoursRequired),
+                String.valueOf(-creditsRequired),
                 request.getEmail(),
                 companyId
         );
