@@ -84,8 +84,9 @@ public class BookConferenceRoomServiceImpl
         }
 
         
-        int creditsRequired = slotRequests.size();
-        float hours = creditsRequired / 2.0f;
+        int creditsRequired = slotRequests.size();   // 1 slot = 1 credit
+        float hours = creditsRequired / 2.0f;        // 2 slots = 1 hour
+
         request.setNumberOfHours(hours);
 
         request.setBookingCode(UUID.randomUUID().toString());
@@ -94,7 +95,7 @@ public class BookConferenceRoomServiceImpl
         request.setDateOfBooking(slotDate);
 
         if (Boolean.TRUE.equals(request.getBundleUsed())) {
-            consumeConferenceCredits(request, request.getCompanyId());
+            consumeConferenceCredits(creditsRequired, request);
         }
 
         BookConferenceRoom savedBooking = bookRepo.save(request);
@@ -145,17 +146,14 @@ public class BookConferenceRoomServiceImpl
     }
 
     private void consumeConferenceCredits(
-            BookConferenceRoom request,
-            String companyId
+            int creditsRequired,
+            BookConferenceRoom request
     ) {
-
-        
-    	int creditsRequired = Math.round(request.getNumberOfHours() * 2);
 
         List<BuyConferenceBundle> bundles =
                 bundleRepo.findActiveBundles(
                         request.getEmail(),
-                        companyId,
+                        request.getCompanyId(),
                         LocalDateTime.now()
                 );
 
@@ -167,7 +165,6 @@ public class BookConferenceRoomServiceImpl
 
         for (BuyConferenceBundle bundle : bundles) {
 
-            
             int availableCredits =
                     Integer.parseInt(bundle.getNumberOfHours());
 
@@ -176,11 +173,8 @@ public class BookConferenceRoomServiceImpl
             int usedCredits =
                     Math.min(availableCredits, remainingCredits);
 
-            int updatedCredits =
-                    availableCredits - usedCredits;
-
             bundle.setNumberOfHours(
-                    String.valueOf(updatedCredits)
+                    String.valueOf(availableCredits - usedCredits)
             );
 
             bundleRepo.save(bundle);
@@ -194,11 +188,10 @@ public class BookConferenceRoomServiceImpl
             throw new RuntimeException("Insufficient conference credits");
         }
 
-        
         newUserRegisterService.updateConferenceCredits(
                 String.valueOf(-creditsRequired),
                 request.getEmail(),
-                companyId
+                request.getCompanyId()
         );
     }
 
