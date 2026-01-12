@@ -52,7 +52,8 @@ public class NewUserRegisterController {
     @PostMapping("/set-monthly")
     public ResponseEntity<NewUserRegister> setMonthly(
             @RequestParam String email,
-            @RequestParam String companyId
+            @RequestParam String companyId,
+            @RequestParam String token
     ) {
         return ResponseEntity.ok(
                 service.setUserMonthly(email, companyId)
@@ -61,7 +62,8 @@ public class NewUserRegisterController {
     
     @PostMapping("/reset-monthly-benefits")
     public ResponseEntity<String> resetMonthlyBenefits(
-            @RequestParam String companyId
+            @RequestParam String companyId,
+            @RequestParam String token
     ) {
         return ResponseEntity.ok(
                 service.resetMonthlyBenefits(companyId)
