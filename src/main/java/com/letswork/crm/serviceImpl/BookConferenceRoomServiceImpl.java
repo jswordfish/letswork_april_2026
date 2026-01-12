@@ -165,26 +165,25 @@ public class BookConferenceRoomServiceImpl
 
         for (BuyConferenceBundle bundle : bundles) {
 
-            // bundle stores HOURS, convert to credits
+            // TREAT THIS AS CREDITS (NOT HOURS)
             int availableCredits =
-                    Integer.parseInt(bundle.getNumberOfHours()) * 2;
+                    Integer.parseInt(bundle.getNumberOfHours());
 
             if (availableCredits <= 0) continue;
 
             int usedCredits = Math.min(availableCredits, remainingCredits);
 
-            int remainingBundleCredits = availableCredits - usedCredits;
-
-            // convert credits back to hours before saving
             bundle.setNumberOfHours(
-                    String.valueOf(remainingBundleCredits / 2)
+                    String.valueOf(availableCredits - usedCredits)
             );
 
             bundleRepo.save(bundle);
 
             remainingCredits -= usedCredits;
 
-            if (remainingCredits == 0) break;
+            if (remainingCredits == 0) {
+                break;
+            }
         }
 
         if (remainingCredits > 0) {
