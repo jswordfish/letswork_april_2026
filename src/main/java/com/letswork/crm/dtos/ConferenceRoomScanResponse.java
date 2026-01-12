@@ -19,7 +19,7 @@ public class ConferenceRoomScanResponse {
     private String letsWorkCentre;
     private String city;
     private String state;
-    private Integer numberOfHours;
+    private Float numberOfHours;
     private Boolean used;
     private LocalDateTime dateOfPurchase;
 
