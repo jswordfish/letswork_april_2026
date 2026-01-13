@@ -80,6 +80,7 @@ public class VisitorServiceImpl implements VisitorService {
 		NewUserRegister user = userRepo.findByEmailAndCompanyId(visitor.getEmail(), visitor.getCompanyId()).orElseThrow(() -> new RuntimeException("This user does not exists"));
 		
 		visitor.setNameOfUser(user.getName());
+		visitor.setPhoneOfUser(user.getPhoneNumber());
 		
 	    Visitor existing =
 	            repo.findByCompanyIdAndEmailOfVisitorAndVisitDate(

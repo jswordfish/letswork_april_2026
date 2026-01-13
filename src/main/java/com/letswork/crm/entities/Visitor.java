@@ -32,6 +32,8 @@ public class Visitor extends Base{
     private String name;
     
     private String nameOfUser;
+    
+    private String phoneOfUser;
 
     private String phone;
 
