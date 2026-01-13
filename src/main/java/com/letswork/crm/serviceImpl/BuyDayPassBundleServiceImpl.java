@@ -2,13 +2,17 @@ package com.letswork.crm.serviceImpl;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.letswork.crm.dtos.BuyDayPassRequestDto;
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BuyDayPassBundle;
 import com.letswork.crm.entities.DayPassBundle;
 import com.letswork.crm.entities.NewUserRegister;
@@ -107,22 +111,43 @@ public class BuyDayPassBundleServiceImpl
     }
 
     @Override
-    public List<BuyDayPassBundle> get(
+    public PaginatedResponseDto getPaginated(
             String companyId,
             String email,
             Long bundleId,
             String letsWorkCentre,
             String city,
-            String state
+            String state,
+            int page,
+            int size
     ) {
 
-        return buyRepo.findByFilters(
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("id").descending() // or createdAt if you have it
+        );
+
+        Page<BuyDayPassBundle> resultPage = buyRepo.findByFilters(
                 companyId,
                 email,
                 bundleId,
                 letsWorkCentre,
                 city,
-                state
+                state,
+                pageable
         );
+
+        PaginatedResponseDto dto = new PaginatedResponseDto();
+        dto.setSelectedPage(page);
+        dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
+        dto.setTotalNumberOfPages(resultPage.getTotalPages());
+        dto.setRecordsFrom(page * size + 1);
+        dto.setRecordsTo(
+                Math.min((page + 1) * size, (int) resultPage.getTotalElements())
+        );
+        dto.setList(resultPage.getContent());
+
+        return dto;
     }
 }

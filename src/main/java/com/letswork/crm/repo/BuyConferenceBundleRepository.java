@@ -3,6 +3,8 @@ package com.letswork.crm.repo;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,16 +29,17 @@ public interface BuyConferenceBundleRepository
     );
 
     @Query(
-        "SELECT b FROM BuyConferenceBundle b " +
-        "WHERE b.companyId = :companyId " +
-        "AND (:email IS NULL OR b.email = :email) " +
-        "AND (:bundleId IS NULL OR b.bundleId = :bundleId)"
-    )
-    List<BuyConferenceBundle> findByFilters(
-            @Param("companyId") String companyId,
-            @Param("email") String email,
-            @Param("bundleId") Long bundleId
-    );
+    	    "SELECT b FROM BuyConferenceBundle b " +
+    	    "WHERE b.companyId = :companyId " +
+    	    "AND (:email IS NULL OR b.email = :email) " +
+    	    "AND (:bundleId IS NULL OR b.bundleId = :bundleId)"
+    	)
+    	Page<BuyConferenceBundle> findByFilters(
+    	        @Param("companyId") String companyId,
+    	        @Param("email") String email,
+    	        @Param("bundleId") Long bundleId,
+    	        Pageable pageable
+    	);
     
     @Query("SELECT b FROM BuyConferenceBundle b " +
             "WHERE b.email = :email " +

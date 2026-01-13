@@ -15,10 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.BookConferenceRoomRequest;
-import com.letswork.crm.dtos.ConferenceRoomScanResponse;
 import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BookConferenceRoom;
-import com.letswork.crm.entities.BookDayPass;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.repo.BookConferenceRoomRepository;
@@ -134,7 +133,7 @@ public class BookConferenceRoomController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BookConferenceRoom>> get(
+    public ResponseEntity<PaginatedResponseDto> get(
             @RequestParam String companyId,
             @RequestParam String token,
             @RequestParam(required = false) String email,
@@ -144,17 +143,21 @@ public class BookConferenceRoomController {
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate date,
-            @RequestParam(required = false) String roomName
+            @RequestParam(required = false) String roomName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(
-                service.get(
+                service.getPaginated(
                         companyId,
                         email,
                         letsWorkCentre,
                         city,
                         state,
                         date,
-                        roomName
+                        roomName,
+                        page,
+                        size
                 )
         );
     }

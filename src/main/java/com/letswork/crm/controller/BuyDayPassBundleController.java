@@ -1,7 +1,5 @@
 package com.letswork.crm.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.BuyDayPassRequestDto;
 import com.letswork.crm.dtos.DayPassSummaryResponseDto;
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BuyDayPassBundle;
 import com.letswork.crm.service.BuyDayPassBundleService;
 import com.letswork.crm.serviceImpl.DayPassSummaryService;
@@ -41,25 +40,27 @@ public class BuyDayPassBundleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BuyDayPassBundle>> get(
+    public ResponseEntity<PaginatedResponseDto> get(
             @RequestParam String companyId,
             @RequestParam String token,
             @RequestParam(required = false) String email,
             @RequestParam(required = false) Long bundleId,
             @RequestParam(required = false) String letsWorkCentre,
             @RequestParam(required = false) String city,
-            @RequestParam(required = false) String state
+            @RequestParam(required = false) String state,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-
-
         return ResponseEntity.ok(
-                service.get(
+                service.getPaginated(
                         companyId,
                         email,
                         bundleId,
                         letsWorkCentre,
                         city,
-                        state
+                        state,
+                        page,
+                        size
                 )
         );
     }

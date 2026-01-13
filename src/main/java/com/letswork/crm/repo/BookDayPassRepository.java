@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,12 +31,13 @@ public interface BookDayPassRepository extends JpaRepository<BookDayPass, Long> 
     	       "AND (:city IS NULL OR b.city = :city) " +
     	       "AND (:state IS NULL OR b.state = :state) " +
     	       "AND (:date IS NULL OR b.dateOfBooking = :date)")
-    	List<BookDayPass> filter(
+    	Page<BookDayPass> filter(
     	        @Param("companyId") String companyId,
     	        @Param("email") String email,
     	        @Param("centre") String centre,
     	        @Param("city") String city,
     	        @Param("state") String state,
-    	        @Param("date") LocalDate date
+    	        @Param("date") LocalDate date,
+    	        Pageable pageable
     	);
 }

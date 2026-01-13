@@ -1,7 +1,6 @@
 package com.letswork.crm.controller;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.letswork.crm.dtos.DayPassScanResponse;
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BookDayPass;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.repo.BookDayPassRepository;
@@ -95,7 +94,7 @@ public class BookDayPassController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BookDayPass>> get(
+    public ResponseEntity<PaginatedResponseDto> get(
             @RequestParam String companyId,
             @RequestParam String token,
             @RequestParam(required = false) String email,
@@ -104,10 +103,21 @@ public class BookDayPassController {
             @RequestParam(required = false) String state,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate date
+            LocalDate date,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(
-                service.get(companyId, email, letsWorkCentre, city, state, date)
+                service.getPaginated(
+                        companyId,
+                        email,
+                        letsWorkCentre,
+                        city,
+                        state,
+                        date,
+                        page,
+                        size
+                )
         );
     }
 }

@@ -1,7 +1,5 @@
 package com.letswork.crm.controller;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.BuyConferenceBundleRequestDto;
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BuyConferenceBundle;
 import com.letswork.crm.service.BuyConferenceBundleService;
 
@@ -35,14 +34,22 @@ public class BuyConferenceBundleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BuyConferenceBundle>> get(
+    public ResponseEntity<PaginatedResponseDto> get(
             @RequestParam String companyId,
             @RequestParam String token,
             @RequestParam(required = false) String email,
-            @RequestParam(required = false) Long bundleId
+            @RequestParam(required = false) Long bundleId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(
-                service.get(companyId, email, bundleId)
+                service.getPaginated(
+                        companyId,
+                        email,
+                        bundleId,
+                        page,
+                        size
+                )
         );
     }
 }

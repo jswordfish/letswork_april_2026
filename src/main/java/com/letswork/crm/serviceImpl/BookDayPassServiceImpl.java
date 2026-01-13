@@ -1,7 +1,6 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,8 +8,13 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BookDayPass;
 import com.letswork.crm.entities.BuyDayPassBundle;
 import com.letswork.crm.repo.BookDayPassRepository;
@@ -132,22 +136,39 @@ public class BookDayPassServiceImpl implements BookDayPassService {
     }
 
     @Override
-    public List<BookDayPass> get(
+    public PaginatedResponseDto getPaginated(
             String companyId,
             String email,
             String letsWorkCentre,
             String city,
             String state,
-            LocalDate date
+            LocalDate date,
+            int page,
+            int size
     ) {
-        return bookRepo.filter(
+        Pageable pageable = PageRequest.of(page, size, Sort.by("dateOfBooking").descending());
+
+        Page<BookDayPass> resultPage = bookRepo.filter(
                 companyId,
                 email,
                 letsWorkCentre,
                 city,
                 state,
-                date
+                date,
+                pageable
         );
+
+        PaginatedResponseDto dto = new PaginatedResponseDto();
+        dto.setSelectedPage(page);
+        dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
+        dto.setTotalNumberOfPages(resultPage.getTotalPages());
+        dto.setRecordsFrom(page * size + 1);
+        dto.setRecordsTo(
+                Math.min((page + 1) * size, (int) resultPage.getTotalElements())
+        );
+        dto.setList(resultPage.getContent());
+
+        return dto;
     }
 
 	@Override

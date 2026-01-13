@@ -2,13 +2,17 @@ package com.letswork.crm.serviceImpl;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.letswork.crm.dtos.BuyConferenceBundleRequestDto;
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BuyConferenceBundle;
 import com.letswork.crm.entities.ConferenceBundle;
 import com.letswork.crm.repo.BuyConferenceBundleRepository;
@@ -92,15 +96,37 @@ public class BuyConferenceBundleServiceImpl
     }
 
     @Override
-    public List<BuyConferenceBundle> get(
+    public PaginatedResponseDto getPaginated(
             String companyId,
             String email,
-            Long bundleId
+            Long bundleId,
+            int page,
+            int size
     ) {
-        return buyRepo.findByFilters(
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("id").descending() // or createdAt if present
+        );
+
+        Page<BuyConferenceBundle> resultPage = buyRepo.findByFilters(
                 companyId,
                 email,
-                bundleId
+                bundleId,
+                pageable
         );
+
+        PaginatedResponseDto dto = new PaginatedResponseDto();
+        dto.setSelectedPage(page);
+        dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
+        dto.setTotalNumberOfPages(resultPage.getTotalPages());
+        dto.setRecordsFrom(page * size + 1);
+        dto.setRecordsTo(
+                Math.min((page + 1) * size, (int) resultPage.getTotalElements())
+        );
+        dto.setList(resultPage.getContent());
+
+        return dto;
     }
 }

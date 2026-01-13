@@ -1,22 +1,24 @@
 package com.letswork.crm.service;
 
 import java.time.LocalDate;
-import java.util.List;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BookDayPass;
 
 public interface BookDayPassService {
 	
 	BookDayPass book(BookDayPass request);
 
-    List<BookDayPass> get(
-            String companyId,
-            String email,
-            String letsWorkCentre,
-            String city,
-            String state,
-            LocalDate date
-    );
+	PaginatedResponseDto getPaginated(
+	        String companyId,
+	        String email,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
+	        LocalDate date,
+	        int page,
+	        int size
+	);
     
     public BookDayPass scanAndConsume(String bookingCode);
 

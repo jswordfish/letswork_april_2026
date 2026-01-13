@@ -1,21 +1,22 @@
 package com.letswork.crm.service;
 
-import java.util.List;
-
 import com.letswork.crm.dtos.BuyDayPassRequestDto;
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BuyDayPassBundle;
 
 public interface BuyDayPassBundleService {
 	
 	BuyDayPassBundle purchase(BuyDayPassRequestDto dto);
 
-	public List<BuyDayPassBundle> get(
+	PaginatedResponseDto getPaginated(
 	        String companyId,
 	        String email,
 	        Long bundleId,
 	        String letsWorkCentre,
 	        String city,
-	        String state
+	        String state,
+	        int page,
+	        int size
 	);
 
 }

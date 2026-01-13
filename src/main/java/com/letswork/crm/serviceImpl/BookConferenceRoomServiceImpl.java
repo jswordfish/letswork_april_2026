@@ -11,9 +11,14 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BookConferenceRoom;
 import com.letswork.crm.entities.BuyConferenceBundle;
 import com.letswork.crm.entities.ConferenceRoom;
@@ -50,25 +55,23 @@ public class BookConferenceRoomServiceImpl
             LocalDate slotDate,
             List<ConferenceRoomSlotRequest> slotRequests
     ) {
-
-        ConferenceRoom room =
-                conferenceRoomRepo
-                        .findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
-                                request.getRoomName(),
-                                request.getLetsWorkCentre(),
-                                request.getCompanyId(),
-                                request.getCity(),
-                                request.getState()
-                        );
+        ConferenceRoom room = conferenceRoomRepo
+                .findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
+                        request.getRoomName(),
+                        request.getLetsWorkCentre(),
+                        request.getCompanyId(),
+                        request.getCity(),
+                        request.getState()
+                );
 
         if (room == null) {
             throw new RuntimeException("Conference room does not exist");
         }
 
-        // Ensure slots are consecutive
+        // 1. Validate consecutive slots
         validateConsecutiveSlots(slotRequests);
 
-        // Check slot availability
+        // 2. Check slot availability
         for (ConferenceRoomSlotRequest slot : slotRequests) {
             if (timeSlotRepo.existsByCompanyIdAndLetsWorkCentreAndCityAndStateAndRoomNameAndSlotDateAndStartTime(
                     request.getCompanyId(),
@@ -83,26 +86,25 @@ public class BookConferenceRoomServiceImpl
             }
         }
 
-        
-        int creditsRequired = slotRequests.size();   // 1 slot = 1 credit
-        float hours = creditsRequired / 2.0f;        // 2 slots = 1 hour
+        // 3. Logic: 1 slot = 1 credit | 2 credits = 1 hour
+        int creditsRequired = slotRequests.size();
+        float hours = creditsRequired / 2.0f;
 
         request.setNumberOfHours(hours);
-
         request.setBookingCode(UUID.randomUUID().toString());
         request.setUsed(false);
         request.setDateOfPurchase(LocalDateTime.now());
         request.setDateOfBooking(slotDate);
 
+        // 4. Handle Credit Consumption
         if (Boolean.TRUE.equals(request.getBundleUsed())) {
             consumeConferenceCredits(creditsRequired, request);
         }
 
         BookConferenceRoom savedBooking = bookRepo.save(request);
 
-        // Save booked slots
+        // 5. Save booked slots
         List<ConferenceRoomTimeSlot> slots = new ArrayList<>();
-
         for (ConferenceRoomSlotRequest s : slotRequests) {
             ConferenceRoomTimeSlot t = new ConferenceRoomTimeSlot();
             t.setCompanyId(request.getCompanyId());
@@ -116,32 +118,30 @@ public class BookConferenceRoomServiceImpl
             t.setBooking(savedBooking);
             slots.add(t);
         }
-
         timeSlotRepo.saveAll(slots);
 
-        // QR generation + upload
+        // 6. QR generation + upload
         try {
-            String qrPath =
-                    qrService.generateQRCodeWithBookingCodeRGB(
-                            "CONFROOM|" + savedBooking.getBookingCode()
-                    );
+            String qrPath = qrService.generateQRCodeWithBookingCodeRGB(
+                    "CONFROOM|" + savedBooking.getBookingCode()
+            );
 
             File qrFile = new File(qrPath);
 
-            String s3Path =
-                    s3Service.uploadConferenceRoomQrCode(
-                            "letsworkcentres",
-                            savedBooking.getCompanyId(),
-                            savedBooking.getEmail(),
-                            savedBooking.getBookingCode(),
-                            qrFile
-                    );
+            String s3Path = s3Service.uploadConferenceRoomQrCode(
+                    "letsworkcentres",
+                    savedBooking.getCompanyId(),
+                    savedBooking.getEmail(),
+                    savedBooking.getBookingCode(),
+                    qrFile
+            );
 
             savedBooking.setQrS3Path(s3Path);
             return bookRepo.save(savedBooking);
 
         } catch (Exception e) {
-            throw new RuntimeException("QR generation failed", e);
+            // Because of @Transactional, the credits deducted above will be restored if this fails
+            throw new RuntimeException("QR generation failed: " + e.getMessage());
         }
     }
 
@@ -149,45 +149,43 @@ public class BookConferenceRoomServiceImpl
             int creditsRequired,
             BookConferenceRoom request
     ) {
-
-        List<BuyConferenceBundle> bundles =
-                bundleRepo.findActiveBundles(
-                        request.getEmail(),
-                        request.getCompanyId(),
-                        LocalDateTime.now()
-                );
+        List<BuyConferenceBundle> bundles = bundleRepo.findActiveBundles(
+                request.getEmail(),
+                request.getCompanyId(),
+                LocalDateTime.now()
+        );
 
         if (bundles.isEmpty()) {
             throw new RuntimeException("No active conference bundles found");
         }
 
-        int remainingCredits = creditsRequired;
+        int remainingToDeduct = creditsRequired;
 
         for (BuyConferenceBundle bundle : bundles) {
+            // Convert the String "Hours" from DB into "Credits" (Hours * 2)
+            float totalHoursInBundle = Float.parseFloat(bundle.getNumberOfHours());
+            int availableCreditsInBundle = Math.round(totalHoursInBundle * 2);
 
-            // TREAT THIS AS CREDITS (NOT HOURS)
-            int availableCredits =
-                    Integer.parseInt(bundle.getNumberOfHours());
+            if (availableCreditsInBundle <= 0) continue;
 
-            if (availableCredits <= 0) continue;
+            // Determine how many credits to take from this specific bundle
+            int creditsToTake = Math.min(availableCreditsInBundle, remainingToDeduct);
 
-            int usedCredits = Math.min(availableCredits, remainingCredits);
+            // Calculate remaining credits and convert back to Hours (Credits / 2)
+            int updatedCredits = availableCreditsInBundle - creditsToTake;
+            float updatedHours = updatedCredits / 2.0f;
 
-            bundle.setNumberOfHours(
-                    String.valueOf(availableCredits - usedCredits)
-            );
-
+            // Save back as string
+            bundle.setNumberOfHours(String.valueOf(updatedHours));
             bundleRepo.save(bundle);
 
-            remainingCredits -= usedCredits;
+            remainingToDeduct -= creditsToTake;
 
-            if (remainingCredits == 0) {
-                break;
-            }
+            if (remainingToDeduct <= 0) break;
         }
 
-        if (remainingCredits > 0) {
-            throw new RuntimeException("Insufficient conference credits");
+        if (remainingToDeduct > 0) {
+            throw new RuntimeException("Insufficient conference credits. Missing: " + remainingToDeduct + " slots.");
         }
     }
 
@@ -215,25 +213,46 @@ public class BookConferenceRoomServiceImpl
     }
 
     @Override
-    public List<BookConferenceRoom> get(
+    public PaginatedResponseDto getPaginated(
             String companyId,
             String email,
             String letsWorkCentre,
             String city,
             String state,
             LocalDate date,
-            String roomName
+            String roomName,
+            int page,
+            int size
     ) {
 
-        return bookRepo.filter(
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("dateOfBooking").descending()
+        );
+
+        Page<BookConferenceRoom> resultPage = bookRepo.filter(
                 companyId,
                 email,
                 letsWorkCentre,
                 city,
                 state,
                 date,
-                roomName
+                roomName,
+                pageable
         );
+
+        PaginatedResponseDto dto = new PaginatedResponseDto();
+        dto.setSelectedPage(page);
+        dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
+        dto.setTotalNumberOfPages(resultPage.getTotalPages());
+        dto.setRecordsFrom(page * size + 1);
+        dto.setRecordsTo(
+                Math.min((page + 1) * size, (int) resultPage.getTotalElements())
+        );
+        dto.setList(resultPage.getContent());
+
+        return dto;
     }
     
     private void validateConsecutiveSlots(

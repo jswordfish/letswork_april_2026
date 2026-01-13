@@ -3,6 +3,8 @@ package com.letswork.crm.repo;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,22 +23,23 @@ public interface BuyDayPassBundleRepository extends JpaRepository<BuyDayPassBund
 	List<BuyDayPassBundle> findByBundleIdAndCompanyId(Long bundleId, String companyId);
 	
 	@Query(
-	        "SELECT b FROM BuyDayPassBundle b " +
-	        "WHERE b.companyId = :companyId " +
-	        "AND (:email IS NULL OR b.email = :email) " +
-	        "AND (:bundleId IS NULL OR b.bundleId = :bundleId) " +
-	        "AND (:centre IS NULL OR b.letsWorkCentre = :centre) " +
-	        "AND (:city IS NULL OR b.city = :city) " +
-	        "AND (:state IS NULL OR b.state = :state)"
-	    )
-	    List<BuyDayPassBundle> findByFilters(
-	            @Param("companyId") String companyId,
-	            @Param("email") String email,
-	            @Param("bundleId") Long bundleId,
-	            @Param("centre") String letsWorkCentre,
-	            @Param("city") String city,
-	            @Param("state") String state
-	    );
+		    "SELECT b FROM BuyDayPassBundle b " +
+		    "WHERE b.companyId = :companyId " +
+		    "AND (:email IS NULL OR b.email = :email) " +
+		    "AND (:bundleId IS NULL OR b.bundleId = :bundleId) " +
+		    "AND (:centre IS NULL OR b.letsWorkCentre = :centre) " +
+		    "AND (:city IS NULL OR b.city = :city) " +
+		    "AND (:state IS NULL OR b.state = :state)"
+		)
+		Page<BuyDayPassBundle> findByFilters(
+		        @Param("companyId") String companyId,
+		        @Param("email") String email,
+		        @Param("bundleId") Long bundleId,
+		        @Param("centre") String letsWorkCentre,
+		        @Param("city") String city,
+		        @Param("state") String state,
+		        Pageable pageable
+		);
 	
 	@Query(
 	        "SELECT new com.letswork.crm.dtos.CentreDayPassSummaryDto(" +

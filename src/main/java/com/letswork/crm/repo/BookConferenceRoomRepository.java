@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,20 +27,21 @@ public interface BookConferenceRoomRepository
     Optional<BookConferenceRoom> findByBookingCode(String bookingCode);
 
     @Query("SELECT b FROM BookConferenceRoom b " +
-           "WHERE b.companyId = :companyId " +
-           "AND (:email IS NULL OR b.email = :email) " +
-           "AND (:centre IS NULL OR b.letsWorkCentre = :centre) " +
-           "AND (:city IS NULL OR b.city = :city) " +
-           "AND (:state IS NULL OR b.state = :state) " +
-           "AND (:date IS NULL OR b.dateOfBooking = :date) " +
-           "AND (:roomName IS NULL OR b.roomName = :roomName)")
-    List<BookConferenceRoom> filter(
-            @Param("companyId") String companyId,
-            @Param("email") String email,
-            @Param("centre") String centre,
-            @Param("city") String city,
-            @Param("state") String state,
-            @Param("date") LocalDate date,
-            @Param("roomName") String roomName
-    );
+    	       "WHERE b.companyId = :companyId " +
+    	       "AND (:email IS NULL OR b.email = :email) " +
+    	       "AND (:centre IS NULL OR b.letsWorkCentre = :centre) " +
+    	       "AND (:city IS NULL OR b.city = :city) " +
+    	       "AND (:state IS NULL OR b.state = :state) " +
+    	       "AND (:date IS NULL OR b.dateOfBooking = :date) " +
+    	       "AND (:roomName IS NULL OR b.roomName = :roomName)")
+    	Page<BookConferenceRoom> filter(
+    	        @Param("companyId") String companyId,
+    	        @Param("email") String email,
+    	        @Param("centre") String centre,
+    	        @Param("city") String city,
+    	        @Param("state") String state,
+    	        @Param("date") LocalDate date,
+    	        @Param("roomName") String roomName,
+    	        Pageable pageable
+    	);
 }
