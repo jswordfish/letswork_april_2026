@@ -8,10 +8,15 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Solutions;
 import com.letswork.crm.entities.Tenant;
@@ -129,17 +134,59 @@ public class SolutionsServiceImpl implements SolutionsService{
 	            : "solution created";
 	}
 
+//	@Override
+//	public List<Solutions> findByCompanyId(String companyId) {
+//		// TODO Auto-generated method stub
+//		return repo.findByCompanyId(companyId);
+//	}
+	
 	@Override
-	public List<Solutions> findByCompanyId(String companyId) {
-		// TODO Auto-generated method stub
-		return repo.findByCompanyId(companyId);
+	public PaginatedResponseDto getPaginated(
+	        String companyId,
+	        String letsWorkCentre,
+	        int page,
+	        int size
+	) {
+
+	    Pageable pageable = PageRequest.of(
+	            page,
+	            size,
+	            Sort.by("id").descending()
+	    );
+
+	    Page<Solutions> resultPage;
+
+	    if (letsWorkCentre != null) {
+	        resultPage = repo.findByLetsWorkCentreAndCompanyId(
+	                letsWorkCentre,
+	                companyId,
+	                pageable
+	        );
+	    } else {
+	        resultPage = repo.findByCompanyId(
+	                companyId,
+	                pageable
+	        );
+	    }
+
+	    PaginatedResponseDto dto = new PaginatedResponseDto();
+	    dto.setSelectedPage(page);
+	    dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
+	    dto.setTotalNumberOfPages(resultPage.getTotalPages());
+	    dto.setRecordsFrom(page * size + 1);
+	    dto.setRecordsTo(
+	            Math.min((page + 1) * size, (int) resultPage.getTotalElements())
+	    );
+	    dto.setList(resultPage.getContent());
+
+	    return dto;
 	}
 
-	@Override
-	public List<Solutions> findByLetsWorkCentreAndCompanyId(String letsWorkCentre, String companyId) {
-		// TODO Auto-generated method stub
-		return repo.findByLetsWorkCentreAndCompanyId(letsWorkCentre, companyId);
-	}
+//	@Override
+//	public List<Solutions> findByLetsWorkCentreAndCompanyId(String letsWorkCentre, String companyId) {
+//		// TODO Auto-generated method stub
+//		return repo.findByLetsWorkCentreAndCompanyId(letsWorkCentre, companyId);
+//	}
 
 	@Override
 	public Solutions findByNameAndLetsWorkCentreAndCompanyId(String name, String letsWorkCentre, String companyId) {

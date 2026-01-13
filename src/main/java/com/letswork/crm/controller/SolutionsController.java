@@ -49,31 +49,32 @@ public class SolutionsController {
 	
 	@GetMapping("/solution")
 	public ResponseEntity<?> getSolutions(
-	        @RequestParam String companyId,                       
-	        @RequestParam(required = false) String letsWorkCentre, 
-	        @RequestParam(required = false) String name,           
-	        @RequestParam String token           
+	        @RequestParam String companyId,
+	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) String name,
+	        @RequestParam String token,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size
 	) {
 
-	    
 	    if (name != null && letsWorkCentre != null) {
 	        Solutions solution = solutionsService
-	                .findByNameAndLetsWorkCentreAndCompanyId(name, letsWorkCentre, companyId);
+	                .findByNameAndLetsWorkCentreAndCompanyId(
+	                        name,
+	                        letsWorkCentre,
+	                        companyId
+	                );
 	        return ResponseEntity.ok(solution);
 	    }
 
-	    
-	    if (letsWorkCentre != null) {
-	        List<Solutions> solutions = solutionsService
-	                .findByLetsWorkCentreAndCompanyId(letsWorkCentre, companyId);
-	        return ResponseEntity.ok(solutions);
-	    }
-
-	    
-	    List<Solutions> solutions = solutionsService.findByCompanyId(companyId);
-	    
-	    return ResponseEntity.ok(solutions);
-	    
+	    return ResponseEntity.ok(
+	            solutionsService.getPaginated(
+	                    companyId,
+	                    letsWorkCentre,
+	                    page,
+	                    size
+	            )
+	    );
 	}
 
 }

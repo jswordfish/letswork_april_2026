@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Amenities;
 import com.letswork.crm.enums.AmenityType;
 
@@ -18,6 +19,13 @@ public interface AmenitiesService {
     List<Amenities> listByAmenityType(String companyId, AmenityType type);
     
     List<Amenities> listByCompanyId(String companyId);
+    
+    PaginatedResponseDto listPaginated(
+            String companyId,
+            AmenityType type,
+            int page,
+            int size
+    );
 
     void deleteAmenity(Long id);
 

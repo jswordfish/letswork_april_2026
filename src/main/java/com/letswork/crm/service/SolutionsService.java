@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Solutions;
 
 public interface SolutionsService {
@@ -14,9 +15,16 @@ public interface SolutionsService {
             MultipartFile image
     ) throws IOException;
 	
-	public List<Solutions> findByCompanyId(String companyId);
+//	public List<Solutions> findByCompanyId(String companyId);
 	
-	public List<Solutions> findByLetsWorkCentreAndCompanyId(String letsWorkCentre, String companyId);
+//	public List<Solutions> findByLetsWorkCentreAndCompanyId(String letsWorkCentre, String companyId);
+	
+	PaginatedResponseDto getPaginated(
+	        String companyId,
+	        String letsWorkCentre,
+	        int page,
+	        int size
+	);
 	
 	public Solutions findByNameAndLetsWorkCentreAndCompanyId(String name, String letsWorkCentre, String companyId);
 

@@ -1,7 +1,6 @@
 package com.letswork.crm.controller;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Amenities;
 import com.letswork.crm.enums.AmenityType;
 import com.letswork.crm.service.AmenitiesService;
@@ -53,15 +53,22 @@ public class AmenitiesController {
 
     // List by type
     @GetMapping
-    public ResponseEntity<List<Amenities>> list(
+    public ResponseEntity<PaginatedResponseDto> list(
             @RequestParam String companyId,
-            @RequestParam(required=false) AmenityType type,
-            @RequestParam String token) {
-    	
-    	if(type!=null) {
-        return ResponseEntity.ok(service.listByAmenityType(companyId, type));
-    	}
-    	else return ResponseEntity.ok(service.listByCompanyId(companyId));
+            @RequestParam(required = false) AmenityType type,
+            @RequestParam String token,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+
+        return ResponseEntity.ok(
+                service.listPaginated(
+                        companyId,
+                        type,
+                        page,
+                        size
+                )
+        );
     }
 
     // Delete

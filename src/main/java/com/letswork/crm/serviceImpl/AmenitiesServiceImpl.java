@@ -9,9 +9,14 @@ import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Amenities;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.AmenityType;
@@ -108,6 +113,48 @@ public class AmenitiesServiceImpl implements AmenitiesService {
     @Override
     public List<Amenities> listByAmenityType(String companyId, AmenityType type) {
         return repo.findByAmenityTypeAndCompanyId(type, companyId);
+    }
+    
+    @Override
+    public PaginatedResponseDto listPaginated(
+            String companyId,
+            AmenityType type,
+            int page,
+            int size
+    ) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("id").ascending()
+        );
+
+        Page<Amenities> resultPage;
+
+        if (type != null) {
+            resultPage = repo.findByAmenityTypeAndCompanyId(
+                    type,
+                    companyId,
+                    pageable
+            );
+        } else {
+            resultPage = repo.findByCompanyId(
+                    companyId,
+                    pageable
+            );
+        }
+
+        PaginatedResponseDto dto = new PaginatedResponseDto();
+        dto.setSelectedPage(page);
+        dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
+        dto.setTotalNumberOfPages(resultPage.getTotalPages());
+        dto.setRecordsFrom(page * size + 1);
+        dto.setRecordsTo(
+                Math.min((page + 1) * size, (int) resultPage.getTotalElements())
+        );
+        dto.setList(resultPage.getContent());
+
+        return dto;
     }
 
     @Override
