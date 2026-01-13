@@ -1,8 +1,9 @@
 package com.letswork.crm.repo;
 
 import java.util.Date;
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,7 +27,7 @@ public interface EnquiryRepository extends JpaRepository<Enquiry, Long> {
 		    "AND (:toDate IS NULL OR e.date <= :toDate) " +
 		    "AND (:enquiryType IS NULL OR e.enquiryType = :enquiryType)"
 		)
-		List<Enquiry> findByFilters(
+		Page<Enquiry> findByFilters(
 		        @Param("companyId") String companyId,
 		        @Param("name") String name,
 		        @Param("email") String email,
@@ -34,6 +35,8 @@ public interface EnquiryRepository extends JpaRepository<Enquiry, Long> {
 		        @Param("solution") Solution solution,
 		        @Param("fromDate") Date fromDate,
 		        @Param("toDate") Date toDate,
-		        @Param("enquiryType") EnquiryType enquiryType
+		        @Param("enquiryType") EnquiryType enquiryType,
+		        Pageable pageable
 		);
+	
 }

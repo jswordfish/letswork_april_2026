@@ -17,7 +17,7 @@ public interface VisitorService {
 	
 	String deleteVisitor(Visitor visitor);
 	
-	List<Visitor> filter(
+	PaginatedResponseDto filterPaginated(
 	        String companyId,
 	        String name,
 	        String email,
@@ -26,7 +26,9 @@ public interface VisitorService {
 	        String centre,
 	        String city,
 	        String state,
-	        String type
+	        String type,
+	        int page,
+	        int size
 	);
 
 }

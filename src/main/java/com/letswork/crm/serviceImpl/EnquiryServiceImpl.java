@@ -1,11 +1,15 @@
 package com.letswork.crm.serviceImpl;
 
 import java.util.Date;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Enquiry;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Tenant;
@@ -54,7 +58,7 @@ public class EnquiryServiceImpl implements EnquiryService {
     }
 
     @Override
-    public List<Enquiry> getEnquiries(
+    public PaginatedResponseDto getEnquiriesPaginated(
             String companyId,
             String name,
             String email,
@@ -62,10 +66,18 @@ public class EnquiryServiceImpl implements EnquiryService {
             Solution solution,
             Date fromDate,
             Date toDate,
-            EnquiryType enquiryType
+            EnquiryType enquiryType,
+            int page,
+            int size
     ) {
 
-        return enquiryRepository.findByFilters(
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("date").descending()
+        );
+
+        Page<Enquiry> resultPage = enquiryRepository.findByFilters(
                 companyId,
                 name,
                 email,
@@ -73,7 +85,20 @@ public class EnquiryServiceImpl implements EnquiryService {
                 solution,
                 fromDate,
                 toDate,
-                enquiryType
+                enquiryType,
+                pageable
         );
+
+        PaginatedResponseDto dto = new PaginatedResponseDto();
+        dto.setSelectedPage(page);
+        dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
+        dto.setTotalNumberOfPages(resultPage.getTotalPages());
+        dto.setRecordsFrom(page * size + 1);
+        dto.setRecordsTo(
+                Math.min((page + 1) * size, (int) resultPage.getTotalElements())
+        );
+        dto.setList(resultPage.getContent());
+
+        return dto;
     }
 }

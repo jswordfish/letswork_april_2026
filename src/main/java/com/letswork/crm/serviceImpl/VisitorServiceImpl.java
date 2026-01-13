@@ -147,7 +147,7 @@ public class VisitorServiceImpl implements VisitorService {
 	}
 	
 	@Override
-	public List<Visitor> filter(
+	public PaginatedResponseDto filterPaginated(
 	        String companyId,
 	        String name,
 	        String email,
@@ -156,49 +156,64 @@ public class VisitorServiceImpl implements VisitorService {
 	        String centre,
 	        String city,
 	        String state,
-	        String type
+	        String type,
+	        int page,
+	        int size
 	) {
 
-	    List<Visitor> visitors =
-	            repo.filter(
-	                    companyId,
-	                    name,
-	                    email,
-	                    emailOfVisitor,
-	                    visitDate,
-	                    centre,
-	                    city,
-	                    state
-	            );
+	    Pageable pageable = PageRequest.of(
+	            page,
+	            size,
+	            Sort.by("visitDate").descending()
+	    );
 
-	    if (type == null || type.trim().isEmpty()) {
-	        return visitors;
+	    Page<Visitor> pageResult = repo.filter(
+	            companyId,
+	            name,
+	            email,
+	            emailOfVisitor,
+	            visitDate,
+	            centre,
+	            city,
+	            state,
+	            pageable
+	    );
+
+	    List<Visitor> filtered = pageResult.getContent();
+
+	    if (type != null && !type.trim().isEmpty()) {
+	        LocalDate today = LocalDate.now();
+
+	        if ("upcoming".equalsIgnoreCase(type)) {
+	            filtered = filtered.stream()
+	                    .filter(v ->
+	                            v.getVisitDate() != null &&
+	                            !v.getVisitDate().isBefore(today)
+	                    )
+	                    .collect(Collectors.toList());
+	        }
+
+	        if ("history".equalsIgnoreCase(type)) {
+	            filtered = filtered.stream()
+	                    .filter(v ->
+	                            v.getVisitDate() != null &&
+	                            v.getVisitDate().isBefore(today)
+	                    )
+	                    .collect(Collectors.toList());
+	        }
 	    }
 
-	    LocalDate today = LocalDate.now();
+	    PaginatedResponseDto dto = new PaginatedResponseDto();
+	    dto.setSelectedPage(page);
+	    dto.setTotalNumberOfRecords((int) pageResult.getTotalElements());
+	    dto.setTotalNumberOfPages(pageResult.getTotalPages());
+	    dto.setRecordsFrom(page * size + 1);
+	    dto.setRecordsTo(
+	            Math.min((page + 1) * size, (int) pageResult.getTotalElements())
+	    );
+	    dto.setList(filtered);
 
-	    if ("upcoming".equalsIgnoreCase(type)) {
-
-	        return visitors.stream()
-	                .filter(v ->
-	                        v.getVisitDate() != null &&
-	                        !v.getVisitDate().isBefore(today)
-	                )
-	                .collect(Collectors.toList());
-
-	    }
-
-	    if ("history".equalsIgnoreCase(type)) {
-
-	        return visitors.stream()
-	                .filter(v ->
-	                        v.getVisitDate() != null &&
-	                        v.getVisitDate().isBefore(today)
-	                )
-	                .collect(Collectors.toList());
-	    }
-
-	    return visitors;
+	    return dto;
 	}
 
 	@Override

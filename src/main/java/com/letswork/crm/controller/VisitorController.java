@@ -1,9 +1,9 @@
 package com.letswork.crm.controller;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
-import com.letswork.crm.entities.BookConferenceRoom;
 import com.letswork.crm.entities.Visitor;
 import com.letswork.crm.repo.VisitorRepository;
 import com.letswork.crm.service.VisitorService;
@@ -82,21 +81,25 @@ public class VisitorController {
 	
 	
 	@GetMapping
-	public ResponseEntity<List<Visitor>> filterVisitors(
+	public ResponseEntity<PaginatedResponseDto> filterVisitors(
 	        @RequestParam String companyId,
 	        @RequestParam(required = false) String name,
 	        @RequestParam(required = false) String email,
 	        @RequestParam(required = false) String emailOfVisitor,
-	        @RequestParam(required = false) LocalDate visitDate,
+	        @RequestParam(required = false)
+	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	        LocalDate visitDate,
 	        @RequestParam(required = false) String letsWorkCentre,
 	        @RequestParam(required = false) String city,
 	        @RequestParam(required = false) String state,
-	        @RequestParam(required = false) String type,   
-	        @RequestParam String token
+	        @RequestParam(required = false) String type,
+	        @RequestParam String token,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size
 	) {
 
 	    return ResponseEntity.ok(
-	            service.filter(
+	            service.filterPaginated(
 	                    companyId,
 	                    name,
 	                    email,
@@ -105,7 +108,9 @@ public class VisitorController {
 	                    letsWorkCentre,
 	                    city,
 	                    state,
-	                    type
+	                    type,
+	                    page,
+	                    size
 	            )
 	    );
 	}

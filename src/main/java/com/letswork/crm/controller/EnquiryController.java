@@ -1,7 +1,6 @@
 package com.letswork.crm.controller;
 
 import java.util.Date;
-import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Enquiry;
 import com.letswork.crm.enums.EnquiryType;
 import com.letswork.crm.enums.Solution;
@@ -39,7 +39,7 @@ public class EnquiryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Enquiry>> getEnquiries(
+    public ResponseEntity<PaginatedResponseDto> getEnquiries(
             @RequestParam String companyId,
             @RequestParam String token,
 
@@ -55,12 +55,15 @@ public class EnquiryController {
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             Date toDate,
-            
-            @RequestParam(required = false) EnquiryType enquiryType
+
+            @RequestParam(required = false) EnquiryType enquiryType,
+
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
 
         return ResponseEntity.ok(
-                enquiryService.getEnquiries(
+                enquiryService.getEnquiriesPaginated(
                         companyId,
                         name,
                         email,
@@ -68,7 +71,9 @@ public class EnquiryController {
                         solution,
                         fromDate,
                         toDate,
-                        enquiryType
+                        enquiryType,
+                        page,
+                        size
                 )
         );
     }
