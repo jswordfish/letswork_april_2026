@@ -30,6 +30,8 @@ public class Visitor extends Base{
 
     @NotBlank
     private String name;
+    
+    private String nameOfUser;
 
     private String phone;
 

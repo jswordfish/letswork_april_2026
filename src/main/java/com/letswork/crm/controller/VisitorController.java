@@ -72,6 +72,15 @@ public class VisitorController {
 		if(request.getVisited()==true) {
 			throw new RuntimeException("Already Used");
 		}
+		
+		LocalDate today = LocalDate.now();
+
+        if (!today.equals(request.getVisitDate())) {
+            throw new RuntimeException(
+                    "Visitor can only visit on the booking date"
+            );
+        }
+		
     	request.setVisited(true);
     	repo.save(request);
     	
