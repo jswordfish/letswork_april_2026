@@ -1,6 +1,7 @@
 package com.letswork.crm.controller;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -119,17 +120,41 @@ public class BookConferenceRoomController {
     }
     
     @PostMapping("/allow")
-    public ResponseEntity<BookConferenceRoom> allow(@RequestBody BookConferenceRoom request, @RequestParam String token){
-    	
-    	if(request.getUsed()==true) {
-			throw new RuntimeException("Already Used");
-		}
-    	
-    	request.setUsed(true);
-    	repo.save(request);
-    	
-    	return ResponseEntity.ok(request);
-    	
+    public ResponseEntity<BookConferenceRoom> allow(
+            @RequestBody BookConferenceRoom request,
+            @RequestParam String token
+    ) {
+
+        if (Boolean.TRUE.equals(request.getUsed())) {
+            throw new RuntimeException("Already Used");
+        }
+
+        LocalTime startTime = request.getSlots()
+                .stream()
+                .map(ConferenceRoomTimeSlot::getStartTime)
+                .min(LocalTime::compareTo)
+                .orElseThrow(() -> new RuntimeException("No time slot found"));
+
+        LocalTime endTime = request.getSlots()
+                .stream()
+                .map(ConferenceRoomTimeSlot::getEndTime)
+                .max(LocalTime::compareTo)
+                .orElseThrow(() -> new RuntimeException("No time slot found"));
+
+        LocalTime now = LocalTime.now();
+
+        if (now.isBefore(startTime.minusHours(1))) {
+            throw new RuntimeException("Entry allowed only 1 hour before meeting start");
+        }
+
+        if (now.isAfter(endTime)) {
+            throw new RuntimeException("Meeting has already ended");
+        }
+
+        request.setUsed(true);
+        repo.save(request);
+
+        return ResponseEntity.ok(request);
     }
 
     @GetMapping

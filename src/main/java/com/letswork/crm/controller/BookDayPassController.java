@@ -78,19 +78,29 @@ public class BookDayPassController {
     }
     
     @PostMapping("/allow")
-    public ResponseEntity<BookDayPass> allow(@RequestBody BookDayPass request, @RequestParam String token){
-    	
-    	int used = request.getUsed();
-    	
-    	if(used==request.getNumberOfDays()) {
-    		throw new RuntimeException("Limit of day passes reached");
-    	}
-    	
-    	request.setUsed(used+1);
-    	bookRepo.save(request);
-    	
-    	return ResponseEntity.ok(request);
-    	
+    public ResponseEntity<BookDayPass> allow(
+            @RequestBody BookDayPass request,
+            @RequestParam String token
+    ) {
+
+        LocalDate today = LocalDate.now();
+
+        if (!today.equals(request.getDateOfBooking())) {
+            throw new RuntimeException(
+                    "Day pass can only be used on the booking date"
+            );
+        }
+
+        int used = request.getUsed();
+
+        if (used >= request.getNumberOfDays()) {
+            throw new RuntimeException("Limit of day passes reached");
+        }
+
+        request.setUsed(used + 1);
+        bookRepo.save(request);
+
+        return ResponseEntity.ok(request);
     }
 
     @GetMapping
