@@ -1,5 +1,6 @@
 package com.letswork.crm.controller;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.NewUserRegisterService;
+import com.letswork.crm.serviceImpl.OtpService;
 import com.letswork.crm.util.TokenService2;
 
 @RestController
@@ -27,6 +29,9 @@ public class NewUserRegisterController {
 
     @Autowired
     private NewUserRegisterService service;
+    
+    @Autowired
+    private OtpService otpService;
     
     @Autowired
     NewUserRegisterRepository newUserRegisterRepository;
@@ -64,6 +69,12 @@ public class NewUserRegisterController {
     public ResponseEntity<String> resetMonthlyBenefits(
             @RequestParam String companyId
     ) {
+    	
+    	LocalDate today = LocalDate.now();
+        String dateString = today.toString();
+    	
+    	otpService.sendResetCreditsEmail("Dhruvjani4321@gmail.com", dateString);
+    	
         return ResponseEntity.ok(
                 service.resetMonthlyBenefits(companyId)
         );
