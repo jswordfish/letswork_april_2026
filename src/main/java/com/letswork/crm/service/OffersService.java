@@ -11,5 +11,7 @@ public interface OffersService {
     List<Offers> getAllByCompanyId(String companyId);
 
     Offers getByCodeAndCompanyId(String code, String companyId);
+    
+    Offers disAbleOffer(Offers offer);
 
 }

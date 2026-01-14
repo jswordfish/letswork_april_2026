@@ -57,7 +57,7 @@ public class OffersServiceImpl implements OffersService {
             return offersRepository.save(existing);
 
         } else {
-
+        	offer.setActive(true);
             offer.setCreateDate(new Date());
             offer.setUpdateDate(new Date());
             return offersRepository.save(offer);
@@ -78,4 +78,13 @@ public class OffersServiceImpl implements OffersService {
                         new RuntimeException("Offer not found")
                 );
     }
+
+	@Override
+	public Offers disAbleOffer(Offers offer) {
+		
+		offer.setActive(false);
+		offersRepository.save(offer);
+		return offer;
+        
+	}
 }

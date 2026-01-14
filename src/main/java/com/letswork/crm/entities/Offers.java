@@ -39,4 +39,6 @@ public class Offers extends Base{
 	
 	private LocalDateTime endDate;
 	
+	private Boolean active;
+	
 }

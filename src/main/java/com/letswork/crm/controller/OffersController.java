@@ -36,6 +36,13 @@ public class OffersController {
         Offers saved = offersService.saveOrUpdate(offer);
         return ResponseEntity.ok(saved);
     }
+    
+    @PostMapping("/disable-offer")
+    public ResponseEntity<Offers> disAbleOffer(@RequestBody Offers offer, @RequestParam String token){
+    	
+    	return ResponseEntity.ok(offersService.disAbleOffer(offer));
+    	
+    }
 
     
     @GetMapping
