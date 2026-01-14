@@ -137,6 +137,16 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
+		    	if(url.endsWith("reset-credits-mail")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
+		    	if(url.endsWith("reset-monthly-benefits")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
 		    	
 		    String token = httpRequest.getParameter("token");
 		    Enumeration<String> headerNames = httpRequest.getHeaderNames();

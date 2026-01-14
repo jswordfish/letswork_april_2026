@@ -108,4 +108,13 @@ public class OtpService {
     private String generateOtp() {
         return String.valueOf(100000 + new Random().nextInt(900000));
     }
+    
+    public String sendResetCreditsEmail(String email, String date) {
+    	
+    	mailService.sendResetCreditsEmail(email, date);
+    	
+    	return "Credits Reset email sent";
+    	
+    }
+    
 }

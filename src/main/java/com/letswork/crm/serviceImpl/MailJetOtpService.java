@@ -147,5 +147,37 @@ public class MailJetOtpService {
             throw new RuntimeException("Failed to send Day Pass email", e);
         }
     }
+    
+    public void sendResetCreditsEmail(String email, String date) {
+
+        ClientOptions options = ClientOptions.builder()
+                .apiKey(API_KEY)
+                .apiSecretKey(SECRET_KEY)
+                .build();
+
+        MailjetClient client = new MailjetClient(options);
+
+        Map<String, String> variables = new HashMap<>();
+        variables.put("month_year", date);
+
+        TransactionalEmail emailMessage = TransactionalEmail.builder()
+                .to(List.of(new SendContact(email)))
+                .from(new SendContact(SENDER_EMAIL, "Zimulate"))
+                .subject("Credits have been reset for this month")
+                .templateID(7657590L)   
+                .templateLanguage(true)
+                .variables(variables)
+                .build();
+
+        SendEmailsRequest request = SendEmailsRequest.builder()
+                .message(emailMessage)
+                .build();
+
+        try {
+            request.sendWith(client);
+        } catch (MailjetException e) {
+            throw new RuntimeException("Failed to send credit reset email", e);
+        }
+    }
 
 }

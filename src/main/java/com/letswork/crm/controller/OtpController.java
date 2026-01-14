@@ -15,6 +15,7 @@ import com.letswork.crm.entities.User;
 import com.letswork.crm.repo.EmailOtpRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.UserRepo;
+import com.letswork.crm.serviceImpl.MailJetOtpService;
 import com.letswork.crm.serviceImpl.OtpService;
 import com.letswork.crm.util.TokenService2;
 
@@ -33,6 +34,7 @@ public class OtpController {
     
     @Autowired
     NewUserRegisterRepository newUserRegisterRepository;
+    
     
     TokenService2 tokenService = new TokenService2();
 
@@ -53,6 +55,15 @@ public class OtpController {
         String res = otpService.loginSendOtp(email, companyId);
         return ResponseEntity.ok(res);
     }
+    
+    
+    @PostMapping("/reset-credits-mail")
+    public ResponseEntity<String> sendResetCreditsMail(@RequestParam String email, @RequestParam String date){
+    	
+    	return ResponseEntity.ok(otpService.sendResetCreditsEmail(email, date));
+    	
+    }
+    
 
     @PostMapping("/verify-otp")
     public ResponseEntity<Map<String, Object>> verifyOtp(

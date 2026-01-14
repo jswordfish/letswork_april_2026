@@ -62,8 +62,7 @@ public class NewUserRegisterController {
     
     @PostMapping("/reset-monthly-benefits")
     public ResponseEntity<String> resetMonthlyBenefits(
-            @RequestParam String companyId,
-            @RequestParam String token
+            @RequestParam String companyId
     ) {
         return ResponseEntity.ok(
                 service.resetMonthlyBenefits(companyId)
