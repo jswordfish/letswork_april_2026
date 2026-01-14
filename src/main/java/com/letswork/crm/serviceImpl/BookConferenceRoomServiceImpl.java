@@ -212,35 +212,33 @@ public class BookConferenceRoomServiceImpl
         return bookRepo.save(booking);
     }
 
-    @Override
     public PaginatedResponseDto getPaginated(
             String companyId,
             String email,
             String letsWorkCentre,
             String city,
             String state,
-            LocalDate date,
+            LocalDate fromDate,
+            LocalDate toDate,
             String roomName,
             int page,
             int size
     ) {
 
-        Pageable pageable = PageRequest.of(
-                page,
-                size,
-                Sort.by("dateOfBooking").descending()
-        );
+    	Pageable pageable =
+    	        PageRequest.of(page, size, Sort.by("dateOfBooking").descending());
 
-        Page<BookConferenceRoom> resultPage = bookRepo.filter(
-                companyId,
-                email,
-                letsWorkCentre,
-                city,
-                state,
-                date,
-                roomName,
-                pageable
-        );
+    	Page<BookConferenceRoom> resultPage = bookRepo.filter(
+    	        companyId,
+    	        email,
+    	        letsWorkCentre,
+    	        city,
+    	        state,
+    	        fromDate,
+    	        toDate,
+    	        roomName,
+    	        pageable
+    	);
 
         PaginatedResponseDto dto = new PaginatedResponseDto();
         dto.setSelectedPage(page);

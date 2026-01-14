@@ -29,7 +29,9 @@ public interface BuyDayPassBundleRepository extends JpaRepository<BuyDayPassBund
 		    "AND (:bundleId IS NULL OR b.bundleId = :bundleId) " +
 		    "AND (:centre IS NULL OR b.letsWorkCentre = :centre) " +
 		    "AND (:city IS NULL OR b.city = :city) " +
-		    "AND (:state IS NULL OR b.state = :state)"
+		    "AND (:state IS NULL OR b.state = :state) " +
+		    "AND (:fromDate IS NULL OR b.purchaseDate >= :fromDate) " +
+		    "AND (:toDate IS NULL OR b.purchaseDate <= :toDate)"
 		)
 		Page<BuyDayPassBundle> findByFilters(
 		        @Param("companyId") String companyId,
@@ -38,6 +40,8 @@ public interface BuyDayPassBundleRepository extends JpaRepository<BuyDayPassBund
 		        @Param("centre") String letsWorkCentre,
 		        @Param("city") String city,
 		        @Param("state") String state,
+		        @Param("fromDate") LocalDateTime fromDate,
+		        @Param("toDate") LocalDateTime toDate,
 		        Pageable pageable
 		);
 	

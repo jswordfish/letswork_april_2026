@@ -9,13 +9,14 @@ public interface BookDayPassService {
 	
 	BookDayPass book(BookDayPass request);
 
-	PaginatedResponseDto getPaginated(
+	public PaginatedResponseDto getPaginated(
 	        String companyId,
 	        String email,
 	        String letsWorkCentre,
 	        String city,
 	        String state,
-	        LocalDate date,
+	        LocalDate fromDate,
+	        LocalDate toDate,
 	        int page,
 	        int size
 	);

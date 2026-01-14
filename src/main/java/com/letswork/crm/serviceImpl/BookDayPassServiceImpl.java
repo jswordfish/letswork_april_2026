@@ -142,21 +142,24 @@ public class BookDayPassServiceImpl implements BookDayPassService {
             String letsWorkCentre,
             String city,
             String state,
-            LocalDate date,
+            LocalDate fromDate,
+            LocalDate toDate,
             int page,
             int size
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("dateOfBooking").descending());
+    	Pageable pageable =
+    	        PageRequest.of(page, size, Sort.by("dateOfBooking").descending());
 
-        Page<BookDayPass> resultPage = bookRepo.filter(
-                companyId,
-                email,
-                letsWorkCentre,
-                city,
-                state,
-                date,
-                pageable
-        );
+    	Page<BookDayPass> resultPage = bookRepo.filter(
+    	        companyId,
+    	        email,
+    	        letsWorkCentre,
+    	        city,
+    	        state,
+    	        fromDate,
+    	        toDate,
+    	        pageable
+    	);
 
         PaginatedResponseDto dto = new PaginatedResponseDto();
         dto.setSelectedPage(page);

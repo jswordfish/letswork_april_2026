@@ -111,9 +111,15 @@ public class BookDayPassController {
             @RequestParam(required = false) String letsWorkCentre,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
+
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate date,
+            LocalDate fromDate,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate toDate,
+
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -124,7 +130,8 @@ public class BookDayPassController {
                         letsWorkCentre,
                         city,
                         state,
-                        date,
+                        fromDate,
+                        toDate,
                         page,
                         size
                 )

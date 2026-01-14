@@ -1,5 +1,8 @@
 package com.letswork.crm.controller;
 
+import java.time.LocalDateTime;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +42,15 @@ public class BuyConferenceBundleController {
             @RequestParam String token,
             @RequestParam(required = false) String email,
             @RequestParam(required = false) Long bundleId,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime fromDate,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime toDate,
+
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -47,6 +59,8 @@ public class BuyConferenceBundleController {
                         companyId,
                         email,
                         bundleId,
+                        fromDate,
+                        toDate,
                         page,
                         size
                 )

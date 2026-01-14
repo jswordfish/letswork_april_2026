@@ -32,12 +32,16 @@ public interface BuyConferenceBundleRepository
     	    "SELECT b FROM BuyConferenceBundle b " +
     	    "WHERE b.companyId = :companyId " +
     	    "AND (:email IS NULL OR b.email = :email) " +
-    	    "AND (:bundleId IS NULL OR b.bundleId = :bundleId)"
+    	    "AND (:bundleId IS NULL OR b.bundleId = :bundleId) " +
+    	    "AND (:fromDate IS NULL OR b.purchaseDate >= :fromDate) " +
+    	    "AND (:toDate IS NULL OR b.purchaseDate <= :toDate)"
     	)
     	Page<BuyConferenceBundle> findByFilters(
     	        @Param("companyId") String companyId,
     	        @Param("email") String email,
     	        @Param("bundleId") Long bundleId,
+    	        @Param("fromDate") LocalDateTime fromDate,
+    	        @Param("toDate") LocalDateTime toDate,
     	        Pageable pageable
     	);
     

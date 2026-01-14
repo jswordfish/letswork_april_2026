@@ -18,13 +18,14 @@ public interface BookConferenceRoomService {
 
     BookConferenceRoom scanAndConsume(String bookingCode);
 
-    PaginatedResponseDto getPaginated(
+    public PaginatedResponseDto getPaginated(
             String companyId,
             String email,
             String letsWorkCentre,
             String city,
             String state,
-            LocalDate date,
+            LocalDate fromDate,
+            LocalDate toDate,
             String roomName,
             int page,
             int size

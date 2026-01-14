@@ -26,21 +26,25 @@ public interface BookConferenceRoomRepository
 
     Optional<BookConferenceRoom> findByBookingCode(String bookingCode);
 
-    @Query("SELECT b FROM BookConferenceRoom b " +
-    	       "WHERE b.companyId = :companyId " +
-    	       "AND (:email IS NULL OR b.email = :email) " +
-    	       "AND (:centre IS NULL OR b.letsWorkCentre = :centre) " +
-    	       "AND (:city IS NULL OR b.city = :city) " +
-    	       "AND (:state IS NULL OR b.state = :state) " +
-    	       "AND (:date IS NULL OR b.dateOfBooking = :date) " +
-    	       "AND (:roomName IS NULL OR b.roomName = :roomName)")
+    @Query(
+    	    "SELECT b FROM BookConferenceRoom b " +
+    	    "WHERE b.companyId = :companyId " +
+    	    "AND (:email IS NULL OR b.email = :email) " +
+    	    "AND (:centre IS NULL OR b.letsWorkCentre = :centre) " +
+    	    "AND (:city IS NULL OR b.city = :city) " +
+    	    "AND (:state IS NULL OR b.state = :state) " +
+    	    "AND (:fromDate IS NULL OR b.dateOfBooking >= :fromDate) " +
+    	    "AND (:toDate IS NULL OR b.dateOfBooking <= :toDate) " +
+    	    "AND (:roomName IS NULL OR b.roomName = :roomName)"
+    	)
     	Page<BookConferenceRoom> filter(
     	        @Param("companyId") String companyId,
     	        @Param("email") String email,
     	        @Param("centre") String centre,
     	        @Param("city") String city,
     	        @Param("state") String state,
-    	        @Param("date") LocalDate date,
+    	        @Param("fromDate") LocalDate fromDate,
+    	        @Param("toDate") LocalDate toDate,
     	        @Param("roomName") String roomName,
     	        Pageable pageable
     	);

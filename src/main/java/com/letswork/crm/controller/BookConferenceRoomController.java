@@ -165,9 +165,15 @@ public class BookConferenceRoomController {
             @RequestParam(required = false) String letsWorkCentre,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
+
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate date,
+            LocalDate fromDate,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate toDate,
+
             @RequestParam(required = false) String roomName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -179,7 +185,8 @@ public class BookConferenceRoomController {
                         letsWorkCentre,
                         city,
                         state,
-                        date,
+                        fromDate,
+                        toDate,
                         roomName,
                         page,
                         size

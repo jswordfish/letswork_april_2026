@@ -24,20 +24,24 @@ public interface BookDayPassRepository extends JpaRepository<BookDayPass, Long> 
     
     Optional<BookDayPass> findByBookingCode(String bookingCode);
 
-    @Query("SELECT b FROM BookDayPass b " +
-    	       "WHERE b.companyId = :companyId " +
-    	       "AND (:email IS NULL OR b.email = :email) " +
-    	       "AND (:centre IS NULL OR b.letsWorkCentre = :centre) " +
-    	       "AND (:city IS NULL OR b.city = :city) " +
-    	       "AND (:state IS NULL OR b.state = :state) " +
-    	       "AND (:date IS NULL OR b.dateOfBooking = :date)")
+    @Query(
+    	    "SELECT b FROM BookDayPass b " +
+    	    "WHERE b.companyId = :companyId " +
+    	    "AND (:email IS NULL OR b.email = :email) " +
+    	    "AND (:centre IS NULL OR b.letsWorkCentre = :centre) " +
+    	    "AND (:city IS NULL OR b.city = :city) " +
+    	    "AND (:state IS NULL OR b.state = :state) " +
+    	    "AND (:fromDate IS NULL OR b.dateOfBooking >= :fromDate) " +
+    	    "AND (:toDate IS NULL OR b.dateOfBooking <= :toDate)"
+    	)
     	Page<BookDayPass> filter(
     	        @Param("companyId") String companyId,
     	        @Param("email") String email,
     	        @Param("centre") String centre,
     	        @Param("city") String city,
     	        @Param("state") String state,
-    	        @Param("date") LocalDate date,
+    	        @Param("fromDate") LocalDate fromDate,
+    	        @Param("toDate") LocalDate toDate,
     	        Pageable pageable
     	);
 }

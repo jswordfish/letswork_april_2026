@@ -118,14 +118,17 @@ public class BuyDayPassBundleServiceImpl
             String letsWorkCentre,
             String city,
             String state,
+            LocalDateTime fromDate,
+            LocalDateTime toDate,
             int page,
             int size
     ) {
 
+        
         Pageable pageable = PageRequest.of(
                 page,
                 size,
-                Sort.by("id").descending() // or createdAt if you have it
+                Sort.by("purchaseDate").descending()
         );
 
         Page<BuyDayPassBundle> resultPage = buyRepo.findByFilters(
@@ -135,6 +138,8 @@ public class BuyDayPassBundleServiceImpl
                 letsWorkCentre,
                 city,
                 state,
+                fromDate,
+                toDate,
                 pageable
         );
 

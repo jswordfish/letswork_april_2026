@@ -100,22 +100,26 @@ public class BuyConferenceBundleServiceImpl
             String companyId,
             String email,
             Long bundleId,
+            LocalDateTime fromDate,
+            LocalDateTime toDate,
             int page,
             int size
     ) {
 
-        Pageable pageable = PageRequest.of(
-                page,
-                size,
-                Sort.by("id").descending() // or createdAt if present
-        );
+    	Pageable pageable = PageRequest.of(
+    	        page,
+    	        size,
+    	        Sort.by("purchaseDate").descending()
+    	);
 
-        Page<BuyConferenceBundle> resultPage = buyRepo.findByFilters(
-                companyId,
-                email,
-                bundleId,
-                pageable
-        );
+    	Page<BuyConferenceBundle> resultPage = buyRepo.findByFilters(
+    	        companyId,
+    	        email,
+    	        bundleId,
+    	        fromDate,
+    	        toDate,
+    	        pageable
+    	);
 
         PaginatedResponseDto dto = new PaginatedResponseDto();
         dto.setSelectedPage(page);
