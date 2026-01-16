@@ -1,12 +1,12 @@
 package com.letswork.crm.controller;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.BookConferenceRoomRequest;
 import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
@@ -126,29 +127,44 @@ public class BookConferenceRoomController {
     ) {
 
         if (Boolean.TRUE.equals(request.getUsed())) {
-            throw new RuntimeException("Already Used");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Conference room booking already used"
+            );
         }
 
         LocalTime startTime = request.getSlots()
                 .stream()
                 .map(ConferenceRoomTimeSlot::getStartTime)
                 .min(LocalTime::compareTo)
-                .orElseThrow(() -> new RuntimeException("No time slot found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "No time slot found for booking"
+                ));
 
         LocalTime endTime = request.getSlots()
                 .stream()
                 .map(ConferenceRoomTimeSlot::getEndTime)
                 .max(LocalTime::compareTo)
-                .orElseThrow(() -> new RuntimeException("No time slot found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "No time slot found for booking"
+                ));
 
         LocalTime now = LocalTime.now();
 
         if (now.isBefore(startTime.minusHours(1))) {
-            throw new RuntimeException("Entry allowed only 1 hour before meeting start");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Entry allowed only 1 hour before meeting start"
+            );
         }
 
         if (now.isAfter(endTime)) {
-            throw new RuntimeException("Meeting has already ended");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Meeting has already ended"
+            );
         }
 
         request.setUsed(true);

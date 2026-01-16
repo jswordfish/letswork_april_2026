@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Visitor;
@@ -67,26 +69,32 @@ public class VisitorController {
     }
 	
 	@PostMapping("/allow")
-	public ResponseEntity<Visitor> allow(@RequestBody Visitor request, @RequestParam String token){
-    	
-		if(request.getVisited()==true) {
-			throw new RuntimeException("Already Used");
-		}
-		
-		LocalDate today = LocalDate.now();
+	public ResponseEntity<Visitor> allow(
+	        @RequestBody Visitor request,
+	        @RequestParam String token
+	) {
 
-        if (!today.equals(request.getVisitDate())) {
-            throw new RuntimeException(
-                    "Visitor can only visit on the booking date"
-            );
-        }
-		
-    	request.setVisited(true);
-    	repo.save(request);
-    	
-    	return ResponseEntity.ok(request);
-    	
-    }
+	    if (Boolean.TRUE.equals(request.getVisited())) {
+	        throw new ResponseStatusException(
+	                HttpStatus.CONFLICT,
+	                "Visitor entry already used"
+	        );
+	    }
+
+	    LocalDate today = LocalDate.now();
+
+	    if (!today.equals(request.getVisitDate())) {
+	        throw new ResponseStatusException(
+	                HttpStatus.BAD_REQUEST,
+	                "Visitor can only visit on the booking date"
+	        );
+	    }
+
+	    request.setVisited(true);
+	    repo.save(request);
+
+	    return ResponseEntity.ok(request);
+	}
 	
 	
 	@GetMapping

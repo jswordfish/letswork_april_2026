@@ -30,6 +30,7 @@ public class NewUserRegisterServiceImpl
     
     @Autowired
     private S3Service s3Service;
+    
 
     ModelMapper mapper = new ModelMapper();
 
