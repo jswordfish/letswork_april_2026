@@ -430,12 +430,9 @@ public class S3Service {
                 email.trim().replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
 
         String keyName =
-                companyId +
-                "/users/" +
-                sanitizedEmail +
-                "/Visitors/" +
-                bookingCode +
-                ".png";
+                companyId + "/users/" +
+                sanitizedEmail + "/Visitors/" +
+                bookingCode + ".png";
 
         s3Client.putObject(
                 PutObjectRequest.builder()
@@ -446,16 +443,7 @@ public class S3Service {
                 qrFile.toPath()
         );
 
-        PresignedGetObjectRequest presignedRequest =
-                s3Presigner.presignGetObject(p -> p
-                        .getObjectRequest(GetObjectRequest.builder()
-                                .bucket(bucketName)
-                                .key(keyName)
-                                .build())
-                        .signatureDuration(Duration.ofDays(7))
-                );
-
-        return presignedRequest.url().toString();
+        return keyName;
     }
 
     

@@ -1,5 +1,6 @@
 package com.letswork.crm.controller;
 
+import java.time.Duration;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,16 @@ import com.letswork.crm.entities.Visitor;
 import com.letswork.crm.repo.VisitorRepository;
 import com.letswork.crm.service.VisitorService;
 
+import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
+
 
 @RestController
 @CrossOrigin
 @RequestMapping("/visitor")
+@RequiredArgsConstructor
 public class VisitorController {
 	
 	@Autowired
@@ -32,6 +39,8 @@ public class VisitorController {
 	
 	@Autowired
 	VisitorRepository repo;
+	
+	private final S3Presigner s3Presigner;
 	
 	@PostMapping
 	public ResponseEntity<String> saveOrUpdate(
@@ -41,6 +50,24 @@ public class VisitorController {
 	    return ResponseEntity.ok(
 	            service.saveOrUpdate(visitor)
 	    );
+	}
+	
+	@GetMapping("/visitor/qr-url")
+	public ResponseEntity<String> getVisitorQrUrl(
+	        @RequestParam String s3Key,
+	        @RequestParam String token
+	) {
+
+	    PresignedGetObjectRequest presignedRequest =
+	            s3Presigner.presignGetObject(p -> p
+	                    .getObjectRequest(GetObjectRequest.builder()
+	                            .bucket("letsworkcentres")
+	                            .key(s3Key)
+	                            .build())
+	                    .signatureDuration(Duration.ofDays(7))
+	            );
+
+	    return ResponseEntity.ok(presignedRequest.url().toString());
 	}
 	
 //	@GetMapping("/view visitor by date")
