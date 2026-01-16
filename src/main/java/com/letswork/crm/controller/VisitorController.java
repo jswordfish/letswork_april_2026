@@ -52,8 +52,8 @@ public class VisitorController {
 	    );
 	}
 	
-	@GetMapping("/visitor/qr-url")
-	public ResponseEntity<String> getVisitorQrUrl(
+	@GetMapping("/s3/presigned-url")
+	public ResponseEntity<String> getPresignedUrl(
 	        @RequestParam String s3Key,
 	        @RequestParam String token
 	) {

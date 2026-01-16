@@ -131,21 +131,7 @@ public class S3Service {
                 file.toPath()
         );
 
-        // 2️⃣ Create GET request
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(keyName)
-                .build();
-
-        // 3️⃣ Generate pre-signed URL (valid for 15 minutes)
-        PresignedGetObjectRequest presignedRequest =
-                s3Presigner.presignGetObject(p -> p
-                        .getObjectRequest(getObjectRequest)
-                        .signatureDuration(Duration.ofDays(7))
-                );
-
-        // 4️⃣ Return browser-accessible URL
-        return presignedRequest.url().toString();
+        return keyName;
     }
     
     public String uploadSolutionImage(
@@ -189,15 +175,7 @@ public class S3Service {
                         .key(keyName)
                         .build();
 
-        // 3️⃣ Generate pre-signed URL (15 mins)
-        PresignedGetObjectRequest presignedRequest =
-                s3Presigner.presignGetObject(p -> p
-                        .getObjectRequest(getObjectRequest)
-                        .signatureDuration(Duration.ofDays(7))
-                );
-
-        // 4️⃣ Return browser-accessible URL
-        return presignedRequest.url().toString();
+        return keyName;
     }
     
     public String uploadConferenceRoomImage(
@@ -237,18 +215,7 @@ public class S3Service {
                 file.toPath()
         );
 
-        PresignedGetObjectRequest presignedRequest =
-                s3Presigner.presignGetObject(p -> p
-                        .getObjectRequest(
-                                GetObjectRequest.builder()
-                                        .bucket(bucketName)
-                                        .key(keyName)
-                                        .build()
-                        )
-                        .signatureDuration(Duration.ofDays(7))
-                );
-
-        return presignedRequest.url().toString();
+        return keyName;
     }
     
     public String uploadAmenityImage(
@@ -280,18 +247,7 @@ public class S3Service {
                 file.toPath()
         );
 
-        PresignedGetObjectRequest presignedRequest =
-                s3Presigner.presignGetObject(p -> p
-                        .getObjectRequest(
-                                GetObjectRequest.builder()
-                                        .bucket(bucketName)
-                                        .key(keyName)
-                                        .build()
-                        )
-                        .signatureDuration(Duration.ofDays(7))
-                );
-
-        return presignedRequest.url().toString();
+        return keyName;
     }
     
     
@@ -322,16 +278,7 @@ public class S3Service {
                 file.toPath()
         );
 
-        PresignedGetObjectRequest presignedRequest =
-                s3Presigner.presignGetObject(p -> p
-                        .getObjectRequest(GetObjectRequest.builder()
-                                .bucket(bucketName)
-                                .key(keyName)
-                                .build())
-                        .signatureDuration(Duration.ofDays(7))
-                );
-
-        return presignedRequest.url().toString();
+        return keyName;
     }
     
     public String uploadBookDayPassQrCode(
