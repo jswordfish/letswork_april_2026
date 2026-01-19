@@ -9,9 +9,12 @@ import javax.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.Referral;
 import com.letswork.crm.entities.Tenant;
@@ -74,20 +77,29 @@ public class ReferralServiceImpl implements ReferralService {
         }
 
         referral.setCreateDate(new Date());
+        referral.setReceivedBonus(false);
         return referralRepo.save(referral);
     }
 
     @Override
-    public Page<Referral> getReferrals(
+    public PaginatedResponseDto getPaginated(
             String companyId,
             String email,
             String name,
             String emailOfUser,
             LocalDate fromDate,
             LocalDate toDate,
-            Pageable pageable
+            int page,
+            int size
     ) {
-        return referralRepo.filter(
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("id").descending()
+        );
+
+        Page<Referral> resultPage = referralRepo.filter(
                 companyId,
                 email,
                 name,
@@ -96,6 +108,22 @@ public class ReferralServiceImpl implements ReferralService {
                 toDate,
                 pageable
         );
+
+        PaginatedResponseDto dto = new PaginatedResponseDto();
+
+        dto.setSelectedPage(page);
+        dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
+        dto.setTotalNumberOfPages(resultPage.getTotalPages());
+        dto.setRecordsFrom(page * size + 1);
+        dto.setRecordsTo(
+                Math.min(
+                        (page + 1) * size,
+                        (int) resultPage.getTotalElements()
+                )
+        );
+        dto.setList(resultPage.getContent());
+
+        return dto;
     }
 
     @Override

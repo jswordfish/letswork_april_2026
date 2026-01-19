@@ -3,7 +3,6 @@ package com.letswork.crm.controller;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Referral;
 import com.letswork.crm.service.ReferralService;
 
@@ -37,26 +37,36 @@ public class ReferralController {
     }
 
     @GetMapping
-    public Page<Referral> getReferrals(
+    public ResponseEntity<PaginatedResponseDto> get(
             @RequestParam String companyId,
+            @RequestParam String token,
+
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String emailOfUser,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                    LocalDate fromDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                    LocalDate toDate,
-            Pageable pageable,
-            @RequestParam String token
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate fromDate,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate toDate,
+
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return referralService.getReferrals(
-                companyId,
-                email,
-                name,
-                emailOfUser,
-                fromDate,
-                toDate,
-                pageable
+        return ResponseEntity.ok(
+                referralService.getPaginated(
+                        companyId,
+                        email,
+                        name,
+                        emailOfUser,
+                        fromDate,
+                        toDate,
+                        page,
+                        size
+                )
         );
     }
 

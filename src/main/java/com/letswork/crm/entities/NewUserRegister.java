@@ -47,5 +47,9 @@ public class NewUserRegister extends Base{
 	private Integer freeDayPass;
 	
 	private Boolean monthly;
+	
+	private String category;
+	
+	private String subCategory;
 
 }

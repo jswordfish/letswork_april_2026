@@ -2,6 +2,7 @@ package com.letswork.crm.entities;
 
 import java.time.LocalDate;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -37,8 +38,10 @@ public class Referral extends Base{
 	
 	private String phoneOfUser;
 	
+	@Column(nullable = true)
 	private LocalDate joiningDate;
 	
-	private Boolean receivedBonus = false;
+	@Column(nullable = true)
+	private Boolean receivedBonus;
 
 }

@@ -2,24 +2,25 @@ package com.letswork.crm.service;
 
 import java.time.LocalDate;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Referral;
 
 public interface ReferralService {
 	
 	Referral saveOrUpdate(Referral referral);
 
-    Page<Referral> getReferrals(
-            String companyId,
-            String email,
-            String name,
-            String emailOfUser,
-            LocalDate fromDate,
-            LocalDate toDate,
-            Pageable pageable
-    );
+	PaginatedResponseDto getPaginated(
+	        String companyId,
+	        String email,
+	        String name,
+	        String emailOfUser,
+	        LocalDate fromDate,
+	        LocalDate toDate,
+	        int page,
+	        int size
+	);
 
     Referral updateJoiningDate(
             Long referralId,
