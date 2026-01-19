@@ -20,7 +20,7 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<String> createCategory(
             @RequestParam String companyId,
             @RequestParam String name,
