@@ -220,5 +220,40 @@ public class NewUserRegisterServiceImpl
         return "Monthly benefits reset successfully";
     }
 	
+	private void validateCompany(String companyId) {
+        if (tenantService.findTenantByCompanyId(companyId) == null) {
+            throw new RuntimeException("Invalid companyId - " + companyId);
+        }
+    }
+
+    @Override
+    public List<String> getAllCategories(String companyId) {
+        validateCompany(companyId);
+        return repo.findDistinctCategories(companyId);	
+    }
+
+    @Override
+    public List<String> getSubCategories(
+            String companyId,
+            String category
+    ) {
+        validateCompany(companyId);
+        return repo.findDistinctSubCategories(companyId, category);
+    }
+
+    @Override
+    public List<NewUserRegister> getUsersBySubCategory(
+            String companyId,
+            String category,
+            String subCategory
+    ) {
+        validateCompany(companyId);
+        return repo.findByCompanyIdAndCategoryAndSubCategory(
+                companyId,
+                category,
+                subCategory
+        );
+    }
+	
 	
 }

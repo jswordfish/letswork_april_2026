@@ -2,6 +2,7 @@ package com.letswork.crm.controller;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -142,6 +143,43 @@ public class NewUserRegisterController {
 
         return ResponseEntity.ok(
                 service.getAllByCompanyId(companyId)
+        );
+    }
+    
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCategories(
+            @RequestParam String companyId,
+            @RequestParam String token
+    ) {
+        return ResponseEntity.ok(
+        		service.getAllCategories(companyId)
+        );
+    }
+
+    @GetMapping("/sub-categories")
+    public ResponseEntity<List<String>> getSubCategories(
+            @RequestParam String companyId,
+            @RequestParam String category,
+            @RequestParam String token
+    ) {
+        return ResponseEntity.ok(
+        		service.getSubCategories(companyId, category)
+        );
+    }
+
+    @GetMapping("/by-sub-category")
+    public ResponseEntity<List<NewUserRegister>> getUsersBySubCategory(
+            @RequestParam String companyId,
+            @RequestParam String category,
+            @RequestParam String subCategory,
+            @RequestParam String token
+    ) {
+        return ResponseEntity.ok(
+        		service.getUsersBySubCategory(
+                        companyId,
+                        category,
+                        subCategory
+                )
         );
     }
 }

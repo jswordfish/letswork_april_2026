@@ -35,5 +35,18 @@ public interface NewUserRegisterService {
     );
     
     public String resetMonthlyBenefits(String companyId);
+    
+    List<String> getAllCategories(String companyId);
+
+    List<String> getSubCategories(
+            String companyId,
+            String category
+    );
+
+    List<NewUserRegister> getUsersBySubCategory(
+            String companyId,
+            String category,
+            String subCategory
+    );
 
 }
