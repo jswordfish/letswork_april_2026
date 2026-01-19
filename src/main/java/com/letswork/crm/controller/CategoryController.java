@@ -47,7 +47,7 @@ public class CategoryController {
         );
     }
 
-    @GetMapping
+    @GetMapping("/get-parent-and-sub")
     public ResponseEntity<Map<String, List<String>>> getCategories(
             @RequestParam String companyId,
             @RequestParam(required = false) String category,
