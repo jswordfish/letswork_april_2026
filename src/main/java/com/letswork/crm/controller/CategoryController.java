@@ -34,15 +34,15 @@ public class CategoryController {
     }
 
     @PostMapping("/sub")
-    public ResponseEntity<String> createSubCategory(
+    public ResponseEntity<String> createSubCategories(
             @RequestParam String companyId,
             @RequestParam String parentCategory,
-            @RequestParam String name,
+            @RequestParam String names,   
             @RequestParam String token
     ) {
         return ResponseEntity.ok(
-                categoryService.saveOrUpdateSubCategory(
-                        companyId, parentCategory, name
+                categoryService.saveOrUpdateSubCategories(
+                        companyId, parentCategory, names
                 )
         );
     }

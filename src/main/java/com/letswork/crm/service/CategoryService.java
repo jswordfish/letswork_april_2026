@@ -12,11 +12,11 @@ public interface CategoryService {
             String categoryName
     );
 
-    String saveOrUpdateSubCategory(
-            String companyId,
-            String parentCategory,
-            String subCategoryName
-    );
+	String saveOrUpdateSubCategories(
+	        String companyId,
+	        String parentCategory,
+	        String subCategoryNames
+	);
 
     List<CategoryWithSubCategoriesDto> getCategoriesWithSubCategories(
             String companyId,

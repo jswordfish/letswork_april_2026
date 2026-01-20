@@ -1,9 +1,12 @@
 package com.letswork.crm.serviceImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import com.letswork.crm.service.CategoryService;
 import com.letswork.crm.service.TenantService;
 
 @Service
+@Transactional
 public class CategoryServiceImpl implements CategoryService {
 
     @Autowired
@@ -63,12 +67,11 @@ public class CategoryServiceImpl implements CategoryService {
         return "Category created";
     }
 
-    // 🔹 Create / Update SubCategory
     @Override
-    public String saveOrUpdateSubCategory(
+    public String saveOrUpdateSubCategories(
             String companyId,
             String parentCategory,
-            String subCategoryName
+            String subCategoryNames
     ) {
         validateCompany(companyId);
 
@@ -78,32 +81,51 @@ public class CategoryServiceImpl implements CategoryService {
                 );
 
         if (parent == null) {
-            throw new RuntimeException(
-                    "Parent category does not exist"
-            );
+            throw new RuntimeException("Parent category does not exist");
         }
 
-        SubCategory existing =
-                subCategoryRepo.findByNameAndCompanyId(
-                        subCategoryName, companyId
-                );
+        List<String> names = Arrays.stream(subCategoryNames.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .distinct()
+                .collect(Collectors.toList());
 
-        if (existing != null) {
-            existing.setParentCategory(parentCategory);
-            existing.setUpdateDate(new Date());
-            subCategoryRepo.save(existing);
-            return "Sub-category updated";
+        if (names.isEmpty()) {
+            throw new RuntimeException("No valid sub-categories provided");
         }
 
-        SubCategory sub = new SubCategory();
-        sub.setCompanyId(companyId);
-        sub.setParentCategory(parentCategory);
-        sub.setName(subCategoryName);
-        sub.setCreateDate(new Date());
-        sub.setUpdateDate(new Date());
+        int created = 0;
+        int updated = 0;
 
-        subCategoryRepo.save(sub);
-        return "Sub-category created";
+        for (String name : names) {
+
+            SubCategory existing =
+                    subCategoryRepo.findByNameAndCompanyId(
+                            name, companyId
+                    );
+
+            if (existing != null) {
+                existing.setParentCategory(parentCategory);
+                existing.setUpdateDate(new Date());
+                subCategoryRepo.save(existing);
+                updated++;
+            } else {
+                SubCategory sub = new SubCategory();
+                sub.setCompanyId(companyId);
+                sub.setParentCategory(parentCategory);
+                sub.setName(name);
+                sub.setCreateDate(new Date());
+                sub.setUpdateDate(new Date());
+                subCategoryRepo.save(sub);
+                created++;
+            }
+        }
+
+        return String.format(
+                "Sub-categories processed successfully. Created: %d, Updated: %d",
+                created,
+                updated
+        );
     }
 
     @Override
