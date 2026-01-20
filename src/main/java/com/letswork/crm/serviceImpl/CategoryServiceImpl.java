@@ -1,14 +1,14 @@
 package com.letswork.crm.serviceImpl;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.letswork.crm.dtos.CategoryWithSubCategoriesDto;
 import com.letswork.crm.entities.Category;
 import com.letswork.crm.entities.SubCategory;
 import com.letswork.crm.repo.CategoryRepository;
@@ -106,15 +106,14 @@ public class CategoryServiceImpl implements CategoryService {
         return "Sub-category created";
     }
 
-    // 🔹 Get categories + subcategories
     @Override
-    public Map<String, List<String>> getCategoriesWithSubCategories(
+    public List<CategoryWithSubCategoriesDto> getCategoriesWithSubCategories(
             String companyId,
             String category
     ) {
         validateCompany(companyId);
 
-        Map<String, List<String>> response = new LinkedHashMap<>();
+        List<CategoryWithSubCategoriesDto> response = new ArrayList<>();
 
         List<Category> categories =
                 (category != null)
@@ -133,11 +132,15 @@ public class CategoryServiceImpl implements CategoryService {
                             companyId, cat.getName()
                     );
 
-            response.put(
-            	    cat.getName(),
-            	    subs.stream()
-            	        .map(SubCategory::getName)
-            	        .collect(Collectors.toList())
+            List<String> subCategoryNames = subs.stream()
+                    .map(SubCategory::getName)
+                    .collect(Collectors.toList());
+
+            response.add(
+                    new CategoryWithSubCategoriesDto(
+                            cat.getName(),
+                            subCategoryNames
+                    )
             );
         }
 

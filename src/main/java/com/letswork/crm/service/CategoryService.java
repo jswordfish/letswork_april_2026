@@ -3,6 +3,8 @@ package com.letswork.crm.service;
 import java.util.List;
 import java.util.Map;
 
+import com.letswork.crm.dtos.CategoryWithSubCategoriesDto;
+
 public interface CategoryService {
 	
 	String saveOrUpdateCategory(
@@ -16,7 +18,7 @@ public interface CategoryService {
             String subCategoryName
     );
 
-    Map<String, List<String>> getCategoriesWithSubCategories(
+    List<CategoryWithSubCategoriesDto> getCategoriesWithSubCategories(
             String companyId,
             String category
     );

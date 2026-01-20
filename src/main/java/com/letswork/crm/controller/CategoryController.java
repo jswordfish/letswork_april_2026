@@ -1,7 +1,6 @@
 package com.letswork.crm.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.letswork.crm.dtos.CategoryWithSubCategoriesDto;
 import com.letswork.crm.service.CategoryService;
 
 @RestController
@@ -48,7 +48,7 @@ public class CategoryController {
     }
 
     @GetMapping("/get-parent-and-sub")
-    public ResponseEntity<Map<String, List<String>>> getCategories(
+    public ResponseEntity<List<CategoryWithSubCategoriesDto>> getCategories(
             @RequestParam String companyId,
             @RequestParam(required = false) String category,
             @RequestParam String token
