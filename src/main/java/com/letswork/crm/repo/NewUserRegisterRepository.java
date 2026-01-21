@@ -60,7 +60,7 @@ public interface NewUserRegisterRepository extends JpaRepository<NewUserRegister
         	    "SELECT u FROM NewUserRegister u " +
         	    "WHERE u.companyId = :companyId " +
         	    "AND (:email IS NULL OR u.email = :email) " +
-        	    "AND (:centre IS NULL OR u.letsWorkCentere = :centre) " +
+        	    "AND (:centre IS NULL OR u.letsWorkCentre = :centre) " +
         	    "AND (:city IS NULL OR u.city = :city) " +
         	    "AND (:state IS NULL OR u.state = :state) " +
         	    "AND (:category IS NULL OR u.category = :category) " +
