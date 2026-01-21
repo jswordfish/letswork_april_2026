@@ -1,9 +1,14 @@
 package com.letswork.crm.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
+import com.letswork.crm.enums.CategoryType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,5 +29,9 @@ public class SubCategory extends Base{
 	private String parentCategory;
 	
 	private String name;
+	
+	@Enumerated(EnumType.STRING)  
+    @Column(nullable = false)
+    private CategoryType categoryType;
 
 }

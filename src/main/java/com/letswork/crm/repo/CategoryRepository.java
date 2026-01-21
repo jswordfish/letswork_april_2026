@@ -6,12 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.Category;
+import com.letswork.crm.enums.CategoryType;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    Category findByNameAndCompanyId(String name, String companyId);
+    Category findByNameAndCompanyIdAndCategoryType(String name, String companyId, CategoryType categoryType);
 
-    List<Category> findByCompanyId(String companyId);
+    List<Category> findByCompanyIdAndCategoryType(String companyId, CategoryType categoryType);
     
 }

@@ -1,13 +1,14 @@
 package com.letswork.crm.entities;
 
-import java.time.LocalDateTime;
-
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import com.letswork.crm.enums.BookingStatus;
+import com.letswork.crm.enums.CategoryType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,5 +27,9 @@ public class Category extends Base{
     private Long id;
 	
 	private String name;
+	
+	@Enumerated(EnumType.STRING)  
+    @Column(nullable = false)
+    private CategoryType categoryType;
 
 }

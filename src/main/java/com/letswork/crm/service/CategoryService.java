@@ -4,23 +4,24 @@ import java.util.List;
 import java.util.Map;
 
 import com.letswork.crm.dtos.CategoryWithSubCategoriesDto;
+import com.letswork.crm.entities.Category;
+import com.letswork.crm.entities.SubCategory;
+import com.letswork.crm.enums.CategoryType;
 
 public interface CategoryService {
 	
-	String saveOrUpdateCategory(
-            String companyId,
-            String categoryName
+	public String saveOrUpdateCategory(
+            Category category
     );
 
-	String saveOrUpdateSubCategories(
-	        String companyId,
-	        String parentCategory,
-	        String subCategoryNames
-	);
+	public String saveOrUpdateSubCategories(
+            SubCategory subCategory
+    );
 
     List<CategoryWithSubCategoriesDto> getCategoriesWithSubCategories(
             String companyId,
-            String category
+            String category,
+            CategoryType categoryType
     );
 
 }

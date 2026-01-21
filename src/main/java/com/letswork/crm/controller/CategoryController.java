@@ -6,11 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.CategoryWithSubCategoriesDto;
+import com.letswork.crm.entities.Category;
+import com.letswork.crm.entities.SubCategory;
+import com.letswork.crm.enums.CategoryType;
 import com.letswork.crm.service.CategoryService;
 
 @RestController
@@ -22,27 +26,24 @@ public class CategoryController {
 
     @PostMapping("/create")
     public ResponseEntity<String> createCategory(
-            @RequestParam String companyId,
-            @RequestParam String name,
+            @RequestBody Category category,
             @RequestParam String token
     ) {
         return ResponseEntity.ok(
                 categoryService.saveOrUpdateCategory(
-                        companyId, name
+                        category
                 )
         );
     }
 
     @PostMapping("/sub")
     public ResponseEntity<String> createSubCategories(
-            @RequestParam String companyId,
-            @RequestParam String parentCategory,
-            @RequestParam String names,
+            @RequestBody SubCategory subCategory,
             @RequestParam String token
     ) {
         return ResponseEntity.ok(
                 categoryService.saveOrUpdateSubCategories(
-                        companyId, parentCategory, names
+                        subCategory
                 )
         );
     }
@@ -51,11 +52,12 @@ public class CategoryController {
     public ResponseEntity<List<CategoryWithSubCategoriesDto>> getCategories(
             @RequestParam String companyId,
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) CategoryType categoryType,
             @RequestParam String token
     ) {
         return ResponseEntity.ok(
                 categoryService.getCategoriesWithSubCategories(
-                        companyId, category
+                        companyId, category, categoryType
                 )
         );
     }

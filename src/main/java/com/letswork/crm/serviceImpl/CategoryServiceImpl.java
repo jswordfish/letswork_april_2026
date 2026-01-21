@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.letswork.crm.dtos.CategoryWithSubCategoriesDto;
 import com.letswork.crm.entities.Category;
 import com.letswork.crm.entities.SubCategory;
+import com.letswork.crm.enums.CategoryType;
 import com.letswork.crm.repo.CategoryRepository;
 import com.letswork.crm.repo.SubCategoryRepository;
 import com.letswork.crm.service.CategoryService;
@@ -42,14 +43,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public String saveOrUpdateCategory(
-            String companyId,
-            String categoryName
+            Category category
     ) {
-        validateCompany(companyId);
+        validateCompany(category.getCompanyId());
 
         Category existing =
-                categoryRepo.findByNameAndCompanyId(
-                        categoryName, companyId
+                categoryRepo.findByNameAndCompanyIdAndCategoryType(
+                        category.getName(), category.getCompanyId(), category.getCategoryType()
                 );
 
         if (existing != null) {
@@ -58,27 +58,26 @@ public class CategoryServiceImpl implements CategoryService {
             return "Category updated";
         }
 
-        Category category = new Category();
-        category.setName(categoryName);
-        category.setCompanyId(companyId);
-        category.setCreateDate(new Date());
-        category.setUpdateDate(new Date());
+        Category category1 = new Category();
+        category1.setName(category.getName());
+        category1.setCompanyId(category.getCompanyId());
+        category1.setCategoryType(category.getCategoryType());
+        category1.setCreateDate(new Date());
+        category1.setUpdateDate(new Date());
 
-        categoryRepo.save(category);
+        categoryRepo.save(category1);
         return "Category created";
     }
 
     @Override
     public String saveOrUpdateSubCategories(
-            String companyId,
-            String parentCategory,
-            String subCategoryNames
+            SubCategory subCategory
     ) {
-        validateCompany(companyId);
+        validateCompany(subCategory.getCompanyId());
 
         Category parent =
-                categoryRepo.findByNameAndCompanyId(
-                        parentCategory, companyId
+                categoryRepo.findByNameAndCompanyIdAndCategoryType(
+                        subCategory.getParentCategory(), subCategory.getCompanyId(), subCategory.getCategoryType()
                 );
 
         if (parent == null) {
@@ -86,7 +85,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         // 1️⃣ Parse incoming names
-        Set<String> incomingNames = Arrays.stream(subCategoryNames.split(","))
+        Set<String> incomingNames = Arrays.stream(subCategory.getName().split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
@@ -97,8 +96,8 @@ public class CategoryServiceImpl implements CategoryService {
 
         // 2️⃣ Fetch existing sub-categories for this parent
         List<SubCategory> existingSubs =
-                subCategoryRepo.findByCompanyIdAndParentCategory(
-                        companyId, parentCategory
+                subCategoryRepo.findByCompanyIdAndParentCategoryAndCategoryType(
+                		subCategory.getCompanyId(), subCategory.getParentCategory(), subCategory.getCategoryType()
                 );
 
         Map<String, SubCategory> existingMap =
@@ -122,8 +121,8 @@ public class CategoryServiceImpl implements CategoryService {
                 updated++;
             } else {
                 SubCategory sub = new SubCategory();
-                sub.setCompanyId(companyId);
-                sub.setParentCategory(parentCategory);
+                sub.setCompanyId(subCategory.getCompanyId());
+                sub.setParentCategory(subCategory.getParentCategory());
                 sub.setName(name);
                 sub.setCreateDate(new Date());
                 sub.setUpdateDate(new Date());
@@ -152,7 +151,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryWithSubCategoriesDto> getCategoriesWithSubCategories(
             String companyId,
-            String category
+            String category,
+            CategoryType categoryType
     ) {
         validateCompany(companyId);
 
@@ -161,18 +161,18 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> categories =
                 (category != null)
                         ? List.of(
-                            categoryRepo.findByNameAndCompanyId(
-                                    category, companyId
+                            categoryRepo.findByNameAndCompanyIdAndCategoryType(
+                                    category, companyId, categoryType
                             )
                           )
-                        : categoryRepo.findByCompanyId(companyId);
+                        : categoryRepo.findByCompanyIdAndCategoryType(companyId, categoryType);
 
         for (Category cat : categories) {
             if (cat == null) continue;
 
             List<SubCategory> subs =
-                    subCategoryRepo.findByCompanyIdAndParentCategory(
-                            companyId, cat.getName()
+                    subCategoryRepo.findByCompanyIdAndParentCategoryAndCategoryType(
+                            companyId, cat.getName(), categoryType
                     );
 
             List<String> subCategoryNames = subs.stream()

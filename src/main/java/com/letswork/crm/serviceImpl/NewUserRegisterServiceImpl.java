@@ -22,6 +22,7 @@ import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.SubCategory;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.enums.CategoryType;
 import com.letswork.crm.repo.CategoryRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
@@ -104,8 +105,8 @@ public class NewUserRegisterServiceImpl
         // 2️⃣ Validate category
         if (user.getCategory() != null) {
             Category category =
-                    categoryRepo.findByNameAndCompanyId(
-                            user.getCategory(), user.getCompanyId()
+                    categoryRepo.findByNameAndCompanyIdAndCategoryType(
+                            user.getCategory(), user.getCompanyId(), CategoryType.BUSINESS
                     );
             if (category == null) {
                 throw new RuntimeException("Invalid category");
@@ -115,8 +116,8 @@ public class NewUserRegisterServiceImpl
         // 3️⃣ Validate sub-category
         if (user.getSubCategory() != null) {
             SubCategory sub =
-                    subCategoryRepo.findByNameAndCompanyId(
-                            user.getSubCategory(), user.getCompanyId()
+                    subCategoryRepo.findByNameAndCompanyIdAndCategoryType(
+                            user.getSubCategory(), user.getCompanyId(), CategoryType.BUSINESS
                     );
             if (sub == null) {
                 throw new RuntimeException("Invalid sub-category");
