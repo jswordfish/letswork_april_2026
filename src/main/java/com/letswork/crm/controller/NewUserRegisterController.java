@@ -7,17 +7,20 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.NewUserRegisterService;
@@ -26,6 +29,7 @@ import com.letswork.crm.util.TokenService2;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/letsWork-clients")
 public class NewUserRegisterController {
 
     @Autowired
@@ -53,6 +57,57 @@ public class NewUserRegisterController {
         response.put("user", saved);
 
         return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/admin/save-or-update")
+    public ResponseEntity<NewUserRegister> saveOrUpdateManually(
+            @RequestBody NewUserRegister user,
+            @RequestParam String token
+    ) {
+        return ResponseEntity.ok(
+                service.saveOrUpdateManually(user)
+        );
+    }
+    
+    @GetMapping
+    public ResponseEntity<PaginatedResponseDto> get(
+            @RequestParam String companyId,
+            @RequestParam String token,
+
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String letsWorkCentre,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String state,
+
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String subCategory,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate fromDate,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate toDate,
+
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+                service.getPaginated(
+                        companyId,
+                        email,
+                        letsWorkCentre,
+                        city,
+                        state,
+                        category,
+                        subCategory,
+                        fromDate,
+                        toDate,
+                        page,
+                        size
+                )
+        );
     }
     
     @PostMapping("/set-monthly")

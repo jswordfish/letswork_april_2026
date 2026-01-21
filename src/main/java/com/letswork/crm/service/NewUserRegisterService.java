@@ -1,9 +1,11 @@
 package com.letswork.crm.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.NewUserRegister;
 
 public interface NewUserRegisterService {
@@ -47,6 +49,22 @@ public interface NewUserRegisterService {
             String companyId,
             String category,
             String subCategory
+    );
+    
+    NewUserRegister saveOrUpdateManually(NewUserRegister user);
+    
+    public PaginatedResponseDto getPaginated(
+            String companyId,
+            String email,
+            String letsWorkCentre,
+            String city,
+            String state,
+            String category,
+            String subCategory,
+            LocalDate fromDate,
+            LocalDate toDate,
+            int page,
+            int size
     );
 
 }

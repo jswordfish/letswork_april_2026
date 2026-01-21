@@ -19,4 +19,6 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
             String parentCategory
     );
     
+    void deleteAllByIdIn(List<Long> ids);
+    
 }

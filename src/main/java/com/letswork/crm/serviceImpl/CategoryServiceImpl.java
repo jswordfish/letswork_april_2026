@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -38,7 +40,6 @@ public class CategoryServiceImpl implements CategoryService {
         }
     }
 
-    // 🔹 Create / Update Category
     @Override
     public String saveOrUpdateCategory(
             String companyId,
@@ -84,28 +85,38 @@ public class CategoryServiceImpl implements CategoryService {
             throw new RuntimeException("Parent category does not exist");
         }
 
-        List<String> names = Arrays.stream(subCategoryNames.split(","))
+        // 1️⃣ Parse incoming names
+        Set<String> incomingNames = Arrays.stream(subCategoryNames.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .distinct()
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
-        if (names.isEmpty()) {
+        if (incomingNames.isEmpty()) {
             throw new RuntimeException("No valid sub-categories provided");
         }
 
+        // 2️⃣ Fetch existing sub-categories for this parent
+        List<SubCategory> existingSubs =
+                subCategoryRepo.findByCompanyIdAndParentCategory(
+                        companyId, parentCategory
+                );
+
+        Map<String, SubCategory> existingMap =
+                existingSubs.stream()
+                        .collect(Collectors.toMap(
+                                SubCategory::getName,
+                                s -> s
+                        ));
+
         int created = 0;
         int updated = 0;
+        int deleted = 0;
 
-        for (String name : names) {
-
-            SubCategory existing =
-                    subCategoryRepo.findByNameAndCompanyId(
-                            name, companyId
-                    );
+        // 3️⃣ Create or update incoming ones
+        for (String name : incomingNames) {
+            SubCategory existing = existingMap.get(name);
 
             if (existing != null) {
-                existing.setParentCategory(parentCategory);
                 existing.setUpdateDate(new Date());
                 subCategoryRepo.save(existing);
                 updated++;
@@ -121,10 +132,20 @@ public class CategoryServiceImpl implements CategoryService {
             }
         }
 
+        // 4️⃣ Delete removed sub-categories
+        List<Long> toDeleteIds = existingSubs.stream()
+                .filter(sc -> !incomingNames.contains(sc.getName()))
+                .map(SubCategory::getId)
+                .collect(Collectors.toList());
+
+        if (!toDeleteIds.isEmpty()) {
+            subCategoryRepo.deleteAllByIdIn(toDeleteIds);
+            deleted = toDeleteIds.size();
+        }
+
         return String.format(
-                "Sub-categories processed successfully. Created: %d, Updated: %d",
-                created,
-                updated
+                "Sub-categories synced successfully. Created: %d, Updated: %d, Deleted: %d",
+                created, updated, deleted
         );
     }
 

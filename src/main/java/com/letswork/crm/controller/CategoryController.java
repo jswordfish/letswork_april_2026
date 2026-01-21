@@ -37,7 +37,7 @@ public class CategoryController {
     public ResponseEntity<String> createSubCategories(
             @RequestParam String companyId,
             @RequestParam String parentCategory,
-            @RequestParam String names,   
+            @RequestParam String names,
             @RequestParam String token
     ) {
         return ResponseEntity.ok(

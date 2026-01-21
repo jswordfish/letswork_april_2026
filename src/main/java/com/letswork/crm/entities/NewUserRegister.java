@@ -51,5 +51,11 @@ public class NewUserRegister extends Base{
 	private String category;
 	
 	private String subCategory;
+	
+	private String letsWorkCentre;
+	
+	private String city;
+	
+	private String state;
 
 }
