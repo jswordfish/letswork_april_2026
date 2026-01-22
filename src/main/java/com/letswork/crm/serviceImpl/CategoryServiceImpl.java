@@ -120,13 +120,15 @@ public class CategoryServiceImpl implements CategoryService {
                 subCategoryRepo.save(existing);
                 updated++;
             } else {
-                SubCategory sub = new SubCategory();
-                sub.setCompanyId(subCategory.getCompanyId());
-                sub.setParentCategory(subCategory.getParentCategory());
-                sub.setName(name);
-                sub.setCreateDate(new Date());
-                sub.setUpdateDate(new Date());
-                subCategoryRepo.save(sub);
+            	SubCategory sub = new SubCategory();
+            	sub.setCompanyId(subCategory.getCompanyId());
+            	sub.setParentCategory(subCategory.getParentCategory());
+            	sub.setName(name);
+            	sub.setCategoryType(subCategory.getCategoryType()); 
+            	sub.setCreateDate(new Date());
+            	sub.setUpdateDate(new Date());
+
+            	subCategoryRepo.save(sub);
                 created++;
             }
         }
@@ -165,14 +167,18 @@ public class CategoryServiceImpl implements CategoryService {
                                     category, companyId, categoryType
                             )
                           )
-                        : categoryRepo.findByCompanyIdAndCategoryType(companyId, categoryType);
+                        : categoryRepo.findByCompanyIdAndCategoryType(
+                                companyId, categoryType
+                        );
 
         for (Category cat : categories) {
             if (cat == null) continue;
 
             List<SubCategory> subs =
                     subCategoryRepo.findByCompanyIdAndParentCategoryAndCategoryType(
-                            companyId, cat.getName(), categoryType
+                            companyId,
+                            cat.getName(),
+                            cat.getCategoryType()
                     );
 
             List<String> subCategoryNames = subs.stream()
@@ -182,6 +188,7 @@ public class CategoryServiceImpl implements CategoryService {
             response.add(
                     new CategoryWithSubCategoriesDto(
                             cat.getName(),
+                            cat.getCategoryType(),
                             subCategoryNames
                     )
             );
