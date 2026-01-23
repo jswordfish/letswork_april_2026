@@ -2,6 +2,7 @@ package com.letswork.crm.service;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Greviance;
+import com.letswork.crm.enums.GrevianceStatus;
 
 public interface GrevianceService {
 	
@@ -15,6 +16,12 @@ public interface GrevianceService {
             String state,
             int page,
             int size
+    );
+    
+    Greviance updateGrevianceStatus(
+            Long grevianceId,
+            GrevianceStatus status,
+            String companyId
     );
 
 }

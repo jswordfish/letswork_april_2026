@@ -14,6 +14,7 @@ import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.SubCategory;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.CategoryType;
+import com.letswork.crm.enums.GrevianceStatus;
 import com.letswork.crm.repo.CategoryRepository;
 import com.letswork.crm.repo.GrevianceRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
@@ -84,6 +85,8 @@ public class GrevianceServiceImpl implements GrevianceService {
         if (subCategory == null) {
             throw new RuntimeException("Invalid sub-category");
         }
+        
+        greviance.setGrevianceStatus(GrevianceStatus.RAISED);
 
         // 4️⃣ Save
         return grevianceRepo.save(greviance);
@@ -120,4 +123,30 @@ public class GrevianceServiceImpl implements GrevianceService {
 
         return dto;
     }
+    
+    @Override
+    public Greviance updateGrevianceStatus(
+            Long grevianceId,
+            GrevianceStatus status,
+            String companyId
+    ) {
+
+        Greviance greviance = grevianceRepo
+                .findByIdAndCompanyId(grevianceId, companyId)
+                .orElseThrow(() ->
+                        new RuntimeException("Greviance not found"));
+
+        if (greviance.getGrevianceStatus() == status) {
+            throw new RuntimeException("Greviance already in this status");
+        }
+
+        if (greviance.getGrevianceStatus() == GrevianceStatus.COMPLETED) {
+            throw new RuntimeException("Completed greviance cannot be updated");
+        }
+
+        greviance.setGrevianceStatus(status);
+
+        return grevianceRepo.save(greviance);
+    }
+    
 }

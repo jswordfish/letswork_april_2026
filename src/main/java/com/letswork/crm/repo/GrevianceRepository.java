@@ -1,5 +1,7 @@
 package com.letswork.crm.repo;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,4 +30,7 @@ public interface GrevianceRepository extends JpaRepository<Greviance, Long> {
             @Param("state") String state,
             Pageable pageable
     );
+    
+    Optional<Greviance> findByIdAndCompanyId(Long id, String companyId);
+    
 }
