@@ -99,26 +99,33 @@ public class GrevianceServiceImpl implements GrevianceService {
             String centre,
             String city,
             String state,
+            GrevianceStatus status,
             int page,
             int size
     ) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createDate").descending());
+        Pageable pageable =
+                PageRequest.of(page, size, Sort.by("createDate").descending());
 
         Page<Greviance> greviancePage =
-                grevianceRepo.filter(companyId, email, centre, city, state, pageable);
+                grevianceRepo.filter(
+                        companyId,
+                        email,
+                        centre,
+                        city,
+                        state,
+                        status,
+                        pageable
+                );
 
         PaginatedResponseDto dto = new PaginatedResponseDto();
-
         dto.setSelectedPage(page);
         dto.setTotalNumberOfPages(greviancePage.getTotalPages());
         dto.setTotalNumberOfRecords((int) greviancePage.getTotalElements());
-
         dto.setRecordsFrom(page * size + 1);
         dto.setRecordsTo(
                 Math.min((page + 1) * size, dto.getTotalNumberOfRecords())
         );
-
         dto.setList(greviancePage.getContent());
 
         return dto;

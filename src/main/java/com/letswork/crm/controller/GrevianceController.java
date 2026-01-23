@@ -33,7 +33,7 @@ public class GrevianceController {
         );
     }
 
-    @GetMapping("/get")
+    @GetMapping
     public ResponseEntity<PaginatedResponseDto> get(
             @RequestParam String companyId,
             @RequestParam String token,
@@ -42,6 +42,7 @@ public class GrevianceController {
             @RequestParam(required = false) String centre,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
+            @RequestParam(required = false) GrevianceStatus status,
 
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -54,6 +55,7 @@ public class GrevianceController {
                         centre,
                         city,
                         state,
+                        status,
                         page,
                         size
                 )

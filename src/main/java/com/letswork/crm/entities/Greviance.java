@@ -43,7 +43,6 @@ public class Greviance extends Base{
 	private String issue;
 	
 	@Enumerated(EnumType.STRING)  
-    @Column(nullable = false)
     private GrevianceStatus grevianceStatus;
 
 }
