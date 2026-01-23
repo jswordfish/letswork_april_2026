@@ -100,7 +100,7 @@ public class GrevianceServiceImpl implements GrevianceService {
             int size
     ) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createDate").descending());
 
         Page<Greviance> greviancePage =
                 grevianceRepo.filter(companyId, email, centre, city, state, pageable);
