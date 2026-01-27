@@ -1,9 +1,10 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.File;
-import java.time.Duration;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -13,7 +14,6 @@ import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 @Service
 public class S3Service {
@@ -391,6 +391,47 @@ public class S3Service {
         );
 
         return keyName;
+    }
+    
+    public static String generateRandomUUIDString() {
+        // Generates a 32-character alphanumeric string (plus dashes)
+        String uuid = UUID.randomUUID().toString();
+        // Remove the dashes
+        String randomText = uuid.replace("-", "");
+        return randomText;
+    }
+    
+    public String uploadGrevianceImage(
+            String bucketName,
+            String companyId,
+            String email,
+            MultipartFile image
+    ) {
+        try {
+            String sanitizedEmail =
+                    email.trim().replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
+
+            String randomText = generateRandomUUIDString();
+
+            String keyName =
+                    companyId + "/users/" +
+                    sanitizedEmail + "/Greviance/" +
+                    randomText + ".png";
+
+            s3Client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(keyName)
+                            .contentType(image.getContentType())
+                            .build(),
+                    RequestBody.fromBytes(image.getBytes())
+            );
+
+            return keyName;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload greviance image", e);
+        }
     }
 
     

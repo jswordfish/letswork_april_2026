@@ -1,13 +1,15 @@
 package com.letswork.crm.controller;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Greviance;
@@ -23,13 +25,14 @@ public class GrevianceController {
 
     private final GrevianceService grevianceService;
 
-    @PostMapping("/save")
+    @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Greviance> save(
             @RequestParam String token,
-            @RequestBody Greviance greviance
+            @RequestPart("greviance") Greviance greviance,
+            @RequestPart(value = "image", required = false) MultipartFile image
     ) {
         return ResponseEntity.ok(
-                grevianceService.saveGreviance(greviance)
+                grevianceService.saveGreviance(greviance, image)
         );
     }
 

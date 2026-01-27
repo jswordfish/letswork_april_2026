@@ -1,12 +1,14 @@
 package com.letswork.crm.service;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Greviance;
 import com.letswork.crm.enums.GrevianceStatus;
 
 public interface GrevianceService {
 	
-	Greviance saveGreviance(Greviance greviance);
+	public Greviance saveGreviance(Greviance greviance, MultipartFile image);
 
 	PaginatedResponseDto getGreviances(
 	        String companyId,

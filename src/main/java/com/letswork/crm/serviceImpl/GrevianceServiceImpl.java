@@ -1,11 +1,14 @@
 package com.letswork.crm.serviceImpl;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Category;
@@ -27,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class GrevianceServiceImpl implements GrevianceService {
 
     private final GrevianceRepository grevianceRepo;
@@ -39,32 +43,41 @@ public class GrevianceServiceImpl implements GrevianceService {
 	
 	@Autowired
 	LetsWorkCentreRepository letsWorkCentreRepo;
+	
+	@Autowired
+	S3Service s3Service;
 
     @Override
-    public Greviance saveGreviance(Greviance greviance) {
-    	
-		Tenant tenant = tenantService.findTenantByCompanyId(greviance.getCompanyId());
-		
-		if(tenant==null) {
-			
-			throw new RuntimeException("CompanyId invalid - "+greviance.getCompanyId());
-			
-		}
-		
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(greviance.getLetsWorkCentre(), greviance.getCompanyId(), greviance.getCity(), greviance.getState());
-		
-		if(centre==null) {
-			throw new RuntimeException("This LetsWorkCentre does not exists");
-		}
+    public Greviance saveGreviance(Greviance greviance, MultipartFile image) {
 
-        // 1️⃣ Validate user
-        userRepo.findByEmailAndCompanyId(greviance.getEmail(), greviance.getCompanyId())
-                .orElseThrow(() ->
-                        new RuntimeException("User not found for given email"));
+        Tenant tenant =
+                tenantService.findTenantByCompanyId(greviance.getCompanyId());
 
-        // 2️⃣ Validate category
-        Category category = categoryRepo
-                .findByNameAndCompanyIdAndCategoryType(
+        if (tenant == null) {
+            throw new RuntimeException("CompanyId invalid - " + greviance.getCompanyId());
+        }
+
+        LetsWorkCentre centre =
+                letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+                        greviance.getLetsWorkCentre(),
+                        greviance.getCompanyId(),
+                        greviance.getCity(),
+                        greviance.getState()
+                );
+
+        if (centre == null) {
+            throw new RuntimeException("This LetsWorkCentre does not exist");
+        }
+
+        userRepo.findByEmailAndCompanyId(
+                greviance.getEmail(),
+                greviance.getCompanyId()
+        ).orElseThrow(() ->
+                new RuntimeException("User not found for given email")
+        );
+
+        Category category =
+                categoryRepo.findByNameAndCompanyIdAndCategoryType(
                         greviance.getCategory(),
                         greviance.getCompanyId(),
                         CategoryType.GREVIANCE
@@ -74,9 +87,8 @@ public class GrevianceServiceImpl implements GrevianceService {
             throw new RuntimeException("Invalid category");
         }
 
-        // 3️⃣ Validate sub-category
-        SubCategory subCategory = subCategoryRepo
-                .findByNameAndCompanyIdAndCategoryType(
+        SubCategory subCategory =
+                subCategoryRepo.findByNameAndCompanyIdAndCategoryType(
                         greviance.getSubCategory(),
                         greviance.getCompanyId(),
                         CategoryType.GREVIANCE
@@ -85,10 +97,21 @@ public class GrevianceServiceImpl implements GrevianceService {
         if (subCategory == null) {
             throw new RuntimeException("Invalid sub-category");
         }
-        
+
+        // ✅ Upload image if present
+        if (image != null && !image.isEmpty()) {
+            String s3Key =
+                    s3Service.uploadGrevianceImage(
+                            "letsworkcentres",
+                            greviance.getCompanyId(),
+                            greviance.getEmail(),
+                            image
+                    );
+            greviance.setImageS3Key(s3Key);
+        }
+
         greviance.setGrevianceStatus(GrevianceStatus.RAISED);
 
-        // 4️⃣ Save
         return grevianceRepo.save(greviance);
     }
 

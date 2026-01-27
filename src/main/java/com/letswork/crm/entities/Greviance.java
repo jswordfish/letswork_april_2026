@@ -45,5 +45,8 @@ public class Greviance extends Base{
 	@Enumerated(EnumType.STRING) 
 	@Column(nullable = true)
     private GrevianceStatus grevianceStatus;
+	
+	@Column(nullable = true)
+    private String imageS3Key;
 
 }
