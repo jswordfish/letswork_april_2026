@@ -17,6 +17,8 @@ import com.letswork.crm.entities.BookDayPass;
 public interface BookDayPassRepository extends JpaRepository<BookDayPass, Long> {
 
     List<BookDayPass> findByCompanyId(String companyId);
+    
+    
 
     List<BookDayPass> findByEmailAndCompanyId(String email, String companyId);
 

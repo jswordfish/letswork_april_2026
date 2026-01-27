@@ -147,6 +147,11 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
+		    	if(url.endsWith("qr")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
 		    	
 		    String token = httpRequest.getParameter("token");
 		    Enumeration<String> headerNames = httpRequest.getHeaderNames();

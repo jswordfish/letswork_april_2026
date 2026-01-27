@@ -309,16 +309,16 @@ public class S3Service {
                 qrFile.toPath()
         );
 
-        PresignedGetObjectRequest presignedRequest =
-                s3Presigner.presignGetObject(p -> p
-                        .getObjectRequest(GetObjectRequest.builder()
-                                .bucket(bucketName)
-                                .key(keyName)
-                                .build())
-                        .signatureDuration(Duration.ofDays(7))
-                );
+//        PresignedGetObjectRequest presignedRequest =
+//                s3Presigner.presignGetObject(p -> p
+//                        .getObjectRequest(GetObjectRequest.builder()
+//                                .bucket(bucketName)
+//                                .key(keyName)
+//                                .build())
+//                        .signatureDuration(Duration.ofDays(7))
+//                );
 
-        return presignedRequest.url().toString();
+        return keyName;
     }
     
     public String uploadConferenceRoomQrCode(
@@ -351,18 +351,18 @@ public class S3Service {
                 qrFile.toPath()
         );
 
-        PresignedGetObjectRequest presignedRequest =
-                s3Presigner.presignGetObject(p -> p
-                        .getObjectRequest(
-                                GetObjectRequest.builder()
-                                        .bucket(bucketName)
-                                        .key(keyName)
-                                        .build()
-                        )
-                        .signatureDuration(Duration.ofDays(7))
-                );
+//        PresignedGetObjectRequest presignedRequest =
+//                s3Presigner.presignGetObject(p -> p
+//                        .getObjectRequest(
+//                                GetObjectRequest.builder()
+//                                        .bucket(bucketName)
+//                                        .key(keyName)
+//                                        .build()
+//                        )
+//                        .signatureDuration(Duration.ofDays(7))
+//                );
 
-        return presignedRequest.url().toString();
+        return keyName;
     }
     
     public String uploadVisitorQrCode(

@@ -1,12 +1,17 @@
 package com.letswork.crm.serviceImpl;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.letswork.crm.entities.BookDayPass;
+import com.letswork.crm.repo.BookDayPassRepository;
 import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
 import com.mailjet.client.errors.MailjetException;
@@ -16,6 +21,9 @@ import com.mailjet.client.transactional.TransactionalEmail;
 
 @Service
 public class MailJetOtpService {
+	
+	@Autowired
+	BookDayPassRepository bookDayPassRepo;
 
     private static final String API_KEY = "8259d51f87852f8c7b9f6b08e627f94d";
     private static final String SECRET_KEY = "184fc8e67edae36b2b5ad191e8bd2e53";
@@ -70,12 +78,18 @@ public class MailJetOtpService {
                 .build();
 
         MailjetClient client = new MailjetClient(options);
+        
+        
+        
+        String qrImageUrl =
+                "http://13.233.33.137:8080/visitor/public/qr?key=" +
+                URLEncoder.encode(qrCodePath, StandardCharsets.UTF_8);
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("bookingId", bookingId);
         variables.put("numberOfDays", numberOfDays);
         variables.put("letsworkCenter", letsWorkCentre);
-        variables.put("QR_Code", qrCodePath);
+        variables.put("QR_Code", qrImageUrl);
         variables.put("user", name);
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
@@ -117,12 +131,16 @@ public class MailJetOtpService {
                 .build();
 
         MailjetClient client = new MailjetClient(options);
+        
+        String qrImageUrl =
+                "http://13.233.33.137:8080/visitor/public/qr?key=" +
+                URLEncoder.encode(qrCodePath, StandardCharsets.UTF_8);
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("bookingId", bookingId);
-        variables.put("dateOfBooking", dateOfBooking);
+        variables.put("dateOfBooking", dateOfBooking.toString());
         variables.put("letsworkCenter", letsWorkCentre);
-        variables.put("QR_Code", qrCodePath);
+        variables.put("QR_Code", qrImageUrl);
         variables.put("conferenceRoomName", roomName);
         variables.put("user", name);
         variables.put("startTime", startTime);

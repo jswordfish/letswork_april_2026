@@ -26,6 +26,7 @@ import com.letswork.crm.enums.CategoryType;
 import com.letswork.crm.repo.CategoryRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
+import com.letswork.crm.repo.ReferralRepository;
 import com.letswork.crm.repo.SubCategoryRepository;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.TenantService;
@@ -40,6 +41,9 @@ public class NewUserRegisterServiceImpl
 
     @Autowired
     private TenantService tenantService;
+    
+    @Autowired
+    ReferralRepository referralRepository;
     
     @Autowired
     private S3Service s3Service;
@@ -368,7 +372,18 @@ public class NewUserRegisterServiceImpl
                         );
 
         user.setMonthly(true);
-        return repo.save(user);
+        user.setUpdateDate(new Date());
+        NewUserRegister updatedUser = repo.save(user);
+
+        
+        referralRepository.findByEmailAndCompanyId(email, companyId)
+                .ifPresent(referral -> {
+                    referral.setJoiningDate(LocalDate.now());
+                    referral.setUpdateDate(new Date());
+                    referralRepository.save(referral);
+                });
+
+        return updatedUser;
 	}
 
 	@Override

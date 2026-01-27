@@ -118,7 +118,6 @@ public class NewUserRegisterController {
     ) {
     	
     	
-    	
         return ResponseEntity.ok(
                 service.setUserMonthly(email, companyId)
         );
