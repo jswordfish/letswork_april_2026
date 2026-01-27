@@ -116,6 +116,9 @@ public class NewUserRegisterController {
             @RequestParam String companyId,
             @RequestParam String token
     ) {
+    	
+    	
+    	
         return ResponseEntity.ok(
                 service.setUserMonthly(email, companyId)
         );
