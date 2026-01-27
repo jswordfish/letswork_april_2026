@@ -42,12 +42,15 @@ public class GrevianceController {
             @RequestParam(required = false) String centre,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
+
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String subCategory,
+
             @RequestParam(required = false) GrevianceStatus status,
 
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-
         return ResponseEntity.ok(
                 grevianceService.getGreviances(
                         companyId,
@@ -55,6 +58,8 @@ public class GrevianceController {
                         centre,
                         city,
                         state,
+                        category,
+                        subCategory,
                         status,
                         page,
                         size

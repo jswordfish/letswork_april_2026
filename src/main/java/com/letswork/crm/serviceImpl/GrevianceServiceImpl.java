@@ -99,6 +99,8 @@ public class GrevianceServiceImpl implements GrevianceService {
             String centre,
             String city,
             String state,
+            String category,
+            String subCategory,
             GrevianceStatus status,
             int page,
             int size
@@ -114,6 +116,8 @@ public class GrevianceServiceImpl implements GrevianceService {
                         centre,
                         city,
                         state,
+                        category,
+                        subCategory,
                         status,
                         pageable
                 );
@@ -122,10 +126,12 @@ public class GrevianceServiceImpl implements GrevianceService {
         dto.setSelectedPage(page);
         dto.setTotalNumberOfPages(greviancePage.getTotalPages());
         dto.setTotalNumberOfRecords((int) greviancePage.getTotalElements());
+
         dto.setRecordsFrom(page * size + 1);
         dto.setRecordsTo(
                 Math.min((page + 1) * size, dto.getTotalNumberOfRecords())
         );
+
         dto.setList(greviancePage.getContent());
 
         return dto;

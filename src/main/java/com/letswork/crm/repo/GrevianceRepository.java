@@ -22,6 +22,8 @@ public interface GrevianceRepository extends JpaRepository<Greviance, Long> {
 		    "AND (:centre IS NULL OR g.letsWorkCentre = :centre) " +
 		    "AND (:city IS NULL OR g.city = :city) " +
 		    "AND (:state IS NULL OR g.state = :state) " +
+		    "AND (:category IS NULL OR g.category = :category) " +
+		    "AND (:subCategory IS NULL OR g.subCategory = :subCategory) " +
 		    "AND (:status IS NULL OR g.grevianceStatus = :status)"
 		)
 		Page<Greviance> filter(
@@ -30,6 +32,8 @@ public interface GrevianceRepository extends JpaRepository<Greviance, Long> {
 		        @Param("centre") String centre,
 		        @Param("city") String city,
 		        @Param("state") String state,
+		        @Param("category") String category,
+		        @Param("subCategory") String subCategory,
 		        @Param("status") GrevianceStatus status,
 		        Pageable pageable
 		);

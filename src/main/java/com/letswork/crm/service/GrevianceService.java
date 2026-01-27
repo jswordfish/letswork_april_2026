@@ -8,12 +8,14 @@ public interface GrevianceService {
 	
 	Greviance saveGreviance(Greviance greviance);
 
-	public PaginatedResponseDto getGreviances(
+	PaginatedResponseDto getGreviances(
 	        String companyId,
 	        String email,
 	        String centre,
 	        String city,
 	        String state,
+	        String category,
+	        String subCategory,
 	        GrevianceStatus status,
 	        int page,
 	        int size
