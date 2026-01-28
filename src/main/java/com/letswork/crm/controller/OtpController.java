@@ -1,5 +1,6 @@
 package com.letswork.crm.controller;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,12 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.letswork.crm.entities.EmailOtp;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.User;
 import com.letswork.crm.repo.EmailOtpRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.UserRepo;
-import com.letswork.crm.serviceImpl.MailJetOtpService;
 import com.letswork.crm.serviceImpl.OtpService;
 import com.letswork.crm.util.TokenService2;
 
@@ -71,17 +72,12 @@ public class OtpController {
             @RequestParam String otp,
             @RequestParam String companyId) {
 
-        boolean verified = otpService.verifyOtp(email, otp);
-
-        if (!verified) {
-            throw new RuntimeException("Invalid OTP");
-        }
+        EmailOtp emailOtp = otpService.verifyOtp(email, otp);
 
         Map<String, Object> response = new HashMap<>();
 
-        // 1️⃣ Check internal LetsWork user FIRST
+        // 1️⃣ INTERNAL USER (always login)
         User internalUser = userRepo.findByEmail(email, companyId);
-
         if (internalUser != null) {
 
             String token =
@@ -98,19 +94,27 @@ public class OtpController {
             return ResponseEntity.ok(response);
         }
 
-        // 2️⃣ Otherwise App User
+        // 2️⃣ REGISTRATION OTP → JUST VERIFIED
+        if (Boolean.FALSE.equals(emailOtp.getRegistered())) {
+
+            response.put("status", "OTP_VERIFIED");
+            response.put("message", "OTP verified successfully. Proceed with registration.");
+
+            return ResponseEntity.ok(response);
+        }
+
+        // 3️⃣ LOGIN OTP → USER MUST EXIST
         NewUserRegister user =
                 newUserRegisterRepository
                         .findByEmailAndCompanyId(email, companyId)
-                        .orElseThrow(() -> new RuntimeException("User not found"));
+                        .orElseThrow(() ->
+                                new RuntimeException("User not registered")
+                        );
 
         String token =
-                tokenService.generateToken(
-                        "App User",
-                        email
-                );
+                tokenService.generateToken("App User", email);
 
-        response.put("status", "REGISTERED");
+        response.put("status", "LOGIN_SUCCESS");
         response.put("role", "App User");
         response.put("token", token);
         response.put("user", user);

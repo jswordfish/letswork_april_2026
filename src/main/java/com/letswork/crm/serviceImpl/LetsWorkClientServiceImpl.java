@@ -18,10 +18,17 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.dtos.ClientCompanyExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.LetsWorkClient;
+import com.letswork.crm.entities.SubCategory;
+import com.letswork.crm.entities.Category;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.enums.CategoryType;
 import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.LetsworkUserRepository;
+import com.letswork.crm.repo.NewUserRegisterRepository;
+import com.letswork.crm.repo.SubCategoryRepository;
+import com.letswork.crm.repo.CategoryRepository;
+import com.letswork.crm.repo.GrevianceRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.service.LetsWorkClientService;
 import com.letswork.crm.service.LetsWorkCentreService;
@@ -29,11 +36,17 @@ import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 
+import lombok.RequiredArgsConstructor;
+
 
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class LetsWorkClientServiceImpl implements LetsWorkClientService {
+	
+	private final CategoryRepository categoryRepo;
+    private final SubCategoryRepository subCategoryRepo;
 	
 	@Autowired
 	LetsWorkClientRepository repo;
@@ -72,6 +85,28 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 		if(centre==null) {
 			throw new RuntimeException("This LetsWorkCentre does not exists");
 		}
+		
+		Category category =
+                categoryRepo.findByNameAndCompanyIdAndCategoryType(
+                		clientCompany.getCategory(),
+                		clientCompany.getCompanyId(),
+                        CategoryType.BUSINESS
+                );
+
+        if (category == null) {
+            throw new RuntimeException("Invalid category");
+        }
+
+        SubCategory subCategory =
+                subCategoryRepo.findByNameAndCompanyIdAndCategoryType(
+                		clientCompany.getSubCategory(),
+                		clientCompany.getCompanyId(),
+                        CategoryType.BUSINESS
+                );
+
+        if (subCategory == null) {
+            throw new RuntimeException("Invalid sub-category");
+        }
 		
 		
 		LetsWorkClient com = repo.findByClientCompanyNameAndCompanyIdAndCityAndStateAndLetsWorkCentre(clientCompany.getClientCompanyName(), clientCompany.getCompanyId(), clientCompany.getCity(), clientCompany.getState(), clientCompany.getLetsWorkCentre());
@@ -154,7 +189,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	        try {
 	            LetsWorkClient company = LetsWorkClient.builder()
 	                    .clientCompanyName(dto.getClientCompanyName().trim())
-	                    .industry(dto.getIndustry().trim())
+//	                    .industry(dto.getIndustry().trim())
 	                    .letsWorkCentre(dto.getLetsWorkCentre().trim())
 	                    .companyId(dto.getCompanyId().trim())
 	                    .city(dto.getCity().trim())

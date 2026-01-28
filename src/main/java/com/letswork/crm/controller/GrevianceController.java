@@ -1,7 +1,9 @@
 package com.letswork.crm.controller;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Greviance;
+import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.enums.GrevianceStatus;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.GrevianceService;
+import com.letswork.crm.serviceImpl.MailJetOtpService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +32,10 @@ import lombok.RequiredArgsConstructor;
 public class GrevianceController {
 
     private final GrevianceService grevianceService;
+    private final NewUserRegisterRepository userRepo;
+    
+    @Autowired
+    MailJetOtpService mailService;
 
     @PostMapping(
             value = "/save",
@@ -43,6 +52,15 @@ public class GrevianceController {
                         grevianceJson,
                         Greviance.class
                 );
+        
+        NewUserRegister user = userRepo.findByEmailAndCompanyId(
+                greviance.getEmail(),
+                greviance.getCompanyId()
+        ).orElseThrow(() ->
+                new RuntimeException("User not found for given email")
+        );
+        
+        mailService.sendGrevianceEmail(greviance.getEmail(), user.getName(), LocalDateTime.now(), greviance.getCategory(), greviance.getSubCategory(), greviance.getLetsWorkCentre(), greviance.getIssue(), greviance.getImageS3Key());
 
         return ResponseEntity.ok(
                 grevianceService.saveGreviance(greviance, image)

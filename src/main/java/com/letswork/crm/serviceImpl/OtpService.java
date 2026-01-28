@@ -87,9 +87,10 @@ public class OtpService {
         return "otp sent successfully";
     }
 
-    public boolean verifyOtp(String email, String otp) {
-        EmailOtp emailOtp = otpRepository
-                .findTopByEmailAndVerifiedFalseOrderByExpiresAtDesc(email)
+    public EmailOtp verifyOtp(String email, String otp) {
+
+        EmailOtp emailOtp =
+            otpRepository.findTopByEmailAndVerifiedFalseOrderByExpiresAtDesc(email)
                 .orElseThrow(() -> new RuntimeException("OTP not found"));
 
         if (emailOtp.getExpiresAt().isBefore(LocalDateTime.now())) {
@@ -97,12 +98,13 @@ public class OtpService {
         }
 
         if (!emailOtp.getOtp().equals(otp)) {
-            return false;
+            throw new RuntimeException("Invalid OTP");
         }
 
         emailOtp.setVerified(true);
         otpRepository.save(emailOtp);
-        return true;
+
+        return emailOtp;
     }
 
     private String generateOtp() {

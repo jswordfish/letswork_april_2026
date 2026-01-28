@@ -27,15 +27,31 @@ public class LetsWorkClient extends Base{
 
     @NotBlank
     private String clientCompanyName;
+    
+    private String email;
+    
+    private String phone;
 
     //private Integer totalEmployees;
 
-    private String industry;
+    private String category;
+    
+    private String subCategory;
     
     private String letsWorkCentre;
     
 	private String state;
 	
 	private String city;
+	
+	private String gstNumber;
+	
+	private String dayPassCredits;
+	
+	private String conferenceCredits;
+	
+	private String purchasedDayPassCredits;
+	
+	private String purchasedConferenceCredits;
 
 }

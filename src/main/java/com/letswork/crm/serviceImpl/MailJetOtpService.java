@@ -3,6 +3,7 @@ package com.letswork.crm.serviceImpl;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.letswork.crm.entities.BookDayPass;
 import com.letswork.crm.repo.BookDayPassRepository;
 import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
@@ -195,6 +195,59 @@ public class MailJetOtpService {
             request.sendWith(client);
         } catch (MailjetException e) {
             throw new RuntimeException("Failed to send credit reset email", e);
+        }
+    }
+    
+    public void sendGrevianceEmail(
+    		String email,
+            String name,
+            LocalDateTime dateTime,
+            String category,
+            String subCategory,
+            String letsWorkCentre,
+            String issue,
+            String keyName
+    ) {
+
+        ClientOptions options = ClientOptions.builder()
+                .apiKey(API_KEY)
+                .apiSecretKey(SECRET_KEY)
+                .build();
+
+        MailjetClient client = new MailjetClient(options);
+        
+        
+        
+        String qrImageUrl =
+                "http://13.233.33.137:8080/visitor/public/qr?key=" +
+                URLEncoder.encode(keyName, StandardCharsets.UTF_8);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("name", name);
+        variables.put("dateandtime", dateTime.toString());
+        variables.put("category", category);
+        variables.put("subCategory", subCategory);
+        variables.put("letswork", letsWorkCentre);
+        variables.put("issue", issue);
+        variables.put("urlIssue", qrImageUrl);
+
+        TransactionalEmail emailMessage = TransactionalEmail.builder()
+                .to(List.of(new SendContact(email)))
+                .from(new SendContact(SENDER_EMAIL, "Zimulate"))
+                .subject("A grievance has been raised")
+                .templateID(7700595L)
+                .templateLanguage(true)
+                .variables(variables)
+                .build();
+
+        SendEmailsRequest request = SendEmailsRequest.builder()
+                .message(emailMessage)
+                .build();
+
+        try {
+            request.sendWith(client);
+        } catch (MailjetException e) {
+            throw new RuntimeException("Failed to send Grievance email", e);
         }
     }
 
