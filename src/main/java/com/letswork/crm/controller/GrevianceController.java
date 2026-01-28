@@ -25,7 +25,11 @@ public class GrevianceController {
 
     private final GrevianceService grevianceService;
 
-    @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(
+            value = "/save",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<Greviance> save(
             @RequestParam String token,
             @RequestPart("greviance") Greviance greviance,
