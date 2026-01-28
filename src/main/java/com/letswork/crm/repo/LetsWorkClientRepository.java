@@ -39,7 +39,6 @@ public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, 
 	        "AND (" +
 	        "     :search IS NULL " +
 	        "     OR c.clientCompanyName LIKE %:search% " +
-	        "     OR c.industry LIKE %:search% " +
 	        "     OR c.letsWorkCentre LIKE %:search% " +
 	        "     OR c.city LIKE %:search% " +
 	        "     OR c.state LIKE %:search%" +
