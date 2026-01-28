@@ -1,5 +1,7 @@
 package com.letswork.crm.controller;
 
+import java.io.IOException;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Greviance;
 import com.letswork.crm.enums.GrevianceStatus;
@@ -27,14 +30,20 @@ public class GrevianceController {
 
     @PostMapping(
             value = "/save",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<Greviance> save(
             @RequestParam String token,
-            @RequestPart("greviance") Greviance greviance,
+            @RequestPart("greviance") String grevianceJson,
             @RequestPart(value = "image", required = false) MultipartFile image
-    ) {
+    ) throws IOException {
+
+        Greviance greviance =
+                new ObjectMapper().readValue(
+                        grevianceJson,
+                        Greviance.class
+                );
+
         return ResponseEntity.ok(
                 grevianceService.saveGreviance(greviance, image)
         );
