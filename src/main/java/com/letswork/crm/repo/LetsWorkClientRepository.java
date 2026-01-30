@@ -1,6 +1,7 @@
 package com.letswork.crm.repo;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,12 +11,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.LetsWorkClient;
-import com.letswork.crm.entities.LetsWorkCentre;
 
 
 
 @Repository
 public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, Long> {
+	
+	Optional<LetsWorkClient> findByEmailAndCompanyId(String email, String companyId);
 
 	@Query("SELECT c FROM LetsWorkClient c WHERE " +
 		       "c.clientCompanyName = :companyName AND " +

@@ -19,12 +19,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Category;
 import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.SubCategory;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.CategoryType;
 import com.letswork.crm.repo.CategoryRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
+import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.ReferralRepository;
 import com.letswork.crm.repo.SubCategoryRepository;
@@ -57,6 +59,9 @@ public class NewUserRegisterServiceImpl
     @Autowired
     SubCategoryRepository subCategoryRepo;
     
+    @Autowired
+    LetsWorkClientRepository letsWorkClientRepo;
+    
 
     ModelMapper mapper = new ModelMapper();
 
@@ -84,8 +89,12 @@ public class NewUserRegisterServiceImpl
 
         user.setCreateDate(new Date());
         user.setUpdateDate(new Date());
+        
+        NewUserRegister saved = repo.save(user);
+        
+        createClientCompanyIfNotExists(saved);
 
-        return repo.save(user);
+        return saved;
     }
     
     @Override
@@ -95,22 +104,28 @@ public class NewUserRegisterServiceImpl
         Tenant tenant =
                 tenantService.findTenantByCompanyId(user.getCompanyId());
         if (tenant == null) {
-            throw new RuntimeException(
-                    "Invalid companyId - " + user.getCompanyId()
-            );
+            throw new RuntimeException("Invalid companyId - " + user.getCompanyId());
         }
-        
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(user.getLetsWorkCentre(), user.getCompanyId(), user.getCity(), user.getState());
-		
-		if(centre==null) {
-			throw new RuntimeException("This LetsWorkCentre does not exists");
-		}
+
+        LetsWorkCentre centre =
+                letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+                        user.getLetsWorkCentre(),
+                        user.getCompanyId(),
+                        user.getCity(),
+                        user.getState()
+                );
+
+        if (centre == null) {
+            throw new RuntimeException("This LetsWorkCentre does not exists");
+        }
 
         // 2️⃣ Validate category
         if (user.getCategory() != null) {
             Category category =
                     categoryRepo.findByNameAndCompanyIdAndCategoryType(
-                            user.getCategory(), user.getCompanyId(), CategoryType.BUSINESS
+                            user.getCategory(),
+                            user.getCompanyId(),
+                            CategoryType.BUSINESS
                     );
             if (category == null) {
                 throw new RuntimeException("Invalid category");
@@ -121,16 +136,16 @@ public class NewUserRegisterServiceImpl
         if (user.getSubCategory() != null) {
             SubCategory sub =
                     subCategoryRepo.findByNameAndCompanyIdAndCategoryType(
-                            user.getSubCategory(), user.getCompanyId(), CategoryType.BUSINESS
+                            user.getSubCategory(),
+                            user.getCompanyId(),
+                            CategoryType.BUSINESS
                     );
             if (sub == null) {
                 throw new RuntimeException("Invalid sub-category");
             }
         }
-        
-        
 
-     // 4️⃣ Find existing user
+        // 4️⃣ Find existing user
         NewUserRegister existing = null;
 
         if (user.getId() != null) {
@@ -140,57 +155,98 @@ public class NewUserRegisterServiceImpl
         if (existing == null && user.getEmail() != null) {
             existing =
                     repo.findByEmailAndCompanyId(
-                            user.getEmail(), user.getCompanyId()
+                            user.getEmail(),
+                            user.getCompanyId()
                     ).orElse(null);
         }
+
+        NewUserRegister saved; // ✅ important
 
         // 5️⃣ UPDATE
         if (existing != null) {
 
-            final Long existingId = existing.getId(); // ✅ final reference
+            final Long existingId = existing.getId();
 
-            // Email uniqueness
             repo.findByEmailAndCompanyId(
-                    user.getEmail(), user.getCompanyId()
+                    user.getEmail(),
+                    user.getCompanyId()
             ).ifPresent(u -> {
                 if (!u.getId().equals(existingId)) {
                     throw new RuntimeException("Email already in use");
                 }
             });
 
-            // Phone uniqueness
             repo.findByPhoneNumberAndCompanyId(
-                    user.getPhoneNumber(), user.getCompanyId()
+                    user.getPhoneNumber(),
+                    user.getCompanyId()
             ).ifPresent(u -> {
                 if (!u.getId().equals(existingId)) {
                     throw new RuntimeException("Phone number already in use");
                 }
             });
-        
 
             user.setId(existing.getId());
             user.setCreateDate(existing.getCreateDate());
             user.setUpdateDate(new Date());
 
             mapper.map(user, existing);
-            return repo.save(existing);
+            saved = repo.save(existing);
+
+        } else {
+
+            // 6️⃣ CREATE
+            if (repo.findByEmailAndCompanyId(
+                    user.getEmail(),
+                    user.getCompanyId()
+            ).isPresent()) {
+                throw new RuntimeException("Email already exists");
+            }
+
+            if (repo.findByPhoneNumberAndCompanyId(
+                    user.getPhoneNumber(),
+                    user.getCompanyId()
+            ).isPresent()) {
+                throw new RuntimeException("Phone number already exists");
+            }
+
+            user.setCreateDate(new Date());
+            user.setUpdateDate(new Date());
+            saved = repo.save(user);
         }
 
-        // 6️⃣ CREATE
-        if (repo.findByEmailAndCompanyId(
-                user.getEmail(), user.getCompanyId()).isPresent()) {
-            throw new RuntimeException("Email already exists");
-        }
+        createClientCompanyIfNotExists(saved);
 
-        if (repo.findByPhoneNumberAndCompanyId(
-                user.getPhoneNumber(), user.getCompanyId()).isPresent()) {
-            throw new RuntimeException("Phone number already exists");
-        }
+        return saved;
+    }
+    
+    private void createClientCompanyIfNotExists(NewUserRegister user) {
 
-        user.setCreateDate(new Date());
-        user.setUpdateDate(new Date());
+        boolean exists =
+                letsWorkClientRepo
+                    .findByEmailAndCompanyId(
+                            user.getEmail(),
+                            user.getCompanyId()
+                    )
+                    .isPresent();
 
-        return repo.save(user);
+        if (exists) return;
+
+        LetsWorkClient client = new LetsWorkClient();
+
+        client.setClientCompanyName(user.getName());
+        client.setEmail(user.getEmail());
+        client.setPhone(user.getPhoneNumber());
+        client.setCategory(user.getCategory());
+        client.setSubCategory(user.getSubCategory());
+        client.setLetsWorkCentre(user.getLetsWorkCentre());
+        client.setCity(user.getCity());
+        client.setState(user.getState());
+        client.setCompanyId(user.getCompanyId());
+
+        client.setCreateDate(new Date());
+        client.setUpdateDate(new Date());
+
+        letsWorkClientRepo.save(client);
     }
     
     @Override
