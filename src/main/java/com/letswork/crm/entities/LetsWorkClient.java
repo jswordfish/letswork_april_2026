@@ -28,8 +28,10 @@ public class LetsWorkClient extends Base{
     @NotBlank
     private String clientCompanyName;
     
-    private String email;
+    private Long userId;
     
+    private String email;
+        
     private String phone;
 
     //private Integer totalEmployees;

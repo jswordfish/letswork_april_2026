@@ -100,7 +100,7 @@ public class NewUserRegisterServiceImpl
     @Override
     public NewUserRegister saveOrUpdateManually(NewUserRegister user) {
 
-        // 1️⃣ Validate company
+        // 1️⃣ Validate company 
         Tenant tenant =
                 tenantService.findTenantByCompanyId(user.getCompanyId());
         if (tenant == null) {
@@ -242,6 +242,7 @@ public class NewUserRegisterServiceImpl
         client.setCity(user.getCity());
         client.setState(user.getState());
         client.setCompanyId(user.getCompanyId());
+        client.setUserId(user.getId());
 
         client.setCreateDate(new Date());
         client.setUpdateDate(new Date());

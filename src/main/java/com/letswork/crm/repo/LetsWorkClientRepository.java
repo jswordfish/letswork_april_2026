@@ -18,6 +18,23 @@ import com.letswork.crm.entities.LetsWorkClient;
 public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, Long> {
 	
 	Optional<LetsWorkClient> findByEmailAndCompanyId(String email, String companyId);
+	
+    List<LetsWorkClient>
+        findByUserIdAndCompanyId(
+                Long userId,
+                String companyId
+        );
+
+    Optional<LetsWorkClient>
+        findByIdAndCompanyId(
+                Long id,
+                String companyId
+        );
+
+    boolean existsByClientCompanyNameAndCompanyId(
+            String clientCompanyName,
+            String companyId
+    );
 
 	@Query("SELECT c FROM LetsWorkClient c WHERE " +
 		       "c.clientCompanyName = :companyName AND " +

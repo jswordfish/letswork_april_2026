@@ -17,21 +17,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.ClientCompanyExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
-import com.letswork.crm.entities.LetsWorkClient;
-import com.letswork.crm.entities.SubCategory;
+import com.letswork.crm.dtos.UserWithCompaniesDto;
 import com.letswork.crm.entities.Category;
 import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.LetsWorkClient;
+import com.letswork.crm.entities.NewUserRegister;
+import com.letswork.crm.entities.SubCategory;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.CategoryType;
+import com.letswork.crm.repo.CategoryRepository;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.LetsworkUserRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.SubCategoryRepository;
-import com.letswork.crm.repo.CategoryRepository;
-import com.letswork.crm.repo.GrevianceRepository;
-import com.letswork.crm.repo.LetsWorkCentreRepository;
-import com.letswork.crm.service.LetsWorkClientService;
 import com.letswork.crm.service.LetsWorkCentreService;
+import com.letswork.crm.service.LetsWorkClientService;
 import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
@@ -47,6 +48,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	
 	private final CategoryRepository categoryRepo;
     private final SubCategoryRepository subCategoryRepo;
+    private final NewUserRegisterRepository userRepo;
 	
 	@Autowired
 	LetsWorkClientRepository repo;
@@ -109,27 +111,41 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
         }
 		
 		
-		LetsWorkClient com = repo.findByClientCompanyNameAndCompanyIdAndCityAndStateAndLetsWorkCentre(clientCompany.getClientCompanyName(), clientCompany.getCompanyId(), clientCompany.getCity(), clientCompany.getState(), clientCompany.getLetsWorkCentre());
-		
-		if(com!=null) {
-			
+        if (clientCompany.getId() != null) {
 
-			clientCompany.setId(com.getId());
-			clientCompany.setUpdateDate(new Date());
-			mapper.map(clientCompany, com);
-		
-			repo.save(com);
-			return "record updated";
-			
-		}
-		
-		else {
-			clientCompany.setCreateDate(new Date());
-			repo.save(clientCompany);
-			return "record saved";
-		}
-		
-	}
+            LetsWorkClient existing =
+                    repo.findByIdAndCompanyId(
+                            clientCompany.getId(),
+                            clientCompany.getCompanyId()
+                    ).orElseThrow(() ->
+                            new RuntimeException("Client company not found")
+                    );
+
+            clientCompany.setCreateDate(existing.getCreateDate());
+            clientCompany.setUpdateDate(new Date());
+
+            mapper.map(clientCompany, existing);
+
+            repo.save(existing);
+            return "record updated";
+        }
+
+        
+        if (repo.existsByClientCompanyNameAndCompanyId(
+                clientCompany.getClientCompanyName(),
+                clientCompany.getCompanyId()
+        )) {
+            throw new RuntimeException(
+                    "Client company already exists"
+            );
+        }
+
+        clientCompany.setCreateDate(new Date());
+        clientCompany.setUpdateDate(new Date());
+
+        repo.save(clientCompany);
+        return "record saved";
+    }
 	
 	private String validate(ClientCompanyExcelDto dto) {
 		if(dto.getClientCompanyName() == null || dto.getClientCompanyName().length() == 0) {
@@ -326,6 +342,26 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
         response.setList(pageResult.getContent());
 
         return response;
+    }
+    
+    @Override
+    public UserWithCompaniesDto getUserWithCompanies(
+            Long userId,
+            String companyId
+    ) {
+
+        NewUserRegister user =
+                userRepo.findByIdAndCompanyId(userId, companyId)
+                        .orElseThrow(() ->
+                                new RuntimeException("User not found"));
+
+        List<LetsWorkClient> companies =
+                repo.findByUserIdAndCompanyId(
+                        userId,
+                        companyId
+                );
+
+        return new UserWithCompaniesDto(user, companies);
     }
 
 }

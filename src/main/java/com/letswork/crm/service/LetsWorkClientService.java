@@ -6,12 +6,18 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.dtos.UserWithCompaniesDto;
 import com.letswork.crm.entities.LetsWorkClient;
 
 
 public interface LetsWorkClientService {
 	
 	String saveOrUpdate(LetsWorkClient clientCompany);
+	
+	UserWithCompaniesDto getUserWithCompanies(
+            Long userId,
+            String companyId
+    );
 	
 	public PaginatedResponseDto listClientCompanies(
 	        String companyId,

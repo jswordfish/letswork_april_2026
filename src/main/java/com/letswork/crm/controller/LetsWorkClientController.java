@@ -1,7 +1,6 @@
 package com.letswork.crm.controller;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.dtos.UserWithCompaniesDto;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.service.LetsWorkClientService;
 
@@ -34,6 +34,17 @@ public class LetsWorkClientController {
 		return service.saveOrUpdate(clientCompany);
 		
 	}
+	
+	@GetMapping("/with-companies")
+    public ResponseEntity<UserWithCompaniesDto> getUserWithCompanies(
+            @RequestParam Long userId,
+            @RequestParam String companyId,
+            @RequestParam String token
+    ) {
+        return ResponseEntity.ok(
+                service.getUserWithCompanies(userId, companyId)
+        );
+    }
 	
 	@PostMapping(value = "/upload-excel", consumes = "multipart/form-data")
 	public ResponseEntity<String> uploadClientCompanies(

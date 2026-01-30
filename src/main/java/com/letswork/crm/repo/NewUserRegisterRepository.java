@@ -18,6 +18,9 @@ public interface NewUserRegisterRepository extends JpaRepository<NewUserRegister
 
 	Optional<NewUserRegister>
 	findByEmailAndCompanyId(String email, String companyId);
+	
+	Optional<NewUserRegister>
+	findByIdAndCompanyId(Long id, String companyId);
 
 	Optional<NewUserRegister>
 	findByPhoneNumberAndCompanyId(String phoneNumber, String companyId);
