@@ -19,11 +19,13 @@ public interface LetsWorkClientService {
             String companyId
     );
 	
-	public PaginatedResponseDto listClientCompanies(
+	PaginatedResponseDto listClientCompanies(
 	        String companyId,
 	        String letsWorkCentre,
 	        String city,
 	        String state,
+	        String category,
+	        String subCategory,
 	        String search,
 	        String sort,
 	        int page,

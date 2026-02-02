@@ -50,25 +50,31 @@ public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, 
 		        @Param("letsWorkCentre") String letsWorkCentre);
 	
 	@Query(
-	        "SELECT c FROM LetsWorkClient c " +
-	        "WHERE c.companyId = :companyId " +
-	        "AND (:letsWorkCentre IS NULL OR c.letsWorkCentre = :letsWorkCentre) " +
-	        "AND (:city IS NULL OR c.city = :city) " +
-	        "AND (:state IS NULL OR c.state = :state) " +
-	        "AND (" +
-	        "     :search IS NULL " +
-	        "     OR c.clientCompanyName LIKE %:search% " +
-	        "     OR c.letsWorkCentre LIKE %:search% " +
-	        "     OR c.city LIKE %:search% " +
-	        "     OR c.state LIKE %:search%" +
-	        ")"
-	)
-	Page<LetsWorkClient> searchClientCompanies(@Param("companyId") String companyId,
-	                                          @Param("letsWorkCentre") String letsWorkCentre,
-	                                          @Param("city") String city,
-	                                          @Param("state") String state,
-	                                          @Param("search") String search,
-	                                          Pageable pageable);
+		    "SELECT c FROM LetsWorkClient c " +
+		    "WHERE c.companyId = :companyId " +
+		    "AND (:letsWorkCentre IS NULL OR c.letsWorkCentre = :letsWorkCentre) " +
+		    "AND (:city IS NULL OR c.city = :city) " +
+		    "AND (:state IS NULL OR c.state = :state) " +
+		    "AND (:category IS NULL OR c.category = :category) " +
+		    "AND (:subCategory IS NULL OR c.subCategory = :subCategory) " +
+		    "AND (" +
+		    "     :search IS NULL " +
+		    "     OR c.clientCompanyName LIKE %:search% " +
+		    "     OR c.letsWorkCentre LIKE %:search% " +
+		    "     OR c.city LIKE %:search% " +
+		    "     OR c.state LIKE %:search%" +
+		    ")"
+		)
+		Page<LetsWorkClient> searchClientCompanies(
+		        @Param("companyId") String companyId,
+		        @Param("letsWorkCentre") String letsWorkCentre,
+		        @Param("city") String city,
+		        @Param("state") String state,
+		        @Param("category") String category,
+		        @Param("subCategory") String subCategory,
+		        @Param("search") String search,
+		        Pageable pageable
+		);
 
 	@Query("SELECT c FROM LetsWorkClient c WHERE c.letsWorkCentre = :letsWorkCentre AND c.companyId = :companyId AND c.city = :city AND c.state = :state")
 	List<LetsWorkClient> findByLetsWorkCentreAndCompanyIdAndCityAndState(@Param("letsWorkCentre") String letsWorkCentre,

@@ -299,25 +299,23 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
             String letsWorkCentre,
             String city,
             String state,
+            String category,
+            String subCategory,
             String search,
             String sort,
             int page,
             int size
     ) {
 
-        // Default sort → id desc
         Sort sortSpec = Sort.by("id").descending();
 
-        // Parse sort input like: clientCompanyName=asc
         if (sort != null && !sort.isEmpty()) {
             String[] parts = sort.split("=");
             if (parts.length == 2) {
-                String field = parts[0];
-                String direction = parts[1];
-
-                sortSpec = direction.equalsIgnoreCase("asc")
-                        ? Sort.by(field).ascending()
-                        : Sort.by(field).descending();
+                sortSpec =
+                        parts[1].equalsIgnoreCase("asc")
+                                ? Sort.by(parts[0]).ascending()
+                                : Sort.by(parts[0]).descending();
             }
         }
 
@@ -329,13 +327,17 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
                         letsWorkCentre,
                         city,
                         state,
+                        category,
+                        subCategory,
                         search,
                         pageable
                 );
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom(page * size + 1);
-        response.setRecordsTo((int) Math.min((page + 1) * size, pageResult.getTotalElements()));
+        response.setRecordsTo(
+                (int) Math.min((page + 1) * size, pageResult.getTotalElements())
+        );
         response.setTotalNumberOfRecords((int) pageResult.getTotalElements());
         response.setTotalNumberOfPages(pageResult.getTotalPages());
         response.setSelectedPage(page);
