@@ -113,7 +113,6 @@ public class Booking extends Base{
     private boolean isActive = true;
     
     @Enumerated(EnumType.STRING)  
-    @Column(nullable = false)
     private BookingStatus currentStatus;
 
     private String s3Path;

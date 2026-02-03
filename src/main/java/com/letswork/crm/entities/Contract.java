@@ -1,0 +1,55 @@
+package com.letswork.crm.entities;
+
+import java.time.LocalDate;
+
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+import com.letswork.crm.enums.ContractStatus;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+public class Contract extends Base{
+	
+	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+	
+	private Long letsWorkClientId;
+	
+	private LocalDate startDate;
+	
+	private LocalDate endDate;
+	
+	private Integer noticePeriodInMonths;
+	
+	private String depositAmountInRupees;
+	
+	@Enumerated(EnumType.STRING)  
+    private ContractStatus contractStatus;
+	
+	private LocalDate actualEndDate;
+	
+	private String depositAmountReturnedDetails;
+	
+	private Boolean depositAmountReturned;
+	
+	private LocalDate depositAmountReturnDate;
+	
+	private String agreementS3KeyName;
+
+}
