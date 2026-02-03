@@ -14,8 +14,6 @@ public interface ContractService {
             String companyId,
             Long letsWorkClientId,
             ContractStatus status,
-            LocalDate fromDate,
-            LocalDate toDate,
             int page,
             int size
     );

@@ -40,14 +40,6 @@ public class ContractController {
             @RequestParam(required = false) Long letsWorkClientId,
             @RequestParam(required = false) ContractStatus status,
 
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate fromDate,
-
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate toDate,
-
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -56,8 +48,6 @@ public class ContractController {
                         companyId,
                         letsWorkClientId,
                         status,
-                        fromDate,
-                        toDate,
                         page,
                         size
                 )

@@ -5,9 +5,12 @@ import java.time.LocalDate;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import com.letswork.crm.enums.ContractStatus;
 
@@ -29,7 +32,9 @@ public class Contract extends Base{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-	private Long letsWorkClientId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "lets_work_client_id", nullable = false)
+	private LetsWorkClient letsWorkClient;
 	
 	private LocalDate startDate;
 	

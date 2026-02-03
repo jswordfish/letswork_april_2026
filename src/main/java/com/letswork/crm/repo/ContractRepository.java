@@ -19,17 +19,13 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
     Optional<Contract> findByIdAndCompanyId(Long id, String companyId);
 
     @Query("SELECT c FROM Contract c " +
-           "WHERE c.companyId = :companyId " +
-           "AND (:letsWorkClientId IS NULL OR c.letsWorkClientId = :letsWorkClientId) " +
-           "AND (:status IS NULL OR c.contractStatus = :status) " +
-           "AND (:fromDate IS NULL OR c.startDate >= :fromDate) " +
-           "AND (:toDate IS NULL OR c.endDate <= :toDate)")
-    Page<Contract> filter(
-            @Param("companyId") String companyId,
-            @Param("letsWorkClientId") Long letsWorkClientId,
-            @Param("status") ContractStatus status,
-            @Param("fromDate") LocalDate fromDate,
-            @Param("toDate") LocalDate toDate,
-            Pageable pageable
-    );
+    	       "WHERE c.companyId = :companyId " +
+    	       "AND (:clientId IS NULL OR c.letsWorkClient.id = :clientId) " +
+    	       "AND (:status IS NULL OR c.contractStatus = :status) ")
+    	Page<Contract> filter(
+    	        @Param("companyId") String companyId,
+    	        @Param("clientId") Long clientId,
+    	        @Param("status") ContractStatus status,
+    	        Pageable pageable
+    	);
 }

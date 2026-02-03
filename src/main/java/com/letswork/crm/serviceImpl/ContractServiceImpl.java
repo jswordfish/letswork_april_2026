@@ -43,12 +43,14 @@ public class ContractServiceImpl implements ContractService {
 
         Tenant tenant = tenantService.findTenantByCompanyId(contract.getCompanyId());
         if (tenant == null) {
-            throw new RuntimeException("Invalid companyId - " + contract.getCompanyId());
+            throw new RuntimeException("Invalid companyId");
         }
 
         LetsWorkClient client = letsWorkClientRepo
-                .findByIdAndCompanyId(contract.getLetsWorkClientId(), contract.getCompanyId())
-                .orElseThrow(() -> new RuntimeException("Invalid LetsWorkClient ID"));
+                .findByIdAndCompanyId(contract.getLetsWorkClient().getId(), contract.getCompanyId())
+                .orElseThrow(() -> new RuntimeException("Invalid LetsWorkClient"));
+
+        contract.setLetsWorkClient(client);
 
         if (contract.getId() != null) {
             Contract existing = contractRepo
@@ -72,8 +74,6 @@ public class ContractServiceImpl implements ContractService {
             String companyId,
             Long letsWorkClientId,
             ContractStatus status,
-            LocalDate fromDate,
-            LocalDate toDate,
             int page,
             int size
     ) {
@@ -84,8 +84,6 @@ public class ContractServiceImpl implements ContractService {
                 companyId,
                 letsWorkClientId,
                 status,
-                fromDate,
-                toDate,
                 pageable
         );
 
