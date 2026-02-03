@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,9 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	@Autowired
 	LetsWorkCentreService letsWorkCentreService;
 	
+	@Autowired
+	NewUserRegisterRepository newUserRegisterRepository;
+	
 	ModelMapper mapper = new ModelMapper();
 
 	@Override
@@ -109,7 +113,21 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
         if (subCategory == null) {
             throw new RuntimeException("Invalid sub-category");
         }
+        
+        Optional<LetsWorkClient> existingClient = 
+        	    repo.findByEmailAndCompanyId(clientCompany.getEmail(), clientCompany.getCompanyId());
+
+        	if (existingClient.isPresent()) {
+        	    throw new RuntimeException("This email company already exists");
+        	}
+                        
 		
+        Optional<NewUserRegister> user = newUserRegisterRepository.findByEmailAndCompanyId(clientCompany.getUserEmail(), clientCompany.getCompanyId());
+        
+        if(user.isEmpty()) {
+        	throw new RuntimeException("This user does not exists");
+        }
+        	
 		
         if (clientCompany.getId() != null) {
 

@@ -44,6 +44,10 @@ public class Contract extends Base{
 	
 	private Integer noticePeriodInMonths;
 	
+	private Integer agreementTenureInMonths;
+	
+	private Integer lockInPeriodInMonths;
+	
 	private String depositAmountInRupees;
 	
 	@Enumerated(EnumType.STRING)  

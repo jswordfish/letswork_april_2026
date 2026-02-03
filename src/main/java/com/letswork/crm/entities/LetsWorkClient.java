@@ -33,6 +33,8 @@ public class LetsWorkClient extends Base{
     private Long userId;
     
     private String email;
+    
+    private String userEmail;
         
     private String phone;
 
