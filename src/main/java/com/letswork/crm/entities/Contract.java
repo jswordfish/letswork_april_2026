@@ -1,6 +1,7 @@
 package com.letswork.crm.entities;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -41,6 +42,40 @@ public class Contract extends Base{
 	private LocalDate startDate;
 	
 	private LocalDate endDate;
+	
+	private Integer escalationInPercentage;
+	
+	private String letsworkcentre;
+	
+	private String city;
+	
+	private String state;
+	
+	private LocalDate commencementDate;
+	
+	private Integer carParkingAmount;
+	
+	private Integer advanceTokenAmount;
+	
+	private LocalTime officeHours;
+	
+	private String gstNumber;
+	
+	private String usageOfPremises;
+	
+	private String cabinOffered;
+	
+	private Integer workstation;
+	
+	private Integer feesPerMonth;
+	
+	private Integer oneTimeSetupCharge;
+	
+	private String billingCycle;
+	
+	private String clientAdress;
+	
+	private String AmenitiesIncluded;
 	
 	private Integer noticePeriodInMonths;
 	
