@@ -35,6 +35,12 @@ public class ContractServiceImpl implements ContractService {
 
     @Autowired
     private LetsWorkClientRepository letsWorkClientRepo;
+    
+    @Autowired
+    ContractDocumentService contractDocumentService;
+    
+    @Autowired
+    S3Service s3Service;
 
     private final ModelMapper mapper = new ModelMapper();
 
@@ -52,7 +58,9 @@ public class ContractServiceImpl implements ContractService {
 
         contract.setLetsWorkClient(client);
 
+        // 🔹 UPDATE FLOW
         if (contract.getId() != null) {
+
             Contract existing = contractRepo
                     .findByIdAndCompanyId(contract.getId(), contract.getCompanyId())
                     .orElseThrow(() -> new RuntimeException("Contract not found"));
@@ -61,11 +69,38 @@ public class ContractServiceImpl implements ContractService {
             contract.setUpdateDate(new Date());
 
             mapper.map(contract, existing);
-            return contractRepo.save(existing);
-        } 
+            Contract saved = contractRepo.save(existing);
+
+            byte[] pdfBytes = contractDocumentService.generateAgreementPdf(saved);
+
+            String s3Key = s3Service.uploadContractAgreementPdf(
+            		"letsworkcentres",
+                    saved.getCompanyId(),
+                    saved.getId(),
+                    pdfBytes
+            );
+
+            saved.setAgreementS3KeyName(s3Key);
+            return contractRepo.save(saved);
+        }
+
         else {
             contract.setCreateDate(new Date());
-            return contractRepo.save(contract);
+
+            Contract saved = contractRepo.save(contract);
+
+            byte[] pdfBytes = contractDocumentService.generateAgreementPdf(saved);
+
+            String s3Key = s3Service.uploadContractAgreementPdf(
+            		"letsworkcentres",
+                    saved.getCompanyId(),
+                    saved.getId(),
+                    pdfBytes
+            );
+
+            saved.setAgreementS3KeyName(s3Key);
+
+            return contractRepo.save(saved);
         }
     }
 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        body { font-family: Arial; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; }
+        td, th { border: 1px solid black; padding: 6px; }
+    </style>
+</head>
+<body>
+
+<h2 style="text-align:center">ANNEXURE I – CLIENT MEMBERSHIP DETAILS</h2>
+
+<table>
+    <tr><td>Intending Client</td><td th:text="${clientName}"></td></tr>
+    <tr><td>Client Address</td><td th:text="${clientAddress}"></td></tr>
+    <tr><td>Usage of Premises</td><td th:text="${usageOfPremises}"></td></tr>
+    <tr><td>Agreement Tenure</td><td th:text="${agreementTenure}"></td></tr>
+    <tr><td>Lock-in Period</td><td th:text="${lockInPeriod}"></td></tr>
+    <tr><td>Notice Period</td><td th:text="${noticePeriod}"></td></tr>
+    <tr><td>Cabin Offered</td><td th:text="${cabinOffered}"></td></tr>
+    <tr><td>Total Workstation</td><td th:text="${workstation}"></td></tr>
+    <tr><td>License Fees / Month</td><td th:text="${feesPerMonth}"></td></tr>
+    <tr><td>Refundable Deposit</td><td th:text="${depositAmount}"></td></tr>
+    <tr><td>Escalation</td><td th:text="${escalation}"></td></tr>
+    <tr><td>Office Hours</td><td th:text="${officeHours}"></td></tr>
+    <tr><td>GST</td><td th:text="${gstNumber}"></td></tr>
+    <tr><td>Billing Cycle</td><td th:text="${billingCycle}"></td></tr>
+    <tr><td>Advance Token</td><td th:text="${advanceToken}"></td></tr>
+    <tr><td>Commencement Date</td><td th:text="${commencementDate}"></td></tr>
+    <tr><td>Amenities Included</td><td th:text="${amenities}"></td></tr>
+</table>
+
+</body>
+</html>

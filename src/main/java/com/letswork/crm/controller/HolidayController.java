@@ -7,12 +7,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Holiday;
 import com.letswork.crm.service.HolidayService;
 
 @RestController
@@ -22,6 +24,18 @@ public class HolidayController {
 
     @Autowired
     private HolidayService holidayService;
+    
+    @PostMapping("/create")
+    public ResponseEntity<String> createCategory(
+            @RequestBody Holiday holiday,
+            @RequestParam String token
+    ) {
+        return ResponseEntity.ok(
+        		holidayService.saveOrUpdate(
+                        holiday
+                )
+        );
+    }
 
     @PostMapping(value = "/uploadHolidays",
 		    consumes = "multipart/form-data")

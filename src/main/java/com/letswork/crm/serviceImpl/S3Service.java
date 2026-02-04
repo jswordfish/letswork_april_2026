@@ -433,6 +433,33 @@ public class S3Service {
             throw new RuntimeException("Failed to upload greviance image", e);
         }
     }
+    
+    public String uploadContractAgreementPdf(
+            String bucketName,
+            String companyId,
+            Long contractId,
+            byte[] pdfBytes
+    ) {
+        try {
+            String keyName =
+                    companyId + "/contracts/" +
+                    contractId + "/agreement.pdf";
+
+            s3Client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(keyName)
+                            .contentType("application/pdf")
+                            .build(),
+                    RequestBody.fromBytes(pdfBytes)
+            );
+
+            return keyName;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload contract agreement PDF", e);
+        }
+    }
 
     
 }
