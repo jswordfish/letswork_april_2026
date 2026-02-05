@@ -31,15 +31,20 @@ public interface HolidayRepository extends JpaRepository<Holiday, Long> {
             @Param("state") String state,
             @Param("companyId") String companyId);
     
-    @Query("SELECT h FROM Holiday h WHERE "
-            + "(:companyId IS NULL OR h.companyId = :companyId) AND "
-            + "(:letsWorkCentre IS NULL OR h.letsWorkCentre = :letsWorkCentre) AND "
-            + "(:city IS NULL OR h.city = :city) AND "
-            + "(:state IS NULL OR h.state = :state)")
-       Page<Holiday> findByFilters(
-               @Param("companyId") String companyId,
-               @Param("letsWorkCentre") String letsWorkCentre,
-               @Param("city") String city,
-               @Param("state") String state,
-               Pageable pageable);
+    @Query("SELECT h FROM Holiday h " +
+            "WHERE (:companyId IS NULL OR h.companyId = :companyId) " +
+            "AND (:letsWorkCentre IS NULL OR h.letsWorkCentre = :letsWorkCentre) " +
+            "AND (:city IS NULL OR h.city = :city) " +
+            "AND (:state IS NULL OR h.state = :state) " +
+            "AND (:startDate IS NULL OR h.holidayDate >= :startDate) " +
+            "AND (:endDate IS NULL OR h.holidayDate <= :endDate)")
+     Page<Holiday> findByFilters(
+             @Param("companyId") String companyId,
+             @Param("letsWorkCentre") String letsWorkCentre,
+             @Param("city") String city,
+             @Param("state") String state,
+             @Param("startDate") java.util.Date startDate,
+             @Param("endDate") java.util.Date endDate,
+             Pageable pageable
+     );
 }

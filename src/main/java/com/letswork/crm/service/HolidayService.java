@@ -15,6 +15,15 @@ public interface HolidayService {
 
     String uploadHolidays(MultipartFile file) throws IOException;
     
-    PaginatedResponseDto listHolidays(String companyId, String letsWorkCentre, String city, String state, int page, int size);
+    public PaginatedResponseDto listHolidays(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            Integer month,
+            Integer year,
+            int page,
+            int size
+    );
 
 }

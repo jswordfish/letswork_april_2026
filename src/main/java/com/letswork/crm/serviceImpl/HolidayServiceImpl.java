@@ -3,6 +3,7 @@ package com.letswork.crm.serviceImpl;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -79,9 +80,31 @@ public class HolidayServiceImpl implements HolidayService {
     }
 
     @Override
-    public PaginatedResponseDto listHolidays(String companyId, String letsWorkCentre, String city, String state, int page, int size) {
+    public PaginatedResponseDto listHolidays(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            Integer month,
+            Integer year,
+            int page,
+            int size
+    ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("holidayDate").descending());
-        Page<Holiday> pagedResult = holidayRepo.findByFilters(companyId, letsWorkCentre, city, state, pageable);
+
+        Date startDate = null;
+        Date endDate = null;
+
+        if (month != null && year != null) {
+            LocalDate start = LocalDate.of(year, month, 1);
+            LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+            startDate = java.sql.Date.valueOf(start);
+            endDate = java.sql.Date.valueOf(end);
+        }
+
+        Page<Holiday> pagedResult =
+                holidayRepo.findByFilters(companyId, letsWorkCentre, city, state, startDate, endDate, pageable);
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom(page * size + 1);
@@ -90,6 +113,7 @@ public class HolidayServiceImpl implements HolidayService {
         response.setTotalNumberOfPages(pagedResult.getTotalPages());
         response.setSelectedPage(page + 1);
         response.setList(pagedResult.getContent());
+
         return response;
     }
 

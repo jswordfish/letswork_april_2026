@@ -49,12 +49,14 @@ public class HolidayController {
             @RequestParam(required = false) String letsWorkCentre,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
+            @RequestParam(required = false) Integer month,   
+            @RequestParam(required = false) Integer year,    
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam String token) {
 
         return ResponseEntity.ok(
-                holidayService.listHolidays(companyId, letsWorkCentre, city, state, page, size)
+                holidayService.listHolidays(companyId, letsWorkCentre, city, state, month, year, page, size)
         );
     }
 }
