@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.letswork.crm.enums.ContractStatus;
 
@@ -57,6 +58,7 @@ public class Contract extends Base{
 	
 	private Integer advanceTokenAmount;
 	
+	@JsonFormat(pattern = "HH:mm")
 	private LocalTime officeHours;
 	
 	private String gstNumber;
