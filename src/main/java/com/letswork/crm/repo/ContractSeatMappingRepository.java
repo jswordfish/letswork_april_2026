@@ -23,6 +23,16 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
             String city,
             String state
     );
+    
+    @Query("SELECT c FROM ContractSeatMapping c " +
+            "WHERE c.companyId = :companyId AND c.letsWorkCentre = :letsWorkCentre " +
+            "AND c.city = :city AND c.state = :state AND c.deleted = false")
+     List<ContractSeatMapping> findActiveByLocation(
+             @Param("companyId") String companyId,
+             @Param("letsWorkCentre") String letsWorkCentre,
+             @Param("city") String city,
+             @Param("state") String state
+     );
 
     @Query("SELECT c FROM ContractSeatMapping c " +
             "WHERE c.contractId = :contractId " +
