@@ -25,14 +25,18 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
     );
     
     @Query("SELECT c FROM ContractSeatMapping c " +
-            "WHERE c.companyId = :companyId AND c.letsWorkCentre = :letsWorkCentre " +
-            "AND c.city = :city AND c.state = :state AND c.deleted = false")
-     List<ContractSeatMapping> findActiveByLocation(
-             @Param("companyId") String companyId,
-             @Param("letsWorkCentre") String letsWorkCentre,
-             @Param("city") String city,
-             @Param("state") String state
-     );
+    	       "WHERE c.companyId = :companyId " +
+    	       "AND c.letsWorkCentre = :letsWorkCentre " +
+    	       "AND c.city = :city " +
+    	       "AND c.state = :state " +
+    	       "AND (c.deleted IS NULL OR c.deleted = false) " +
+    	       "AND (c.actualEndDate IS NULL OR c.actualEndDate >= CURRENT_DATE)")
+    	List<ContractSeatMapping> findActiveByLocation(
+    	        @Param("companyId") String companyId,
+    	        @Param("letsWorkCentre") String letsWorkCentre,
+    	        @Param("city") String city,
+    	        @Param("state") String state
+    	);
 
     @Query("SELECT c FROM ContractSeatMapping c " +
             "WHERE c.contractId = :contractId " +
@@ -71,5 +75,25 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
               @Param("city") String city,
               @Param("state") String state
       );
+     
+     @Query("SELECT c FROM ContractSeatMapping c " +
+    	       "WHERE c.companyId = :companyId " +
+    	       "AND c.letsWorkCentre = :letsWorkCentre " +
+    	       "AND c.city = :city " +
+    	       "AND c.state = :state " +
+    	       "AND c.seatType = :seatType " +
+    	       "AND c.seatNumber = :seatNumber " +
+    	       "AND (c.deleted IS NULL OR c.deleted = false) " +
+    	       "AND (c.actualEndDate IS NULL OR c.actualEndDate >= CURRENT_DATE)")
+    	Optional<ContractSeatMapping> findActiveBySeatKey(
+    	        @Param("companyId") String companyId,
+    	        @Param("letsWorkCentre") String letsWorkCentre,
+    	        @Param("city") String city,
+    	        @Param("state") String state,
+    	        @Param("seatType") SeatType seatType,
+    	        @Param("seatNumber") String seatNumber
+    	);
+     
+     
      
 }

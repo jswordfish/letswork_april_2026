@@ -342,25 +342,26 @@ public class SeatServiceImpl implements SeatService {
                 seatRepository.findAllByCompanyIdAndLetsWorkCentreAndCityAndState(
                         companyId, letsWorkCentre, city, state);
 
-        // 🔹 Only contract seat mappings matter now
-        List<ContractSeatMapping> contractMappings =
+        // 🔥 Fetch active contract seat mappings in one query
+        List<ContractSeatMapping> activeContractMappings =
                 contractSeatMappingRepository.findActiveByLocation(
                         companyId, letsWorkCentre, city, state);
 
-        // Build quick lookup map: SeatKey -> ContractSeatMapping
-        Map<SeatKey, ContractSeatMapping> contractSeatMap = contractMappings.stream()
-                .collect(Collectors.toMap(
-                        c -> new SeatKey(
-                                c.getLetsWorkCentre(),
-                                c.getCity(),
-                                c.getState(),
-                                c.getCompanyId(),
-                                c.getSeatType(),
-                                c.getSeatNumber()
-                        ),
-                        c -> c,
-                        (a, b) -> a   // in case of duplicates
-                ));
+        // 🔥 Build lookup map
+        Map<SeatKey, ContractSeatMapping> contractSeatMap =
+                activeContractMappings.stream()
+                        .collect(Collectors.toMap(
+                                c -> new SeatKey(
+                                        c.getLetsWorkCentre(),
+                                        c.getCity(),
+                                        c.getState(),
+                                        c.getCompanyId(),
+                                        c.getSeatType(),
+                                        c.getSeatNumber()
+                                ),
+                                c -> c,
+                                (a, b) -> a
+                        ));
 
         return allSeats.stream()
                 .map(seat -> {
@@ -374,19 +375,20 @@ public class SeatServiceImpl implements SeatService {
                             seat.getSeatNumber()
                     );
 
-                    ContractSeatMapping contractMapping = contractSeatMap.get(key);
+                    ContractSeatMapping mapping = contractSeatMap.get(key);
+                    boolean available = (mapping == null);
 
-                    boolean available = (contractMapping == null);
-
-                    SeatAvailabilityDto dto = new SeatAvailabilityDto(seat, available);
+                    SeatAvailabilityDto dto = new SeatAvailabilityDto();
+                    dto.setSeat(seat);
+                    dto.setAvailable(available);
 
                     if (!available) {
-                        dto.setContractId(contractMapping.getContractId());
-                        dto.setContractStartDate(contractMapping.getStartDate());
+                        dto.setContractId(mapping.getContractId());
+                        dto.setContractStartDate(mapping.getStartDate());
                         dto.setContractEndDate(
-                                contractMapping.getActualEndDate() != null
-                                        ? contractMapping.getActualEndDate()
-                                        : contractMapping.getEndDate()
+                                mapping.getActualEndDate() != null
+                                        ? mapping.getActualEndDate()
+                                        : mapping.getEndDate()
                         );
                     }
 
