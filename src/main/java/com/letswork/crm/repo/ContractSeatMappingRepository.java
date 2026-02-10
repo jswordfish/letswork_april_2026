@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.ContractSeatMapping;
+import com.letswork.crm.entities.SeatKey;
 import com.letswork.crm.enums.SeatType;
 
 @Repository
@@ -48,4 +49,17 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
              @Param("seatType") SeatType seatType,
              @Param("seatNumber") String seatNumber
      );
+     
+     @Query("SELECT DISTINCT new com.letswork.crm.entities.SeatKey(" +
+             "c.letsWorkCentre, c.city, c.state, c.companyId, c.seatType, c.seatNumber) " +
+             "FROM ContractSeatMapping c " +
+             "WHERE c.companyId = :companyId AND c.letsWorkCentre = :letsWorkCentre " +
+             "AND c.city = :city AND c.state = :state")
+      List<SeatKey> findSeatKeysByCompanyIdAndLetsWorkCentreAndCityAndState(
+              @Param("companyId") String companyId,
+              @Param("letsWorkCentre") String letsWorkCentre,
+              @Param("city") String city,
+              @Param("state") String state
+      );
+     
 }

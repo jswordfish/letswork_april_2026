@@ -15,12 +15,14 @@ import com.letswork.crm.dtos.BuyDayPassRequestDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BuyDayPassBundle;
 import com.letswork.crm.entities.DayPassBundle;
-import com.letswork.crm.entities.NewUserRegister;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.BuyDayPassBundleRepository;
 import com.letswork.crm.repo.DayPassBundleRepository;
+import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.BuyDayPassBundleService;
+import com.letswork.crm.service.LetsWorkClientService;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.TenantService;
 
@@ -34,19 +36,25 @@ public class BuyDayPassBundleServiceImpl
     private final TenantService tenantService;
     private final NewUserRegisterRepository newUserRegisterRepository;
     private final NewUserRegisterService newUserRegisterService;
+    private final LetsWorkClientRepository letsWorkClientRepository;
+    private final LetsWorkClientService letsWorkClientService;
 
     public BuyDayPassBundleServiceImpl(
             BuyDayPassBundleRepository buyRepo,
             DayPassBundleRepository bundleRepo,
             TenantService tenantService,
             NewUserRegisterRepository newUserRegisterRepository,
-            NewUserRegisterService newUserRegisterService
+            NewUserRegisterService newUserRegisterService,
+            LetsWorkClientRepository letsWorkClientRepository,
+            LetsWorkClientService letsWorkClientService
     ) {
         this.buyRepo = buyRepo;
         this.bundleRepo = bundleRepo;
         this.tenantService = tenantService;
         this.newUserRegisterRepository = newUserRegisterRepository;
         this.newUserRegisterService = newUserRegisterService;
+        this.letsWorkClientRepository = letsWorkClientRepository;
+        this.letsWorkClientService = letsWorkClientService;
     }
 
     @Override
@@ -75,10 +83,10 @@ public class BuyDayPassBundleServiceImpl
                                 new RuntimeException("DayPass bundle not found")
                         );
         
-        NewUserRegister user =
-        		newUserRegisterRepository.findByEmailAndCompanyId(dto.getEmail(), dto.getCompanyId())
+        LetsWorkClient client =
+        		letsWorkClientRepository.findByEmailAndCompanyId(dto.getEmail(), dto.getCompanyId())
                 .orElseThrow(() ->
-                        new RuntimeException("User not found")
+                        new RuntimeException("Company not found")
                 );
         
         
@@ -104,7 +112,7 @@ public class BuyDayPassBundleServiceImpl
         buy.setCreateDate(new Date());
         buy.setUpdateDate(new Date());
         
-        newUserRegisterService.updateDayPass(buy.getNumberOfDays(), buy.getEmail(), buy.getCompanyId());
+        letsWorkClientService.updateDayPass(buy.getNumberOfDays(), buy.getEmail(), buy.getCompanyId());
 
         return buyRepo.save(buy);
      

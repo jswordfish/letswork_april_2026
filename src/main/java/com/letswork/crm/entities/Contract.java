@@ -59,7 +59,16 @@ public class Contract extends Base{
 	private Integer advanceTokenAmount;
 	
 	@JsonFormat(pattern = "HH:mm")
-	private LocalTime officeHours;
+	private LocalTime officeHoursStart;
+	
+	@JsonFormat(pattern = "HH:mm")
+	private LocalTime officeHoursEnd;
+	
+	@JsonFormat(pattern = "HH:mm")
+	private LocalTime officeHoursStartSat;
+	
+	@JsonFormat(pattern = "HH:mm")
+	private LocalTime officeHoursEndSat;
 	
 	private String gstNumber;
 	

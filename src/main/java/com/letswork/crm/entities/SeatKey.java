@@ -12,10 +12,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class SeatKey {
+	
     private String letsWorkCentre;
+    
     private String city;
+    
     private String state;
+    
     private String companyId;
+    
     private SeatType seatType;
+    
     private String seatNumber;
+    
 }

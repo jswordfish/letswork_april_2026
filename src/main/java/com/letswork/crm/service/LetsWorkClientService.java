@@ -46,5 +46,13 @@ public interface LetsWorkClientService {
 	public String uploadClientCompanies(MultipartFile file) throws IOException;
 	
 	public PaginatedResponseDto getClientCompanies(String companyId, int page);
+	
+	public void updateDayPass(String numberOfDays, String email, String companyId);
+	
+	public void updateConferenceCredits(
+	        String numberOfHours,
+	        String email,
+	        String companyId
+	);
 
 }

@@ -38,7 +38,7 @@ public class ContractController {
             @RequestParam String token,
 
             @RequestParam(required = false) Long letsWorkClientId,
-            @RequestParam(required = false) ContractStatus status,
+            @RequestParam(required = false) ContractStatus contractStatus,
 
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -47,7 +47,7 @@ public class ContractController {
                 contractService.getPaginated(
                         companyId,
                         letsWorkClientId,
-                        status,
+                        contractStatus,
                         page,
                         size
                 )

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class SeatAvailabilityDto {
 	
 	private Seat seat;
+	
     private boolean available;
 
 }

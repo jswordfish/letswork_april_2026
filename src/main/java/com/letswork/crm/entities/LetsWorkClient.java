@@ -52,9 +52,9 @@ public class LetsWorkClient extends Base{
 	
 	private String gstNumber;
 	
-	private String dayPassCredits;
+	private Integer dayPass;
 	
-	private String conferenceCredits;
+	private Integer conferenceCredits;
 	
 	private String purchasedDayPassCredits;
 	

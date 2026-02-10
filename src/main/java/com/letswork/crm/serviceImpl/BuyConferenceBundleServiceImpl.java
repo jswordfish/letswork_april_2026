@@ -15,9 +15,12 @@ import com.letswork.crm.dtos.BuyConferenceBundleRequestDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BuyConferenceBundle;
 import com.letswork.crm.entities.ConferenceBundle;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.repo.BuyConferenceBundleRepository;
 import com.letswork.crm.repo.ConferenceBundleRepository;
+import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.service.BuyConferenceBundleService;
+import com.letswork.crm.service.LetsWorkClientService;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.TenantService;
 
@@ -30,17 +33,23 @@ public class BuyConferenceBundleServiceImpl
     private final ConferenceBundleRepository bundleRepo;
     private final TenantService tenantService;
     private final NewUserRegisterService newUserRegisterService;
+    private final LetsWorkClientService letsWorkClientService;
+    private final LetsWorkClientRepository letsWorkClientRepository;
 
     public BuyConferenceBundleServiceImpl(
             BuyConferenceBundleRepository buyRepo,
             ConferenceBundleRepository bundleRepo,
             TenantService tenantService,
-            NewUserRegisterService newUserRegisterService
+            NewUserRegisterService newUserRegisterService,
+            LetsWorkClientService letsWorkClientService,
+            LetsWorkClientRepository letsWorkClientRepository
     ) {
         this.buyRepo = buyRepo;
         this.bundleRepo = bundleRepo;
         this.tenantService = tenantService;
         this.newUserRegisterService = newUserRegisterService;
+        this.letsWorkClientService = letsWorkClientService;
+        this.letsWorkClientRepository = letsWorkClientRepository;
     }
 
     @Override
@@ -65,6 +74,12 @@ public class BuyConferenceBundleServiceImpl
                                         "Conference bundle not found"
                                 )
                         );
+        
+        LetsWorkClient client =
+        		letsWorkClientRepository.findByEmailAndCompanyId(dto.getEmail(), dto.getCompanyId())
+                .orElseThrow(() ->
+                        new RuntimeException("Company not found")
+                );
 
         BuyConferenceBundle buy = new BuyConferenceBundle();
 
@@ -85,8 +100,8 @@ public class BuyConferenceBundleServiceImpl
         buy.setCreateDate(new Date());
         buy.setUpdateDate(new Date());
 
-        // 🔥 CREDIT UPDATE LOGIC
-        newUserRegisterService.updateConferenceCredits(
+        // CREDIT UPDATE LOGIC
+        letsWorkClientService.updateConferenceCredits(
                 buy.getNumberOfHours(),
                 buy.getEmail(),
                 buy.getCompanyId()

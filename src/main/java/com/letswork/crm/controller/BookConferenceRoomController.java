@@ -21,9 +21,11 @@ import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BookConferenceRoom;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.repo.BookConferenceRoomRepository;
 import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
+import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.BookConferenceRoomService;
 import com.letswork.crm.serviceImpl.MailJetOtpService;
@@ -42,7 +44,7 @@ public class BookConferenceRoomController {
 	MailJetOtpService mailService;
 	
 	@Autowired
-	NewUserRegisterRepository userRepo;
+	LetsWorkClientRepository letsWorkClientRepository;
 	
 	@Autowired
 	BookConferenceRoomRepository repo;
@@ -62,13 +64,7 @@ public class BookConferenceRoomController {
                         request.getSlots()
                 );
 
-        NewUserRegister user =
-                userRepo.findByEmailAndCompanyId(
-                        booking.getEmail(),
-                        booking.getCompanyId()
-                ).orElseThrow(() ->
-                        new RuntimeException("This user does not exist")
-                );
+        LetsWorkClient client = letsWorkClientRepository.findByEmailAndCompanyId(booking.getEmail(), booking.getCompanyId()).orElseThrow(() -> new RuntimeException("This company does not exists"));
 
         LocalTime startTime =
                 request.getSlots()
@@ -94,7 +90,7 @@ public class BookConferenceRoomController {
                 booking.getId(),
                 booking.getLetsWorkCentre(),
                 booking.getQrS3Path(),
-                user.getName(),
+                client.getClientCompanyName(),
                 startTime.toString(),                  
                 endTime.toString(),
                 booking.getRoomName()

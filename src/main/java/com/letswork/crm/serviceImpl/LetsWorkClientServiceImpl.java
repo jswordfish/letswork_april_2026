@@ -383,5 +383,69 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 
         return new UserWithCompaniesDto(user, companies);
     }
+    
+    @Override
+	public void updateDayPass(String numberOfDays, String email, String companyId) {
+		// TODO Auto-generated method stub
+		
+		if (numberOfDays == null) {
+            return; 
+        }
+
+        int daysToAdd = Integer.parseInt(numberOfDays);
+
+        LetsWorkClient client =
+                repo.findByEmailAndCompanyId(email, companyId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Company not found for email: " + email
+                                )
+                        );
+
+        Integer existingDays =
+        		client.getDayPass() == null ? 0 : client.getDayPass();
+
+        client.setDayPass(existingDays + daysToAdd);
+        client.setUpdateDate(new Date());
+
+        repo.save(client);
+  
+	}
+    
+    @Override
+	public void updateConferenceCredits(
+	        String numberOfHours,
+	        String email,
+	        String companyId
+	) {
+
+	    if (numberOfHours == null) {
+	        return;
+	    }
+
+	    int hours = Integer.parseInt(numberOfHours);
+
+	    int creditsToAdd = hours * 2;
+
+	    LetsWorkClient client =
+	            repo.findByEmailAndCompanyId(email, companyId)
+	                    .orElseThrow(() ->
+	                            new RuntimeException(
+	                                    "Company not found for email: " + email
+	                            )
+	                    );
+
+	    Integer existingCredits =
+	    		client.getConferenceCredits() == null
+	                    ? 0
+	                    : client.getConferenceCredits();
+
+	    client.setConferenceCredits(
+	            existingCredits + creditsToAdd
+	    );
+
+	    client.setUpdateDate(new Date());
+	    repo.save(client);
+	}
 
 }

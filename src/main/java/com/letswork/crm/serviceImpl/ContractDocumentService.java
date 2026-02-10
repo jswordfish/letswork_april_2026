@@ -37,7 +37,10 @@ public class ContractDocumentService {
         context.setVariable("feesPerMonth", contract.getFeesPerMonth());
         context.setVariable("depositAmount", contract.getDepositAmountInRupees());
         context.setVariable("escalation", contract.getEscalationInPercentage() + "%");
-        context.setVariable("officeHours", contract.getOfficeHours());
+        context.setVariable("officeHoursStart", contract.getOfficeHoursStart());
+        context.setVariable("officeHoursEnd", contract.getOfficeHoursEnd());
+        context.setVariable("officeHoursStartSat", contract.getOfficeHoursStartSat());
+        context.setVariable("officeHoursEndSat", contract.getOfficeHoursEndSat());
         context.setVariable("gstNumber", contract.getGstNumber());
         context.setVariable("billingCycle", contract.getBillingCycle());
         context.setVariable("advanceToken", contract.getAdvanceTokenAmount());

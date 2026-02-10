@@ -9,8 +9,8 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +20,7 @@ import com.letswork.crm.entities.BuyDayPassBundle;
 import com.letswork.crm.repo.BookDayPassRepository;
 import com.letswork.crm.repo.BuyDayPassBundleRepository;
 import com.letswork.crm.service.BookDayPassService;
+import com.letswork.crm.service.LetsWorkClientService;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.QRCodeService;
 
@@ -35,6 +36,7 @@ public class BookDayPassServiceImpl implements BookDayPassService {
     private final NewUserRegisterService newUserRegisterService;
     private final QRCodeService qrService;
     private final S3Service s3Service;
+    private final LetsWorkClientService letsWorkClientService;
 
     @Override
     public BookDayPass book(BookDayPass request) {
@@ -128,7 +130,7 @@ public class BookDayPassServiceImpl implements BookDayPassService {
             throw new RuntimeException("Insufficient day pass credits");
         }
 
-        newUserRegisterService.updateDayPass(
+        letsWorkClientService.updateDayPass(
                 String.valueOf(-request.getNumberOfDays()),
                 request.getEmail(),
                 companyId

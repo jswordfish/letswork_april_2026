@@ -58,7 +58,6 @@ public class ContractServiceImpl implements ContractService {
 
         contract.setLetsWorkClient(client);
 
-        // 🔹 UPDATE FLOW
         if (contract.getId() != null) {
 
             Contract existing = contractRepo

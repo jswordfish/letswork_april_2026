@@ -162,7 +162,7 @@ public class MailJetOtpService {
         try {
             request.sendWith(client);
         } catch (MailjetException e) {
-            throw new RuntimeException("Failed to send Day Pass email", e);
+            throw new RuntimeException("Failed to send Conference email", e);
         }
     }
     

@@ -16,9 +16,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BookDayPass;
-import com.letswork.crm.entities.NewUserRegister;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.repo.BookDayPassRepository;
-import com.letswork.crm.repo.NewUserRegisterRepository;
+import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.service.BookDayPassService;
 import com.letswork.crm.serviceImpl.MailJetOtpService;
 
@@ -33,7 +33,7 @@ public class BookDayPassController {
 	MailJetOtpService mailService;
 	
 	@Autowired
-	NewUserRegisterRepository userRepo;
+	LetsWorkClientRepository letsWorkClientRepository;
 	
 	@Autowired
 	BookDayPassRepository bookRepo;
@@ -48,9 +48,9 @@ public class BookDayPassController {
     	
     	BookDayPass dayPass = service.book(request);
     	
-    	NewUserRegister user = userRepo.findByEmailAndCompanyId(dayPass.getEmail(), dayPass.getCompanyId()).orElseThrow(() -> new RuntimeException("This user does not exists"));
+    	LetsWorkClient client = letsWorkClientRepository.findByEmailAndCompanyId(dayPass.getEmail(), dayPass.getCompanyId()).orElseThrow(() -> new RuntimeException("This company does not exists"));
     	
-    	mailService.sendDayPassEmail(dayPass.getEmail(), dayPass.getNumberOfDays(), dayPass.getId(), dayPass.getLetsWorkCentre(), dayPass.getQrS3Path(), user.getName());
+    	mailService.sendDayPassEmail(dayPass.getEmail(), dayPass.getNumberOfDays(), dayPass.getId(), dayPass.getLetsWorkCentre(), dayPass.getQrS3Path(), client.getClientCompanyName());
     	
         return ResponseEntity.ok(dayPass);
     }

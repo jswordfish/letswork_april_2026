@@ -38,6 +38,7 @@ import com.letswork.crm.entities.UserSeatMapping;
 import com.letswork.crm.enums.SeatType;
 import com.letswork.crm.repo.CabinRepository;
 import com.letswork.crm.repo.ClientCompanySeatMappingRepository;
+import com.letswork.crm.repo.ContractSeatMappingRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SeatRepository;
 import com.letswork.crm.repo.UserSeatMappingRepository;
@@ -72,6 +73,9 @@ public class SeatServiceImpl implements SeatService {
     
     @Autowired
     ClientCompanySeatMappingRepository clientCompanySeatMappingRepository;
+    
+    @Autowired
+    ContractSeatMappingRepository contractSeatMappingRepository;
     
     ModelMapper mapper = new ModelMapper();
 
@@ -343,11 +347,17 @@ public class SeatServiceImpl implements SeatService {
         // 3️⃣ Fetch occupied seats from company seat mapping
         List<SeatKey> companyOccupiedSeatKeys = clientCompanySeatMappingRepository
                 .findSeatKeysByCompanyIdAndLetsWorkCentreAndCityAndState(companyId, letsWorkCentre, city, state);
+        
+        List<SeatKey> contractOccupiedSeatKeys =
+                contractSeatMappingRepository
+                        .findSeatKeysByCompanyIdAndLetsWorkCentreAndCityAndState(
+                                companyId, letsWorkCentre, city, state);
 
         // 4️⃣ Combine all occupied seats
         Set<SeatKey> occupiedSeatKeys = new HashSet<>();
         occupiedSeatKeys.addAll(userOccupiedSeatKeys);
         occupiedSeatKeys.addAll(companyOccupiedSeatKeys);
+        occupiedSeatKeys.addAll(contractOccupiedSeatKeys);
 
         // 5️⃣ Map all seats with availability info
         return allSeats.stream()
