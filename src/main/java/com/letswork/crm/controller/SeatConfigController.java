@@ -32,7 +32,7 @@ public class SeatConfigController {
     @GetMapping
     public ResponseEntity<PaginatedResponseDto> listSeatConfigs(
             @RequestParam String companyId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam String token
     ) {
