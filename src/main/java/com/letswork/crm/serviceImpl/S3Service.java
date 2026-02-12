@@ -460,6 +460,38 @@ public class S3Service {
             throw new RuntimeException("Failed to upload contract agreement PDF", e);
         }
     }
+    
+    public String uploadClientKycDocument(
+            String bucketName,
+            String companyId,
+            String clientCompanyName,
+            String documentType,
+            byte[] fileBytes,
+            String originalFilename
+    ) {
+        try {
+            String sanitizedClientName = clientCompanyName.replaceAll("\\s+", "_");
+
+            String keyName =
+                    companyId + "/KYC_docs/" +
+                    sanitizedClientName + "/" +
+                    documentType + "_" + originalFilename;
+
+            s3Client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(keyName)
+                            .contentType("application/pdf") // or detect dynamically
+                            .build(),
+                    RequestBody.fromBytes(fileBytes)
+            );
+
+            return keyName;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload KYC document: " + documentType, e);
+        }
+    }
 
     
 }

@@ -52,6 +52,18 @@ public class LetsWorkClient extends Base{
 	
 	private String gstNumber;
 	
+	private String panNumber;
+	
+	private String tanNumber;
+	
+	private String aadhaarS3Key;
+	
+	private String panS3Key;
+	
+	private String tanS3Key;
+	
+	private String gstCertificateS3Key;
+	
 	private Integer dayPass;
 	
 	private Integer conferenceCredits;

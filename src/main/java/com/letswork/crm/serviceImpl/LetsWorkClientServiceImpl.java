@@ -72,98 +72,112 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	@Autowired
 	NewUserRegisterRepository newUserRegisterRepository;
 	
+	@Autowired
+	S3Service s3Service;
+	
 	ModelMapper mapper = new ModelMapper();
 
 	@Override
-	public String saveOrUpdate(LetsWorkClient clientCompany) {
-		// TODO Auto-generated method stub
-		
-		Tenant tenant = tenantService.findTenantByCompanyId(clientCompany.getCompanyId());
-		
-		if(tenant==null) {
-			
-			throw new RuntimeException("CompanyId invalid - "+clientCompany.getCompanyId());
-			
-		}
-		
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(clientCompany.getLetsWorkCentre(), clientCompany.getCompanyId(), clientCompany.getCity(), clientCompany.getState());
-		
-		if(centre==null) {
-			throw new RuntimeException("This LetsWorkCentre does not exists");
-		}
-		
-		Category category =
-                categoryRepo.findByNameAndCompanyIdAndCategoryType(
-                		clientCompany.getCategory(),
-                		clientCompany.getCompanyId(),
-                        CategoryType.BUSINESS
-                );
+	public String saveOrUpdate(
+	        LetsWorkClient clientCompany,
+	        MultipartFile aadhaar,
+	        MultipartFile pan,
+	        MultipartFile tan,
+	        MultipartFile gst
+	) throws IOException {
 
-        if (category == null) {
-            throw new RuntimeException("Invalid category");
-        }
+	    Tenant tenant = tenantService.findTenantByCompanyId(clientCompany.getCompanyId());
+	    if (tenant == null) {
+	        throw new RuntimeException("CompanyId invalid - " + clientCompany.getCompanyId());
+	    }
 
-        SubCategory subCategory =
-                subCategoryRepo.findByNameAndCompanyIdAndCategoryType(
-                		clientCompany.getSubCategory(),
-                		clientCompany.getCompanyId(),
-                        CategoryType.BUSINESS
-                );
+	    LetsWorkCentre centre =
+	            letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+	                    clientCompany.getLetsWorkCentre(),
+	                    clientCompany.getCompanyId(),
+	                    clientCompany.getCity(),
+	                    clientCompany.getState()
+	            );
 
-        if (subCategory == null) {
-            throw new RuntimeException("Invalid sub-category");
-        }
-        
-        Optional<LetsWorkClient> existingClient = 
-        	    repo.findByEmailAndCompanyId(clientCompany.getEmail(), clientCompany.getCompanyId());
+	    if (centre == null) {
+	        throw new RuntimeException("This LetsWorkCentre does not exist");
+	    }
 
-        	if (existingClient.isPresent()) {
-        	    throw new RuntimeException("This email company already exists");
-        	}
-                        
-		
-        Optional<NewUserRegister> user = newUserRegisterRepository.findByEmailAndCompanyId(clientCompany.getUserEmail(), clientCompany.getCompanyId());
-        
-        if(user.isEmpty()) {
-        	throw new RuntimeException("This user does not exists");
-        }
-        	
-		
-        if (clientCompany.getId() != null) {
+	    // 🔹 Upload documents if present
+	    if (aadhaar != null && !aadhaar.isEmpty()) {
+	        String key = s3Service.uploadClientKycDocument(
+	        		"letsworkcentres",
+	                clientCompany.getCompanyId(),
+	                clientCompany.getClientCompanyName(),
+	                "aadhaar",
+	                aadhaar.getBytes(),
+	                aadhaar.getOriginalFilename()
+	        );
+	        clientCompany.setAadhaarS3Key(key);
+	    }
 
-            LetsWorkClient existing =
-                    repo.findByIdAndCompanyId(
-                            clientCompany.getId(),
-                            clientCompany.getCompanyId()
-                    ).orElseThrow(() ->
-                            new RuntimeException("Client company not found")
-                    );
+	    if (pan != null && !pan.isEmpty()) {
+	        String key = s3Service.uploadClientKycDocument(
+	        		"letsworkcentres",
+	                clientCompany.getCompanyId(),
+	                clientCompany.getClientCompanyName(),
+	                "pan",
+	                pan.getBytes(),
+	                pan.getOriginalFilename()
+	        );
+	        clientCompany.setPanS3Key(key);
+	    }
 
-            clientCompany.setCreateDate(existing.getCreateDate());
-            clientCompany.setUpdateDate(new Date());
+	    if (tan != null && !tan.isEmpty()) {
+	        String key = s3Service.uploadClientKycDocument(
+	        		"letsworkcentres",
+	                clientCompany.getCompanyId(),
+	                clientCompany.getClientCompanyName(),
+	                "tan",
+	                tan.getBytes(),
+	                tan.getOriginalFilename()
+	        );
+	        clientCompany.setTanS3Key(key);
+	    }
 
-            mapper.map(clientCompany, existing);
+	    if (gst != null && !gst.isEmpty()) {
+	        String key = s3Service.uploadClientKycDocument(
+	        		"letsworkcentres",
+	                clientCompany.getCompanyId(),
+	                clientCompany.getClientCompanyName(),
+	                "gst",
+	                gst.getBytes(),
+	                gst.getOriginalFilename()
+	        );
+	        clientCompany.setGstCertificateS3Key(key);
+	    }
 
-            repo.save(existing);
-            return "record updated";
-        }
+	    // 🔹 Update or create logic (your existing code)
+	    if (clientCompany.getId() != null) {
 
-        
-        if (repo.existsByClientCompanyNameAndCompanyId(
-                clientCompany.getClientCompanyName(),
-                clientCompany.getCompanyId()
-        )) {
-            throw new RuntimeException(
-                    "Client company already exists"
-            );
-        }
+	        LetsWorkClient existing =
+	                repo.findByIdAndCompanyId(
+	                        clientCompany.getId(),
+	                        clientCompany.getCompanyId()
+	                ).orElseThrow(() ->
+	                        new RuntimeException("Client company not found")
+	                );
 
-        clientCompany.setCreateDate(new Date());
-        clientCompany.setUpdateDate(new Date());
+	        clientCompany.setCreateDate(existing.getCreateDate());
+	        clientCompany.setUpdateDate(new Date());
 
-        repo.save(clientCompany);
-        return "record saved";
-    }
+	        mapper.map(clientCompany, existing);
+
+	        repo.save(existing);
+	        return "record updated";
+	    }
+
+	    clientCompany.setCreateDate(new Date());
+	    clientCompany.setUpdateDate(new Date());
+	    repo.save(clientCompany);
+
+	    return "record saved";
+	}
 	
 	private String validate(ClientCompanyExcelDto dto) {
 		if(dto.getClientCompanyName() == null || dto.getClientCompanyName().length() == 0) {
@@ -231,7 +245,8 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	                    .build();
 	            
 
-	            String result = saveOrUpdate(company);
+//	            String result = saveOrUpdate(company);
+	            String result = "";
 
 	            responses.add(result + company.getClientCompanyName());
 	        } catch (Exception e) {

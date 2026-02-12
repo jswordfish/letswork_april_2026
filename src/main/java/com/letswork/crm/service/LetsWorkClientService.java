@@ -12,7 +12,13 @@ import com.letswork.crm.entities.LetsWorkClient;
 
 public interface LetsWorkClientService {
 	
-	String saveOrUpdate(LetsWorkClient clientCompany);
+	public String saveOrUpdate(
+	        LetsWorkClient clientCompany,
+	        MultipartFile aadhaar,
+	        MultipartFile pan,
+	        MultipartFile tan,
+	        MultipartFile gst
+	) throws IOException;
 	
 	UserWithCompaniesDto getUserWithCompanies(
             Long userId,

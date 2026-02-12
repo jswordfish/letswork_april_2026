@@ -3,6 +3,7 @@ package com.letswork.crm.controller;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,13 +12,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.UserWithCompaniesDto;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.service.LetsWorkClientService;
+
 
 
 @RestController
@@ -28,11 +32,33 @@ public class LetsWorkClientController {
 	@Autowired
 	LetsWorkClientService service;
 	
-	@PostMapping
-	public String createCompany(@RequestBody LetsWorkClient clientCompany, @RequestParam String token) {
-		
-		return service.saveOrUpdate(clientCompany);
-		
+//	@PostMapping
+//	public String createCompany(@RequestBody LetsWorkClient clientCompany, @RequestParam String token) {
+//		
+//		return service.saveOrUpdate(clientCompany);
+//		
+//	}
+	
+	@PostMapping(
+	        value = "/client",
+	        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+	)
+	public ResponseEntity<String> saveOrUpdateClient(
+	        @RequestPart("client") String clientJson,
+	        @RequestPart(value = "aadhaar", required = false) MultipartFile aadhaar,
+	        @RequestPart(value = "pan", required = false) MultipartFile pan,
+	        @RequestPart(value = "tan", required = false) MultipartFile tan,
+	        @RequestPart(value = "gst", required = false) MultipartFile gst,
+	        @RequestParam String token
+	) throws IOException {
+
+	    LetsWorkClient client =
+	            new ObjectMapper().readValue(clientJson, LetsWorkClient.class);
+
+	    String result =
+	    		service.saveOrUpdate(client, aadhaar, pan, tan, gst);
+
+	    return ResponseEntity.ok(result);
 	}
 	
 	@GetMapping("/with-companies")
