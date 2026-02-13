@@ -12,20 +12,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SeatAvailabilityDto {
-	
-	private Seat seat;
-	
+
+    private Seat seat;
+
     private boolean available;
-    
+
     private LocalDate contractStartDate;
-    
+
     private LocalDate contractEndDate;
-    
+
     private Long contractId;
-    
+
+    private String companyName;   
+
     public SeatAvailabilityDto(Seat seat, boolean available) {
         this.seat = seat;
         this.available = available;
     }
 
+    
 }

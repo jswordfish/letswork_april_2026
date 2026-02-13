@@ -54,7 +54,7 @@ public class Contract extends Base{
 	
 	private LocalDate commencementDate;
 	
-	private Integer carParkingAmount;
+	private String carParkingDetails;
 	
 	private Integer advanceTokenAmount;
 	
@@ -79,6 +79,10 @@ public class Contract extends Base{
 	private Integer workstation;
 	
 	private Integer feesPerMonth;
+	
+	private Integer freeDayPass;
+	
+	private Integer freeConferenceCredits;
 	
 	private Integer oneTimeSetupCharge;
 	

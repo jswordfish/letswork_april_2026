@@ -33,6 +33,7 @@ import com.letswork.crm.entities.Cabin;
 import com.letswork.crm.entities.ClientCompanySeatMapping;
 import com.letswork.crm.entities.ContractSeatMapping;
 import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.entities.SeatKey;
 import com.letswork.crm.entities.Tenant;
@@ -40,6 +41,7 @@ import com.letswork.crm.entities.UserSeatMapping;
 import com.letswork.crm.enums.SeatType;
 import com.letswork.crm.repo.CabinRepository;
 import com.letswork.crm.repo.ClientCompanySeatMappingRepository;
+import com.letswork.crm.repo.ContractRepository;
 import com.letswork.crm.repo.ContractSeatMappingRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SeatRepository;
@@ -78,6 +80,9 @@ public class SeatServiceImpl implements SeatService {
     
     @Autowired
     ContractSeatMappingRepository contractSeatMappingRepository;
+    
+    @Autowired
+    ContractRepository contractRepository;
     
     ModelMapper mapper = new ModelMapper();
 
@@ -347,7 +352,7 @@ public class SeatServiceImpl implements SeatService {
                 contractSeatMappingRepository.findActiveByLocation(
                         companyId, letsWorkCentre, city, state);
 
-        // 🔥 Build lookup map
+        // 🔥 Build lookup map: SeatKey -> ContractSeatMapping
         Map<SeatKey, ContractSeatMapping> contractSeatMap =
                 activeContractMappings.stream()
                         .collect(Collectors.toMap(
@@ -383,6 +388,7 @@ public class SeatServiceImpl implements SeatService {
                     dto.setAvailable(available);
 
                     if (!available) {
+
                         dto.setContractId(mapping.getContractId());
                         dto.setContractStartDate(mapping.getStartDate());
                         dto.setContractEndDate(
@@ -390,6 +396,14 @@ public class SeatServiceImpl implements SeatService {
                                         ? mapping.getActualEndDate()
                                         : mapping.getEndDate()
                         );
+
+                        // 🔥 Fetch Contract → LetsWorkClient → company name
+                        contractRepository
+                                .findByIdAndCompanyId(mapping.getContractId(), companyId)
+                                .ifPresent(contract -> {
+                                    LetsWorkClient client = contract.getLetsWorkClient();
+                                    dto.setCompanyName(client.getClientCompanyName());
+                                });
                     }
 
                     return dto;

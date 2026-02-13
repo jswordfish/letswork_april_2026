@@ -25,6 +25,8 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
     );
     
     @Query("SELECT c FROM ContractSeatMapping c " +
+    	       "JOIN FETCH c.contract con " +
+    	       "JOIN FETCH con.letsWorkClient lwc " +
     	       "WHERE c.companyId = :companyId " +
     	       "AND c.letsWorkCentre = :letsWorkCentre " +
     	       "AND c.city = :city " +
