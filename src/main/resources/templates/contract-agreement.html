@@ -31,7 +31,23 @@
     <tr><td>Billing Cycle</td><td th:text="${billingCycle}"></td></tr>
     <tr><td>Advance Token</td><td th:text="${advanceToken}"></td></tr>
     <tr><td>Commencement Date</td><td th:text="${commencementDate}"></td></tr>
-    <tr><td>Amenities Included</td><td th:text="${amenities}"></td></tr>
+	<tr>
+	    <td>Amenities Included</td>
+	    <td>
+	        <table style="width:100%; border-collapse: collapse;">
+	            <tr>
+	                <th style="border:1px solid black;">#</th>
+	                <th style="border:1px solid black;">Amenity</th>
+	                <th style="border:1px solid black;">Description</th>
+	            </tr>
+	            <tr th:each="amenity, stat : ${amenities}">
+	                <td th:text="${#strings.substring('abcdefghijklmnopqrstuvwxyz', stat.index, stat.index + 1)}"></td>
+	                <td th:text="${amenity.name}"></td>
+	                <td th:text="${amenity.description}"></td>
+	            </tr>
+	        </table>
+	    </td>
+	</tr>
 </table>
 
 </body>

@@ -90,7 +90,7 @@ public class Contract extends Base{
 	
 	private String clientAdress;
 	
-	private String AmenitiesIncluded;
+	private String amenitiesIncluded;
 	
 	private Integer noticePeriodInMonths;
 	
