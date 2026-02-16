@@ -34,7 +34,6 @@ public class ContractDocumentService {
     public byte[] generateAgreementPdf(Contract contract) {
 
         Context context = new Context();
-
         LetsWorkClient client = contract.getLetsWorkClient();
 
         context.setVariable("clientName", client.getClientCompanyName());
@@ -57,18 +56,8 @@ public class ContractDocumentService {
         context.setVariable("advanceToken", contract.getAdvanceTokenAmount());
         context.setVariable("commencementDate", contract.getCommencementDate());
 
-        // 🔥 Parse amenities JSON
-        List<AmenityDto> amenities = new ArrayList<>();
-        try {
-            if (contract.getAmenitiesIncluded() != null && !contract.getAmenitiesIncluded().isEmpty()) {
-                amenities = objectMapper.readValue(
-                        contract.getAmenitiesIncluded(),
-                        new TypeReference<List<AmenityDto>>() {}
-                );
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid amenities JSON format", e);
-        }
+        // 🔥 Normalize + parse amenities
+        List<AmenityDto> amenities = parseAmenities(contract.getAmenitiesIncluded());
 
         context.setVariable("amenities", amenities);
 
@@ -87,4 +76,39 @@ public class ContractDocumentService {
 
         return os.toByteArray();
     }
+    
+    private List<AmenityDto> parseAmenities(String rawAmenities) {
+
+        if (rawAmenities == null || rawAmenities.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        try {
+            // STEP 1: Remove line breaks & trim
+            String cleaned = rawAmenities
+                    .replace("\n", "")
+                    .replace("\r", "")
+                    .trim();
+
+            // STEP 2: Parse into List
+            List<AmenityDto> list = objectMapper.readValue(
+                    cleaned,
+                    new TypeReference<List<AmenityDto>>() {}
+            );
+
+            // STEP 3: Convert back to DB-safe single line JSON
+            String normalizedJson = objectMapper.writeValueAsString(list);
+
+            // STEP 4: Store normalized JSON back in entity (optional but recommended)
+            // so DB always has clean format
+            // ⚠ only if you want auto-fix behaviour
+            // contract.setAmenitiesIncluded(normalizedJson);
+
+            return list;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid amenities JSON format", e);
+        }
+    }
+    
 }
