@@ -15,6 +15,7 @@ import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.SeatConfig;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.enums.SeatType;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SeatConfigRepository;
 import com.letswork.crm.service.SeatConfigService;
@@ -81,12 +82,20 @@ public class SeatConfigServiceImpl implements SeatConfigService {
     }
 
     @Override
-    public PaginatedResponseDto listSeatConfigs(String companyId, int page, int size) {
+    public PaginatedResponseDto listSeatConfigs(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            SeatType seatType,
+            int page,
+            int size
+    ) {
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending());
 
         Page<SeatConfig> seatConfigPage =
-                repo.findAllByCompanyId(companyId, pageable);
+                repo.searchSeatConfigs(companyId, letsWorkCentre, city, state, seatType, pageable);
 
         PaginatedResponseDto dto = new PaginatedResponseDto();
         dto.setRecordsFrom((page - 1) * size + 1);

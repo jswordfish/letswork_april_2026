@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.SeatConfig;
+import com.letswork.crm.enums.SeatType;
 import com.letswork.crm.service.SeatConfigService;
 
 @RestController
@@ -32,12 +33,19 @@ public class SeatConfigController {
     @GetMapping
     public ResponseEntity<PaginatedResponseDto> listSeatConfigs(
             @RequestParam String companyId,
+            @RequestParam(required = false) String letsWorkCentre,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) SeatType seatType,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam String token
     ) {
+
         PaginatedResponseDto response =
-                seatConfigService.listSeatConfigs(companyId, page, size);
+                seatConfigService.listSeatConfigs(
+                        companyId, letsWorkCentre, city, state, seatType, page, size
+                );
 
         return ResponseEntity.ok(response);
     }
