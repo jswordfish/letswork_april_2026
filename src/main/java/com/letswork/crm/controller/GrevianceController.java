@@ -37,10 +37,7 @@ public class GrevianceController {
     @Autowired
     MailJetOtpService mailService;
 
-    @PostMapping(
-            value = "/save",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Greviance> save(
             @RequestParam String token,
             @RequestPart("greviance") String grevianceJson,
@@ -48,23 +45,29 @@ public class GrevianceController {
     ) throws IOException {
 
         Greviance greviance =
-                new ObjectMapper().readValue(
-                        grevianceJson,
-                        Greviance.class
-                );
-        
+                new ObjectMapper().readValue(grevianceJson, Greviance.class);
+
         NewUserRegister user = userRepo.findByEmailAndCompanyId(
                 greviance.getEmail(),
                 greviance.getCompanyId()
         ).orElseThrow(() ->
                 new RuntimeException("User not found for given email")
         );
-        
-        mailService.sendGrevianceEmail(greviance.getEmail(), user.getName(), LocalDateTime.now(), greviance.getCategory(), greviance.getSubCategory(), greviance.getLetsWorkCentre(), greviance.getIssue(), greviance.getImageS3Key());
 
-        return ResponseEntity.ok(
-                grevianceService.saveGreviance(greviance, image)
+        Greviance saved = grevianceService.saveGreviance(greviance, image);
+
+        mailService.sendGrevianceEmail(
+                saved.getEmail(),
+                user.getName(),
+                LocalDateTime.now(),
+                saved.getCategory(),
+                saved.getSubCategory(),
+                saved.getLetsWorkCentre(),
+                saved.getIssue(),
+                saved.getImageS3Key()
         );
+
+        return ResponseEntity.ok(saved);
     }
 
     @GetMapping
