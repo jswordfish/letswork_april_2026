@@ -254,7 +254,8 @@ public class BookConferenceRoomServiceImpl
         booking.setUsed(true);
         return bookRepo.save(booking);
     }
-
+    
+    @Override
     public PaginatedResponseDto getPaginated(
             String companyId,
             String email,
@@ -264,6 +265,7 @@ public class BookConferenceRoomServiceImpl
             LocalDate fromDate,
             LocalDate toDate,
             String roomName,
+            BookingStatus currentStatus,   
             int page,
             int size
     ) {
@@ -280,6 +282,7 @@ public class BookConferenceRoomServiceImpl
     	        fromDate,
     	        toDate,
     	        roomName,
+    	        currentStatus,   
     	        pageable
     	);
 

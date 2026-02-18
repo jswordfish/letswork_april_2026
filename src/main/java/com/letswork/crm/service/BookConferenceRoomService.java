@@ -6,6 +6,7 @@ import java.util.List;
 import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BookConferenceRoom;
+import com.letswork.crm.enums.BookingStatus;
 
 
 public interface BookConferenceRoomService {
@@ -27,6 +28,7 @@ public interface BookConferenceRoomService {
             LocalDate fromDate,
             LocalDate toDate,
             String roomName,
+            BookingStatus currentStatus,   
             int page,
             int size
     );

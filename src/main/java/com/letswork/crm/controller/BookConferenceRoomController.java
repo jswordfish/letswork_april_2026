@@ -22,11 +22,10 @@ import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BookConferenceRoom;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
 import com.letswork.crm.entities.LetsWorkClient;
-import com.letswork.crm.entities.NewUserRegister;
+import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.repo.BookConferenceRoomRepository;
 import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
 import com.letswork.crm.repo.LetsWorkClientRepository;
-import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.BookConferenceRoomService;
 import com.letswork.crm.serviceImpl.MailJetOtpService;
 
@@ -187,6 +186,8 @@ public class BookConferenceRoomController {
             LocalDate toDate,
 
             @RequestParam(required = false) String roomName,
+            @RequestParam(required = false) BookingStatus currentStatus,   
+
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -200,6 +201,7 @@ public class BookConferenceRoomController {
                         fromDate,
                         toDate,
                         roomName,
+                        currentStatus,   
                         page,
                         size
                 )

@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.BookConferenceRoom;
+import com.letswork.crm.enums.BookingStatus;
 
 @Repository
 public interface BookConferenceRoomRepository
@@ -35,7 +36,8 @@ public interface BookConferenceRoomRepository
     	    "AND (:state IS NULL OR b.state = :state) " +
     	    "AND (:fromDate IS NULL OR b.dateOfBooking >= :fromDate) " +
     	    "AND (:toDate IS NULL OR b.dateOfBooking <= :toDate) " +
-    	    "AND (:roomName IS NULL OR b.roomName = :roomName)"
+    	    "AND (:roomName IS NULL OR b.roomName = :roomName) " +
+    	    "AND (:currentStatus IS NULL OR b.currentStatus = :currentStatus)"
     	)
     	Page<BookConferenceRoom> filter(
     	        @Param("companyId") String companyId,
@@ -46,6 +48,7 @@ public interface BookConferenceRoomRepository
     	        @Param("fromDate") LocalDate fromDate,
     	        @Param("toDate") LocalDate toDate,
     	        @Param("roomName") String roomName,
+    	        @Param("currentStatus") BookingStatus currentStatus, // ⭐ NEW
     	        Pageable pageable
     	);
 }
