@@ -19,9 +19,11 @@ import org.springframework.stereotype.Service;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BookDayPass;
 import com.letswork.crm.entities.BuyDayPassBundle;
+import com.letswork.crm.entities.DayPassLimit;
 import com.letswork.crm.entities.Holiday;
 import com.letswork.crm.repo.BookDayPassRepository;
 import com.letswork.crm.repo.BuyDayPassBundleRepository;
+import com.letswork.crm.repo.DayPassLimitRepo;
 import com.letswork.crm.repo.HolidayRepository;
 import com.letswork.crm.service.BookDayPassService;
 import com.letswork.crm.service.LetsWorkClientService;
@@ -37,6 +39,9 @@ public class BookDayPassServiceImpl implements BookDayPassService {
 	
 	@Autowired
 	HolidayRepository holidayRepo;
+	
+	@Autowired
+	DayPassLimitRepo dayPassLimitRepo;
 
     private final BookDayPassRepository bookRepo;
     private final BuyDayPassBundleRepository bundleRepo;
@@ -218,6 +223,37 @@ public class BookDayPassServiceImpl implements BookDayPassService {
 
         return bookRepo.save(booking);
     }
+	
+	@Override
+	public Integer getRemainingDayPass(
+	        String companyId,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
+	        LocalDate date
+	) {
+
+	    DayPassLimit limit = dayPassLimitRepo
+	            .findByLetsWorkCentreAndCompanyIdAndCityAndState(
+	                    letsWorkCentre, companyId, city, state
+	            );
+
+	    if (limit == null) {
+	        throw new RuntimeException("Day pass limit not configured for this centre");
+	    }
+
+	    Integer bookedCount = bookRepo.getTotalBookedDayPass(
+	            companyId,
+	            letsWorkCentre,
+	            city,
+	            state,
+	            date
+	    );
+
+	    int remaining = limit.getMaxLimit() - bookedCount;
+
+	    return Math.max(remaining, 0);
+	}
 		
 }
 

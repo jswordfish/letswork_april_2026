@@ -79,6 +79,27 @@ public class BookDayPassController {
         return ResponseEntity.ok(booking);
     }
     
+    @GetMapping("/remaining-daypass")
+    public ResponseEntity<Integer> getRemainingDayPass(
+            @RequestParam String companyId,
+            @RequestParam String token,
+            @RequestParam String letsWorkCentre,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+
+        return ResponseEntity.ok(
+                service.getRemainingDayPass(
+                        companyId,
+                        letsWorkCentre,
+                        city,
+                        state,
+                        date
+                )
+        );
+    }
+    
     @PostMapping("/allow")
     public ResponseEntity<BookDayPass> allow(
             @RequestBody BookDayPass request,

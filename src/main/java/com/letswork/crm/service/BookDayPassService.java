@@ -22,5 +22,13 @@ public interface BookDayPassService {
 	);
     
     public BookDayPass scanAndConsume(String bookingCode);
+    
+    Integer getRemainingDayPass(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            LocalDate date
+    );
 
 }

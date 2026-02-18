@@ -16,6 +16,8 @@ public interface DayPassLimitRepo extends JpaRepository<DayPassLimit, Long> {
             String city,
             String state
     );
+    
+    
 
     Page<DayPassLimit> findAllByCompanyId(String companyId, Pageable pageable);
 

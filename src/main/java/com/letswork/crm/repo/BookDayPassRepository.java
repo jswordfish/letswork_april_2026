@@ -18,7 +18,20 @@ public interface BookDayPassRepository extends JpaRepository<BookDayPass, Long> 
 
     List<BookDayPass> findByCompanyId(String companyId);
     
-    
+    @Query("SELECT COALESCE(SUM(b.numberOfDays), 0) " +
+            "FROM BookDayPass b " +
+            "WHERE b.companyId = :companyId " +
+            "AND b.letsWorkCentre = :centre " +
+            "AND b.city = :city " +
+            "AND b.state = :state " +
+            "AND b.dateOfBooking = :bookingDate")
+     Integer getTotalBookedDayPass(
+             @Param("companyId") String companyId,
+             @Param("centre") String centre,
+             @Param("city") String city,
+             @Param("state") String state,
+             @Param("bookingDate") java.time.LocalDate bookingDate
+     );
 
     List<BookDayPass> findByEmailAndCompanyId(String email, String companyId);
 
