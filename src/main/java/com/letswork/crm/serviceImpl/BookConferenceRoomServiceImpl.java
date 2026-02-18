@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,10 +24,13 @@ import com.letswork.crm.entities.BookConferenceRoom;
 import com.letswork.crm.entities.BuyConferenceBundle;
 import com.letswork.crm.entities.ConferenceRoom;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
+import com.letswork.crm.entities.Holiday;
+import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.repo.BookConferenceRoomRepository;
 import com.letswork.crm.repo.BuyConferenceBundleRepository;
 import com.letswork.crm.repo.ConferenceRoomRepository;
 import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
+import com.letswork.crm.repo.HolidayRepository;
 import com.letswork.crm.service.BookConferenceRoomService;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.QRCodeService;
@@ -41,6 +45,9 @@ public class BookConferenceRoomServiceImpl
 	
 	@Autowired
 	ConferenceRoomTimeSlotRepository timeSlotRepo;
+	
+	@Autowired
+	HolidayRepository holidayRepo;
 
     private final BookConferenceRoomRepository bookRepo;
     private final BuyConferenceBundleRepository bundleRepo;
@@ -67,6 +74,14 @@ public class BookConferenceRoomServiceImpl
         if (room == null) {
             throw new RuntimeException("Conference room does not exist");
         }
+        
+        validateHoliday(
+                request.getCompanyId(),
+                request.getLetsWorkCentre(),
+                request.getCity(),
+                request.getState(),
+                slotDate
+        );
 
         // 1. Validate consecutive slots
         validateConsecutiveSlots(slotRequests);
@@ -100,6 +115,8 @@ public class BookConferenceRoomServiceImpl
         if (Boolean.TRUE.equals(request.getBundleUsed())) {
             consumeConferenceCredits(creditsRequired, request);
         }
+        
+        request.setCurrentStatus(BookingStatus.ACTIVE);
 
         BookConferenceRoom savedBooking = bookRepo.save(request);
 
@@ -142,6 +159,32 @@ public class BookConferenceRoomServiceImpl
         } catch (Exception e) {
             // Because of @Transactional, the credits deducted above will be restored if this fails
             throw new RuntimeException("QR generation failed: " + e.getMessage());
+        }
+    }
+    
+    private void validateHoliday(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            LocalDate bookingDate
+    ) {
+
+        Date holidayDate = java.sql.Date.valueOf(bookingDate);
+
+        Holiday holiday = holidayRepo
+                .findByLetsWorkCentreAndHolidayDateAndCityAndStateAndCompanyId(
+                        letsWorkCentre,
+                        holidayDate,
+                        city,
+                        state,
+                        companyId
+                );
+
+        if (holiday != null) {
+            throw new RuntimeException(
+                    "Bookings are not allowed on holidays (" + bookingDate + ") for this centre"
+            );
         }
     }
 

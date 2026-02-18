@@ -3,11 +3,13 @@ package com.letswork.crm.serviceImpl;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,8 +19,10 @@ import org.springframework.stereotype.Service;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.BookDayPass;
 import com.letswork.crm.entities.BuyDayPassBundle;
+import com.letswork.crm.entities.Holiday;
 import com.letswork.crm.repo.BookDayPassRepository;
 import com.letswork.crm.repo.BuyDayPassBundleRepository;
+import com.letswork.crm.repo.HolidayRepository;
 import com.letswork.crm.service.BookDayPassService;
 import com.letswork.crm.service.LetsWorkClientService;
 import com.letswork.crm.service.NewUserRegisterService;
@@ -30,6 +34,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional
 public class BookDayPassServiceImpl implements BookDayPassService {
+	
+	@Autowired
+	HolidayRepository holidayRepo;
 
     private final BookDayPassRepository bookRepo;
     private final BuyDayPassBundleRepository bundleRepo;
@@ -44,7 +51,13 @@ public class BookDayPassServiceImpl implements BookDayPassService {
         request.setBookingCode(UUID.randomUUID().toString());
         request.setUsed(0);
         
-        
+        validateHoliday(
+                request.getCompanyId(),
+                request.getLetsWorkCentre(),
+                request.getCity(),
+                request.getState(),
+                request.getDateOfBooking()
+        );
 
         if (Boolean.TRUE.equals(request.getBundleUsed())) {
             consumeBundleCredits(request, request.getCompanyId());
@@ -74,24 +87,34 @@ public class BookDayPassServiceImpl implements BookDayPassService {
 
         BookDayPass saved = bookRepo.save(request);
 
-        
-//        try {
-//            byte[] qrBytes = Files.readAllBytes(qrFile.toPath());
-//
-//            mailJetDayPassService.sendDayPassEmail(
-//                    saved.getEmail(),
-//                    saved.getNumberOfDays(),
-//                    saved.getBookingCode(),
-//                    qrBytes
-//            );
-//
-//        } catch (Exception e) {
-//            // Email failure should NOT break booking
-//            log.error("Failed to send Day Pass email for bookingCode={}",
-//                    saved.getBookingCode(), e);
-//        }
 
         return saved;
+    }
+    
+    private void validateHoliday(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            LocalDate bookingDate
+    ) {
+
+        Date holidayDate = java.sql.Date.valueOf(bookingDate);
+
+        Holiday holiday = holidayRepo
+                .findByLetsWorkCentreAndHolidayDateAndCityAndStateAndCompanyId(
+                        letsWorkCentre,
+                        holidayDate,
+                        city,
+                        state,
+                        companyId
+                );
+
+        if (holiday != null) {
+            throw new RuntimeException(
+                    "Bookings are not allowed on holidays (" + bookingDate + ") for this centre"
+            );
+        }
     }
 
     private void consumeBundleCredits(BookDayPass request, String companyId) {

@@ -7,10 +7,14 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+
+import com.letswork.crm.enums.BookingStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -54,7 +58,10 @@ public class BookConferenceRoom extends Base{
 	
 	private String qrS3Path;    
 	
-	private Boolean used;  
+	private Boolean used;
+	
+	@Enumerated(EnumType.STRING)  
+    private BookingStatus currentStatus;
 	
 	@OneToMany(
 	        mappedBy = "booking",
