@@ -23,6 +23,7 @@ import com.letswork.crm.entities.DayPassLimit;
 import com.letswork.crm.entities.Holiday;
 import com.letswork.crm.entities.User;
 import com.letswork.crm.enums.BookedFrom;
+import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.repo.BookDayPassRepository;
 import com.letswork.crm.repo.BuyDayPassBundleRepository;
 import com.letswork.crm.repo.DayPassLimitRepo;
@@ -75,6 +76,8 @@ public class BookDayPassServiceImpl implements BookDayPassService {
         if (Boolean.TRUE.equals(request.getBundleUsed())) {
             consumeBundleCredits(request, request.getCompanyId());
         }
+        
+        request.setCurrentStatus(BookingStatus.ACTIVE);
 
         File qrFile;
         try {
@@ -102,6 +105,23 @@ public class BookDayPassServiceImpl implements BookDayPassService {
 
 
         return saved;
+    }
+    
+    @Override
+    public BookDayPass cancel(Long id, String companyId) {
+
+        BookDayPass booking = bookRepo.findByIdAndCompanyId(id, companyId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (booking.getCurrentStatus() != BookingStatus.ACTIVE) {
+            throw new RuntimeException("Only ACTIVE bookings can be cancelled");
+        }
+
+        validateCancellationAllowed(booking.getDateOfBooking());
+
+        booking.setCurrentStatus(BookingStatus.CANCELLED);
+
+        return bookRepo.save(booking);
     }
     
     private void validateHoliday(
@@ -143,6 +163,17 @@ public class BookDayPassServiceImpl implements BookDayPassService {
             if (admin == null) {
                 throw new RuntimeException("Invalid admin email for this company");
             }
+        }
+    }
+    
+    private void validateCancellationAllowed(LocalDate bookingDate) {
+
+        LocalDate today = LocalDate.now();
+
+        if (!today.isBefore(bookingDate)) {
+            throw new RuntimeException(
+                "Booking can only be cancelled at least one day before the booking date"
+            );
         }
     }
 

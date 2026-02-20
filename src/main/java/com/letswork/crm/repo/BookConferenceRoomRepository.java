@@ -19,6 +19,8 @@ public interface BookConferenceRoomRepository
         extends JpaRepository<BookConferenceRoom, Long> {
 
     List<BookConferenceRoom> findByCompanyId(String companyId);
+    
+    Optional<BookConferenceRoom> findByIdAndCompanyId(Long id, String companyId);
 
     List<BookConferenceRoom> findByEmailAndCompanyId(
             String email,

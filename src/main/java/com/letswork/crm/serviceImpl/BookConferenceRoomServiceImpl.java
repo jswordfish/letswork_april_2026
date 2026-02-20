@@ -170,6 +170,23 @@ public class BookConferenceRoomServiceImpl
         }
     }
     
+    @Override
+    public BookConferenceRoom cancel(Long id, String companyId) {
+
+        BookConferenceRoom booking = bookRepo.findByIdAndCompanyId(id, companyId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (booking.getCurrentStatus() != BookingStatus.ACTIVE) {
+            throw new RuntimeException("Only ACTIVE bookings can be cancelled");
+        }
+
+        validateCancellationAllowed(booking.getDateOfBooking());
+
+        booking.setCurrentStatus(BookingStatus.CANCELLED);
+
+        return bookRepo.save(booking);
+    }
+    
     private void validateHoliday(
             String companyId,
             String letsWorkCentre,
@@ -209,6 +226,17 @@ public class BookConferenceRoomServiceImpl
             if (admin == null) {
                 throw new RuntimeException("Invalid admin email for this company");
             }
+        }
+    }
+    
+    private void validateCancellationAllowed(LocalDate bookingDate) {
+
+        LocalDate today = LocalDate.now();
+
+        if (!today.isBefore(bookingDate)) {
+            throw new RuntimeException(
+                "Booking can only be cancelled at least one day before the booking date"
+            );
         }
     }
 

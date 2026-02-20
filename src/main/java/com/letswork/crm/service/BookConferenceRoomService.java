@@ -16,6 +16,8 @@ public interface BookConferenceRoomService {
             LocalDate slotDate,
             List<ConferenceRoomSlotRequest> slotRequests
     );
+	
+	public BookConferenceRoom cancel(Long id, String companyId);
 
     BookConferenceRoom scanAndConsume(String bookingCode);
 

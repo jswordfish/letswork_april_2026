@@ -8,6 +8,8 @@ import com.letswork.crm.entities.BookDayPass;
 public interface BookDayPassService {
 	
 	BookDayPass book(BookDayPass request);
+	
+	public BookDayPass cancel(Long id, String companyId);
 
 	public PaginatedResponseDto getPaginated(
 	        String companyId,

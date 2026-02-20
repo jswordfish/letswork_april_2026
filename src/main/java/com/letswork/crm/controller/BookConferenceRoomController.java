@@ -9,7 +9,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -166,6 +168,15 @@ public class BookConferenceRoomController {
         repo.save(request);
 
         return ResponseEntity.ok(request);
+    }
+    
+    @PutMapping("/cancel/{id}")
+    public ResponseEntity<BookConferenceRoom> cancel(
+            @PathVariable Long id,
+            @RequestParam String companyId,
+            @RequestParam String token
+    ) {
+        return ResponseEntity.ok(service.cancel(id, companyId));
     }
 
     @GetMapping

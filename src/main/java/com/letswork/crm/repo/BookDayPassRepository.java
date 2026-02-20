@@ -18,6 +18,8 @@ public interface BookDayPassRepository extends JpaRepository<BookDayPass, Long> 
 
     List<BookDayPass> findByCompanyId(String companyId);
     
+    Optional<BookDayPass> findByIdAndCompanyId(Long id, String companyId);
+    
     @Query("SELECT COALESCE(SUM(b.numberOfDays), 0) " +
             "FROM BookDayPass b " +
             "WHERE b.companyId = :companyId " +
