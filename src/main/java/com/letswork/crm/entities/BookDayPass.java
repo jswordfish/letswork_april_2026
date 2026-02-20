@@ -3,9 +3,13 @@ package com.letswork.crm.entities;
 import java.time.LocalDate;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
+import com.letswork.crm.enums.BookedFrom;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,6 +47,11 @@ public class BookDayPass extends Base{
 	
 	private String qrS3Path;    
 	
-	private Integer used;  
+	private Integer used;
+	
+	@Enumerated(EnumType.STRING)
+	private BookedFrom bookedFrom;
+	
+	private String adminEmail;
 
 }

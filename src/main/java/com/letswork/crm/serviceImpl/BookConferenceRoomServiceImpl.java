@@ -25,12 +25,15 @@ import com.letswork.crm.entities.BuyConferenceBundle;
 import com.letswork.crm.entities.ConferenceRoom;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
 import com.letswork.crm.entities.Holiday;
+import com.letswork.crm.entities.User;
+import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.repo.BookConferenceRoomRepository;
 import com.letswork.crm.repo.BuyConferenceBundleRepository;
 import com.letswork.crm.repo.ConferenceRoomRepository;
 import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
 import com.letswork.crm.repo.HolidayRepository;
+import com.letswork.crm.repo.UserRepo;
 import com.letswork.crm.service.BookConferenceRoomService;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.QRCodeService;
@@ -48,6 +51,9 @@ public class BookConferenceRoomServiceImpl
 	
 	@Autowired
 	HolidayRepository holidayRepo;
+	
+	@Autowired
+	UserRepo userRepo;
 
     private final BookConferenceRoomRepository bookRepo;
     private final BuyConferenceBundleRepository bundleRepo;
@@ -82,6 +88,8 @@ public class BookConferenceRoomServiceImpl
                 request.getState(),
                 slotDate
         );
+        
+        validateAdminBooking(request.getBookedFrom(), request.getAdminEmail(), request.getCompanyId());
 
         // 1. Validate consecutive slots
         validateConsecutiveSlots(slotRequests);
@@ -185,6 +193,22 @@ public class BookConferenceRoomServiceImpl
             throw new RuntimeException(
                     "Bookings are not allowed on holidays (" + bookingDate + ") for this centre"
             );
+        }
+    }
+    
+    private void validateAdminBooking(BookedFrom bookedFrom, String adminEmail, String companyId) {
+
+        if (BookedFrom.ADMIN.equals(bookedFrom)) {
+
+            if (adminEmail == null || adminEmail.trim().isEmpty()) {
+                throw new RuntimeException("Admin email is required when booking is done by ADMIN");
+            }
+
+            User admin = userRepo.findByEmail(adminEmail, companyId);
+
+            if (admin == null) {
+                throw new RuntimeException("Invalid admin email for this company");
+            }
         }
     }
 

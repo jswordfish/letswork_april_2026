@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 
 import lombok.AllArgsConstructor;
@@ -69,5 +70,10 @@ public class BookConferenceRoom extends Base{
 	        orphanRemoval = true
 	    )
 	    private List<ConferenceRoomTimeSlot> slots = new ArrayList<>();
+	
+	@Enumerated(EnumType.STRING)
+	private BookedFrom bookedFrom;
+	
+	private String adminEmail;
 
 }

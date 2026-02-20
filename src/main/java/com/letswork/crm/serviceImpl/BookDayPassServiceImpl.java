@@ -21,10 +21,13 @@ import com.letswork.crm.entities.BookDayPass;
 import com.letswork.crm.entities.BuyDayPassBundle;
 import com.letswork.crm.entities.DayPassLimit;
 import com.letswork.crm.entities.Holiday;
+import com.letswork.crm.entities.User;
+import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.repo.BookDayPassRepository;
 import com.letswork.crm.repo.BuyDayPassBundleRepository;
 import com.letswork.crm.repo.DayPassLimitRepo;
 import com.letswork.crm.repo.HolidayRepository;
+import com.letswork.crm.repo.UserRepo;
 import com.letswork.crm.service.BookDayPassService;
 import com.letswork.crm.service.LetsWorkClientService;
 import com.letswork.crm.service.NewUserRegisterService;
@@ -42,6 +45,9 @@ public class BookDayPassServiceImpl implements BookDayPassService {
 	
 	@Autowired
 	DayPassLimitRepo dayPassLimitRepo;
+	
+	@Autowired
+	UserRepo userRepo;
 
     private final BookDayPassRepository bookRepo;
     private final BuyDayPassBundleRepository bundleRepo;
@@ -63,6 +69,8 @@ public class BookDayPassServiceImpl implements BookDayPassService {
                 request.getState(),
                 request.getDateOfBooking()
         );
+        
+        validateAdminBooking(request.getBookedFrom(), request.getAdminEmail(), request.getCompanyId());
 
         if (Boolean.TRUE.equals(request.getBundleUsed())) {
             consumeBundleCredits(request, request.getCompanyId());
@@ -119,6 +127,22 @@ public class BookDayPassServiceImpl implements BookDayPassService {
             throw new RuntimeException(
                     "Bookings are not allowed on holidays (" + bookingDate + ") for this centre"
             );
+        }
+    }
+    
+    private void validateAdminBooking(BookedFrom bookedFrom, String adminEmail, String companyId) {
+
+        if (BookedFrom.ADMIN.equals(bookedFrom)) {
+
+            if (adminEmail == null || adminEmail.trim().isEmpty()) {
+                throw new RuntimeException("Admin email is required when booking is done by ADMIN");
+            }
+
+            User admin = userRepo.findByEmail(adminEmail, companyId);
+
+            if (admin == null) {
+                throw new RuntimeException("Invalid admin email for this company");
+            }
         }
     }
 
