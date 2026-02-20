@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import com.letswork.crm.enums.BookedFrom;
+import com.letswork.crm.enums.BookingStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -48,6 +49,9 @@ public class BookDayPass extends Base{
 	private String qrS3Path;    
 	
 	private Integer used;
+	
+	@Enumerated(EnumType.STRING)  
+    private BookingStatus currentStatus;
 	
 	@Enumerated(EnumType.STRING)
 	private BookedFrom bookedFrom;
