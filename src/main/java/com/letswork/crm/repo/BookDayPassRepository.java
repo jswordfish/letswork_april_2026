@@ -26,7 +26,8 @@ public interface BookDayPassRepository extends JpaRepository<BookDayPass, Long> 
             "AND b.letsWorkCentre = :centre " +
             "AND b.city = :city " +
             "AND b.state = :state " +
-            "AND b.dateOfBooking = :bookingDate")
+            "AND b.dateOfBooking = :bookingDate " +
+            "AND b.currentStatus = 'ACTIVE'")
      Integer getTotalBookedDayPass(
              @Param("companyId") String companyId,
              @Param("centre") String centre,

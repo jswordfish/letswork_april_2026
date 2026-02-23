@@ -165,7 +165,6 @@ public class BookConferenceRoomServiceImpl
             return bookRepo.save(savedBooking);
 
         } catch (Exception e) {
-            // Because of @Transactional, the credits deducted above will be restored if this fails
             throw new RuntimeException("QR generation failed: " + e.getMessage());
         }
     }
@@ -181,6 +180,8 @@ public class BookConferenceRoomServiceImpl
         }
 
         validateCancellationAllowed(booking.getDateOfBooking());
+
+        timeSlotRepo.deleteByBooking(booking);
 
         booking.setCurrentStatus(BookingStatus.CANCELLED);
 
