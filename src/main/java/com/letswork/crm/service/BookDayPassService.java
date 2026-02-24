@@ -9,6 +9,8 @@ public interface BookDayPassService {
 	
 	BookDayPass book(BookDayPass request);
 	
+	BookDayPass reschedule(Long bookingId, LocalDate newDate, String companyId);
+	
 	public BookDayPass cancel(Long id, String companyId);
 
 	public PaginatedResponseDto getPaginated(

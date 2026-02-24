@@ -57,5 +57,7 @@ public class BookDayPass extends Base{
 	private BookedFrom bookedFrom;
 	
 	private String adminEmail;
+	
+	private Long previousBookingId;
 
 }

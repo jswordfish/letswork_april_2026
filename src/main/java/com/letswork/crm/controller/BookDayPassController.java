@@ -90,6 +90,16 @@ public class BookDayPassController {
         return ResponseEntity.ok(booking);
     }
     
+    @PutMapping("/reschedule/{id}")
+    public ResponseEntity<BookDayPass> reschedule(
+            @PathVariable Long id,
+            @RequestParam String companyId,
+            @RequestParam String token,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate newDate
+    ) {
+        return ResponseEntity.ok(service.reschedule(id, newDate, companyId));
+    }
+    
     @GetMapping("/remaining-daypass")
     public ResponseEntity<Integer> getRemainingDayPass(
             @RequestParam String companyId,

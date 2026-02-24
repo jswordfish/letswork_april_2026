@@ -17,6 +17,13 @@ public interface BookConferenceRoomService {
             List<ConferenceRoomSlotRequest> slotRequests
     );
 	
+	BookConferenceRoom reschedule(
+	        Long bookingId,
+	        LocalDate newDate,
+	        List<ConferenceRoomSlotRequest> newSlots,
+	        String companyId
+	);
+	
 	public BookConferenceRoom cancel(Long id, String companyId);
 
     BookConferenceRoom scanAndConsume(String bookingCode);

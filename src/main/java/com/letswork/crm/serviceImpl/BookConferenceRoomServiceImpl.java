@@ -170,6 +170,45 @@ public class BookConferenceRoomServiceImpl
     }
     
     @Override
+    public BookConferenceRoom reschedule(
+            Long bookingId,
+            LocalDate newDate,
+            List<ConferenceRoomSlotRequest> newSlots,
+            String companyId
+    ) {
+
+        BookConferenceRoom existing = bookRepo.findByIdAndCompanyId(bookingId, companyId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (existing.getCurrentStatus() != BookingStatus.ACTIVE) {
+            throw new RuntimeException("Only ACTIVE bookings can be rescheduled");
+        }
+
+        if (existing.getDateOfBooking().equals(newDate)) {
+            throw new RuntimeException("New date must be different from current booking date");
+        }
+
+        cancel(bookingId, companyId);
+
+        BookConferenceRoom newBooking = new BookConferenceRoom();
+
+        newBooking.setCompanyId(existing.getCompanyId());
+        newBooking.setEmail(existing.getEmail());
+        newBooking.setBundleUsed(existing.getBundleUsed());
+        newBooking.setLetsWorkCentre(existing.getLetsWorkCentre());
+        newBooking.setCity(existing.getCity());
+        newBooking.setState(existing.getState());
+        newBooking.setRoomName(existing.getRoomName());
+        newBooking.setNumberOfGuests(existing.getNumberOfGuests());
+        newBooking.setBookedFrom(existing.getBookedFrom());
+        newBooking.setAdminEmail(existing.getAdminEmail());
+
+        newBooking.setPreviousBookingId(existing.getId());
+
+        return book(newBooking, newDate, newSlots);
+    }
+    
+    @Override
     public BookConferenceRoom cancel(Long id, String companyId) {
 
         BookConferenceRoom booking = bookRepo.findByIdAndCompanyId(id, companyId)

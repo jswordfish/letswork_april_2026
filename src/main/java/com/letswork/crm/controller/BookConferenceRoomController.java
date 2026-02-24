@@ -170,6 +170,19 @@ public class BookConferenceRoomController {
         return ResponseEntity.ok(request);
     }
     
+    @PutMapping("/reschedule/{id}")
+    public ResponseEntity<BookConferenceRoom> reschedule(
+            @PathVariable Long id,
+            @RequestParam String companyId,
+            @RequestParam String token,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate newDate,
+            @RequestBody List<ConferenceRoomSlotRequest> newSlots
+    ) {
+        return ResponseEntity.ok(
+                service.reschedule(id, newDate, newSlots, companyId)
+        );
+    }
+    
     @PutMapping("/cancel/{id}")
     public ResponseEntity<BookConferenceRoom> cancel(
             @PathVariable Long id,

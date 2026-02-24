@@ -108,6 +108,39 @@ public class BookDayPassServiceImpl implements BookDayPassService {
     }
     
     @Override
+    public BookDayPass reschedule(Long bookingId, LocalDate newDate, String companyId) {
+
+        BookDayPass existing = bookRepo.findByIdAndCompanyId(bookingId, companyId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (existing.getCurrentStatus() != BookingStatus.ACTIVE) {
+            throw new RuntimeException("Only ACTIVE bookings can be rescheduled");
+        }
+
+        validateCancellationAllowed(existing.getDateOfBooking());
+
+        existing.setCurrentStatus(BookingStatus.CANCELLED);
+        bookRepo.save(existing);
+
+        BookDayPass newBooking = new BookDayPass();
+
+        newBooking.setCompanyId(existing.getCompanyId());
+        newBooking.setDateOfBooking(newDate);
+        newBooking.setNumberOfDays(existing.getNumberOfDays());
+        newBooking.setEmail(existing.getEmail());
+        newBooking.setBundleUsed(existing.getBundleUsed());
+        newBooking.setLetsWorkCentre(existing.getLetsWorkCentre());
+        newBooking.setCity(existing.getCity());
+        newBooking.setState(existing.getState());
+        newBooking.setBookedFrom(existing.getBookedFrom());
+        newBooking.setAdminEmail(existing.getAdminEmail());
+
+        newBooking.setPreviousBookingId(existing.getId());
+
+        return book(newBooking);
+    }
+    
+    @Override
     public BookDayPass cancel(Long id, String companyId) {
 
         BookDayPass booking = bookRepo.findByIdAndCompanyId(id, companyId)
