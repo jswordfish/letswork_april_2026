@@ -75,7 +75,12 @@ public class UnifiedBookingsListingService {
 	    }
 
 	    // SORT
-	    finalList.sort(Comparator.comparing(UnifiedBookingDto::getDateOfBooking).reversed());
+	    finalList.sort(
+	            Comparator.comparing(
+	                    UnifiedBookingDto::getDateOfBooking,
+	                    Comparator.nullsLast(Comparator.naturalOrder())
+	            ).reversed()
+	    );
 
 	    // PAGINATION
 	    int start = page * size;
