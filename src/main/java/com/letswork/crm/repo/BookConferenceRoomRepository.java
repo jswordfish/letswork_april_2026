@@ -50,7 +50,29 @@ public interface BookConferenceRoomRepository
     	        @Param("fromDate") LocalDate fromDate,
     	        @Param("toDate") LocalDate toDate,
     	        @Param("roomName") String roomName,
-    	        @Param("currentStatus") BookingStatus currentStatus, // ⭐ NEW
+    	        @Param("currentStatus") BookingStatus currentStatus, // ⭐ NEW 
     	        Pageable pageable
     	);
+    
+    @Query("SELECT b FROM BookConferenceRoom b WHERE b.companyId = :companyId " +
+            "AND (:email IS NULL OR b.email = :email) " +
+            "AND (:centre IS NULL OR b.letsWorkCentre = :centre) " +
+            "AND (:city IS NULL OR b.city = :city) " +
+            "AND (:state IS NULL OR b.state = :state) " +
+            "AND (:fromDate IS NULL OR b.dateOfBooking >= :fromDate) " +
+            "AND (:toDate IS NULL OR b.dateOfBooking <= :toDate) " +
+            "AND (:roomName IS NULL OR b.roomName = :roomName) " +
+            "AND (:currentStatus IS NULL OR b.currentStatus = :currentStatus)")
+    List<BookConferenceRoom> filterForUnified(
+            String companyId,
+            String email,
+            String centre,
+            String city,
+            String state,
+            LocalDate fromDate,
+            LocalDate toDate,
+            String roomName,
+            BookingStatus currentStatus
+    );
+    
 }
