@@ -3,7 +3,7 @@ package com.letswork.crm.dtos;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.enums.OfferType;
 
 import lombok.Data;
 
@@ -16,6 +16,8 @@ public class OfferCreateRequestDto {
     private String minDiscountValue;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    
+    private OfferType offerType;
 
     private List<Long> centreIds;
     

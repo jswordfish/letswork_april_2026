@@ -96,6 +96,7 @@ public class OfferManagementController {
                     dto.setStartDate(offer.getStartDate());
                     dto.setEndDate(offer.getEndDate());
                     dto.setCompanyId(companyId);
+                    dto.setOfferType(offer.getOfferType());
 
                     dto.setCentreIds(
                             mappings.stream()

@@ -37,6 +37,7 @@ public class OfferManagementServiceImpl implements OfferManagementService {
         offer.setStartDate(dto.getStartDate());
         offer.setEndDate(dto.getEndDate());
         offer.setCompanyId(dto.getCompanyId());
+        offer.setOfferType(dto.getOfferType());
 
         Offers savedOffer = offersService.saveOrUpdate(offer);
 
