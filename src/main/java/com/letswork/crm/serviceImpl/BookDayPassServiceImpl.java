@@ -62,6 +62,8 @@ public class BookDayPassServiceImpl implements BookDayPassService {
 
         request.setBookingCode(UUID.randomUUID().toString());
         request.setUsed(0);
+        request.setCreateDate(new Date());
+        
         
         validateHoliday(
                 request.getCompanyId(),

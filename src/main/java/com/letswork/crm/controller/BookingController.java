@@ -95,7 +95,7 @@ public class BookingController {
     ) {
 
         return ResponseEntity.ok(
-                bookService.getUnifiedBookings(
+        		bookService.getPaginated(
                         companyId,
                         email,
                         letsWorkCentre,

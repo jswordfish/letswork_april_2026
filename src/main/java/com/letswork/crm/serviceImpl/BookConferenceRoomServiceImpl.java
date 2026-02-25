@@ -118,6 +118,7 @@ public class BookConferenceRoomServiceImpl
         request.setUsed(false);
         request.setDateOfPurchase(LocalDateTime.now());
         request.setDateOfBooking(slotDate);
+        request.setCreateDate(new Date());
 
         // 4. Handle Credit Consumption
         if (Boolean.TRUE.equals(request.getBundleUsed())) {

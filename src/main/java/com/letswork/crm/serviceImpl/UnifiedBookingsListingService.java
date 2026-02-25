@@ -1,24 +1,21 @@
 package com.letswork.crm.serviceImpl;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
-import com.letswork.crm.dtos.UnifiedBookingDto;
-import com.letswork.crm.entities.BookConferenceRoom;
-import com.letswork.crm.entities.BookDayPass;
+import com.letswork.crm.entities.UnifiedBooking;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.BookingType;
-import com.letswork.crm.repo.BookConferenceRoomRepository;
-import com.letswork.crm.repo.BookDayPassRepository;
+import com.letswork.crm.repo.UnifiedBookingRepository;
 
 
 @Service
@@ -26,15 +23,12 @@ import com.letswork.crm.repo.BookDayPassRepository;
 public class UnifiedBookingsListingService {
 	
 	@Autowired
-	BookDayPassRepository dayPassRepo;
+	UnifiedBookingRepository unifiedBookingRepository;
 	
-	@Autowired
-	BookConferenceRoomRepository confRepo;
-	
-	public PaginatedResponseDto getUnifiedBookings(
+	public PaginatedResponseDto getPaginated(
 	        String companyId,
 	        String email,
-	        String centre,
+	        String letsWorkCentre,
 	        String city,
 	        String state,
 	        LocalDate fromDate,
@@ -46,87 +40,38 @@ public class UnifiedBookingsListingService {
 	        int size
 	) {
 
-	    List<UnifiedBookingDto> finalList = new ArrayList<>();
-
-	    // DAY PASS
-	    if (bookingType == null || bookingType == BookingType.DAY_PASS) {
-
-	        List<BookDayPass> dayPassList =
-	                dayPassRepo.filterForUnified(companyId, email, centre, city, state, fromDate, toDate, status);
-
-	        finalList.addAll(
-	                dayPassList.stream()
-	                        .map(this::mapDayPass)
-	                        .collect(Collectors.toList())
-	        );
-	    }
-
-	    // CONFERENCE
-	    if (bookingType == null || bookingType == BookingType.CONFERENCE_ROOM) {
-
-	        List<BookConferenceRoom> confList =
-	                confRepo.filterForUnified(companyId, email, centre, city, state, fromDate, toDate, roomName, status);
-
-	        finalList.addAll(
-	                confList.stream()
-	                        .map(this::mapConference)
-	                        .collect(Collectors.toList())
-	        );
-	    }
-
-	    // SORT
-	    finalList.sort(
-	            Comparator.comparing(
-	                    UnifiedBookingDto::getDateOfBooking,
-	                    Comparator.nullsLast(Comparator.naturalOrder())
-	            ).reversed()
+	    Pageable pageable = PageRequest.of(
+	            page,
+	            size,
+	            Sort.by("createDate").descending()
 	    );
 
-	    // PAGINATION
-	    int start = page * size;
-	    int end = Math.min(start + size, finalList.size());
-
-	    List<UnifiedBookingDto> pagedList =
-	            start > finalList.size() ? new ArrayList<>() : finalList.subList(start, end);
+	    Page<UnifiedBooking> resultPage =
+	            unifiedBookingRepository.filter(
+	                    companyId,
+	                    email,
+	                    letsWorkCentre,
+	                    city,
+	                    state,
+	                    fromDate,
+	                    toDate,
+	                    roomName,
+	                    status,
+	                    bookingType,
+	                    pageable
+	            );
 
 	    PaginatedResponseDto dto = new PaginatedResponseDto();
 	    dto.setSelectedPage(page);
-	    dto.setTotalNumberOfRecords(finalList.size());
-	    dto.setTotalNumberOfPages((int) Math.ceil((double) finalList.size() / size));
-	    dto.setRecordsFrom(start + 1);
-	    dto.setRecordsTo(end);
-	    dto.setList(pagedList);
+	    dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
+	    dto.setTotalNumberOfPages(resultPage.getTotalPages());
+	    dto.setRecordsFrom(page * size + 1);
+	    dto.setRecordsTo(
+	            Math.min((page + 1) * size, (int) resultPage.getTotalElements())
+	    );
+	    dto.setList(resultPage.getContent());
 
 	    return dto;
 	}
 	
-	private UnifiedBookingDto mapDayPass(BookDayPass b) {
-	    return UnifiedBookingDto.builder()
-	            .bookingId(b.getId())
-	            .bookingType(BookingType.DAY_PASS)
-	            .email(b.getEmail())
-	            .letsWorkCentre(b.getLetsWorkCentre())
-	            .city(b.getCity())
-	            .state(b.getState())
-	            .dateOfBooking(b.getDateOfBooking())
-	            .currentStatus(b.getCurrentStatus())
-	            .numberOfDays(b.getNumberOfDays())
-	            .build();
-	}
-	
-	private UnifiedBookingDto mapConference(BookConferenceRoom b) {
-	    return UnifiedBookingDto.builder()
-	            .bookingId(b.getId())
-	            .bookingType(BookingType.CONFERENCE_ROOM)
-	            .email(b.getEmail())
-	            .letsWorkCentre(b.getLetsWorkCentre())
-	            .city(b.getCity())
-	            .state(b.getState())
-	            .dateOfBooking(b.getDateOfBooking())
-	            .currentStatus(b.getCurrentStatus())
-	            .roomName(b.getRoomName())
-	            .numberOfHours(b.getNumberOfHours())
-	            .build();
-	}
-
 }
