@@ -52,7 +52,7 @@ public class UnifiedBookingsListingService {
 	    if (bookingType == null || bookingType == BookingType.DAY_PASS) {
 
 	        List<BookDayPass> dayPassList =
-	                dayPassRepo.filterForUnified(companyId, email, centre, city, state, fromDate, toDate);
+	                dayPassRepo.filterForUnified(companyId, email, centre, city, state, fromDate, toDate, status);
 
 	        finalList.addAll(
 	                dayPassList.stream()

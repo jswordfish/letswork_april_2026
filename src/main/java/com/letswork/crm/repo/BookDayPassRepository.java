@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.BookDayPass;
+import com.letswork.crm.enums.BookingStatus;
 
 @Repository
 public interface BookDayPassRepository extends JpaRepository<BookDayPass, Long> {
@@ -69,7 +70,8 @@ public interface BookDayPassRepository extends JpaRepository<BookDayPass, Long> 
             "AND (:city IS NULL OR b.city = :city) " +
             "AND (:state IS NULL OR b.state = :state) " +
             "AND (:fromDate IS NULL OR b.dateOfBooking >= :fromDate) " +
-            "AND (:toDate IS NULL OR b.dateOfBooking <= :toDate)")
+            "AND (:toDate IS NULL OR b.dateOfBooking <= :toDate)" +
+    		"AND (:currentStatus IS NULL OR b.currentStatus = :currentStatus)")
     List<BookDayPass> filterForUnified(
             String companyId,
             String email,
@@ -77,7 +79,8 @@ public interface BookDayPassRepository extends JpaRepository<BookDayPass, Long> 
             String city,
             String state,
             LocalDate fromDate,
-            LocalDate toDate
+            LocalDate toDate,
+            BookingStatus currentStatus
     );
     
 }
