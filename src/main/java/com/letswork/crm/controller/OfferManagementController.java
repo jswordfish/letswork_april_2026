@@ -1,6 +1,5 @@
 package com.letswork.crm.controller;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -18,6 +17,7 @@ import com.letswork.crm.dtos.OfferCreateRequestDto;
 import com.letswork.crm.dtos.OfferCreateResponseDto;
 import com.letswork.crm.entities.Offers;
 import com.letswork.crm.entities.OffersToCentreMapping;
+import com.letswork.crm.enums.OfferType;
 import com.letswork.crm.service.OfferManagementService;
 import com.letswork.crm.service.OffersService;
 import com.letswork.crm.service.OffersToCentreMappingService;
@@ -52,18 +52,12 @@ public class OfferManagementController {
             @RequestParam String companyId,
             @RequestParam String token,
             @RequestParam(required = false) String code,
-            @RequestParam(required = false) Long letsWorkCentreId   
+            @RequestParam(required = false) Long letsWorkCentreId,
+            @RequestParam(required = false) OfferType offerType   
     ) {
 
-        List<Offers> offers;
-
-        if (code != null && !code.isBlank()) {
-            offers = Collections.singletonList(
-                    offersService.getByCodeAndCompanyId(code, companyId)
-            );
-        } else {
-            offers = offersService.getAllByCompanyId(companyId);
-        }
+        List<Offers> offers =
+        		service.getOffers(companyId, code, offerType);
 
         List<OfferCreateResponseDto> response = offers.stream()
                 .map(offer -> {
@@ -74,16 +68,18 @@ public class OfferManagementController {
                                     companyId
                             );
 
+                    // 🔹 Centre filter (existing logic)
                     if (letsWorkCentreId != null) {
-                        boolean matches =
-                                mappings.stream()
-                                        .anyMatch(m ->
-                                                m.getLetsWorkCentre().getId()
-                                                        .equals(letsWorkCentreId)
-                                        );
+
+                        boolean matches = mappings.stream()
+                                .anyMatch(m ->
+                                        m.getLetsWorkCentre()
+                                                .getId()
+                                                .equals(letsWorkCentreId)
+                                );
 
                         if (!matches) {
-                            return null; 
+                            return null;
                         }
                     }
 
@@ -112,7 +108,7 @@ public class OfferManagementController {
 
                     return dto;
                 })
-                .filter(Objects::nonNull) 
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(response);

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.Offers;
+import com.letswork.crm.enums.OfferType;
 
 @Repository
 public interface OffersRepository extends JpaRepository<Offers, Long> {
@@ -16,5 +17,9 @@ public interface OffersRepository extends JpaRepository<Offers, Long> {
     Optional<Offers> findByCodeAndCompanyId(String code, String companyId);
 
     List<Offers> findByCompanyId(String companyId);
+    
+    List<Offers> findAllByCompanyId(String companyId);
+    
+    List<Offers> findAllByCompanyIdAndOfferType(String companyId, OfferType offerType);
     
 }
