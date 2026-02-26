@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.letswork.crm.dtos.BulkSeatCreationDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.SeatAvailabilityDto;
 import com.letswork.crm.dtos.SeatExcelDto;
@@ -144,6 +145,48 @@ public class SeatServiceImpl implements SeatService {
             seat.setPublished(false);
             return seatRepository.save(seat);
         }
+    }
+    
+    @Override
+    public List<Seat> bulkCreate(BulkSeatCreationDto dto) {
+
+        Tenant tenant = tenantService.findTenantByCompanyId(dto.getCompanyId());
+        if (tenant == null)
+            throw new RuntimeException("Invalid company");
+
+        LetsWorkCentre loc = letsWorkCentreRepo
+                .findByNameAndCompanyIdAndCityAndState(
+                        dto.getLetsWorkCentre(),
+                        dto.getCompanyId(),
+                        dto.getCity(),
+                        dto.getState());
+
+        if (loc == null)
+            throw new RuntimeException("Centre not found");
+
+        List<Seat> seats = new ArrayList<>();
+
+        for (int i = 1; i <= dto.getTotalSeats(); i++) {
+
+            Seat seat = new Seat();
+
+            seat.setCompanyId(dto.getCompanyId());
+            seat.setLetsWorkCentre(dto.getLetsWorkCentre());
+            seat.setCity(dto.getCity());
+            seat.setState(dto.getState());
+
+            seat.setSeatType(dto.getSeatType());
+            seat.setSeatNumber(dto.getPrefix() + "_" + i);
+
+            seat.setCabinName(dto.getCabinName());
+
+            seat.setCreateDate(new Date());
+            seat.setPublished(false);
+
+            seats.add(seat);
+        }
+
+        return seatRepository.saveAll(seats);
     }
     
     // validate Method (Modified to enforce null cabinName for non-SHARED_CABIN) 

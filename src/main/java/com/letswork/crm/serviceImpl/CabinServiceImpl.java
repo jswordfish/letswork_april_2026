@@ -23,8 +23,10 @@ import com.letswork.crm.entities.Cabin;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.enums.SeatType;
 import com.letswork.crm.repo.CabinRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
+import com.letswork.crm.repo.SeatRepository;
 import com.letswork.crm.service.CabinService;
 import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.TenantService;
@@ -47,47 +49,88 @@ public class CabinServiceImpl implements CabinService {
     @Autowired
 	LetsWorkCentreService letsWorkCentreService;
     
+    @Autowired
+    SeatRepository seatRepository;
+    
     ModelMapper mapper = new ModelMapper();
 
     @Override
     public synchronized Cabin saveOrUpdate(Cabin cabin) {
-    	
-		Tenant tenant = tenantService.findTenantByCompanyId(cabin.getCompanyId());
-		
-		if(tenant==null) {
-			
-			throw new RuntimeException("CompanyId invalid - "+cabin.getCompanyId());
-			
-		}
 
-		
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(cabin.getLetsWorkCentre(), cabin.getCompanyId(), cabin.getCity(), cabin.getState());
-		
-		if(centre==null) {
-			throw new RuntimeException("This LetsWorkCentre does not exists");
-		}
+        Tenant tenant = tenantService.findTenantByCompanyId(cabin.getCompanyId());
+        if (tenant == null)
+            throw new RuntimeException("CompanyId invalid - " + cabin.getCompanyId());
 
-    	
-        if (!StringUtils.hasText(cabin.getCabinName()) || !StringUtils.hasText(cabin.getLetsWorkCentre())) {
-            throw new RuntimeException("Cabin name and letsWorkCentre are required.");
-        }
+        LetsWorkCentre centre = letsWorkCentreRepo
+                .findByNameAndCompanyIdAndCityAndState(
+                        cabin.getLetsWorkCentre(),
+                        cabin.getCompanyId(),
+                        cabin.getCity(),
+                        cabin.getState());
 
-        Optional<Cabin> existing = cabinRepository.findByCabinNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
-                cabin.getCabinName(), cabin.getLetsWorkCentre(), cabin.getCompanyId(), cabin.getCity(), cabin.getState());
+        if (centre == null)
+            throw new RuntimeException("This LetsWorkCentre does not exists");
+
+        if (!StringUtils.hasText(cabin.getCabinName()))
+            throw new RuntimeException("Cabin name required");
+
+        Optional<Cabin> existing = cabinRepository
+                .findByCabinNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
+                        cabin.getCabinName(),
+                        cabin.getLetsWorkCentre(),
+                        cabin.getCompanyId(),
+                        cabin.getCity(),
+                        cabin.getState());
+
+        Cabin savedCabin;
 
         if (existing.isPresent()) {
+
             Cabin old = existing.get();
             cabin.setId(old.getId());
             cabin.setCreateDate(old.getCreateDate());
             cabin.setUpdateDate(new Date());
-            
-            mapper.map(cabin, old); 
-            
-            return cabinRepository.save(old);
+
+            mapper.map(cabin, old);
+            savedCabin = cabinRepository.save(old);
+
         } else {
+
             cabin.setCreateDate(new Date());
-            return cabinRepository.save(cabin);
+            savedCabin = cabinRepository.save(cabin);
+
+            // ⭐ AUTO CREATE SEATS
+            createCabinSeats(savedCabin);
         }
+
+        return savedCabin;
+    }
+    
+    private void createCabinSeats(Cabin cabin) {
+
+        List<Seat> seats = new ArrayList<>();
+
+        for (int i = 1; i <= cabin.getTotalSeats(); i++) {
+
+            Seat seat = new Seat();
+
+            seat.setCompanyId(cabin.getCompanyId());
+            seat.setLetsWorkCentre(cabin.getLetsWorkCentre());
+            seat.setCity(cabin.getCity());
+            seat.setState(cabin.getState());
+
+            seat.setSeatType(SeatType.CABIN_DESK);
+            seat.setCabinName(cabin.getCabinName());
+
+            seat.setSeatNumber(cabin.getCabinName() + "_" + i);
+
+            seat.setCreateDate(new Date());
+            seat.setPublished(false);
+
+            seats.add(seat);
+        }
+
+        seatRepository.saveAll(seats);
     }
 
     @Override

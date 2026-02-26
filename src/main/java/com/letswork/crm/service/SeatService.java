@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.letswork.crm.dtos.BulkSeatCreationDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.SeatAvailabilityDto;
 import com.letswork.crm.dtos.SeatMappingResponseDto;
@@ -16,6 +17,8 @@ import com.letswork.crm.enums.SeatType;
 public interface SeatService {
 	
 	Seat saveOrUpdate(Seat seat);
+	
+	public List<Seat> bulkCreate(BulkSeatCreationDto dto);
 
 	public PaginatedResponseDto listSeats(
 	        String companyId,

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.letswork.crm.dtos.BulkSeatCreationDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.SeatAvailabilityDto;
 import com.letswork.crm.dtos.SeatMappingResponseDto;
@@ -35,6 +36,14 @@ public class SeatController {
     @PostMapping
     public ResponseEntity<Seat> saveOrUpdate(@RequestBody Seat seat, @RequestParam String token) {
         return ResponseEntity.ok(seatService.saveOrUpdate(seat));
+    }
+    
+    @PostMapping("/bulk")
+    public ResponseEntity<List<Seat>> bulkCreate(
+            @RequestBody BulkSeatCreationDto dto,
+            @RequestParam String token) {
+
+        return ResponseEntity.ok(seatService.bulkCreate(dto));
     }
     
     //upload excel of seat
