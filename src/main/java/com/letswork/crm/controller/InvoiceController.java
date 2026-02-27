@@ -1,6 +1,6 @@
 package com.letswork.crm.controller;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -45,8 +45,8 @@ public class InvoiceController {
             @RequestParam(required = false) String email,
             @RequestParam(required = false) BookingType bookingType,
             @RequestParam(required = false) InvoiceStatus invoiceStatus,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date toDate,
 
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size

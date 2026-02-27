@@ -19,15 +19,15 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 	           "AND (:email IS NULL OR i.companyEmail = :email) " +
 	           "AND (:bookingType IS NULL OR i.bookingType = :bookingType) " +
 	           "AND (:invoiceStatus IS NULL OR i.invoiceStatus = :invoiceStatus) " +
-	           "AND (:fromDate IS NULL OR DATE(i.createDate) >= :fromDate) " +
-	           "AND (:toDate IS NULL OR DATE(i.createDate) <= :toDate)")
+	           "AND (:fromDate IS NULL OR i.createDate >= :fromDate) " +
+	           "AND (:toDate IS NULL OR i.createDate <= :toDate)")
 	    Page<Invoice> filter(
 	            @Param("companyId") String companyId,
 	            @Param("email") String email,
 	            @Param("bookingType") BookingType bookingType,
 	            @Param("invoiceStatus") InvoiceStatus invoiceStatus,
-	            @Param("fromDate") java.time.LocalDate fromDate,
-	            @Param("toDate") java.time.LocalDate toDate,
+	            @Param("fromDate") java.util.Date fromDate,
+	            @Param("toDate") java.util.Date toDate,
 	            Pageable pageable
 	    );
 }
