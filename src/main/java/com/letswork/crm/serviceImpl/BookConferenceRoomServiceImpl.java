@@ -25,9 +25,12 @@ import com.letswork.crm.entities.BuyConferenceBundle;
 import com.letswork.crm.entities.ConferenceRoom;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
 import com.letswork.crm.entities.Holiday;
+import com.letswork.crm.entities.Invoice;
 import com.letswork.crm.entities.User;
 import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
+import com.letswork.crm.enums.BookingType;
+import com.letswork.crm.enums.InvoiceStatus;
 import com.letswork.crm.repo.BookConferenceRoomRepository;
 import com.letswork.crm.repo.BuyConferenceBundleRepository;
 import com.letswork.crm.repo.ConferenceRoomRepository;
@@ -35,6 +38,7 @@ import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
 import com.letswork.crm.repo.HolidayRepository;
 import com.letswork.crm.repo.UserRepo;
 import com.letswork.crm.service.BookConferenceRoomService;
+import com.letswork.crm.service.InvoiceService;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.QRCodeService;
 
@@ -54,6 +58,9 @@ public class BookConferenceRoomServiceImpl
 	
 	@Autowired
 	UserRepo userRepo;
+	
+	@Autowired
+	private InvoiceService invoiceService;
 
     private final BookConferenceRoomRepository bookRepo;
     private final BuyConferenceBundleRepository bundleRepo;
@@ -163,7 +170,17 @@ public class BookConferenceRoomServiceImpl
             );
 
             savedBooking.setQrS3Path(s3Path);
-            return bookRepo.save(savedBooking);
+            BookConferenceRoom finalSaved = bookRepo.save(savedBooking);
+
+         createInvoice(
+                 finalSaved.getCompanyId(),
+                 finalSaved.getEmail(),
+                 finalSaved.getAmount(), 
+                 finalSaved.getId(),
+                 BookingType.CONFERENCE_ROOM
+         );
+
+         return finalSaved;
 
         } catch (Exception e) {
             throw new RuntimeException("QR generation failed: " + e.getMessage());
@@ -208,6 +225,24 @@ public class BookConferenceRoomServiceImpl
 
         return book(newBooking, newDate, newSlots);
     }
+    
+    private void createInvoice(String companyId,
+            String email,
+            Integer amount,
+            Long bookingId,
+            BookingType bookingType) {
+
+		Invoice invoice = new Invoice();
+		invoice.setCompanyId(companyId);
+		invoice.setCompanyEmail(email);
+		invoice.setAmount(amount);
+		invoice.setBookingId(bookingId);
+		invoice.setBookingType(bookingType);
+		invoice.setInvoiceStatus(InvoiceStatus.UNPAID);
+		invoice.setCreateDate(new Date());
+		
+		invoiceService.saveInvoice(invoice);
+}
     
     @Override
     public BookConferenceRoom cancel(Long id, String companyId) {

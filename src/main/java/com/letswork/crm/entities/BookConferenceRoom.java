@@ -77,5 +77,7 @@ public class BookConferenceRoom extends Base{
 	private String adminEmail;
 	
 	private Long previousBookingId;
+	
+	private Integer amount;
 
 }

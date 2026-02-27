@@ -21,15 +21,19 @@ import com.letswork.crm.entities.BookDayPass;
 import com.letswork.crm.entities.BuyDayPassBundle;
 import com.letswork.crm.entities.DayPassLimit;
 import com.letswork.crm.entities.Holiday;
+import com.letswork.crm.entities.Invoice;
 import com.letswork.crm.entities.User;
 import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
+import com.letswork.crm.enums.BookingType;
+import com.letswork.crm.enums.InvoiceStatus;
 import com.letswork.crm.repo.BookDayPassRepository;
 import com.letswork.crm.repo.BuyDayPassBundleRepository;
 import com.letswork.crm.repo.DayPassLimitRepo;
 import com.letswork.crm.repo.HolidayRepository;
 import com.letswork.crm.repo.UserRepo;
 import com.letswork.crm.service.BookDayPassService;
+import com.letswork.crm.service.InvoiceService;
 import com.letswork.crm.service.LetsWorkClientService;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.QRCodeService;
@@ -49,6 +53,9 @@ public class BookDayPassServiceImpl implements BookDayPassService {
 	
 	@Autowired
 	UserRepo userRepo;
+	
+	@Autowired
+	private InvoiceService invoiceService;
 
     private final BookDayPassRepository bookRepo;
     private final BuyDayPassBundleRepository bundleRepo;
@@ -104,10 +111,36 @@ public class BookDayPassServiceImpl implements BookDayPassService {
         }
 
         BookDayPass saved = bookRepo.save(request);
+        
+        createInvoice(
+                saved.getCompanyId(),
+                saved.getEmail(),
+                saved.getAmount(),
+                saved.getId(),
+                BookingType.DAY_PASS
+        );
 
 
         return saved;
     }
+    
+    private void createInvoice(String companyId,
+            String email,
+            Integer amount,
+            Long bookingId,
+            BookingType bookingType) {
+
+		Invoice invoice = new Invoice();
+		invoice.setCompanyId(companyId);
+		invoice.setCompanyEmail(email);
+		invoice.setAmount(amount);
+		invoice.setBookingId(bookingId);
+		invoice.setBookingType(bookingType);
+		invoice.setInvoiceStatus(InvoiceStatus.UNPAID);
+		invoice.setCreateDate(new Date());
+		
+		invoiceService.saveInvoice(invoice);
+}
     
     @Override
     public BookDayPass reschedule(Long bookingId, LocalDate newDate, String companyId) {
