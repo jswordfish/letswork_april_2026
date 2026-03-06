@@ -231,6 +231,9 @@ public class BookConferenceRoomServiceImpl
             Integer amount,
             Long bookingId,
             BookingType bookingType) {
+    	
+    	BookConferenceRoom existing = bookRepo.findByIdAndCompanyId(bookingId, companyId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
 
 		Invoice invoice = new Invoice();
 		invoice.setCompanyId(companyId);
@@ -238,7 +241,10 @@ public class BookConferenceRoomServiceImpl
 		invoice.setAmount(amount);
 		invoice.setBookingId(bookingId);
 		invoice.setBookingType(bookingType);
-		invoice.setInvoiceStatus(InvoiceStatus.UNPAID);
+		if(existing.getBookedFrom()==BookedFrom.ADMIN) {
+			invoice.setInvoiceStatus(InvoiceStatus.UNPAID);
+		}
+		else invoice.setInvoiceStatus(InvoiceStatus.PAID);
 		invoice.setCreateDate(new Date());
 		
 		invoiceService.saveInvoice(invoice);

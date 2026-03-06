@@ -129,6 +129,9 @@ public class BookDayPassServiceImpl implements BookDayPassService {
             Integer amount,
             Long bookingId,
             BookingType bookingType) {
+    	
+    	BookDayPass existing = bookRepo.findByIdAndCompanyId(bookingId, companyId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
 
 		Invoice invoice = new Invoice();
 		invoice.setCompanyId(companyId);
@@ -136,7 +139,10 @@ public class BookDayPassServiceImpl implements BookDayPassService {
 		invoice.setAmount(amount);
 		invoice.setBookingId(bookingId);
 		invoice.setBookingType(bookingType);
+		if(existing.getBookedFrom()==BookedFrom.ADMIN) {
 		invoice.setInvoiceStatus(InvoiceStatus.UNPAID);
+		}
+		else invoice.setInvoiceStatus(InvoiceStatus.PAID);
 		invoice.setCreateDate(new Date());
 		
 		invoiceService.saveInvoice(invoice);
