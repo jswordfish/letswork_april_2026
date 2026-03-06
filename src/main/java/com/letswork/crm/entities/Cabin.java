@@ -1,11 +1,13 @@
 package com.letswork.crm.entities;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import com.letswork.crm.enums.SeatType;
+import com.letswork.crm.enums.CabinStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,5 +40,8 @@ public class Cabin extends Base{
 	private String state;
 	
 	private String city;
+	
+	@Enumerated(EnumType.STRING)  
+    private CabinStatus cabinStatus;
 
 }

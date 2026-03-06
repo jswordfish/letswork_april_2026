@@ -20,11 +20,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.letswork.crm.dtos.CabinExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Cabin;
+import com.letswork.crm.entities.ContractSeatMapping;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Seat;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.enums.CabinStatus;
 import com.letswork.crm.enums.SeatType;
 import com.letswork.crm.repo.CabinRepository;
+import com.letswork.crm.repo.ContractSeatMappingRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SeatRepository;
 import com.letswork.crm.service.CabinService;
@@ -39,6 +42,9 @@ public class CabinServiceImpl implements CabinService {
 
     @Autowired
     private CabinRepository cabinRepository;
+    
+    @Autowired
+    ContractSeatMappingRepository contractSeatMappingRepository;
     
     @Autowired
     TenantService tenantService;
@@ -87,16 +93,27 @@ public class CabinServiceImpl implements CabinService {
         if (existing.isPresent()) {
 
             Cabin old = existing.get();
-            cabin.setId(old.getId());
-            cabin.setCreateDate(old.getCreateDate());
-            cabin.setUpdateDate(new Date());
+
+            Integer oldSeats = old.getTotalSeats();
+            Integer newSeats = cabin.getTotalSeats();
+
+            if (newSeats < oldSeats) {
+                throw new RuntimeException("Reducing seats is not allowed");
+            }
 
             mapper.map(cabin, old);
+            old.setUpdateDate(new Date());
+
             savedCabin = cabinRepository.save(old);
+
+            if (newSeats > oldSeats) {
+                createAdditionalSeats(savedCabin, oldSeats, newSeats);
+            }
 
         } else {
 
             cabin.setCreateDate(new Date());
+            cabin.setCabinStatus(CabinStatus.ACTIVE);
             savedCabin = cabinRepository.save(cabin);
 
             // ⭐ AUTO CREATE SEATS
@@ -104,6 +121,33 @@ public class CabinServiceImpl implements CabinService {
         }
 
         return savedCabin;
+    }
+    
+    private void createAdditionalSeats(Cabin cabin, int oldSeats, int newSeats) {
+
+        List<Seat> seats = new ArrayList<>();
+
+        for (int i = oldSeats + 1; i <= newSeats; i++) {
+
+            Seat seat = new Seat();
+
+            seat.setCompanyId(cabin.getCompanyId());
+            seat.setLetsWorkCentre(cabin.getLetsWorkCentre());
+            seat.setCity(cabin.getCity());
+            seat.setState(cabin.getState());
+
+            seat.setSeatType(SeatType.CABIN_DESK);
+            seat.setCabinName(cabin.getCabinName());
+
+            seat.setSeatNumber(cabin.getCabinName() + "_" + i);
+
+            seat.setCreateDate(new Date());
+            seat.setPublished(false);
+
+            seats.add(seat);
+        }
+
+        seatRepository.saveAll(seats);
     }
     
     private void createCabinSeats(Cabin cabin) {
@@ -314,5 +358,60 @@ public class CabinServiceImpl implements CabinService {
 
         return response;
     }
+
+	@Override
+	public Cabin changeCabinStatus(Long cabinId, CabinStatus status) {
+		Cabin cabin = cabinRepository.findById(cabinId)
+	            .orElseThrow(() -> new RuntimeException("Cabin not found"));
+
+	    List<Seat> seats = seatRepository.findByCabinDetails(
+	            cabin.getCompanyId(),
+	            cabin.getLetsWorkCentre(),
+	            cabin.getCity(),
+	            cabin.getState(),
+	            cabin.getCabinName()
+	    );
+
+	    if (status == CabinStatus.INACTIVE) {
+
+	        for (Seat seat : seats) {
+
+	            Optional<ContractSeatMapping> contract =
+	                    contractSeatMappingRepository.findActiveBySeatKey(
+	                            seat.getCompanyId(),
+	                            seat.getLetsWorkCentre(),
+	                            seat.getCity(),
+	                            seat.getState(),
+	                            seat.getSeatType(),
+	                            seat.getSeatNumber()
+	                    );
+
+	            if (contract.isPresent()) {
+	                throw new RuntimeException(
+	                        "Cannot deactivate cabin. Seat assigned to active contract: "
+	                                + seat.getSeatNumber());
+	            }
+
+	            seat.setPublished(false);
+	        }
+
+	        seatRepository.saveAll(seats);
+
+	        cabin.setCabinStatus(CabinStatus.INACTIVE);
+	    }
+
+	    if (status == CabinStatus.ACTIVE) {
+
+	        for (Seat seat : seats) {
+	            seat.setPublished(true);
+	        }
+
+	        seatRepository.saveAll(seats);
+
+	        cabin.setCabinStatus(CabinStatus.ACTIVE);
+	    }
+
+	    return cabinRepository.save(cabin);
+	}
     
 }
