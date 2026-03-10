@@ -359,7 +359,7 @@ public class AllBookingsServiceImpl implements AllBookingsService {
             t.setStartTime(s.getStartTime());
             t.setEndTime(s.getEndTime());
 
-            t.setBookingId(booking.getId());
+            t.setBooking(booking);
 
             slots.add(t);
         }
