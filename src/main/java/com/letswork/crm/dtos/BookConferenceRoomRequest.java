@@ -4,14 +4,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.letswork.crm.entities.BookConferenceRoom;
+import com.letswork.crm.entities.AllBookings;
 
 import lombok.Data;
 
 @Data
 public class BookConferenceRoomRequest {
 
-    private BookConferenceRoom booking;
+    private AllBookings booking;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate slotDate;

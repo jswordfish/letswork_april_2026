@@ -52,70 +52,70 @@ public class BookConferenceRoomController {
 
     private final BookConferenceRoomService service;
 
-    @PostMapping
-    public ResponseEntity<BookConferenceRoom> book(
-            @RequestParam String token,
-            @RequestBody BookConferenceRoomRequest request
-    ) {
-
-        BookConferenceRoom booking =
-                service.book(
-                        request.getBooking(),
-                        request.getSlotDate(),
-                        request.getSlots()
-                );
-
-        LetsWorkClient client = letsWorkClientRepository.findByEmailAndCompanyId(booking.getEmail(), booking.getCompanyId()).orElseThrow(() -> new RuntimeException("This company does not exists"));
-
-        LocalTime startTime =
-                request.getSlots()
-                       .stream()
-                       .map(ConferenceRoomSlotRequest::getStartTime)
-                       .min(LocalTime::compareTo)
-                       .orElseThrow(() ->
-                               new RuntimeException("Invalid slot data")
-                       );
-
-        LocalTime endTime =
-                request.getSlots()
-                       .stream()
-                       .map(ConferenceRoomSlotRequest::getEndTime)
-                       .max(LocalTime::compareTo)
-                       .orElseThrow(() ->
-                               new RuntimeException("Invalid slot data")
-                       );
-
-        mailService.sendConferenceEmail(
-                booking.getEmail(),
-                request.getSlotDate(),                 
-                booking.getId(),
-                booking.getLetsWorkCentre(),
-                booking.getQrS3Path(),
-                client.getClientCompanyName(),
-                startTime.toString(),                  
-                endTime.toString(),
-                booking.getRoomName()
-        );
-
-        return ResponseEntity.ok(booking);
-    }
-
-    @GetMapping("/scan")
-    public ResponseEntity<BookConferenceRoom> scan(
-            @RequestParam String qrData,
-            @RequestParam String token
-    ) {
-        // Example: CONFROOM|uuid
-        String bookingCode = qrData.split("\\|")[1];
-
-        BookConferenceRoom booking = repo.findByBookingCode(bookingCode).orElseThrow(() ->
-        new RuntimeException("Booking not found")
-);
-                
-
-        return ResponseEntity.ok(booking);
-        
-    }
+//    @PostMapping
+//    public ResponseEntity<BookConferenceRoom> book(
+//            @RequestParam String token,
+//            @RequestBody BookConferenceRoomRequest request
+//    ) {
+//
+//        BookConferenceRoom booking =
+//                service.book(
+//                        request.getBooking(),
+//                        request.getSlotDate(),
+//                        request.getSlots()
+//                );
+//
+//        LetsWorkClient client = letsWorkClientRepository.findByEmailAndCompanyId(booking.getEmail(), booking.getCompanyId()).orElseThrow(() -> new RuntimeException("This company does not exists"));
+//
+//        LocalTime startTime =
+//                request.getSlots()
+//                       .stream()
+//                       .map(ConferenceRoomSlotRequest::getStartTime)
+//                       .min(LocalTime::compareTo)
+//                       .orElseThrow(() ->
+//                               new RuntimeException("Invalid slot data")
+//                       );
+//
+//        LocalTime endTime =
+//                request.getSlots()
+//                       .stream()
+//                       .map(ConferenceRoomSlotRequest::getEndTime)
+//                       .max(LocalTime::compareTo)
+//                       .orElseThrow(() ->
+//                               new RuntimeException("Invalid slot data")
+//                       );
+//
+//        mailService.sendConferenceEmail(
+//                booking.getEmail(),
+//                request.getSlotDate(),                 
+//                booking.getId(),
+//                booking.getLetsWorkCentre(),
+//                booking.getQrS3Path(),
+//                client.getClientCompanyName(),
+//                startTime.toString(),                  
+//                endTime.toString(),
+//                booking.getRoomName()
+//        );
+//
+//        return ResponseEntity.ok(booking);
+//    }
+//
+//    @GetMapping("/scan")
+//    public ResponseEntity<BookConferenceRoom> scan(
+//            @RequestParam String qrData,
+//            @RequestParam String token
+//    ) {
+//        // Example: CONFROOM|uuid
+//        String bookingCode = qrData.split("\\|")[1];
+//
+//        BookConferenceRoom booking = repo.findByBookingCode(bookingCode).orElseThrow(() ->
+//        new RuntimeException("Booking not found")
+//);
+//                
+//
+//        return ResponseEntity.ok(booking);
+//        
+//    }
     
     @PostMapping("/allow")
     public ResponseEntity<BookConferenceRoom> allow(

@@ -148,7 +148,7 @@ public class BookConferenceRoomServiceImpl
             t.setSlotDate(slotDate);
             t.setStartTime(s.getStartTime());
             t.setEndTime(s.getEndTime());
-            t.setBooking(savedBooking);
+//            t.setBooking(savedBooking);
             slots.add(t);
         }
         timeSlotRepo.saveAll(slots);

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    font-size:14px;
+}
+
+.header{
+    text-align:center;
+    font-weight:bold;
+}
+
+.company{
+    margin-top:10px;
+}
+
+.invoice-details{
+    margin-top:20px;
+    width:100%;
+}
+
+.invoice-details td{
+    padding:5px;
+}
+
+.table{
+    width:100%;
+    border-collapse: collapse;
+    margin-top:20px;
+}
+
+.table th{
+    border:1px solid black;
+    padding:8px;
+}
+
+.table td{
+    border:1px solid black;
+    padding:8px;
+}
+
+.total{
+    margin-top:10px;
+    text-align:right;
+}
+
+.footer{
+    margin-top:40px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+    <h2>TAX INVOICE</h2>
+</div>
+
+<div class="company">
+
+<b>Lets Work Cospaces Private Limited</b><br>
+
+405, Runwal R Square, LBS MARG,<br>
+Near Runwal Anthurium, Veena Nagar,<br>
+Mulund West, Mumbai -400080<br>
+
+GSTIN: 27AAGCR1785A1ZH<br>
+
+Email: sales@letswork.co.in
+
+</div>
+
+<hr>
+
+<table class="invoice-details">
+
+<tr>
+<td>
+<b>Bill To</b><br>
+${customerName}<br>
+${customerAddress}<br>
+GSTIN: ${customerGstin}
+</td>
+
+<td>
+Invoice No: ${invoiceNumber}<br>
+Invoice Date: ${invoiceDate}<br>
+Place of Supply: Maharashtra
+</td>
+</tr>
+
+</table>
+
+<table class="table">
+
+<thead>
+<tr>
+<th>Sl No</th>
+<th>Description</th>
+<th>HSN</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>1</td>
+<td>${serviceDescription}</td>
+<td>997212</td>
+<td>${quantity}</td>
+<td>${rate}</td>
+<td>${amount}</td>
+</tr>
+
+</tbody>
+
+</table>
+
+<div class="total">
+
+<p>CGST (9%): ${cgst}</p>
+<p>SGST (9%): ${sgst}</p>
+
+<h3>Total: ₹ ${total}</h3>
+
+</div>
+
+<div class="footer">
+
+<b>Declaration</b>
+
+<p>
+We declare that this invoice shows the actual price of the service described and that all particulars are true and correct.
+</p>
+
+<br>
+
+<b>Company Bank Details</b><br>
+
+Account Name: Lets Work Cospaces Private Limited<br>
+Bank: Karur Vysya Bank<br>
+A/C: 2111280000000261<br>
+IFSC: KVBL0002111
+
+<br><br>
+
+<b>Authorised Signatory</b>
+
+</div>
+
+</body>
+
+</html>

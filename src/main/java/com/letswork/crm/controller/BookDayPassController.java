@@ -80,13 +80,7 @@ public class BookDayPassController {
                         new RuntimeException("Invalid or expired Day Pass")
                 );
 
-//        BookDayPass booking = service.scanAndConsume(
-//                bookingCode
-//        );
-//
-//        return ResponseEntity.ok(
-//                DayPassScanResponse.from(booking)
-//        );
+
         return ResponseEntity.ok(booking);
     }
     

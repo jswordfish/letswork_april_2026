@@ -492,6 +492,40 @@ public class S3Service {
             throw new RuntimeException("Failed to upload KYC document: " + documentType, e);
         }
     }
+    
+    public String uploadInvoicePdf(
+            String bucketName,
+            String companyId,
+            Long invoiceId,
+            byte[] pdfBytes
+    ) {
+
+        try {
+
+            String keyName =
+                    companyId +
+                    "/invoices/" +
+                    invoiceId +
+                    "/invoice.pdf";
+
+            s3Client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(keyName)
+                            .contentType("application/pdf")
+                            .build(),
+                    RequestBody.fromBytes(pdfBytes)
+            );
+
+            return keyName;
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Failed to upload invoice PDF", e
+            );
+        }
+    }
 
     
 }

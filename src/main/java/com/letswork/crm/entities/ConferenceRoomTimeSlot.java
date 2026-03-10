@@ -44,6 +44,8 @@ public class ConferenceRoomTimeSlot extends Base{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id")
     @JsonIgnore
-    private BookConferenceRoom booking;
+    private AllBookings booking;
+    
+    private Long bookingId;
     
 }

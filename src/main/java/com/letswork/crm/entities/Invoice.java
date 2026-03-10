@@ -40,5 +40,7 @@ public class Invoice extends Base{
 	@Enumerated(EnumType.STRING)
     private InvoiceStatus invoiceStatus;
 	
+	private String pdfS3KeyName;
+	
 
 }
