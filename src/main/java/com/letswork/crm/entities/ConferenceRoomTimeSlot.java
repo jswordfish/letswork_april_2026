@@ -41,10 +41,10 @@ public class ConferenceRoomTimeSlot extends Base{
 
     private LocalTime endTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booking_id")
-    @JsonIgnore
-    private AllBookings booking;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "booking_id")
+//    @JsonIgnore
+//    private AllBookings booking;
     
     private Long bookingId;
     
