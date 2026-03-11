@@ -49,7 +49,7 @@ public class AllBookingsServiceImpl implements AllBookingsService {
     ConferenceRoomTimeSlotRepository timeSlotRepo;
 	
 	@Autowired
-	PdfService pdfService;
+	PdfService pdfService; 
 
     @Autowired
     HolidayRepository holidayRepo;
@@ -93,7 +93,7 @@ public class AllBookingsServiceImpl implements AllBookingsService {
         request.setCurrentStatus(BookingStatus.DRAFT);
         request.setUsed(0);
         request.setCreateDate(new Date());
-        String uuid = UUID.randomUUID().toString();
+        String uuid = UUID.randomUUID().toString();  // for ref id
         String ref = "DAYPASS-"+uuid;
         request.setReferenceId(ref);
         
