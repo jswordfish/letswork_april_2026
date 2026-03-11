@@ -494,9 +494,9 @@ public class S3Service {
     }
     
     public String uploadInvoicePdf(
-            String bucketName,
+            String bucketName,  // letsworkcentres
             String companyId,
-            Long invoiceId,
+            Long invoiceId,  
             byte[] pdfBytes
     ) {
 
