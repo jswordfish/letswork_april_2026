@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.letswork.crm.entities.BookConferenceRoom;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
 
 @Repository
@@ -33,7 +32,7 @@ public interface ConferenceRoomTimeSlotRepository
             @Param("date") LocalDate date
     );
 	
-	void deleteByBooking(BookConferenceRoom booking);
+//	void deleteByBooking(BookConferenceRoom booking);
 
     boolean existsByCompanyIdAndLetsWorkCentreAndCityAndStateAndRoomNameAndSlotDateAndStartTime(
             String companyId,

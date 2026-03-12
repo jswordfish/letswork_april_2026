@@ -35,47 +35,47 @@ public class DayPassBundleServiceImpl implements DayPassBundleService {
         this.centreRepo = centreRepo;
     }
 
-    @Override
-    public DayPassBundle saveOrUpdate(DayPassBundle bundle) {
-
-        Tenant tenant = tenantService.findTenantByCompanyId(bundle.getCompanyId());
-        if (tenant == null) {
-            throw new RuntimeException("CompanyId invalid - " + bundle.getCompanyId());
-        }
-
-        LetsWorkCentre centre =
-                centreRepo.findByNameAndCompanyIdAndCityAndState(
-                        bundle.getLetsWorkCentre(),
-                        bundle.getCompanyId(),
-                        bundle.getCity(),
-                        bundle.getState()
-                );
-
-        if (centre == null) {
-            throw new RuntimeException("This LetsWorkCentre does not exist");
-        }
-
-        DayPassBundle existing =
-                repo.findByLetsWorkCentreAndCompanyIdAndCityAndStateAndNumberOfDays(
-                        bundle.getLetsWorkCentre(),
-                        bundle.getCompanyId(),
-                        bundle.getCity(),
-                        bundle.getState(),
-                        bundle.getNumberOfDays()
-                );
-
-        if (existing != null) {
-            bundle.setId(existing.getId());
-            bundle.setCreateDate(existing.getCreateDate());
-            bundle.setUpdateDate(new Date());
-            mapper.map(bundle, existing);
-            return repo.save(existing);
-        } else {
-            bundle.setCreateDate(new Date());
-            bundle.setUpdateDate(new Date());
-            return repo.save(bundle);
-        }
-    }
+//    @Override
+//    public DayPassBundle saveOrUpdate(DayPassBundle bundle) {
+//
+//        Tenant tenant = tenantService.findTenantByCompanyId(bundle.getCompanyId());
+//        if (tenant == null) {
+//            throw new RuntimeException("CompanyId invalid - " + bundle.getCompanyId());
+//        }
+//
+//        LetsWorkCentre centre =
+//                centreRepo.findByNameAndCompanyIdAndCityAndState(
+//                        bundle.getLetsWorkCentre(),
+//                        bundle.getCompanyId(),
+//                        bundle.getCity(),
+//                        bundle.getState()
+//                );
+//
+//        if (centre == null) {
+//            throw new RuntimeException("This LetsWorkCentre does not exist");
+//        }
+//
+//        DayPassBundle existing =
+//                repo.findByLetsWorkCentreAndCompanyIdAndCityAndStateAndNumberOfDays(
+//                        bundle.getLetsWorkCentre(),
+//                        bundle.getCompanyId(),
+//                        bundle.getCity(),
+//                        bundle.getState(),
+//                        bundle.getNumberOfDays()
+//                );
+//
+//        if (existing != null) {
+//            bundle.setId(existing.getId());
+//            bundle.setCreateDate(existing.getCreateDate());
+//            bundle.setUpdateDate(new Date());
+//            mapper.map(bundle, existing);
+//            return repo.save(existing);
+//        } else {
+//            bundle.setCreateDate(new Date());
+//            bundle.setUpdateDate(new Date());
+//            return repo.save(bundle);
+//        }
+//    }
 
     @Override
     public List<DayPassBundle> getAllByCompanyId(String companyId) {
@@ -86,5 +86,11 @@ public class DayPassBundleServiceImpl implements DayPassBundleService {
 	public List<DayPassBundle> getByCentres(String letsWorkCentre, String companyId, String city, String state) {
 		// TODO Auto-generated method stub
 		return repo.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state);
+	}
+
+	@Override
+	public DayPassBundle saveOrUpdate(DayPassBundle bundle) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

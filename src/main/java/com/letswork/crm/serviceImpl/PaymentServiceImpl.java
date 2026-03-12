@@ -39,7 +39,7 @@ public class PaymentServiceImpl implements PaymentService {
             request.put("amount", invoice.getAmount() * 100); // paise
             request.put("currency", "INR");
             request.put("accept_partial", false);
-            request.put("description", "Payment for " + invoice.getBookingType());
+//            request.put("description", "Payment for " + invoice.getBookingType());
             request.put("reference_id", "INV_" + invoice.getId());
 
             JSONObject customer = new JSONObject();

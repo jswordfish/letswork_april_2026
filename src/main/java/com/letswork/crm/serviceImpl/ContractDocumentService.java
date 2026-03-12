@@ -44,7 +44,7 @@ public class ContractDocumentService {
         context.setVariable("noticePeriod", contract.getNoticePeriodInMonths() + " Months");
         context.setVariable("cabinOffered", contract.getCabinOffered());
         context.setVariable("workstation", contract.getWorkstation());
-        context.setVariable("feesPerMonth", contract.getFeesPerMonth());
+//        context.setVariable("feesPerMonth", contract.getFeesPerMonth());
         context.setVariable("depositAmount", contract.getDepositAmountInRupees());
         context.setVariable("escalation", contract.getEscalationInPercentage() + "%");
         context.setVariable("officeHoursStart", contract.getOfficeHoursStart());

@@ -50,7 +50,7 @@ public class PdfService {
 	        html = html.replace("${sgst}", String.valueOf(invoice.getAmount() * 0.09));
 	        html = html.replace("${total}", String.valueOf(invoice.getAmount() * 1.18));
 
-	        html = html.replace("${serviceDescription}", invoice.getBookingType().name());
+//	        html = html.replace("${serviceDescription}", invoice.getBookingType().name());
 	        html = html.replace("${quantity}", "1");
 	        html = html.replace("${rate}", String.valueOf(invoice.getAmount()));
 

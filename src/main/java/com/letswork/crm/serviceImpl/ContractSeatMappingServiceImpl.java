@@ -47,98 +47,116 @@ public class ContractSeatMappingServiceImpl implements ContractSeatMappingServic
 	@Override
 	public ContractSeatMapping saveOrUpdate(ContractSeatMapping mapping) {
 		// TODO Auto-generated method stub
-		Tenant tenant = tenantService.findTenantByCompanyId(mapping.getCompanyId());
-	    if (tenant == null) {
-	        throw new RuntimeException("Invalid CompanyId - " + mapping.getCompanyId());
-	    }
-
-	    Contract contract = contractRepo
-	            .findByIdAndCompanyId(mapping.getContractId(), mapping.getCompanyId())
-	            .orElseThrow(() -> new RuntimeException("Invalid Contract"));
-
-	    LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
-	            mapping.getLetsWorkCentre(), mapping.getCompanyId(), mapping.getCity(), mapping.getState());
-	    if (centre == null) {
-	        throw new RuntimeException("Invalid LetsWorkCentre");
-	    }
-
-	    Optional<Seat> seat = seatRepo.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndStateAndPublishedTrue(
-	            mapping.getSeatType(), mapping.getCompanyId(), mapping.getLetsWorkCentre(),
-	            mapping.getSeatNumber(), mapping.getCity(), mapping.getState());
-
-	    if (seat.isEmpty()) {
-	        throw new RuntimeException("Seat does not exist or not published");
-	    }
-
-	    Optional<ContractSeatMapping> alreadyAssigned =
-	            repo.findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
-	                    mapping.getSeatNumber(),
-	                    mapping.getSeatType(),
-	                    mapping.getLetsWorkCentre(),
-	                    mapping.getCompanyId(),
-	                    mapping.getCity(),
-	                    mapping.getState()
-	            );
-
-	    if (alreadyAssigned.isPresent()) {
-	        if (!alreadyAssigned.get().getContractId().equals(mapping.getContractId())) {
-	            throw new RuntimeException("Seat " + mapping.getSeatNumber() + " is already assigned to another contract");
-	        }
-	    }
-
-	    Optional<ContractSeatMapping> existingOpt = repo.findByFullBusinessKey(
-	            mapping.getContractId(),
-	            mapping.getLetsWorkCentre(),
-	            mapping.getCompanyId(),
-	            mapping.getCity(),
-	            mapping.getState(),
-	            mapping.getSeatType(),
-	            mapping.getSeatNumber()
-	    );
-
-	    ModelMapper mapper = new ModelMapper();
-
-	    if (existingOpt.isPresent()) {
-	        ContractSeatMapping existing = existingOpt.get();
-	        mapping.setId(existing.getId());
-	        mapping.setUpdateDate(new Date());
-	        mapper.map(mapping, existing);
-	        return repo.save(existing);
-	    } else {
-	        mapping.setCreateDate(new Date());
-	        return repo.save(mapping);
-	    }
+		return null;
 	}
 
 	@Override
 	public List<ContractSeatMapping> assignMultipleSeatsToContract(BulkSeatAssignmentRequestContract request) {
 		// TODO Auto-generated method stub
-		List<ContractSeatMapping> savedMappings = new ArrayList<>();
-
-	    for (SeatAssignmentDto seatDto : request.getSeats()) {
-
-	        ContractSeatMapping mapping = new ContractSeatMapping();
-	        mapping.setContractId(request.getContractId());
-	        mapping.setLetsWorkCentre(request.getLetsWorkCentre());
-	        mapping.setCity(request.getCity());
-	        mapping.setState(request.getState());
-	        mapping.setCompanyId(request.getCompanyId());
-	        mapping.setSeatType(seatDto.getSeatType());
-	        mapping.setSeatNumber(seatDto.getSeatNumber());
-	        mapping.setStartDate(request.getStartDate());
-	        mapping.setEndDate(request.getEndDate());
-
-	        ContractSeatMapping saved = this.saveOrUpdate(mapping);
-	        savedMappings.add(saved);
-	    }
-
-	    return savedMappings;
+		return null;
 	}
 
 	@Override
 	public List<ContractSeatMapping> getSeatsByContract(Long contractId, String companyId) {
 		// TODO Auto-generated method stub
-		return repo.findByContractIdAndCompanyId(contractId, companyId);
+		return null;
 	}
+
+//	@Override
+//	public ContractSeatMapping saveOrUpdate(ContractSeatMapping mapping) {
+//		// TODO Auto-generated method stub
+//		Tenant tenant = tenantService.findTenantByCompanyId(mapping.getCompanyId());
+//	    if (tenant == null) {
+//	        throw new RuntimeException("Invalid CompanyId - " + mapping.getCompanyId());
+//	    }
+//
+//	    Contract contract = contractRepo
+//	            .findByIdAndCompanyId(mapping.getContractId(), mapping.getCompanyId())
+//	            .orElseThrow(() -> new RuntimeException("Invalid Contract"));
+//
+//	    LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+//	            mapping.getLetsWorkCentre(), mapping.getCompanyId(), mapping.getCity(), mapping.getState());
+//	    if (centre == null) {
+//	        throw new RuntimeException("Invalid LetsWorkCentre");
+//	    }
+//
+//	    Optional<Seat> seat = seatRepo.findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndStateAndPublishedTrue(
+//	            mapping.getSeatType(), mapping.getCompanyId(), mapping.getLetsWorkCentre(),
+//	            mapping.getSeatNumber(), mapping.getCity(), mapping.getState());
+//
+//	    if (seat.isEmpty()) {
+//	        throw new RuntimeException("Seat does not exist or not published");
+//	    }
+//
+//	    Optional<ContractSeatMapping> alreadyAssigned =
+//	            repo.findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
+//	                    mapping.getSeatNumber(),
+//	                    mapping.getSeatType(),
+//	                    mapping.getLetsWorkCentre(),
+//	                    mapping.getCompanyId(),
+//	                    mapping.getCity(),
+//	                    mapping.getState()
+//	            );
+//
+//	    if (alreadyAssigned.isPresent()) {
+//	        if (!alreadyAssigned.get().getContractId().equals(mapping.getContractId())) {
+//	            throw new RuntimeException("Seat " + mapping.getSeatNumber() + " is already assigned to another contract");
+//	        }
+//	    }
+//
+//	    Optional<ContractSeatMapping> existingOpt = repo.findByFullBusinessKey(
+//	            mapping.getContractId(),
+//	            mapping.getLetsWorkCentre(),
+//	            mapping.getCompanyId(),
+//	            mapping.getCity(),
+//	            mapping.getState(),
+//	            mapping.getSeatType(),
+//	            mapping.getSeatNumber()
+//	    );
+//
+//	    ModelMapper mapper = new ModelMapper();
+//
+//	    if (existingOpt.isPresent()) {
+//	        ContractSeatMapping existing = existingOpt.get();
+//	        mapping.setId(existing.getId());
+//	        mapping.setUpdateDate(new Date());
+//	        mapper.map(mapping, existing);
+//	        return repo.save(existing);
+//	    } else {
+//	        mapping.setCreateDate(new Date());
+//	        return repo.save(mapping);
+//	    }
+//	}
+//
+//	@Override
+//	public List<ContractSeatMapping> assignMultipleSeatsToContract(BulkSeatAssignmentRequestContract request) {
+//		// TODO Auto-generated method stub
+//		List<ContractSeatMapping> savedMappings = new ArrayList<>();
+//
+//	    for (SeatAssignmentDto seatDto : request.getSeats()) {
+//
+//	        ContractSeatMapping mapping = new ContractSeatMapping();
+//	        mapping.setContractId(request.getContractId());
+//	        mapping.setLetsWorkCentre(request.getLetsWorkCentre());
+//	        mapping.setCity(request.getCity());
+//	        mapping.setState(request.getState());
+//	        mapping.setCompanyId(request.getCompanyId());
+//	        mapping.setSeatType(seatDto.getSeatType());
+//	        mapping.setSeatNumber(seatDto.getSeatNumber());
+//	        mapping.setStartDate(request.getStartDate());
+//	        mapping.setEndDate(request.getEndDate());
+//
+//	        ContractSeatMapping saved = this.saveOrUpdate(mapping);
+//	        savedMappings.add(saved);
+//	    }
+//
+//	    return savedMappings;
+//	}
+//
+//	@Override
+//	public List<ContractSeatMapping> getSeatsByContract(Long contractId, String companyId) {
+//		// TODO Auto-generated method stub
+//		return repo.findByContractIdAndCompanyId(contractId, companyId);
+//	}
 
 }

@@ -13,57 +13,55 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.BuyConferenceBundleRequestDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
-import com.letswork.crm.entities.BuyConferenceBundle;
-import com.letswork.crm.service.BuyConferenceBundleService;
 
 @RestController
 @RequestMapping("/buy-conference-bundle")
 public class BuyConferenceBundleController {
 
-    private final BuyConferenceBundleService service;
-
-    public BuyConferenceBundleController(
-            BuyConferenceBundleService service
-    ) {
-        this.service = service;
-    }
-
-    @PostMapping
-    public ResponseEntity<BuyConferenceBundle> purchase(
-            @RequestBody BuyConferenceBundleRequestDto dto,
-            @RequestParam String token
-    ) {
-        return ResponseEntity.ok(service.purchase(dto));
-    }
-
-    @GetMapping
-    public ResponseEntity<PaginatedResponseDto> get(
-            @RequestParam String companyId,
-            @RequestParam String token,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) Long bundleId,
-
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime fromDate,
-
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime toDate,
-
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return ResponseEntity.ok(
-                service.getPaginated(
-                        companyId,
-                        email,
-                        bundleId,
-                        fromDate,
-                        toDate,
-                        page,
-                        size
-                )
-        );
-    }
+//    private final BuyConferenceBundleService service;
+//
+//    public BuyConferenceBundleController(
+//            BuyConferenceBundleService service
+//    ) {
+//        this.service = service;
+//    }
+//
+//    @PostMapping
+//    public ResponseEntity<BuyConferenceBundle> purchase(
+//            @RequestBody BuyConferenceBundleRequestDto dto,
+//            @RequestParam String token
+//    ) {
+//        return ResponseEntity.ok(service.purchase(dto));
+//    }
+//
+//    @GetMapping
+//    public ResponseEntity<PaginatedResponseDto> get(
+//            @RequestParam String companyId,
+//            @RequestParam String token,
+//            @RequestParam(required = false) String email,
+//            @RequestParam(required = false) Long bundleId,
+//
+//            @RequestParam(required = false)
+//            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+//            LocalDateTime fromDate,
+//
+//            @RequestParam(required = false)
+//            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+//            LocalDateTime toDate,
+//
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size
+//    ) {
+//        return ResponseEntity.ok(
+//                service.getPaginated(
+//                        companyId,
+//                        email,
+//                        bundleId,
+//                        fromDate,
+//                        toDate,
+//                        page,
+//                        size
+//                )
+//        );
+//    }
 }

@@ -11,7 +11,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.letswork.crm.repo.BookDayPassRepository;
 import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
 import com.mailjet.client.errors.MailjetException;
@@ -22,8 +21,8 @@ import com.mailjet.client.transactional.TransactionalEmail;
 @Service
 public class MailJetOtpService {
 	
-	@Autowired
-	BookDayPassRepository bookDayPassRepo;
+//	@Autowired
+//	BookDayPassRepository bookDayPassRepo;
 
     private static final String API_KEY = "8259d51f87852f8c7b9f6b08e627f94d";
     private static final String SECRET_KEY = "184fc8e67edae36b2b5ad191e8bd2e53";

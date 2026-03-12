@@ -2,7 +2,6 @@ package com.letswork.crm.dtos;
 
 import java.time.LocalDateTime;
 
-import com.letswork.crm.entities.BookDayPass;
 
 import lombok.Builder;
 import lombok.Data;
@@ -17,13 +16,13 @@ public class DayPassScanResponse {
     private String centre;
     private Integer used;
 
-    public static DayPassScanResponse from(BookDayPass b) {
-        return DayPassScanResponse.builder()
-                .bookingCode(b.getBookingCode())
-                .email(b.getEmail())
-                .numberOfDays(b.getNumberOfDays())
-                .centre(b.getLetsWorkCentre())
-                .used(b.getUsed())
-                .build();
-    }
+//    public static DayPassScanResponse from(BookDayPass b) {
+//        return DayPassScanResponse.builder()
+//                .bookingCode(b.getBookingCode())
+//                .email(b.getEmail())
+//                .numberOfDays(b.getNumberOfDays())
+//                .centre(b.getLetsWorkCentre())
+//                .used(b.getUsed())
+//                .build();
+//    }
 }

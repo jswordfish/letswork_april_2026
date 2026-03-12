@@ -2,7 +2,6 @@ package com.letswork.crm.dtos;
 
 import java.time.LocalDateTime;
 
-import com.letswork.crm.entities.BookConferenceRoom;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,19 +22,19 @@ public class ConferenceRoomScanResponse {
     private Boolean used;
     private LocalDateTime dateOfPurchase;
 
-    public static ConferenceRoomScanResponse from(
-            BookConferenceRoom booking
-    ) {
-        return new ConferenceRoomScanResponse(
-                booking.getBookingCode(),
-                booking.getEmail(),
-                booking.getRoomName(),
-                booking.getLetsWorkCentre(),
-                booking.getCity(),
-                booking.getState(),
-                booking.getNumberOfHours(),
-                booking.getUsed(),
-                booking.getDateOfPurchase()
-        );
-    }
+//    public static ConferenceRoomScanResponse from(
+//            BookConferenceRoom booking
+//    ) {
+//        return new ConferenceRoomScanResponse(
+//                booking.getBookingCode(),
+//                booking.getEmail(),
+//                booking.getRoomName(),
+//                booking.getLetsWorkCentre(),
+//                booking.getCity(),
+//                booking.getState(),
+//                booking.getNumberOfHours(),
+//                booking.getUsed(),
+//                booking.getDateOfPurchase()
+//        );
+//    }
 }
