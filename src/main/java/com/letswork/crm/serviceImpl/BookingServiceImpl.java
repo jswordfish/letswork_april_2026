@@ -1,335 +1,624 @@
-
 package com.letswork.crm.serviceImpl;
 
-import java.time.Duration;
+import java.io.File;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.letswork.crm.dtos.BookingValidationResponse;
-import com.letswork.crm.dtos.ConferenceRoomBookingDto;
+import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Booking;
-import com.letswork.crm.entities.LetsworkUser;
-import com.letswork.crm.entities.LetsWorkClient;
+import com.letswork.crm.entities.BuyConferenceBundle;
 import com.letswork.crm.entities.ConferenceRoom;
-import com.letswork.crm.entities.CreditConferenceRoomMapping;
-import com.letswork.crm.entities.UserCreditTransactionLog;
+import com.letswork.crm.entities.ConferenceRoomTimeSlot;
+import com.letswork.crm.entities.Holiday;
+import com.letswork.crm.entities.Invoice;
+import com.letswork.crm.entities.LetsWorkClient;
+import com.letswork.crm.entities.User;
+import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
-import com.letswork.crm.enums.CreditTransactionType;
+import com.letswork.crm.enums.BookingType;
+import com.letswork.crm.enums.InvoiceStatus;
 import com.letswork.crm.repo.BookingRepository;
-import com.letswork.crm.repo.LetsWorkClientRepository;
-import com.letswork.crm.repo.LetsworkUserRepository;
+import com.letswork.crm.repo.BuyConferenceBundleRepository;
 import com.letswork.crm.repo.ConferenceRoomRepository;
-import com.letswork.crm.repo.CreditConferenceRoomMappingRepository;
+import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
+import com.letswork.crm.repo.HolidayRepository;
+import com.letswork.crm.repo.LetsWorkClientRepository;
+import com.letswork.crm.repo.UserRepo;
 import com.letswork.crm.service.BookingService;
-import com.letswork.crm.service.CreditConferenceRoomMappingService;
+import com.letswork.crm.service.InvoiceService;
+import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.QRCodeService;
-import com.letswork.crm.service.UserCreditTransactionLogService;
-import com.letswork.crm.service.WhatsAppService;
-import com.letswork.crm.util.InsufficientCreditsException;
-
-
 
 @Service
-@Transactional
 public class BookingServiceImpl implements BookingService {
 	
 	@Autowired
-    BookingRepository bookingRepository;
+    ConferenceRoomTimeSlotRepository timeSlotRepo;
 	
 	@Autowired
-    LetsworkUserRepository clientRepository;
-	
-	@Autowired
-    LetsWorkClientRepository clientCompanyRepository;
-	
-	@Autowired
-    ConferenceRoomRepository conferenceRoomRepository;
-	
-	@Autowired
-    QRCodeService qrCodeService;
-	
-	@Autowired
-	WhatsAppService whatsAppService;
-	
-	@Autowired
-    private CreditConferenceRoomMappingService mappingService;
+	PdfService pdfService; 
+
+    @Autowired
+    HolidayRepository holidayRepo;
+
+    @Autowired
+    UserRepo userRepo;
+
+    @Autowired
+    InvoiceService invoiceService;
+
+    @Autowired
+    BuyConferenceBundleRepository bundleRepo;
+
+    @Autowired
+    ConferenceRoomRepository conferenceRoomRepo;
+
+    @Autowired
+    NewUserRegisterService newUserRegisterService;
+
+    @Autowired
+    QRCodeService qrService;
+
+    @Autowired
+    S3Service s3Service;
+
+    @Autowired
+    BookingRepository repository;
     
     @Autowired
-    private UserCreditTransactionLogService transactionService;
-    
+    private MailJetOtpService mailService;
+
     @Autowired
-    CreditConferenceRoomMappingRepository mappingRepository;
-	
-	@Autowired
-	S3Service s3Service;
-
-	@Override
-	public Booking createBooking(ConferenceRoomBookingDto dto) throws Exception {
-		
-
-		boolean emailProvided = dto.getClientEmail() != null && !dto.getClientEmail().trim().isEmpty();
-	    boolean companyProvided = dto.getClientCompanyName() != null && !dto.getClientCompanyName().trim().isEmpty();
-
-	    if (emailProvided == companyProvided) {  
-	        throw new IllegalArgumentException(
-	                "Provide either clientEmail OR clientCompanyName, not both or none."
-	        );
-	    }
-
-	    // 1️⃣ Validate user based on email
-	    LetsworkUser client = null;
-	    LetsWorkClient clientCompany = null;
-	    
-
-	    if (emailProvided) {
-	        client = clientRepository.findByEmailAndCompanyId(dto.getClientEmail(), dto.getCompanyId());
-	        if (client == null)
-	            throw new IllegalArgumentException("Client not found with provided email and companyId.");
-	    }
-
-	    // 2️⃣ Validate user based on company name
-	    if (companyProvided) {
-	        clientCompany = clientCompanyRepository
-	                .findByClientCompanyNameAndCompanyIdAndCityAndStateAndLetsWorkCentre(
-	                		dto.getClientCompanyName(), dto.getCompanyId(), dto.getCity(), dto.getState(), dto.getLetsWorkCentre());
-
-	        if (clientCompany == null)
-	            throw new IllegalArgumentException("Client company not found with provided details.");
-	    }
-
-	    // 3️⃣ Validate conference room
-	    ConferenceRoom room = conferenceRoomRepository
-	            .findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
-	                    dto.getConferenceRoomName(), dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getCity(), dto.getState());
-
-	    if (room == null)
-	        throw new IllegalArgumentException("Conference room not found with provided details.");
-
-	    // 4. Validate time range
-	    if (!dto.getEndTime().isAfter(dto.getStartTime()))
-	        throw new IllegalArgumentException("End time must be after start time.");
-
-	    long durationMinutes = Duration.between(dto.getStartTime(), dto.getEndTime()).toMinutes();
-	    if (durationMinutes < 30)
-	        throw new IllegalArgumentException("Minimum booking duration is 30 minutes.");
-
-	    // 5. Prevent past bookings
-	    if (dto.getStartTime().isBefore(LocalDateTime.now()))
-	        throw new IllegalArgumentException("Start time cannot be in the past.");
-
-	    // 6. Prevent booking too far in future (max 3 months)
-	    if (dto.getStartTime().isAfter(LocalDateTime.now().plusMonths(3)))
-	        throw new IllegalArgumentException("You cannot book a room more than 3 months in advance.");
-
-	    // 7. Prevent booking outside allowed hours
-	    LocalTime startLimit = LocalTime.of(7, 0);
-	    LocalTime endLimit = LocalTime.of(23, 0);
-	    if (dto.getStartTime().toLocalTime().isBefore(startLimit) || dto.getEndTime().toLocalTime().isAfter(endLimit)) {
-	        throw new IllegalArgumentException("Bookings are only allowed between 7 AM and 11 PM.");
-	    }
-
-	    // 8. Check for booking conflicts
-	    List<Booking> conflicts = bookingRepository.findConflictingBookings(
-	    		dto.getConferenceRoomName(), dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getStartTime(), dto.getEndTime());
-	    if (!conflicts.isEmpty()) {
-	        throw new IllegalArgumentException("Booking conflict: Conference room is already booked in this slot.");
-	    }
-
-//	    // 9. Calculate credits
-//	    int requiredCredits = calculateCreditCost(conferenceRoomName, letsWorkCentre, companyId, durationMinutes);
-//
-//	    // 10. Debit credits
-//	    try {
-//	        UserCreditTransactionLog debitTransaction = UserCreditTransactionLog.builder()
-//	                .userEmail(clientEmail)
-//	                .companyId(companyId)
-//	                .totalCredits(requiredCredits)
-//	                .creditTransactionType(CreditTransactionType.debit)
-//	                .creditsUsedOn(conferenceRoomName + " booking from " + startTime + " to " + endTime)
-//	                .build();
-//
-//	        transactionService.logAndProcessTransaction(debitTransaction);
-//	    } catch (InsufficientCreditsException e) {
-//	        throw new Exception("Credit debit failed: " + e.getMessage());
-//	    }
-
-	    // 11. Generate QR & upload
-	    String bookingCode = UUID.randomUUID().toString();
-//	    String qrPath = qrCodeService.generateQRCodeWithBookingCodeRGB(bookingCode);
-//      whatsAppService.sendBookingQRCode(client2.getPhone(), qrPath);
-//	    File file = new File(qrPath);
-//	    String s3Path = s3Service.uploadQRCode("myapp-bucket-1758037822620", companyId, clientEmail,
-//	            startTime + "To" + endTime, file);
-
-	    // 12. Save booking
-	    Booking booking = Booking.builder()
-	            .clientEmail(emailProvided ? dto.getClientEmail() : null)
-	            .clientCompany(companyProvided ? dto.getClientCompanyName() : null)
-	            .conferenceRoomName(dto.getConferenceRoomName())
-	            .companyId(dto.getCompanyId())
-	            .letsWorkCentre(dto.getLetsWorkCentre())
-	            .startTime(dto.getStartTime())
-	            .endTime(dto.getEndTime())
-	            .city(dto.getCity())
-	            .state(dto.getState())
-	            .bookingCode(bookingCode)
-//	            .qrCodePath(qrPath)
-//	            .s3Path(s3Path)
-	            .currentStatus(BookingStatus.ACTIVE)
-	            .isActive(true)
-	            .build();
-
-	    return bookingRepository.save(booking);
-	}
-    
-//private int calculateCreditCost(String roomName, String letsWorkCentre, String companyId, long durationMinutes) {
-//        
-//        
-//        CreditConferenceRoomMapping mapping = mappingRepository.findByConferenceRoomNameAndLetsWorkCentreAndCompanyId(roomName, letsWorkCentre, companyId);
-//        
-//        if (mapping == null) {
-//            
-//            throw new IllegalStateException("Credit mapping not found for conference room: " + roomName);
-//        }
-//
-//        int totalCredits = 0;
-//        long remainingMinutes = durationMinutes;
-//
-//        
-//        int priceFor4Hrs = mapping.getPriceFor4Hrs();
-//        int priceFor2Hrs = mapping.getPriceFor2Hrs();
-//        int priceFor1Hr = mapping.getPriceFor1Hr();
-//        int priceFor30Mins = mapping.getPriceFor30Mins();
-//
-//        
-//        
-//        
-//        while (remainingMinutes >= 240) {
-//            totalCredits += priceFor4Hrs;
-//            remainingMinutes -= 240;
-//        }
-//
-//        
-//        while (remainingMinutes >= 120) {
-//            totalCredits += priceFor2Hrs;
-//            remainingMinutes -= 120;
-//        }
-//
-//        
-//        while (remainingMinutes >= 60) {
-//            totalCredits += priceFor1Hr;
-//            remainingMinutes -= 60;
-//        }
-//        
-//        
-//        if (remainingMinutes > 0) {
-//             
-//             totalCredits += priceFor30Mins;
-//        }
-//
-//        return totalCredits;
-//    }
-
-
-@Override
-public String cancelBooking(String bookingCode) {
-    return bookingRepository.findByBookingCode(bookingCode)
-            .map(booking -> {
-                if (booking.getStartTime().isBefore(LocalDateTime.now().plusHours(5))) {
-                    return "Cannot cancel within 5 hours of booking start time.";
-                }
-
-                booking.setCurrentStatus(BookingStatus.CANCELLED);
-                booking.setActive(false);
-                bookingRepository.save(booking);
-
-                // Refund credits
-                int durationMinutes = (int) Duration.between(booking.getStartTime(), booking.getEndTime()).toMinutes();
-//                int refundCredits = calculateCreditCost(
-//                        booking.getConferenceRoomName(),
-//                        booking.getLetsWorkCentre(),
-//                        booking.getCompanyId(),
-//                        durationMinutes
-//                );
-
-                UserCreditTransactionLog refundTransaction = UserCreditTransactionLog.builder()
-                        .userEmail(booking.getClientEmail())
-                        .companyId(booking.getCompanyId())
-                        .totalCredits(0)
-                        .creditTransactionType(CreditTransactionType.credit)
-                        .creditsUsedOn("Refund for cancelled booking: " + booking.getConferenceRoomName())
-                        .build();
-
-                try {
-					transactionService.logAndProcessTransaction(refundTransaction);
-				} catch (InsufficientCreditsException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-                return "Booking cancelled successfully and credits refunded.";
-            })
-            .orElse("Booking not found for code: " + bookingCode);
-}
+    private LetsWorkClientRepository letsWorkClientRepository;
+   
 
     @Override
-    public BookingValidationResponse validateBooking(String bookingCode) {
-        Optional<Booking> bookingOpt = bookingRepository.findByBookingCode(bookingCode);
+    public Booking createDayPassBooking(Booking request) {
 
-        if (bookingOpt.isEmpty()) {
-            return new BookingValidationResponse(false, "Booking does not exist.");
+        request.setBookingCode(UUID.randomUUID().toString());
+        request.setBookingType(BookingType.DAY_PASS);
+        request.setCurrentStatus(BookingStatus.DRAFT);
+        request.setUsed(0);
+        request.setCreateDate(new Date());
+        String uuid = UUID.randomUUID().toString();  // for ref id
+        String ref = "DAYPASS-"+uuid;
+        request.setReferenceId(ref);
+        
+        File qrFile;
+
+        try {
+
+            String qrPath = qrService.generateQRCodeWithBookingCodeRGB(
+                    "DAYPASS|" + request.getBookingCode()
+            );
+
+            qrFile = new File(qrPath);
+
+            String s3Path = s3Service.uploadBookDayPassQrCode(
+                    "letsworkcentres",
+                    request.getCompanyId(),
+                    request.getEmail(),
+                    request.getBookingCode(),
+                    qrFile
+            );
+
+            request.setQrS3Path(s3Path);
+
+        } catch (Exception e) {
+            throw new RuntimeException("QR generation failed", e);
         }
 
-        Booking booking = bookingOpt.get();
-        LocalDateTime now = LocalDateTime.now();
+        Booking saved = repository.save(request);
 
-        if (booking.getCurrentStatus() == BookingStatus.CANCELLED) {
-            return new BookingValidationResponse(false, "This booking has been cancelled.");
+        createInvoice(saved);
+
+        sendBookingEmail(saved);
+
+        return saved;
+    }
+    
+    private void sendBookingEmail(Booking booking) {
+
+        LetsWorkClient client = letsWorkClientRepository
+                .findByEmailAndCompanyId(
+                        booking.getEmail(),
+                        booking.getCompanyId())
+                .orElseThrow(() ->
+                        new RuntimeException("Client not found"));
+
+        mailService.sendDayPassEmail(
+                booking.getEmail(),
+                booking.getNumberOfDays(),
+                booking.getId(),
+                booking.getLetsWorkCentre(),
+                booking.getQrS3Path(),
+                client.getClientCompanyName()
+        );
+    }
+
+    private void createInvoice(Booking booking) {
+
+        Invoice invoice = new Invoice();
+
+        invoice.setCompanyId(booking.getCompanyId());
+        invoice.setCompanyEmail(booking.getEmail());
+        invoice.setAmount(booking.getAmount());
+        invoice.setBookingId(booking.getId());
+        invoice.setBookingType(booking.getBookingType());
+
+        if (booking.getBookedFrom() == BookedFrom.ADMIN) {
+            invoice.setInvoiceStatus(InvoiceStatus.UNPAID);
+        } else {
+            invoice.setInvoiceStatus(InvoiceStatus.PAID);
         }
 
-        if (now.isBefore(booking.getStartTime())) {
-            return new BookingValidationResponse(false, "You are early. Booking starts at: " + booking.getStartTime());
-        }
+        invoice.setCreateDate(new Date());
 
-        if (now.isAfter(booking.getEndTime())) {
-            return new BookingValidationResponse(false, "This booking has expired. End time was: " + booking.getEndTime());
-        }
+        // 1️⃣ Save invoice first
+        Invoice savedInvoice = invoiceService.saveInvoice(invoice);
 
-        return new BookingValidationResponse(true, "Booking is valid. Access granted.");
+        try {
+
+            // 2️⃣ Build HTML
+            String html = pdfService.buildInvoiceHtml(savedInvoice);
+
+            // 3️⃣ Generate PDF
+            byte[] pdfBytes = pdfService.generateInvoicePdf(html);
+
+            // 4️⃣ Upload to S3
+            String keyName = s3Service.uploadInvoicePdf(
+                    "letsworkcentres",
+                    savedInvoice.getCompanyId(),
+                    savedInvoice.getId(),
+                    pdfBytes
+            );
+
+            // 5️⃣ Save S3 key in DB
+            savedInvoice.setPdfS3KeyName(keyName);
+
+            invoiceService.saveInvoice(savedInvoice);
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Invoice PDF generation failed", e
+            );
+
+        }
+    }
+    
+    
+
+    @Override
+    public PaginatedResponseDto getBookings(
+            String companyId,
+            String email,
+            String centre,
+            String city,
+            String state,
+            BookingType bookingType,
+            BookingStatus status,
+            LocalDate fromDate,
+            LocalDate toDate,
+            int page,
+            int size) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("createDate").descending()
+        );
+
+        Page<Booking> resultPage = repository.filter(
+                companyId,
+                email,
+                centre,
+                city,
+                state,
+                bookingType,
+                status,
+                fromDate,
+                toDate,
+                pageable
+        );
+
+        PaginatedResponseDto dto = new PaginatedResponseDto();
+
+        dto.setSelectedPage(page);
+
+        dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
+
+        dto.setTotalNumberOfPages(resultPage.getTotalPages());
+
+        dto.setRecordsFrom(page * size + 1);
+
+        dto.setRecordsTo(
+                Math.min(
+                        (page + 1) * size,
+                        (int) resultPage.getTotalElements()
+                )
+        );
+
+        dto.setList(resultPage.getContent());
+
+        return dto;
     }
     
     @Override
-    public PaginatedResponseDto listAllBookings(String companyId, int page, int size) {
-        // Ensure page index is not negative
-        Pageable pageable = PageRequest.of(Math.max(0, page), size);
-        
-        // Assuming your BookingRepository has a method findByCompanyId(String, Pageable)
-        Page<Booking> bookingPage = bookingRepository.findByCompanyId(companyId, pageable);
-        
-        PaginatedResponseDto response = new PaginatedResponseDto();
-        response.setList(bookingPage.getContent());
-        response.setSelectedPage(bookingPage.getNumber());
-        response.setTotalNumberOfRecords((int) bookingPage.getTotalElements());
-        response.setTotalNumberOfPages(bookingPage.getTotalPages());
-        // Calculate recordsFrom and recordsTo based on the actual page content
-        response.setRecordsFrom(bookingPage.getNumberOfElements() > 0 ? (page * size) : 0);
-        response.setRecordsTo(bookingPage.getNumberOfElements() > 0 ? (response.getRecordsFrom() + bookingPage.getNumberOfElements()) : 0);
-        
-        return response;
+    public Booking createConferenceRoomBooking(
+            Booking request,
+            LocalDate slotDate,
+            List<ConferenceRoomSlotRequest> slotRequests
+    ) {
+
+        ConferenceRoom room = conferenceRoomRepo
+                .findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
+                        request.getRoomName(),
+                        request.getLetsWorkCentre(),
+                        request.getCompanyId(),
+                        request.getCity(),
+                        request.getState()
+                );
+
+        if (room == null) {
+            throw new RuntimeException("Conference room does not exist");
+        }
+
+        validateHoliday(
+                request.getCompanyId(),
+                request.getLetsWorkCentre(),
+                request.getCity(),
+                request.getState(),
+                slotDate
+        );
+
+        validateAdminBooking(
+                request.getBookedFrom(),
+                request.getAdminEmail(),
+                request.getCompanyId()
+        );
+
+        validateConsecutiveSlots(slotRequests);
+
+        for (ConferenceRoomSlotRequest slot : slotRequests) {
+
+            if (timeSlotRepo
+                    .existsByCompanyIdAndLetsWorkCentreAndCityAndStateAndRoomNameAndSlotDateAndStartTime(
+                            request.getCompanyId(),
+                            request.getLetsWorkCentre(),
+                            request.getCity(),
+                            request.getState(),
+                            request.getRoomName(),
+                            slotDate,
+                            slot.getStartTime()
+                    )) {
+
+                throw new RuntimeException(
+                        "One or more selected slots already booked"
+                );
+            }
+        }
+
+        int creditsRequired = slotRequests.size();
+        float hours = creditsRequired / 2.0f;
+
+        request.setNumberOfHours(hours);
+        request.setBookingCode(UUID.randomUUID().toString());
+        request.setBookingType(BookingType.CONFERENCE_ROOM);
+        request.setDateOfBooking(slotDate);
+        request.setCreateDate(new Date());
+        request.setUsed(0);
+        request.setCurrentStatus(BookingStatus.DRAFT);
+        String uuid = UUID.randomUUID().toString();
+        String ref = "CONF-"+uuid;
+        request.setReferenceId(ref);
+
+        if (Boolean.TRUE.equals(request.getBundleUsed())) {
+            consumeConferenceCredits(creditsRequired, request);
+        }
+
+        Booking savedBooking = repository.save(request);
+
+        saveSlots(savedBooking, slotDate, slotRequests);
+
+        return generateQrAndInvoice(savedBooking);
+    }
+    
+    private void saveSlots(
+            Booking booking,
+            LocalDate slotDate,
+            List<ConferenceRoomSlotRequest> slotRequests
+    ) {
+
+        List<ConferenceRoomTimeSlot> slots = new ArrayList<>();
+
+        for (ConferenceRoomSlotRequest s : slotRequests) {
+
+            ConferenceRoomTimeSlot t = new ConferenceRoomTimeSlot();
+
+            t.setCompanyId(booking.getCompanyId());
+            t.setLetsWorkCentre(booking.getLetsWorkCentre());
+            t.setCity(booking.getCity());
+            t.setState(booking.getState());
+            t.setRoomName(booking.getRoomName());
+
+            t.setSlotDate(slotDate);
+            t.setStartTime(s.getStartTime());
+            t.setEndTime(s.getEndTime());
+
+            t.setBooking(booking);
+
+            slots.add(t);
+        }
+
+        timeSlotRepo.saveAll(slots);
+    }
+    
+    private Booking generateQrAndInvoice(Booking booking) {
+
+        try {
+
+            String qrPath = qrService.generateQRCodeWithBookingCodeRGB(
+                    "CONFROOM|" + booking.getBookingCode()
+            );
+
+            File qrFile = new File(qrPath);
+
+            String s3Path = s3Service.uploadConferenceRoomQrCode(
+                    "letsworkcentres",
+                    booking.getCompanyId(),
+                    booking.getEmail(),
+                    booking.getBookingCode(),
+                    qrFile
+            );
+
+            booking.setQrS3Path(s3Path);
+
+            Booking finalSaved = repository.save(booking);
+
+            createConferenceInvoice(
+                    finalSaved.getCompanyId(),
+                    finalSaved.getEmail(),
+                    finalSaved.getAmount(),
+                    finalSaved.getId(),
+                    BookingType.CONFERENCE_ROOM
+            );
+
+            return finalSaved;
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "QR generation failed: " + e.getMessage()
+            );
+        }
+    }
+    
+    private void createConferenceInvoice(
+            String companyId,
+            String email,
+            Integer amount,
+            Long bookingId,
+            BookingType bookingType
+    ) {
+
+        Booking booking = repository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        Invoice invoice = new Invoice();
+
+        invoice.setCompanyId(companyId);
+        invoice.setCompanyEmail(email);
+        invoice.setAmount(amount);
+        invoice.setBookingId(bookingId);
+        invoice.setBookingType(bookingType);
+
+        if (booking.getBookedFrom() == BookedFrom.ADMIN) {
+            invoice.setInvoiceStatus(InvoiceStatus.UNPAID);
+        } else {
+            invoice.setInvoiceStatus(InvoiceStatus.PAID);
+        }
+
+        invoice.setCreateDate(new Date());
+
+        // 1️⃣ Save invoice first
+        Invoice savedInvoice = invoiceService.saveInvoice(invoice);
+
+        try {
+
+            // 2️⃣ Generate HTML
+            String html = pdfService.buildInvoiceHtml(savedInvoice);
+
+            // 3️⃣ Generate PDF
+            byte[] pdfBytes = pdfService.generateInvoicePdf(html);
+
+            // 4️⃣ Upload to S3
+            String keyName = s3Service.uploadInvoicePdf(
+                    "letsworkcentres",
+                    savedInvoice.getCompanyId(),
+                    savedInvoice.getId(),
+                    pdfBytes
+            );
+
+            // 5️⃣ Save S3 key
+            savedInvoice.setPdfS3KeyName(keyName);
+
+            invoiceService.saveInvoice(savedInvoice);
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Conference invoice PDF generation failed", e
+            );
+
+        }
+    }
+    
+    private void consumeConferenceCredits(
+            int creditsRequired,
+            Booking request
+    ) {
+
+        List<BuyConferenceBundle> bundles = bundleRepo.findActiveBundles(
+                request.getEmail(),
+                request.getCompanyId(),
+                LocalDateTime.now()
+        );
+
+        if (bundles.isEmpty()) {
+            throw new RuntimeException("No active conference bundles found");
+        }
+
+        int remainingToDeduct = creditsRequired;
+
+        for (BuyConferenceBundle bundle : bundles) {
+
+            float totalHoursInBundle = Float.parseFloat(bundle.getNumberOfHours());
+
+            int availableCredits = Math.round(totalHoursInBundle * 2);
+
+            if (availableCredits <= 0) continue;
+
+            int creditsToTake = Math.min(availableCredits, remainingToDeduct);
+
+            int updatedCredits = availableCredits - creditsToTake;
+
+            float updatedHours = updatedCredits / 2.0f;
+
+            bundle.setNumberOfHours(String.valueOf(updatedHours));
+
+            bundleRepo.save(bundle);
+
+            remainingToDeduct -= creditsToTake;
+
+            if (remainingToDeduct <= 0) break;
+        }
+
+        if (remainingToDeduct > 0) {
+            throw new RuntimeException(
+                    "Insufficient conference credits. Missing: "
+                            + remainingToDeduct
+            );
+        }
+    }
+    
+    private void validateHoliday(
+            String companyId,
+            String centre,
+            String city,
+            String state,
+            LocalDate bookingDate
+    ) {
+
+        Date holidayDate = java.sql.Date.valueOf(bookingDate);
+
+        Holiday holiday = holidayRepo
+                .findByLetsWorkCentreAndHolidayDateAndCityAndStateAndCompanyId(
+                        centre,
+                        holidayDate,
+                        city,
+                        state,
+                        companyId
+                );
+
+        if (holiday != null) {
+
+            throw new RuntimeException(
+                    "Bookings are not allowed on holidays (" + bookingDate + ")"
+            );
+        }
+    }
+    
+    private void validateAdminBooking(
+            BookedFrom bookedFrom,
+            String adminEmail,
+            String companyId
+    ) {
+
+        if (BookedFrom.ADMIN.equals(bookedFrom)) {
+
+            if (adminEmail == null || adminEmail.trim().isEmpty()) {
+                throw new RuntimeException(
+                        "Admin email required when booking by ADMIN"
+                );
+            }
+
+            User admin = userRepo.findByEmail(adminEmail, companyId);
+            
+            if (admin == null) {
+                throw new RuntimeException(
+                        "Invalid admin email"
+                );
+            }
+        }
+    }
+    
+    private void validateConsecutiveSlots(
+            List<ConferenceRoomSlotRequest> slots
+    ) {
+
+        if (slots == null || slots.isEmpty()) {
+            throw new RuntimeException("No slots selected");
+        }
+
+        slots.sort(Comparator.comparing(
+                ConferenceRoomSlotRequest::getStartTime
+        ));
+
+        for (int i = 0; i < slots.size(); i++) {
+
+            ConferenceRoomSlotRequest s = slots.get(i);
+
+            if (!s.getEndTime().equals(s.getStartTime().plusMinutes(30))) {
+
+                throw new RuntimeException(
+                        "Each slot must be 30 minutes"
+                );
+            }
+
+            if (i > 0 &&
+                    !slots.get(i - 1).getEndTime()
+                            .equals(s.getStartTime())) {
+
+                throw new RuntimeException(
+                        "Slots must be consecutive"
+                );
+            }
+        }
+    }
+    
+    public Booking scanAndConsume(String bookingCode) {
+
+        Booking booking =
+                repository.findByBookingCode(bookingCode)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Invalid booking code"
+                                ));
+
+        if (booking.getUsed() == 1) {
+
+            throw new RuntimeException(
+                    "Conference room already used"
+            );
+        }
+
+        booking.setUsed(1);
+
+        return repository.save(booking);
     }
 
-	@Override
-	public List<Booking> getBookings(String letsWorkCentre, String city, String state, String companyId) {
-	    return bookingRepository.findByLetsWorkCentreAndCityAndStateAndCompanyId(letsWorkCentre, city, state, companyId);
-	}
 }

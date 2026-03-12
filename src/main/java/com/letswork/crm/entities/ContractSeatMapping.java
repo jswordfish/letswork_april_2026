@@ -8,6 +8,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.letswork.crm.enums.SeatType;
@@ -26,13 +27,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class ContractSeatMapping extends Base{
 	
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-	
-	private Long contractId;   
-
-    private String letsWorkCentre;
+	@ManyToOne
+	Contract contract;
 
     @Enumerated(EnumType.STRING)
     private SeatType seatType;
@@ -46,12 +42,11 @@ public class ContractSeatMapping extends Base{
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate actualEndDate;
 
-    private String seatNumber;
+    @ManyToOne
+    private Seat seat;
 
-    private String city;
-
-    private String state;
-    
     private Boolean deleted;
+    
+    Float price;
 
 }

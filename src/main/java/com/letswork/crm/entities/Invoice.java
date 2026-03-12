@@ -33,11 +33,6 @@ public class Invoice extends Base{
 	private Integer amount;
 	
 	@Enumerated(EnumType.STRING)
-    private BookingType bookingType;
-	
-	private Long bookingId;
-	
-	@Enumerated(EnumType.STRING)
     private InvoiceStatus invoiceStatus;
 	
 	private String pdfS3KeyName;

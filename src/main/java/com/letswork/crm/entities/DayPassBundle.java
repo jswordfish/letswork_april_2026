@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,15 +24,12 @@ public class DayPassBundle extends Base{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-	private String letsWorkCentre;
+	@ManyToOne
+	LetsWorkCentre letsWorkCentre;
 	
-	private String city;
+	private String numberOfDays;//30
 	
-	private String state;
-	
-	private String numberOfDays;
-	
-	private String validForDays;
+	private String validForDays;//60
 	
 	private String discountPercentage;
 

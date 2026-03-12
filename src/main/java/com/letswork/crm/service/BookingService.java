@@ -1,23 +1,37 @@
 package com.letswork.crm.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
-import com.letswork.crm.dtos.BookingValidationResponse;
-import com.letswork.crm.dtos.ConferenceRoomBookingDto;
+import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Booking;
-
+import com.letswork.crm.enums.BookingStatus;
+import com.letswork.crm.enums.BookingType;
 
 public interface BookingService {
 	
-	public Booking createBooking(ConferenceRoomBookingDto dto) throws Exception;
+	Booking createDayPassBooking(Booking request);
 	
-	public String cancelBooking(String bookingCode);
-	
-	public BookingValidationResponse validateBooking(String bookingCode);
-	
-	PaginatedResponseDto listAllBookings(String companyId, int page, int size);
-	
-	public List<Booking> getBookings(String letsWorkCentre, String city, String state, String companyId);
+	public Booking createConferenceRoomBooking(
+	        Booking request,
+	        LocalDate slotDate,
+	        List<ConferenceRoomSlotRequest> slotRequests
+	);
+
+    PaginatedResponseDto getBookings(
+            String companyId,
+            String email,
+            String centre,
+            String city,
+            String state,
+            BookingType bookingType,
+            BookingStatus status,
+            LocalDate fromDate,
+            LocalDate toDate,
+            int page,
+            int size
+    );
+
 
 }

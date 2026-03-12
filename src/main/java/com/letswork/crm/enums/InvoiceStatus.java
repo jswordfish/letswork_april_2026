@@ -2,6 +2,6 @@ package com.letswork.crm.enums;
 
 public enum InvoiceStatus {
 	
-	PAID, UNPAID
+	PAID, UNPAID, PARTLY_PAID
 
 }

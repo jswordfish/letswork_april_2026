@@ -31,6 +31,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Contract extends Base{
+	@ManyToOne
+	LetsWorkCentre  letsWorkCentre;
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -78,7 +80,7 @@ public class Contract extends Base{
 	
 	private Integer workstation;
 	
-	private Integer feesPerMonth;
+
 	
 	private Integer freeDayPass;
 	
