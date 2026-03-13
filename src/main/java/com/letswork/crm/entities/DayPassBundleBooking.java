@@ -25,10 +25,6 @@ public class DayPassBundleBooking extends Booking{
 	@ManyToOne
 	private DayPassBundle dayPassBundle;
 	
-	private Integer numberOfDays;
-	
-	private LocalDate startDate;///this....was not there
-	
 	private LocalDateTime expiryDate;//this was there
 	
 	Float price;
@@ -37,5 +33,7 @@ public class DayPassBundleBooking extends Booking{
 	Offers appliedOffer;
 	
 	Float discountedPrice;
+	
+	Boolean paixd;
 
 }

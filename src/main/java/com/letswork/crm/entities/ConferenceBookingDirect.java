@@ -28,7 +28,7 @@ public class ConferenceBookingDirect extends Booking{
   @ManyToOne	
   LetsWorkCentre letsWorkCentre;
 
-  @OneToMany(mappedBy = "booking",
+  @OneToMany(
           cascade = CascadeType.ALL,
           orphanRemoval = true)
   private List<ConferenceRoomTimeSlot> slots = new ArrayList<>();

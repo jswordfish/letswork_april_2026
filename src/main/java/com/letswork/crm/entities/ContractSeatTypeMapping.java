@@ -23,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class ContractSeatTypeMapping {
+public class ContractSeatTypeMapping extends Base {
 	
 	Long contractId;
 	

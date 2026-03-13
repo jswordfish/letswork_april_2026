@@ -1,6 +1,5 @@
 package com.letswork.crm.entities;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,7 @@ public class ConferenceRoomBookingThroughBundle extends Booking{
    SLOT MAPPING
    */
 
-  @OneToMany(mappedBy = "booking",
+  @OneToMany(
           cascade = CascadeType.ALL,
           orphanRemoval = true)
   private List<ConferenceRoomTimeSlot> slots = new ArrayList<>();

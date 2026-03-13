@@ -34,9 +34,7 @@ public class Contract extends Base{
 	@ManyToOne
 	LetsWorkCentre  letsWorkCentre;
 	
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "lets_work_client_id", nullable = false)
