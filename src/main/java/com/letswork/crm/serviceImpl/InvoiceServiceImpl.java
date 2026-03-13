@@ -50,7 +50,6 @@ public class InvoiceServiceImpl implements InvoiceService {
     public PaginatedResponseDto getPaginated(
             String companyId,
             String email,
-            BookingType bookingType,
             InvoiceStatus invoiceStatus,
             Date fromDate,
             Date toDate,
@@ -67,7 +66,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         Page<Invoice> resultPage = invoiceRepository.filter(
                 companyId,
                 email,
-                bookingType,
                 invoiceStatus,
                 fromDate,
                 toDate,

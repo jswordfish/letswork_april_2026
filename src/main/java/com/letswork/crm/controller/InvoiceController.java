@@ -43,7 +43,6 @@ public class InvoiceController {
             @RequestParam String token,
 
             @RequestParam(required = false) String email,
-            @RequestParam(required = false) BookingType bookingType,
             @RequestParam(required = false) InvoiceStatus invoiceStatus,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date toDate,
@@ -56,7 +55,6 @@ public class InvoiceController {
                 invoiceService.getPaginated(
                         companyId,
                         email,
-                        bookingType,
                         invoiceStatus,
                         fromDate,
                         toDate,

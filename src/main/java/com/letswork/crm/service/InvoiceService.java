@@ -14,7 +14,6 @@ public interface InvoiceService {
     PaginatedResponseDto getPaginated(
             String companyId,
             String email,
-            BookingType bookingType,
             InvoiceStatus invoiceStatus,
             Date fromDate,
             Date toDate,

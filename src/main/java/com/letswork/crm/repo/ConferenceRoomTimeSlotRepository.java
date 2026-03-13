@@ -17,10 +17,10 @@ public interface ConferenceRoomTimeSlotRepository
 
 	@Query("SELECT t FROM ConferenceRoomTimeSlot t " +
 		       "WHERE t.companyId = :companyId " +
-		       "AND t.letsWorkCentre = :centre " +
-		       "AND t.city = :city " +
-		       "AND t.state = :state " +
-		       "AND t.roomName = :roomName " +
+		       "AND t.letsWorkCentre.name = :centre " +
+		       "AND t.letsWorkCentre.city = :city " +
+		       "AND t.letsWorkCentre.state = :state " +
+		       "AND t.conferenceRoom.name = :roomName " +
 		       "AND t.slotDate = :date " +
 		       "ORDER BY t.startTime")
     List<ConferenceRoomTimeSlot> findBookedSlots(
@@ -33,7 +33,15 @@ public interface ConferenceRoomTimeSlotRepository
     );
 	
 //	void deleteByBooking(BookConferenceRoom booking);
-
+	
+	@Query("SELECT COUNT(c) > 0 FROM ConferenceRoomTimeSlot c " +
+		       "WHERE c.companyId = :companyId " +
+		       "AND c.letsWorkCentre.name = :letsWorkCentre " +
+		       "AND c.letsWorkCentre.city = :city " +
+		       "AND c.letsWorkCentre.state = :state " +
+		       "AND c.conferenceRoom.name = :roomName " +
+		       "AND c.slotDate = :slotDate " +
+		       "AND c.startTime = :startTime")
     boolean existsByCompanyIdAndLetsWorkCentreAndCityAndStateAndRoomNameAndSlotDateAndStartTime(
             String companyId,
             String letsWorkCentre,

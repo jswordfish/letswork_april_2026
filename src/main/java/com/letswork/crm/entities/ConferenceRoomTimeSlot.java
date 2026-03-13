@@ -16,7 +16,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ConferenceRoomTimeSlot extends Base{
 
- 
+	@ManyToOne
+	private LetsWorkCentre letsWorkCentre;
+	
+	@ManyToOne
+	private ConferenceRoom conferenceRoom;
 
     private LocalDate slotDate;
 
