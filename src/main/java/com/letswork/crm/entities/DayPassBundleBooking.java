@@ -1,11 +1,12 @@
 package com.letswork.crm.entities;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+
+import com.letswork.crm.enums.DayPassBundleStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +21,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DayPassBundleBooking extends Booking{
 	
-	
+	@ManyToOne
+	private LetsWorkClient letsWorkClient;
 	
 	@ManyToOne
 	private DayPassBundle dayPassBundle;
@@ -34,6 +36,8 @@ public class DayPassBundleBooking extends Booking{
 	
 	Float discountedPrice;
 	
-	Boolean paixd;
+	Boolean paid;
+	
+	private DayPassBundleStatus dayPassBundleStatus;
 
 }
