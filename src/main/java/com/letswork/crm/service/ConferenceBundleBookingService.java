@@ -8,5 +8,9 @@ public interface ConferenceBundleBookingService {
             Long clientId,
             Long bundleId
     );
+	
+	public ConferenceBundleBooking deductBundleWithHours(
+            Long bundleId, Float hours
+    );
 
 }

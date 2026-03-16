@@ -24,15 +24,19 @@ public class ConferenceBundleBooking extends Booking{
 	
 	@ManyToOne
 	private ConferenceBundle conferenceBundle;
-	
-	private Integer totalHours;
 
-    private Integer remainingHours;
+    private Float remainingHours;
 
     private LocalDate expiryDate;
 
+    /**
+     * Price at the time of booking.
+     */
     private BigDecimal price;
 
+    /**
+     * Price at the time of booking.
+     */
     private BigDecimal discountedPrice;
 
 }

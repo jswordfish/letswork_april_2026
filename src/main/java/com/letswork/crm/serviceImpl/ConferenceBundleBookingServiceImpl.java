@@ -13,6 +13,7 @@ import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.repo.BookingRepository;
+import com.letswork.crm.repo.ConferenceBundleBookingRepository;
 import com.letswork.crm.repo.ConferenceBundleRepository;
 import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.service.ConferenceBundleBookingService;
@@ -28,6 +29,8 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
 	private final ConferenceBundleRepository bundleRepo;
     private final BookingRepository bookingRepo;
     private final LetsWorkClientRepository clientRepo;
+    
+    private final ConferenceBundleBookingRepository conferenceBundleBookingRepository;
     
     
     @Override
@@ -53,7 +56,6 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
                 ConferenceBundleBooking.builder()
                         .letsWorkClient(client)
                         .conferenceBundle(bundle)
-                        .totalHours(bundle.getNumberOfHours())
                         .remainingHours(bundle.getNumberOfHours())
                         .price(bundle.getPrice())
                         .amount(bundle.getPrice())
@@ -74,6 +76,17 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
                "_" +
                System.currentTimeMillis();
     }
+
+	@Override
+	public ConferenceBundleBooking deductBundleWithHours(Long bundleId, Float hours) {
+		ConferenceBundleBooking booking =  conferenceBundleBookingRepository.findById(bundleId).get();
+			if(booking.getRemainingHours() < hours) {
+				throw new RuntimeException("Not enough hours to book");
+			}
+		booking.setRemainingHours(booking.getRemainingHours() - hours);
+		conferenceBundleBookingRepository.save(booking);
+		return booking;
+	}
 
 
 }

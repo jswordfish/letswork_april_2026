@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.CreateConferenceBundleBookingRequest;
 import com.letswork.crm.entities.ConferenceBundleBooking;
+import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.service.ConferenceBundleBookingService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class ConferenceBundleBookingController {
 
     private final ConferenceBundleBookingService conferenceBundleBookingService;
 
-    @PostMapping
+    @PostMapping("createBundleBooking")
     public ResponseEntity<ConferenceBundleBooking> createBundleBooking(
             @RequestBody CreateConferenceBundleBookingRequest request,
             @RequestParam String token
@@ -30,7 +31,15 @@ public class ConferenceBundleBookingController {
                 request.getClientId(),
                 request.getBundleId()
         );
-
+      // booking.setBookingStatus(BookingStatus.ACTIVE);
         return new ResponseEntity<>(booking, HttpStatus.CREATED);
+    }
+    
+    @PostMapping("deductHoursFromPurchasedConferenceBundle")
+    public ResponseEntity<ConferenceBundleBooking> deductHoursFromPurchasedConferenceBundle(
+            @RequestParam Long conferenceBundleBookingId, @RequestParam  Float hoursToDeduct,
+            @RequestParam String token
+    ) {
+    	return new ResponseEntity<>(conferenceBundleBookingService.deductBundleWithHours(conferenceBundleBookingId, hoursToDeduct), HttpStatus.CREATED);
     }
 }
