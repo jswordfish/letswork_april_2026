@@ -1,5 +1,7 @@
 package com.letswork.crm.entities;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
@@ -22,7 +24,7 @@ public class Payment extends Base{
 	
 	String bankTransactioId;
 	
-	Float amount;
+	BigDecimal amount;
 	
 	Float cgst;
 	

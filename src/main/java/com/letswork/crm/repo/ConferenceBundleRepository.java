@@ -12,7 +12,7 @@ public interface ConferenceBundleRepository
         extends JpaRepository<ConferenceBundle, Long> {
 
     ConferenceBundle findByNumberOfHoursAndCompanyId(
-            String numberOfHours,
+            Integer numberOfHours,
             String companyId
     );
 

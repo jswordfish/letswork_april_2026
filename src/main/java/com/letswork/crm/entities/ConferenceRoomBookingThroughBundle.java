@@ -24,9 +24,9 @@ public class ConferenceRoomBookingThroughBundle extends Booking{
 	
 	private LocalDateTime purchaseDate;
 	
-	//
+	
 	@ManyToOne
-	ConferenceBundle bundle;
+	private ConferenceBundleBooking bundleBooking;
 
 	/*
     CONFERENCE ROOM FIELDS

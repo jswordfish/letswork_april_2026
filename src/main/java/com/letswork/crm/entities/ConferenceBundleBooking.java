@@ -1,8 +1,7 @@
 package com.letswork.crm.entities;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -12,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @DiscriminatorValue("ConferenceBundleBooking")
@@ -19,20 +19,20 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 public class ConferenceBundleBooking extends Booking{
 	
-	
 	@ManyToOne
-	private ConferenceBundle dayPassBundle;
+	private ConferenceBundle conferenceBundle;
 	
-	private Float numberOfHours;
-	
-	private LocalDate startDate;///this....was not there
-	
-	private LocalDateTime expiryDate;//this was there
-	
-	Float price;
-	
-	Float discountedPrice;
+	private Integer totalHours;
+
+    private Integer remainingHours;
+
+    private LocalDate expiryDate;
+
+    private BigDecimal price;
+
+    private BigDecimal discountedPrice;
 
 }

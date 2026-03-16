@@ -15,6 +15,8 @@ import com.letswork.crm.enums.BookingType;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+	
+	Optional<Booking> findByReferenceId(String referenceId);
 
 //    Optional<Booking> findByBookingCode(String bookingCode);
 //

@@ -6,8 +6,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
-import com.letswork.crm.enums.BookingType;
 import com.letswork.crm.enums.InvoiceStatus;
 
 import lombok.AllArgsConstructor;
@@ -28,7 +28,8 @@ public class Invoice extends Base{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-	private String companyEmail;
+	@ManyToOne
+	Booking booking;
 	
 	private Integer amount;
 	

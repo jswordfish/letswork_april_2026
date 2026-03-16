@@ -1,6 +1,8 @@
 package com.letswork.crm.entities;
 
 
+import java.math.BigDecimal;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,10 +26,10 @@ public class ConferenceBundle extends Base{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-	private String numberOfHours;
+	private Integer numberOfHours;
 	
-	private String price;
+	private BigDecimal price;
 		
-	private String validForDays;
+	private Integer validForDays;
 
 }
