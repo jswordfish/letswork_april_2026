@@ -42,11 +42,13 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
             }
 
             RazorpayClient razorpayClient = new RazorpayClient(razorpayKeyId, razorpayKeySecret);
-            Payment razorpayPayment = razorpayClient.payments.fetch(paymentId);
+            com.razorpay.Payment razorpayPayment = razorpayClient.payments.fetch(paymentId);
 
             String razorpayStatus = razorpayPayment.get("status");
             String razorpayPaymentId = razorpayPayment.get("id");
 
+            Payment paymentEntity = new Payment();
+            paymentEntity.setPaymentId(razorpayPaymentId);
             JSONObject notes = razorpayPayment.get("notes");
             String referenceId = notes.getString("referenceId");
 
