@@ -55,7 +55,6 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
             Booking booking = bookingRepository.findByReferenceId(referenceId)
                     .orElseThrow(() -> new RuntimeException("Booking not found for referenceId: " + referenceId));
 
-            Payment paymentEntity = new Payment();
             paymentEntity.setPaymentId(razorpayPaymentId);
             paymentEntity.setLetsWorkClient(booking.getLetsWorkClient());
             paymentEntity.setAmount(booking.getAmount());

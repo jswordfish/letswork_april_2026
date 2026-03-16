@@ -29,7 +29,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
 
         LetsWorkClient client = clientRepository
-                .findByEmailAndCompanyId(invoice.getCompanyEmail(), invoice.getCompanyId())
+                .findByEmailAndCompanyId(invoice.getBooking().getLetsWorkClient().getEmail(), invoice.getCompanyId())
                 .orElseThrow(() -> new RuntimeException("Client not found"));
 
         try {

@@ -35,7 +35,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         // ✅ Email validation
         clientRepository.findByEmailAndCompanyId(
-                invoice.getCompanyEmail(),
+        		invoice.getBooking().getLetsWorkClient().getEmail(),
                 invoice.getCompanyId()
         ).orElseThrow(() ->
                 new RuntimeException("Client email not found"));
