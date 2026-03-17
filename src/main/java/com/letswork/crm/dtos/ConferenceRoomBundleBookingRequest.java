@@ -8,7 +8,8 @@ import lombok.Data;
 @Data
 public class ConferenceRoomBundleBookingRequest {
 	
-	private Long bundleBookingId;
+	private List<BundleUsageRequest> bundleUsages;
+	
 	private Long clientId;
 
     private String companyId;

@@ -1,11 +1,12 @@
 package com.letswork.crm.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.letswork.crm.dtos.ConferenceRoomBundleBookingRequest;
@@ -22,9 +23,13 @@ public class ConferenceRoomBookingThroughBundleController {
     private final ConferenceRoomBookingThroughBundleService service;
 
     @PostMapping
-    public ResponseEntity<ConferenceRoomBookingThroughBundle> bookViaBundle(
-            @RequestBody ConferenceRoomBundleBookingRequest request, @RequestParam String token
+    public ResponseEntity<List<ConferenceRoomBookingThroughBundle>> bookViaBundle(
+            @RequestBody ConferenceRoomBundleBookingRequest request
     ) {
-        return new ResponseEntity<>(service.bookUsingBundle(request), HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                service.bookUsingMultipleBundles(request),
+                HttpStatus.CREATED
+        );
     }
+    
 }

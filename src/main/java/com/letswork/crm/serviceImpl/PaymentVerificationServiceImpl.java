@@ -31,13 +31,13 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
     private final BookingService bookingService;
     // add S3 service later if needed
 
-    private String razorpayKeyId = "";
+    private String razorpayKeyId = "rzp_test_SKguaIWs4EkI1g";
 
-    private String razorpayKeySecret = "";
+    private String razorpayKeySecret = "o5AgXZLJftz4fmxO9neqOGn7";
 
     @Override
     @Transactional
-    public void verifyAndProcessPayment(String paymentId) {
+    public void verifyAndProcessPayment(String paymentId, String referenceId) {
         try {
             if (paymentRepository.existsByPaymentId(paymentId)) {
                 throw new RuntimeException("Payment already processed for paymentId: " + paymentId);
@@ -51,8 +51,8 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
 
             Payment paymentEntity = new Payment();
             paymentEntity.setPaymentId(razorpayPaymentId);
-            JSONObject notes = razorpayPayment.get("notes");
-            String referenceId = notes.getString("referenceId");
+//            JSONObject notes = razorpayPayment.get("notes");
+//            String referenceId = notes.getString("referenceId");
 
             Booking booking = bookingRepository.findByReferenceId(referenceId)
                     .orElseThrow(() -> new RuntimeException("Booking not found for referenceId: " + referenceId));

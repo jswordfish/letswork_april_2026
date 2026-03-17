@@ -6,5 +6,7 @@ import lombok.Data;
 public class VerifyPaymentRequest {
 	
 	private String paymentId;
+	
+	private String referenceId;
 
 }

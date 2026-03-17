@@ -22,7 +22,7 @@ public class PaymentVerificationController {
 
     @PostMapping("/verify")
     public ResponseEntity<String> verifyPayment(@RequestBody VerifyPaymentRequest request, @RequestParam String token) {
-        paymentVerificationService.verifyAndProcessPayment(request.getPaymentId());
+        paymentVerificationService.verifyAndProcessPayment(request.getPaymentId(), request.getReferenceId());
         return new ResponseEntity<>("Payment verified and processed successfully", HttpStatus.OK);
     }
 }

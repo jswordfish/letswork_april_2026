@@ -12,6 +12,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.letswork.crm.dtos.BundleUsageRequest;
 import com.letswork.crm.dtos.ConferenceRoomBundleBookingRequest;
 import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
 import com.letswork.crm.entities.ConferenceBundleBooking;
@@ -52,9 +53,9 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
 
     @Transactional
     @Override
-    public ConferenceRoomBookingThroughBundle bookUsingBundle(
+    public List<ConferenceRoomBookingThroughBundle> bookUsingMultipleBundles(
             ConferenceRoomBundleBookingRequest request
-    ) {
+    		) {
     	
 		Tenant tenant = tenantService.findTenantByCompanyId(request.getCompanyId());
 		
@@ -73,18 +74,16 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
 		LetsWorkClient client = clientRepo.findById(request.getClientId())
                 .orElseThrow(() -> new RuntimeException("Client not found"));
 
-        // 1. Fetch bundle
-        ConferenceBundleBooking bundle = bundleRepo.findById(request.getBundleBookingId())
-                .orElseThrow(() -> new RuntimeException("Bundle not found"));
+//        ConferenceBundleBooking bundle = bundleRepo.findById(request.getBundleBookingId())
+//                .orElseThrow(() -> new RuntimeException("Bundle not found"));
 
-        // 2. Validate bundle
-        if (bundle.getBookingStatus() != BookingStatus.ACTIVE) {
-            throw new RuntimeException("Bundle is not active");
-        }
-
-        if (bundle.getExpiryDate().isBefore(LocalDate.now())) {
-            throw new RuntimeException("Bundle expired");
-        }
+//        if (bundle.getBookingStatus() != BookingStatus.ACTIVE) {
+//            throw new RuntimeException("Bundle is not active");
+//        }
+//
+//        if (bundle.getExpiryDate().isBefore(LocalDate.now())) {
+//            throw new RuntimeException("Bundle expired");
+//        }
 
         // 3. Validate room
         ConferenceRoom room = roomRepo
@@ -103,52 +102,68 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
         // 4. Validate slots
         validateConsecutiveSlots(request.getSlots());
 
-        for (ConferenceRoomSlotRequest slot : request.getSlots()) {
-            boolean exists = timeSlotRepo
-                    .existsByCompanyIdAndLetsWorkCentreAndCityAndStateAndRoomNameAndSlotDateAndStartTime(
-                            request.getCompanyId(),
-                            request.getCentre(),
-                            request.getCity(),
-                            request.getState(),
-                            request.getRoomName(),
-                            request.getSlotDate(),
-                            slot.getStartTime()
-                    );
+        float totalHoursRequired = request.getSlots().size() / 2.0f;
 
-            if (exists) {
-                throw new RuntimeException("Slot already booked");
+        float remainingRequired = totalHoursRequired;
+
+        List<ConferenceRoomBookingThroughBundle> bookings = new ArrayList<>();
+
+        for (BundleUsageRequest usage : request.getBundleUsages()) {
+
+            if (remainingRequired <= 0) break;
+
+            ConferenceBundleBooking bundle = bundleRepo.findById(usage.getBookingId())
+                    .orElseThrow(() -> new RuntimeException("Bundle not found"));
+
+            // Validate bundle
+            if (bundle.getBookingStatus() != BookingStatus.ACTIVE) {
+                throw new RuntimeException("Bundle not active: " + bundle.getId());
             }
+
+            if (bundle.getExpiryDate().isBefore(LocalDate.now())) {
+                throw new RuntimeException("Bundle expired: " + bundle.getId());
+            }
+
+            float usableHours = Math.min(
+                    bundle.getRemainingHours(),
+                    usage.getHoursDeducted()
+            );
+
+            if (usableHours <= 0) continue;
+
+            // ❗ Prevent over usage
+            if (usableHours > remainingRequired) {
+                usableHours = remainingRequired;
+            }
+
+            // Create booking
+            ConferenceRoomBookingThroughBundle booking =
+                    new ConferenceRoomBookingThroughBundle();
+
+            booking.setBundleBooking(bundle);
+            booking.setConferenceRoom(room);
+            booking.setLetsWorkCentre(centre);
+            booking.setLetsWorkClient(client);
+            booking.setNumberOfHours(usableHours);
+            booking.setPurchaseDate(LocalDateTime.now());
+            booking.setBookingStatus(BookingStatus.ACTIVE);
+            booking.setReferenceId(generate("CONF_ROOM_BUNDLE"));
+
+            // Deduct hours
+            bundle.setRemainingHours(bundle.getRemainingHours() - usableHours);
+            bundleRepo.save(bundle);
+
+            bookings.add(bookingRepo.save(booking));
+
+            remainingRequired -= usableHours;
         }
 
-        // 5. Calculate hours
-        int credits = request.getSlots().size();
-        float hours = credits / 2.0f;
-
-        if (bundle.getRemainingHours() < hours) {
-            throw new RuntimeException("Not enough hours in bundle");
+        // ❗ Final validation
+        if (remainingRequired > 0) {
+            throw new RuntimeException("Not enough total hours across bundles");
         }
 
-        // 6. Create booking
-        ConferenceRoomBookingThroughBundle booking =
-                new ConferenceRoomBookingThroughBundle();
-
-        booking.setBundleBooking(bundle);
-        booking.setConferenceRoom(room);
-        booking.setLetsWorkCentre(centre);
-        booking.setLetsWorkClient(client);
-        booking.setNumberOfHours(hours);
-        booking.setPurchaseDate(LocalDateTime.now());
-        booking.setBookingStatus(BookingStatus.ACTIVE);
-        booking.setReferenceId(generate("CONF_ROOM_BUNDLE"));
-
-        // 7. Deduct hours (IMPORTANT: inside transaction)
-        bundle.setRemainingHours(bundle.getRemainingHours() - hours);
-        bundleRepo.save(bundle);
-
-        // 8. Save booking
-        ConferenceRoomBookingThroughBundle savedBooking = bookingRepo.save(booking);
-
-        // 9. Save slots
+        // Save slots (same as before)
         List<ConferenceRoomTimeSlot> slots = new ArrayList<>();
 
         for (ConferenceRoomSlotRequest s : request.getSlots()) {
@@ -165,7 +180,7 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
 
         timeSlotRepo.saveAll(slots);
 
-        return savedBooking;
+        return bookings;
     }
     
     public static String generate(String prefix) {
