@@ -27,7 +27,7 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
 	
 	
 	private final ConferenceBundleRepository bundleRepo;
-    private final BookingRepository bookingRepo;
+    private final ConferenceBundleBookingRepository bundleBookingRepo;
     private final LetsWorkClientRepository clientRepo;
     
     private final ConferenceBundleBookingRepository conferenceBundleBookingRepository;
@@ -66,7 +66,7 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
                         .expiryDate(expiryDate)
                         .build();
 
-        return bookingRepo.save(booking);
+        return bundleBookingRepo.save(booking);
     }
 	
     public static String generate(String prefix) {

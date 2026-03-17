@@ -28,6 +28,4 @@ public class ConferenceRoomTimeSlot extends Base{
 
     private LocalTime endTime;
     
-    
-    
 }

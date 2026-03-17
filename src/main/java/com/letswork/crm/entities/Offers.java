@@ -33,7 +33,9 @@ public class Offers extends Base{
 	
 	private String code;
 	
-	private String discount;
+	private Integer discount;
+	
+	private Integer discountPercentage;
 	
 	private String minDiscountValue;
 	

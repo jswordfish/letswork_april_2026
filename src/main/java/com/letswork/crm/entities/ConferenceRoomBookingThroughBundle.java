@@ -28,9 +28,7 @@ public class ConferenceRoomBookingThroughBundle extends Booking{
 	@ManyToOne
 	private ConferenceBundleBooking bundleBooking;
 
-	/*
-    CONFERENCE ROOM FIELDS
-    */
+	
 	//mandatory
    @ManyToOne
    ConferenceRoom conferenceRoom;
@@ -42,8 +40,8 @@ public class ConferenceRoomBookingThroughBundle extends Booking{
 
    private Float numberOfHours;
    
-   @ManyToOne
-   ConferenceBundle conferenceBundle;
+//   @ManyToOne
+//   ConferenceBundle conferenceBundle;
    
   
    /*

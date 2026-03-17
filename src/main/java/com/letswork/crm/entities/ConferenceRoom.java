@@ -36,7 +36,7 @@ public class ConferenceRoom extends Base{
 
     private String letsWorkCentre;
     
-    private String halfHourPrice;
+    private Integer halfHourPrice;
     
 	private String state;
 	

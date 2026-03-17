@@ -12,7 +12,7 @@ public class OfferCreateRequestDto {
 
     private String name;
     private String code;
-    private String discount;
+    private Integer discount;
     private String minDiscountValue;
     private LocalDateTime startDate;
     private LocalDateTime endDate;

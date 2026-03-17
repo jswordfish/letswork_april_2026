@@ -11,27 +11,29 @@ import com.letswork.crm.enums.BookingType;
 
 public interface BookingService {
 	
-	Booking createDayPassBooking(Booking request);
+	Booking save(Booking booking);
 	
-	public Booking createConferenceRoomBooking(
-	        Booking request,
-	        LocalDate slotDate,
-	        List<ConferenceRoomSlotRequest> slotRequests
-	);
-
-    PaginatedResponseDto getBookings(
-            String companyId,
-            String email,
-            String centre,
-            String city,
-            String state,
-            BookingType bookingType,
-            BookingStatus status,
-            LocalDate fromDate,
-            LocalDate toDate,
-            int page,
-            int size
-    );
+//	Booking createDayPassBooking(Booking request);
+//	
+//	public Booking createConferenceRoomBooking(
+//	        Booking request,
+//	        LocalDate slotDate,
+//	        List<ConferenceRoomSlotRequest> slotRequests
+//	);
+//
+//    PaginatedResponseDto getBookings(
+//            String companyId,
+//            String email,
+//            String centre,
+//            String city,
+//            String state,
+//            BookingType bookingType,
+//            BookingStatus status,
+//            LocalDate fromDate,
+//            LocalDate toDate,
+//            int page,
+//            int size
+//    );
 
 
 }

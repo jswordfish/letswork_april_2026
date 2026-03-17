@@ -14,6 +14,7 @@ import com.letswork.crm.enums.InvoiceStatus;
 import com.letswork.crm.repo.BookingRepository;
 import com.letswork.crm.repo.InvoiceRepository;
 import com.letswork.crm.repo.PaymentRepository;
+import com.letswork.crm.service.BookingService;
 import com.letswork.crm.service.PaymentVerificationService;
 import com.razorpay.RazorpayClient;
 
@@ -27,6 +28,7 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
     private final PaymentRepository paymentRepository;
     private final InvoiceRepository invoiceRepository;
     private final PdfService pdfService;
+    private final BookingService bookingService;
     // add S3 service later if needed
 
     private String razorpayKeyId = "";
@@ -66,7 +68,7 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
             if ("captured".equalsIgnoreCase(razorpayStatus) || "authorized".equalsIgnoreCase(razorpayStatus)) {
 
                 booking.setBookingStatus(BookingStatus.ACTIVE);
-                bookingRepository.save(booking);
+                bookingService.save(booking);
               
                 Invoice invoice = new Invoice();
                 invoice.setBooking(booking);
