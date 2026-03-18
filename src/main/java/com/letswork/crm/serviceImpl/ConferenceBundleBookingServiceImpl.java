@@ -76,7 +76,8 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
                "_" +
                System.currentTimeMillis();
     }
-
+    
+    //To deduct the credits
 	@Override
 	public ConferenceBundleBooking deductBundleWithHours(Long bundleId, Float hours) {
 		ConferenceBundleBooking booking =  conferenceBundleBookingRepository.findById(bundleId).get();
