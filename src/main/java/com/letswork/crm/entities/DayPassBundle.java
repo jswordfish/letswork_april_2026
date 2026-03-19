@@ -27,10 +27,10 @@ public class DayPassBundle extends Base{
 	@ManyToOne
 	LetsWorkCentre letsWorkCentre;
 	
-	private String numberOfDays;//30
+	private Integer numberOfDays;//30
 	
-	private String validForDays;//60
+	private Integer validForDays;//60
 	
-	private String discountPercentage;
+	private Float discountPercentage;
 
 }

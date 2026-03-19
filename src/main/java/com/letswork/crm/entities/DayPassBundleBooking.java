@@ -29,6 +29,8 @@ public class DayPassBundleBooking extends Booking{
 	
 	private LocalDateTime expiryDate;//this was there
 	
+	Integer remainingNumberOfDays;
+	
 	Float price;
 	
 	@ManyToOne

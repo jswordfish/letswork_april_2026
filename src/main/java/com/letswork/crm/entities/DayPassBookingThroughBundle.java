@@ -26,6 +26,6 @@ public class DayPassBookingThroughBundle extends Booking{
 	private LocalDate dateOfUse;
 	
 	@ManyToOne
-	DayPassBundle dayPassBundle;
+	DayPassBundleBooking dayPassBundle;
 
 }
