@@ -14,7 +14,7 @@ public class CrmApplication {
 	JdbcTemplate jdbcTemplate;
 
 	public static void main(String[] args) {
-		SpringApplication.run(CrmApplication.class, args);
+		SpringApplication.run(CrmApplication.class, args);//
 	}
 	
 	@PostConstruct
