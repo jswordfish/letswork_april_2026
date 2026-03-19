@@ -9,9 +9,6 @@ import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
@@ -35,10 +32,6 @@ import lombok.experimental.SuperBuilder;
 @DiscriminatorColumn(name="booking_type", 
   discriminatorType = DiscriminatorType.STRING)
 public class Booking extends Base{
-	
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 	
 	@ManyToOne
 	LetsWorkClient letsWorkClient;

@@ -468,4 +468,9 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
         return response;
     }
 
+	@Override
+	public LetsWorkCentre findById(Long id) {
+		return repo.getById(id);
+	}
+
 }

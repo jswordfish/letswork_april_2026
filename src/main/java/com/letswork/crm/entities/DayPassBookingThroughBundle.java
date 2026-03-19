@@ -25,7 +25,11 @@ public class DayPassBookingThroughBundle extends Booking{
 	
 	private LocalDate dateOfUse;
 	
-	@ManyToOne
-	DayPassBundleBooking dayPassBundle;
+//	@ManyToOne
+//	DayPassBundleBooking dayPassBundle;
+	/**
+	 * Temp fix...since there's a problem with nested booking id in hibernate
+	 */
+	Long dayPassBundleBookingId;
 
 }
