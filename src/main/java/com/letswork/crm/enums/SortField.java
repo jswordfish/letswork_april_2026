@@ -1,0 +1,5 @@
+package com.letswork.crm.enums;
+
+public enum SortField {
+	    ID,PRICE,  DAYPASS_BUNDLE_ID,EXPIRY_DATE, DISCOUNTED_PRICE,PAID,REMAINING_NUMBER_OF_DAYS, DATE_OF_PURCHASE
+}

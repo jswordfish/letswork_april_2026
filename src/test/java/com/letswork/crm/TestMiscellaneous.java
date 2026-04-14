@@ -19,14 +19,14 @@ public class TestMiscellaneous {
 		
 		List<DayPassBundleUsageRequest> list = Arrays.asList(new DayPassBundleUsageRequest(4146l,1), new DayPassBundleUsageRequest(4146l,1));
 		
-		DayPassBookingThroughBundleRequest bookingThroughBundleRequest = DayPassBookingThroughBundleRequest
-				.builder().clientId(4003l)
-				.companyId("LW")
-				.dateOfUse("19/Mar/2026")
-				.letsworkCenterId(3662l)
-				.bundleUsages(list)
-				.build();
-		System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(bookingThroughBundleRequest));
+//		DayPassBookingThroughBundleRequest bookingThroughBundleRequest = DayPassBookingThroughBundleRequest
+//				.builder().clientId(4003l)
+//				.companyId("LW")
+//				.dateOfUse("19/Mar/2026")
+//				.letsworkCenterId(3662l)
+//				.bundleUsages(list)
+//				.build();
+//		System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(bookingThroughBundleRequest));
 		
 	}
 
