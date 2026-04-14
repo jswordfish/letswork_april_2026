@@ -27,7 +27,7 @@ public class Visitor extends Base{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     @NotBlank
     private String name;
     

@@ -1,8 +1,12 @@
 package com.letswork.crm.entities;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,6 +22,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class DayPassBundle extends Base{
 	
+	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+	
 	@ManyToOne
 	LetsWorkCentre letsWorkCentre;
 	
@@ -25,8 +33,8 @@ public class DayPassBundle extends Base{
 	
 	private Integer validForDays;//60
 	
-	private Float discountPercentage;
+	private Integer discountPercentage;
 	
-	Float price;
+	private BigDecimal price;
 
 }

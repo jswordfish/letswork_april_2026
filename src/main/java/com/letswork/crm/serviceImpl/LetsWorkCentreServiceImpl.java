@@ -467,10 +467,11 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
         response.setList(letsWorkCentrePage.getContent());
         return response;
     }
-
-	@Override
+    
+    @Override
 	public LetsWorkCentre findById(Long id) {
 		return repo.getById(id);
 	}
+
 
 }

@@ -28,7 +28,7 @@ public class Greviance extends Base{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-	private String email;
+	private Long clientId;
 	
 	private String letsWorkCentre;
 	

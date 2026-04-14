@@ -47,17 +47,16 @@ public class GrevianceController {
         Greviance greviance =
                 new ObjectMapper().readValue(grevianceJson, Greviance.class);
 
-        NewUserRegister user = userRepo.findByEmailAndCompanyId(
-                greviance.getEmail(),
-                greviance.getCompanyId()
+        NewUserRegister user = userRepo.findById(
+                greviance.getClientId()
         ).orElseThrow(() ->
-                new RuntimeException("User not found for given email")
+                new RuntimeException("User not found for given ID")
         );
 
         Greviance saved = grevianceService.saveGreviance(greviance, image);
 
         mailService.sendGrevianceEmail(
-                saved.getEmail(),
+        		user.getEmail(),
                 user.getName(),
                 LocalDateTime.now(),
                 saved.getCategory(),
@@ -75,7 +74,7 @@ public class GrevianceController {
             @RequestParam String companyId,
             @RequestParam String token,
 
-            @RequestParam(required = false) String email,
+            @RequestParam(required = false) Long clientId,
             @RequestParam(required = false) String centre,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
@@ -91,7 +90,7 @@ public class GrevianceController {
         return ResponseEntity.ok(
                 grevianceService.getGreviances(
                         companyId,
-                        email,
+                        clientId,
                         centre,
                         city,
                         state,

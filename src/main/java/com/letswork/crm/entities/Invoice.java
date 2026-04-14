@@ -1,5 +1,7 @@
 package com.letswork.crm.entities;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -9,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.letswork.crm.enums.InvoiceStatus;
 
 import lombok.AllArgsConstructor;
@@ -30,10 +33,11 @@ public class Invoice extends Base{
     private Long id;
 	
 	@ManyToOne
-	@JoinColumn(name = "booking__id") 
+	@JoinColumn(name = "booking__id")
+	@JsonIgnore
 	Booking booking;
 	
-	private Integer amount;
+	private BigDecimal amount;
 	
 	@Enumerated(EnumType.STRING)
     private InvoiceStatus invoiceStatus;

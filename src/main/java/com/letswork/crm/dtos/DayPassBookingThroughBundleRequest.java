@@ -20,7 +20,7 @@ public class DayPassBookingThroughBundleRequest {
 
 	private Long letsworkCenterId;
 	
-	private String dateOfUse;
+	private LocalDate dateOfUse;
 	
 	String companyId;
 	

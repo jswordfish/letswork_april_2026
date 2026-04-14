@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,16 +16,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.ClientCompanyExcelDto;
+import com.letswork.crm.dtos.LetsWorkClientPurchesedDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.UserWithCompaniesDto;
-import com.letswork.crm.entities.Category;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.NewUserRegister;
-import com.letswork.crm.entities.SubCategory;
 import com.letswork.crm.entities.Tenant;
-import com.letswork.crm.enums.CategoryType;
 import com.letswork.crm.repo.CategoryRepository;
+import com.letswork.crm.repo.ConferenceBundleBookingRepository;
+import com.letswork.crm.repo.DayPassBundleBookingRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.LetsworkUserRepository;
@@ -50,6 +49,8 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	private final CategoryRepository categoryRepo;
     private final SubCategoryRepository subCategoryRepo;
     private final NewUserRegisterRepository userRepo;
+    private final DayPassBundleBookingRepository dayPassBundleBookingRepository;
+    private final ConferenceBundleBookingRepository conferenceBundleBookingRepository;
 	
 	@Autowired
 	LetsWorkClientRepository repo;
@@ -461,6 +462,26 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 
 	    client.setUpdateDate(new Date());
 	    repo.save(client);
+	}
+    
+    @Override
+	public LetsWorkClientPurchesedDto getLetsWorkClientPurchesed(Long clientId) {
+		// TODO Auto-generated method stub
+
+		LetsWorkClient client = repo.findById(clientId)
+				.orElseThrow(() -> new RuntimeException("Client not found"));
+		
+		
+		LetsWorkClientPurchesedDto clientPurchesedDto = LetsWorkClientPurchesedDto.builder().clientId(client.getId())
+				.purchasedDayPassCredits(dayPassBundleBookingRepository.totalRemainingDaysDayPass(clientId))
+				.purchasedConferenceCredits(conferenceBundleBookingRepository.totalRemainingHoursConferenceBundle(clientId)).build();
+		
+		client.setPurchasedDayPassCredits(clientPurchesedDto.getPurchasedDayPassCredits());
+		client.setPurchasedConferenceCredits(clientPurchesedDto.getPurchasedConferenceCredits());
+		
+		repo.save(client);
+		
+		return clientPurchesedDto;
 	}
 
 }

@@ -23,6 +23,7 @@ public interface UserService {
 	
 	public User findByEmail(String email, String companyId);
 	
+	public User findByPhoneNumber(String phoneNumber, String companyId);
 	
 	public User findByEmpId(String empId, String companyId);
 	

@@ -10,44 +10,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.letswork.crm.dtos.DayPassBundleDto;
 import com.letswork.crm.entities.DayPassBundle;
-import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.service.DayPassBundleService;
-import com.letswork.crm.service.LetsWorkCentreService;
 
 @RestController
 @RequestMapping("/day-pass-bundles")
 public class DayPassBundleController {
 
     private final DayPassBundleService service;
-    
-    private final LetsWorkCentreService letsWorkCentreService;
 
     public DayPassBundleController(
-            DayPassBundleService service, LetsWorkCentreService letsWorkCentreService
+            DayPassBundleService service
     ) {
         this.service = service;
-        this.letsWorkCentreService = letsWorkCentreService;
     }
 
     @PostMapping
     public ResponseEntity<DayPassBundle> saveOrUpdate(
-            @RequestBody DayPassBundleDto bundle,
+            @RequestBody DayPassBundle bundle,
             @RequestParam String token
     ) {
-    	LetsWorkCentre letsWorkCentre = letsWorkCentreService.findById(bundle.getLetsWorkCentreId());
-    	DayPassBundle dayPassBundle = DayPassBundle.builder()
-    			.companyId(letsWorkCentre.getCompanyId())
-    			.discountPercentage(bundle.getDiscountPercentage())
-    			.letsWorkCentre(letsWorkCentre)
-    			.numberOfDays(bundle.getNumberOfDays())
-    			.validForDays(bundle.getValidForDays())
-    			.price(bundle.getPrice())
-    			.build();
-    	dayPassBundle = service.saveOrUpdate(dayPassBundle);
-    	dayPassBundle.setLetsWorkCentre(letsWorkCentre);
-        return ResponseEntity.ok(dayPassBundle);
+        return ResponseEntity.ok(service.saveOrUpdate(bundle));
     }
 
     @GetMapping

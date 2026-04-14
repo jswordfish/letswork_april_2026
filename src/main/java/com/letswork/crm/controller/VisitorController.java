@@ -1,10 +1,12 @@
 package com.letswork.crm.controller;
 
+import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.Visitor;
 import com.letswork.crm.repo.VisitorRepository;
+import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.VisitorService;
+import com.letswork.crm.serviceImpl.MailJetOtpService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.CacheControl;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -46,17 +50,28 @@ public class VisitorController {
 	VisitorRepository repo;
 	
 	@Autowired
+	NewUserRegisterService userService;
+	
+	@Autowired
 	S3Client s3Client;
+	
+	@Autowired
+	MailJetOtpService mailJetOtpService;
 	
 	private final S3Presigner s3Presigner;
 	
 	@PostMapping
-	public ResponseEntity<String> saveOrUpdate(
+	public ResponseEntity<Visitor> saveOrUpdate(
 	        @RequestBody Visitor visitor,
 	        @RequestParam String token
 	) {
+		Visitor visitor2 = service.saveOrUpdate(visitor);
+		
+		NewUserRegister user = userService.getByEmailAndCompanyId(visitor.getEmail(), visitor.getCompanyId());
+		
+		mailJetOtpService.sendVisitorEmail(user.getName(), visitor.getLetsWorkCentre(), visitor2.getVisitDate(), visitor2.getName(), visitor2.getTimeOfVisit(), visitor2.getNumberOfGuests(), visitor2.getQrS3Path(), visitor2.getEmail(), visitor2.getEmailOfVisitor());
 	    return ResponseEntity.ok(
-	            service.saveOrUpdate(visitor)
+	    		visitor2
 	    );
 	}
 	
@@ -76,6 +91,25 @@ public class VisitorController {
 	            );
 
 	    return ResponseEntity.ok(presignedRequest.url().toString());
+	}
+	
+	@GetMapping("/s3/presigned-url/email")
+	public ResponseEntity<Void> getPresignedUrl(@RequestParam String s3Key) {
+	    // 1. Generate the fresh URL (valid for a short time or 7 days)
+	    PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(p -> p
+	            .getObjectRequest(GetObjectRequest.builder()
+	                    .bucket("letsworkcentres")
+	                    .key(s3Key)
+	                    .build())
+	            .signatureDuration(Duration.ofMinutes(15)) // Can be short since it's used immediately
+	    );
+
+	    String actualS3Url = presignedRequest.url().toString();
+
+	    // 2. Redirect the user's browser to the S3 URL
+	    return ResponseEntity.status(HttpStatus.FOUND) // HTTP 302
+	            .location(URI.create(actualS3Url))
+	            .build();
 	}
 	
 	@GetMapping(value = "/public/qr", produces = MediaType.IMAGE_PNG_VALUE)

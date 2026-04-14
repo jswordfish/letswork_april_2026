@@ -66,6 +66,19 @@ public class UserServiceImpl implements UserService{
 			throw new RuntimeException(e.getMessage());
 		}
 	}
+	
+	@Override
+	public User findByPhoneNumber(String phoneNumber, String companyId) {
+		// TODO Auto-generated method stub
+		try {
+			return repo.findByEmail(phoneNumber, companyId);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println(phoneNumber +"   "+companyId);
+			e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
+		}
+	}
 
 	@Override
 	public User findByEmpId(String empId, String companyId) {

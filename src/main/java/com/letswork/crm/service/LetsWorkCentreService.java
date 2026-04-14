@@ -20,8 +20,6 @@ public interface LetsWorkCentreService {
     
     LetsWorkCentre findByName(String name, String companyId, String city, String state);
     
-    LetsWorkCentre findById(Long id);
-    
     List<LetsWorkCentre> findAll(String companyId);
     
     String deleteLetsWorkCentre(LetsWorkCentre letsWorkCentre);
@@ -45,5 +43,7 @@ public interface LetsWorkCentreService {
             String state,
             String companyId
     );
+    
+    LetsWorkCentre findById(Long id);
     
 }

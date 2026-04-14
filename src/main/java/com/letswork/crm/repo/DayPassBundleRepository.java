@@ -36,22 +36,7 @@ public interface DayPassBundleRepository
     		@Param("companyId")String companyId,
     		@Param("city")String city,
     		@Param("state")String state,
-    		@Param("numberOfDays")String numberOfDays);
-	
-	//
-	
-	@Query("SELECT d FROM DayPassBundle d " +
-	 	       "WHERE d.companyId = :companyId " +
-	 	       "AND d.letsWorkCentre.name = :letsWorkCentre " +
-	 	       "AND d.letsWorkCentre.city = :city " +
-	 	       "AND d.letsWorkCentre.state = :state ")
-	 	       
- DayPassBundle findByLetsWorkCentreAndCompanyIdAndCityAndState2(
-         @Param("letsWorkCentre")String letsWorkCentre,
-         @Param("companyId")String companyId,
-         @Param("city")String city,
-         @Param("state")String state
- );
+    		@Param("numberOfDays")Integer numberOfDays);
 
     List<DayPassBundle> findAllByCompanyId(String companyId);
 }

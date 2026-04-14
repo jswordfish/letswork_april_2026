@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.letswork.crm.dtos.LetsWorkClientPurchesedDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.UserWithCompaniesDto;
 import com.letswork.crm.entities.LetsWorkClient;
@@ -151,6 +152,12 @@ public class LetsWorkClientController {
 		
 		return service.deleteCompany(clientCompany);
 		
+	}
+	
+	@GetMapping("/getLetsWorkClientPurchesed")
+	public ResponseEntity<LetsWorkClientPurchesedDto> getWorkClientPurchesed(@RequestParam String token,
+			@RequestParam(required = false) Long clientId) {
+		return ResponseEntity.ok(service.getLetsWorkClientPurchesed(clientId));
 	}
 
 }

@@ -38,6 +38,9 @@ public interface UserRepo extends CrudRepository<User, Long> {
 	        Pageable pageable
 	);
 	
+	@Query("select u from User u where u.phoneNumber =:phoneNumber and u.companyId =:companyId")
+	public User findByPhoneNumber( @Param("phoneNumber") String phoneNumber,@Param("companyId") String companyId);
+	
 	@Query("select u from User u where u.email =:email and u.companyId =:companyId")
 	public User findByEmail( @Param("email") String email,@Param("companyId") String companyId);
 	

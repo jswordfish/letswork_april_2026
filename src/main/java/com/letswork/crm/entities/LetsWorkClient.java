@@ -68,8 +68,8 @@ public class LetsWorkClient extends Base{
 	
 	private Integer conferenceCredits;
 	
-	private String purchasedDayPassCredits;
+	private Integer purchasedDayPassCredits;
 	
-	private String purchasedConferenceCredits;
+	private Float purchasedConferenceCredits;
 
 }

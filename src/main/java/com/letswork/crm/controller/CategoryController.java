@@ -52,8 +52,7 @@ public class CategoryController {
     public ResponseEntity<List<CategoryWithSubCategoriesDto>> getCategories(
             @RequestParam String companyId,
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) CategoryType categoryType,
-            @RequestParam String token
+            @RequestParam(required = false) CategoryType categoryType
     ) {
         return ResponseEntity.ok(
                 categoryService.getCategoriesWithSubCategories(

@@ -37,6 +37,18 @@ public class ConferenceBundleServiceImpl implements ConferenceBundleService {
         if (tenant == null) {
             throw new RuntimeException("CompanyId invalid - " + bundle.getCompanyId());
         }
+        
+        if(bundle.getNumberOfHours() == null) {
+        	throw new RuntimeException("No of Hours can not be null");
+        }
+        
+        if(bundle.getValidForDays() == null) {
+        	throw new RuntimeException("Valid for Days can not be null");
+        }
+        
+        if(bundle.getPrice() == null) {
+        	throw new RuntimeException("Price can not be null");
+        }
 
         ConferenceBundle existing =
                 repo.findByNumberOfHoursAndCompanyId(

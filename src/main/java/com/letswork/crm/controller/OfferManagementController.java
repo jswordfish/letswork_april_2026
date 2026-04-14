@@ -84,7 +84,8 @@ public class OfferManagementController {
                     }
 
                     OfferCreateResponseDto dto = new OfferCreateResponseDto();
-
+                    
+                    dto.setId(offer.getId());
                     dto.setName(offer.getName());
                     dto.setCode(offer.getCode());
                     dto.setDiscount(offer.getDiscount());

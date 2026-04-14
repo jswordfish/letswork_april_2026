@@ -26,6 +26,23 @@ public class OtpService {
 
     @Autowired
     private MailJetOtpService mailService;
+    
+    public String sendOtp(String email, String companyId) {
+
+        String otp = generateOtp();
+
+        EmailOtp emailOtp = new EmailOtp();
+        emailOtp.setEmail(email);
+        emailOtp.setOtp(otp);
+        emailOtp.setExpiresAt(LocalDateTime.now().plusMinutes(5));
+        emailOtp.setVerified(false);
+
+        otpRepository.save(emailOtp);
+
+        mailService.sendOtpEmail(email, otp);
+
+        return "OTP sent successfully";
+    }
 
     public String registerSendOtp(String email, String companyId) {
 

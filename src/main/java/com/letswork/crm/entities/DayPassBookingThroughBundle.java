@@ -6,7 +6,11 @@ import java.util.List;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
+
+import com.letswork.crm.enums.BookingStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,9 +25,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DayPassBookingThroughBundle extends Booking{
 	
-	private Integer numberOfDays;
+	private Integer numberOfPasses;
 	
-	private LocalDate dateOfUse;
 	
 //	@ManyToOne
 //	DayPassBundleBooking dayPassBundle;
@@ -31,5 +34,14 @@ public class DayPassBookingThroughBundle extends Booking{
 	 * Temp fix...since there's a problem with nested booking id in hibernate
 	 */
 	Long dayPassBundleBookingId;
+	
+	Long previousBookingId;
+	
+	@ManyToOne
+	LetsWorkCentre letsWorkCentre;
+	
+	String qrS3Path;
 
+//	@Enumerated(EnumType.STRING)
+//	private BookingStatus bookingStatus;
 }

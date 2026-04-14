@@ -9,7 +9,7 @@ import com.letswork.crm.entities.Visitor;
 
 public interface VisitorService {
 	
-	String saveOrUpdate(Visitor visitor);
+	Visitor saveOrUpdate(Visitor visitor);
 	
 	List<Visitor> viewByDate(LocalDate visitDate);
 	

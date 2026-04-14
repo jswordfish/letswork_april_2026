@@ -59,7 +59,7 @@ public class VisitorServiceImpl implements VisitorService {
 	ModelMapper mapper = new ModelMapper();
 
 	@Override
-	public String saveOrUpdate(Visitor visitor) {
+	public Visitor saveOrUpdate(Visitor visitor) {
 		
 		visitor.setVisited(false);
 	    Tenant tenant =
@@ -92,12 +92,16 @@ public class VisitorServiceImpl implements VisitorService {
 	    Visitor saved;
 
 	    if (existing != null) {
-
+	    	visitor.setId(existing.getId());
+	    	visitor.setQrS3Path(existing.getQrS3Path());
 	        mapper.map(visitor, existing);
 	        existing.setUpdateDate(new Date());
 
 	        saved = repo.save(existing);
-	        return "visitor updated";
+	        	if(saved.getQrS3Path() == null) {
+	        		 generateAndUploadQr(saved);
+	        	}
+	        return saved;
 
 	    } else {
 
@@ -109,7 +113,7 @@ public class VisitorServiceImpl implements VisitorService {
 
 	        generateAndUploadQr(saved);
 
-	        return "visitor created";
+	        return saved;
 	    }
 	}
 	

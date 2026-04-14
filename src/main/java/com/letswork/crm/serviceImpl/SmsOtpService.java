@@ -3,14 +3,17 @@ package com.letswork.crm.serviceImpl;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.SmsOtp;
+import com.letswork.crm.entities.User;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.SmsOtpRepository;
+import com.letswork.crm.repo.UserRepo;
 import com.letswork.crm.util.TokenService2;
 
 import lombok.RequiredArgsConstructor;
@@ -23,11 +26,38 @@ public class SmsOtpService {
     private final Msg91SmsService msg91SmsService;
     
     @Autowired
+    UserRepo userRepo;
+    
+    @Autowired
     NewUserRegisterRepository newUserRegisterRepository;
     
     TokenService2 tokenService = new TokenService2();
 
     private static final int OTP_EXPIRY_MINUTES = 5;
+    
+    public String sendOtp(String mobile, String companyId) {
+
+        // Optional: delete previous OTPs for same number
+        // smsOtpRepository.deleteByMobile(mobile);
+
+        String reqId = msg91SmsService.sendOtp(mobile);
+
+        if (reqId == null || reqId.isEmpty()) {
+            throw new RuntimeException("Failed to generate OTP");
+        }
+
+        SmsOtp smsOtp = SmsOtp.builder()
+                .mobile(mobile)
+                .reqId(reqId)
+                .verified(false)
+                .expiresAt(LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES))
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        smsOtpRepository.save(smsOtp);
+
+        return "OTP sent successfully";
+    }
 
     public String registerSendOtp(String mobile, String companyId) {
 
@@ -123,28 +153,50 @@ public class SmsOtpService {
 
         Map<String, Object> response = new HashMap<>();
 
-        if (Boolean.TRUE.equals(smsOtp.getRegistered())) {
+        // 1️⃣ INTERNAL USER (if applicable for mobile)
+        User internalUser = userRepo.findByPhoneNumber(mobile, companyId);
+        if (internalUser != null) {
 
-            NewUserRegister user =
-                    newUserRegisterRepository
-                            .findByPhoneNumberAndCompanyId(mobile, companyId)
-                            .orElseThrow(() ->
-                                    new RuntimeException("Registered user not found"));
+            String token = tokenService.generateToken(
+                    internalUser.getRoleOrDesig(),
+                    internalUser.getEmail()
+            );
 
-            String token =
-                    tokenService.generateToken(
-                            "App User",
-                            user.getEmail()
-                    );
+            response.put("status", "INTERNAL_USER");
+            response.put("role", internalUser.getRoleOrDesig());
+            response.put("token", token);
+            response.put("user", internalUser);
 
-            response.put("status", "REGISTERED");
+            return response;
+        }
+
+        // 2️⃣ REGISTERED USER → LOGIN
+        Optional<NewUserRegister> optionalUser =
+                newUserRegisterRepository
+                        .findByPhoneNumberAndCompanyId(mobile, companyId);
+
+        if (optionalUser.isPresent()) {
+
+            NewUserRegister user = optionalUser.get();
+
+            String token = tokenService.generateToken(
+                    "App User",
+                    user.getEmail()
+            );
+
+            response.put("status", "LOGIN_SUCCESS");
+            response.put("role", "App User");
             response.put("token", token);
             response.put("user", user);
 
             return response;
         }
 
-        response.put("status", "OTP_VERIFIED");
+        // 3️⃣ NOT REGISTERED → FRIENDLY MESSAGE
+        response.put("status", "NOT_REGISTERED");
+        response.put("message", "User not registered. Please proceed with registration.");
+
         return response;
     }
+    
 }

@@ -14,6 +14,7 @@ import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Category;
 import com.letswork.crm.entities.Greviance;
 import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.SubCategory;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.CategoryType;
@@ -69,11 +70,10 @@ public class GrevianceServiceImpl implements GrevianceService {
             throw new RuntimeException("This LetsWorkCentre does not exist");
         }
 
-        userRepo.findByEmailAndCompanyId(
-                greviance.getEmail(),
-                greviance.getCompanyId()
+        NewUserRegister user = userRepo.findById(
+                greviance.getClientId()
         ).orElseThrow(() ->
-                new RuntimeException("User not found for given email")
+                new RuntimeException("User not found for given id")
         );
 
         Category category =
@@ -104,7 +104,7 @@ public class GrevianceServiceImpl implements GrevianceService {
                     s3Service.uploadGrevianceImage(
                             "letsworkcentres",
                             greviance.getCompanyId(),
-                            greviance.getEmail(),
+                            user.getEmail(),
                             image
                     );
             greviance.setImageS3Key(s3Key);
@@ -118,7 +118,7 @@ public class GrevianceServiceImpl implements GrevianceService {
     @Override
     public PaginatedResponseDto getGreviances(
             String companyId,
-            String email,
+            Long clientId,
             String centre,
             String city,
             String state,
@@ -135,7 +135,7 @@ public class GrevianceServiceImpl implements GrevianceService {
         Page<Greviance> greviancePage =
                 grevianceRepo.filter(
                         companyId,
-                        email,
+                        clientId,
                         centre,
                         city,
                         state,

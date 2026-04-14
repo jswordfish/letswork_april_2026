@@ -1,5 +1,7 @@
 package com.letswork.crm.serviceImpl;
 
+import java.math.BigDecimal;
+
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +38,9 @@ public class PaymentServiceImpl implements PaymentService {
 
             JSONObject request = new JSONObject();
 
-            request.put("amount", invoice.getAmount() * 100); // paise
+            BigDecimal paiseAmount = invoice.getAmount().multiply(new BigDecimal("100"));
+
+	        request.put("amount", paiseAmount.longValue()); // paise
             request.put("currency", "INR");
             request.put("accept_partial", false);
 //            request.put("description", "Payment for " + invoice.getBookingType());

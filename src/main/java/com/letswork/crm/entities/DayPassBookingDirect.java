@@ -1,21 +1,39 @@
 package com.letswork.crm.entities;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
-public class DayPassBookingDirect extends Booking{
-	
-	private Integer numberOfDays;
-	
-	private LocalDate dateOfUse;
-	
-	Float price;
-	
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@DiscriminatorValue("DayPassBookingDirect")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class DayPassBookingDirect extends Booking {
+
+
+	private Integer numberOfPasses;
+
+	@ManyToOne
+	LetsWorkCentre letsWorkCentre;
+
+	BigDecimal price;
+
 	@ManyToOne
 	Offers appliedOffer;
+
+	BigDecimal discountedPrice;
 	
-	Float discountedPrice;
+	String qrS3Path;
+	
+	Long previousBookingId;
 
 }

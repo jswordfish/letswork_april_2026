@@ -25,6 +25,9 @@ public class User extends Base{
 	@ExcelCellName(value = "Last Name")
 	String lastName;
 	
+	@ExcelCellName(value = "Phone Number")
+	String phoneNumber;
+	
 	@ExcelCellName(value = "Role or Designation")
 	
 	String roleOrDesig;

@@ -9,10 +9,15 @@ import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 
@@ -33,6 +38,10 @@ import lombok.experimental.SuperBuilder;
   discriminatorType = DiscriminatorType.STRING)
 public class Booking extends Base{
 	
+	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+	
 	@ManyToOne
 	LetsWorkClient letsWorkClient;
 
@@ -49,5 +58,13 @@ public class Booking extends Base{
     
     @Enumerated(EnumType.STRING)
     private BookingStatus bookingStatus;
+    
+    @Transient
+    Invoice invoice;
+    
+    @JsonProperty("bookingType")
+    public String getBookingType() {
+        return this.getClass().getSimpleName();
+    }
     
 }

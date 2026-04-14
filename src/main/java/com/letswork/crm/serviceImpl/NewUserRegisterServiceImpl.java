@@ -1,7 +1,9 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -13,8 +15,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Category;
@@ -30,8 +34,11 @@ import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.ReferralRepository;
 import com.letswork.crm.repo.SubCategoryRepository;
+import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.TenantService;
+import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
 
 @Service
 @Transactional
@@ -46,6 +53,9 @@ public class NewUserRegisterServiceImpl
     
     @Autowired
     ReferralRepository referralRepository;
+    
+    @Autowired
+    LetsWorkCentreService letsWorkCentreService;
     
     @Autowired
     private S3Service s3Service;
@@ -89,6 +99,7 @@ public class NewUserRegisterServiceImpl
 
         user.setCreateDate(new Date());
         user.setUpdateDate(new Date());
+        user.setActive(true);
         
         NewUserRegister saved = repo.save(user);
         
@@ -211,6 +222,7 @@ public class NewUserRegisterServiceImpl
 
             user.setCreateDate(new Date());
             user.setUpdateDate(new Date());
+            user.setActive(true);
             saved = repo.save(user);
         }
 
@@ -249,6 +261,113 @@ public class NewUserRegisterServiceImpl
 
         letsWorkClientRepo.save(client);
     }
+    
+    @Override
+    public void disableUser(NewUserRegister user) {
+    	
+    	if (Boolean.FALSE.equals(user.getActive())) {
+    		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This user's account is already deactivated");
+    	}
+    	
+    	user.setActive(false);
+    	
+    	repo.save(user);
+    	
+    	
+    }
+    
+    @Override
+	public String uploadNewUserFromExcel(MultipartFile file, String companyId) throws IOException {
+    	
+	    List<NewUserRegister> userRegisters = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, NewUserRegister.class);
+	    
+	    for(NewUserRegister dto : userRegisters) {
+    		String val = validate(dto);
+    		if(!val.equalsIgnoreCase("ok")) {
+    			return val;
+    		}
+    	}
+	    
+	    List<String> responses = new ArrayList<>();
+
+	    for (NewUserRegister newUserRegister : userRegisters) {
+	        try {
+	        	newUserRegister.setCompanyId(companyId); 
+
+	            
+	            saveOrUpdateManually(newUserRegister);
+
+	            responses.add("Saved or Updated: " + newUserRegister.getName() + " " + newUserRegister.getEmail());
+	        } catch (Exception e) {
+	            responses.add("Error saving " + newUserRegister.getEmail() + ": " + e.getMessage());
+	        }
+	    }
+
+	    return "ok";
+	}
+    
+    private String validate(NewUserRegister dto) {
+		if(dto.getName() == null || dto.getName().length() == 0) {
+			return "Name Should not be null";
+		}
+	 			
+		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
+			return "CompanyId Should not be null";	
+			}
+		
+		if(dto.getEmail() == null || dto.getEmail().length() == 0) {
+			return "Email Should not be null";	
+			}
+		
+		if(dto.getPhoneNumber() == null || dto.getPhoneNumber().length() == 0) {
+			return "Phone Number Should not be null";	
+			}
+		
+		if(dto.getDob() == null) {
+			return "Date of Birth Should not be null";	
+			}
+		
+		
+		if(dto.getCategory() == null || dto.getCategory().length() == 0) {
+			return "Category Should not be null";	
+			}
+		
+		if(dto.getSubCategory() == null || dto.getSubCategory().length() == 0) {
+			return "SubCategory Should not be null";	
+			}
+		
+		if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
+			return "LetsWorkCentre Should not be null";	
+			}
+		
+		if(dto.getCity() == null || dto.getCity().length() == 0) {
+			return "City Should not be null";	
+			}
+		
+		if(dto.getState() == null || dto.getState().length() == 0) {
+			return "State Should not be null";	
+			}
+		
+		
+		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+			return "CompanyId "+dto.getCompanyId()+" does not exists";
+		}
+		
+		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getCity(), dto.getState()) == null){
+			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
+		}
+		
+		if(categoryRepo.findByNameAndCompanyIdAndCategoryType(dto.getCategory(), dto.getCompanyId(), CategoryType.BUSINESS)==null) {
+			return "Category "+dto.getCategory()+" does not exists";
+		}
+		
+		if(subCategoryRepo.findByNameAndCompanyIdAndCategoryType(dto.getSubCategory(), dto.getCompanyId(), CategoryType.BUSINESS)==null) {
+			return "Sub-Category "+dto.getSubCategory()+" does not exists";
+		}
+		
+		 		
+		return "ok";
+	}
     
     @Override
     public PaginatedResponseDto getPaginated(

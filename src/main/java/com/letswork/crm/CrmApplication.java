@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
+@EnableScheduling
 @SpringBootApplication
 public class CrmApplication {
 	
@@ -14,7 +16,7 @@ public class CrmApplication {
 	JdbcTemplate jdbcTemplate;
 
 	public static void main(String[] args) {
-		SpringApplication.run(CrmApplication.class, args);//
+		SpringApplication.run(CrmApplication.class, args);
 	}
 	
 	@PostConstruct

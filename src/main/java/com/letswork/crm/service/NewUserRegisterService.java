@@ -1,5 +1,6 @@
 package com.letswork.crm.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -13,10 +14,14 @@ public interface NewUserRegisterService {
 	public NewUserRegister save(NewUserRegister user);
 
     List<NewUserRegister> getAllByCompanyId(String companyId);
+    
+    public void disableUser(NewUserRegister user);
 
     NewUserRegister getByEmailAndCompanyId(
             String email,
             String companyId);
+    
+    public String uploadNewUserFromExcel(MultipartFile file, String companyId) throws IOException;
     
     public NewUserRegister updateProfileImage(
             String companyId,

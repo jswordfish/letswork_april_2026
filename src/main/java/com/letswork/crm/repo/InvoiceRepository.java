@@ -1,5 +1,7 @@
 package com.letswork.crm.repo;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,4 +29,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 	            @Param("toDate") java.util.Date toDate,
 	            Pageable pageable
 	    );
+	
+	@Query("SELECT i FROM Invoice i WHERE i.booking.referenceId = :referenceId")
+	Optional<Invoice> findByBookingReferenceId(@Param("referenceId") String referenceId);
+	
 }

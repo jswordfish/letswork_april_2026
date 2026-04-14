@@ -36,6 +36,16 @@ public class SmsOtpController {
         String res = smsOtpService.loginSendOtp(mobile, companyId);
         return ResponseEntity.ok(res);
     }
+    
+    @PostMapping("/sendSmsOpt")
+    public ResponseEntity<String> sendOtp(
+            @RequestParam String mobile,
+            @RequestParam String companyId) {
+
+        return ResponseEntity.ok(
+                smsOtpService.sendOtp(mobile, companyId)
+        );
+    }
 
     @PostMapping("/verify")
     public ResponseEntity<Map<String, Object>> verifyOtp(

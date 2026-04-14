@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.letswork.crm.dtos.LetsWorkClientPurchesedDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.UserWithCompaniesDto;
 import com.letswork.crm.entities.LetsWorkClient;
@@ -60,5 +61,8 @@ public interface LetsWorkClientService {
 	        String email,
 	        String companyId
 	);
+	
+	public LetsWorkClientPurchesedDto  getLetsWorkClientPurchesed(
+			Long clientId);
 
 }
