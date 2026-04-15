@@ -24,6 +24,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	
 	@Query("SELECT b FROM Booking b " +
 		       "WHERE b.companyId = :companyId " +
+		       "AND b.bookingStatus = 'ACTIVE' " +
 		       "AND (:bookingType IS NULL OR TYPE(b) = :bookingType) " +
 		       "AND (:clientId IS NULL OR (b.letsWorkClient IS NOT NULL AND b.letsWorkClient.id = :clientId)) " +
 		       "AND (:referenceId IS NULL OR b.referenceId = :referenceId) " +
