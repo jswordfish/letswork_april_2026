@@ -75,7 +75,8 @@ public class PdfService {
 	        // ================= BASIC =================
 	        html = html.replace("${invoiceNumber}", String.valueOf(invoice.getId()));
 	        html = html.replace("${invoiceDate}", LocalDate.now().toString());
-	        html = html.replace("${amount}", invoice.getAmount().toPlainString());
+	        BigDecimal invoiceAmount = BigDecimal.valueOf(booking.getFrontendAmount());
+	        html = html.replace("${amount}", invoiceAmount.toPlainString());
 
 	        // ================= CUSTOMER =================
 	        LetsWorkClient client = booking.getLetsWorkClient();
@@ -91,29 +92,46 @@ public class PdfService {
 
 	        html = html.replace("${lineItems}", lineItems);
 
+	     // ================= FRONTEND VALUES =================
+	        BigDecimal originalAmount = BigDecimal.valueOf(booking.getFrontendAmount());
+
+	        Integer discountPercent = booking.getFrontendDiscountPercentage() != null
+	                ? booking.getFrontendDiscountPercentage()
+	                : 0;
+
+	        BigDecimal discountedAmount = BigDecimal.valueOf(booking.getFrontendDiscountedAmount());
+
 	        // ================= TAX =================
 	        BigDecimal taxRate = new BigDecimal("0.09");
 
-	        BigDecimal cgst = invoice.getAmount().multiply(taxRate);
-	        BigDecimal sgst = invoice.getAmount().multiply(taxRate);
-	        BigDecimal total = invoice.getAmount()
+	        BigDecimal cgst = discountedAmount.multiply(taxRate);
+	        BigDecimal sgst = discountedAmount.multiply(taxRate);
+
+	        BigDecimal total = discountedAmount
 	                .add(cgst)
 	                .add(sgst);
-	        BigDecimal totalBeforeTax = invoice.getAmount();
+
+	        // ================= HTML REPLACEMENTS =================
 	        html = html.replace("${bookingRef}", booking.getReferenceId());
-	        Date date = null;
-	        	if(booking instanceof DayPassBundleBooking || booking instanceof ConferenceBundleBooking) {
-	        		String dt = booking.getStartDate()!=null?booking.getStartDate().toString():booking.getDateOfPurchase().toLocalDate().toString();
-	        		html = html.replace("${bookingDate}", dt);
-	        	}
-	        	else {
-	        		html = html.replace("${bookingDate}", booking.getStartDate().toString());
-	        	}
-	        
+
+	        if (booking instanceof DayPassBundleBooking || booking instanceof ConferenceBundleBooking) {
+	            String dt = booking.getStartDate() != null
+	                    ? booking.getStartDate().toString()
+	                    : booking.getDateOfPurchase().toLocalDate().toString();
+	            html = html.replace("${bookingDate}", dt);
+	        } else {
+	            html = html.replace("${bookingDate}", booking.getStartDate().toString());
+	        }
+
+	        // NEW FIELDS
+	        html = html.replace("${originalAmount}", originalAmount.toPlainString());
+	        html = html.replace("${discountPercent}", String.valueOf(discountPercent));
+	        html = html.replace("${discountedAmount}", discountedAmount.toPlainString());
+
+	        // TAX
 	        html = html.replace("${cgst}", cgst.toPlainString());
 	        html = html.replace("${sgst}", sgst.toPlainString());
 	        html = html.replace("${total}", total.toPlainString());
-	        html = html.replace("${totalBeforeTax}", totalBeforeTax.toPlainString());
 
 	        return html;
 

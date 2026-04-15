@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.letswork.crm.dtos.DayPassBundleBookingRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.DayPassBundle;
 import com.letswork.crm.entities.DayPassBundleBooking;
@@ -48,14 +49,14 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
 	private final OffersRepository offersRepository;
 
 	@Override
-	public DayPassBundleBooking dayPassBundleBooking(Long clientId, Long bundleId, Long letsWorkCentreId, BookedFrom bookedFrom) {
-		LetsWorkClient client = clientRepo.findById(clientId)
+	public DayPassBundleBooking dayPassBundleBooking(DayPassBundleBookingRequest request) {
+		LetsWorkClient client = clientRepo.findById(request.getClientId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Client not found"));
 
-		DayPassBundle bundle = dayPassBundleRepository.findById(bundleId)
+		DayPassBundle bundle = dayPassBundleRepository.findById(request.getBundleId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bundle not found"));
 		// 2. Centre validation
-		LetsWorkCentre centre = letsWorkCentreRepo.findById(letsWorkCentreId)
+		LetsWorkCentre centre = letsWorkCentreRepo.findById(request.getLetsWorkCentreId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "LetsWorkCentre not found"));
 		;
 
@@ -65,22 +66,13 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
 
 		DayPassBundleBooking booking = DayPassBundleBooking.builder().companyId(bundle.getCompanyId())
 				.dateOfPurchase(LocalDateTime.now()).letsWorkClient(client).letsWorkCentre(centre)
-				.dayPassBundleeId(bundleId).price(bundle.getPrice()).amount(bundle.getPrice()).remainingNumberOfDays(bundle.getNumberOfDays())
-				.bookingStatus(bookedFrom == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE).referenceId(generate("DAYPASS_BUNDLE")).bookedFrom(bookedFrom)
-				.createDate(createDate).dateOfPurchase(LocalDateTime.now()).expiryDate(expiryDate).build(); //added amount as well
+				.dayPassBundleeId(request.getBundleId()).price(bundle.getPrice()).amount(bundle.getPrice()).remainingNumberOfDays(bundle.getNumberOfDays())
+				.bookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE).referenceId(generate("DAYPASS_BUNDLE")).bookedFrom(request.getBookedFrom())
+				.createDate(createDate).dateOfPurchase(LocalDateTime.now()).expiryDate(expiryDate).frontendAmount(request.getFrontendAmount())
+                .frontendDiscountPercentage(request.getFrontendDiscountPercentage())
+                .frontendDiscountedAmount(request.getFrontendDiscountedAmount()).build();
 		booking.setStartDate(LocalDate.now());
 		DayPassBundleBooking savedBooking = dayPassBundleBookingRepository.save(booking);
-
-		// NOW THIS IS HANDLED IN PAYMENT VERIFICATION METHOD
-//		if (client.getPurchasedDayPassCredits() == null) {
-//			Integer credits = Optional.ofNullable(client.getPurchasedDayPassCredits()).orElse(0);
-//			client.setPurchasedDayPassCredits(bundle.getNumberOfDays() + credits);
-//			clientRepo.save(client);
-//		}else {
-//			Integer credits = client.getPurchasedDayPassCredits();
-//			client.setPurchasedDayPassCredits(bundle.getNumberOfDays() + credits);
-//			clientRepo.save(client);
-//		}
 
 		return savedBooking;
 

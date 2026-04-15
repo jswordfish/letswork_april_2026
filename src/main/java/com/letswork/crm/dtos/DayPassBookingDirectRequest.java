@@ -28,5 +28,11 @@ public class DayPassBookingDirectRequest {
 	
 	BigDecimal price;
 	
+	private float frontendAmount;
+	
+	private Integer frontendDiscountPercentage;
+	
+	private float frontendDiscountedAmount;
+
  
 }

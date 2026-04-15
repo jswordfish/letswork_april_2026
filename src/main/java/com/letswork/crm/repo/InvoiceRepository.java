@@ -30,7 +30,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 	            Pageable pageable
 	    );
 	
-	@Query("SELECT i FROM Invoice i WHERE i.booking.referenceId = :referenceId")
+	@Query("SELECT i FROM Invoice i JOIN FETCH i.booking WHERE i.booking.referenceId = :referenceId")
 	Optional<Invoice> findByBookingReferenceId(@Param("referenceId") String referenceId);
 	
 }

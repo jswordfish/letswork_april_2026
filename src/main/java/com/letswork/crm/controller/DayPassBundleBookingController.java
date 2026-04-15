@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.letswork.crm.dtos.DayPassBundleBookingRequestDto;
+import com.letswork.crm.dtos.DayPassBundleBookingRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.DayPassBundleBooking;
 import com.letswork.crm.enums.BookingStatus;
@@ -30,9 +30,9 @@ public class DayPassBundleBookingController {
 
 	// ✅ CREATE BUNDLE BOOKING
 	@PostMapping("/create")
-	public ResponseEntity<DayPassBundleBooking> createBundleBooking(@RequestBody DayPassBundleBookingRequestDto dto, @RequestParam String token) {
+	public ResponseEntity<DayPassBundleBooking> createBundleBooking(@RequestBody DayPassBundleBookingRequest request, @RequestParam String token) {
 
-		return ResponseEntity.ok(service.dayPassBundleBooking(dto.getClientId(), dto.getBundleId(), dto.getLetsWorkCentreId(), dto.getBookedFrom()));
+		return ResponseEntity.ok(service.dayPassBundleBooking(request));
 	}
 
 	@GetMapping("/all")

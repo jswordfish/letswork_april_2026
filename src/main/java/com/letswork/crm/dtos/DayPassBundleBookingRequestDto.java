@@ -5,7 +5,7 @@ import com.letswork.crm.enums.BookedFrom;
 import lombok.Data;
 
 @Data
-public class DayPassBundleBookingRequestDto {
+public class DayPassBundleBookingRequestDto { // not in use
 	
 	Long clientId;
 	Long letsWorkCentreId;

@@ -35,9 +35,7 @@ public class ConferenceBundleBookingController {
             @RequestParam String token
     ) {
         ConferenceBundleBooking booking = conferenceBundleBookingService.createBundlePurchase(
-                request.getClientId(),
-                request.getBundleId(),
-                request.getBookedFrom()
+        		request
         );
       // booking.setBookingStatus(BookingStatus.ACTIVE);
         return new ResponseEntity<>(booking, HttpStatus.CREATED);

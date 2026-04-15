@@ -24,6 +24,8 @@ import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortFieldByBooking;
 import com.letswork.crm.enums.SortingOrder;
 import com.letswork.crm.repo.BookingRepository;
+import com.letswork.crm.repo.ConferenceBundleBookingRepository;
+import com.letswork.crm.repo.DayPassBundleBookingRepository;
 import com.letswork.crm.repo.InvoiceRepository;
 import com.letswork.crm.service.BookingService;
 import com.letswork.crm.util.BookingTypeResolver;
@@ -36,6 +38,12 @@ public class BookingServiceImpl implements BookingService {
 
 	@Autowired
 	InvoiceRepository invoiceRepo;
+	
+	@Autowired
+	ConferenceBundleBookingRepository confBundleRepo;
+	
+	@Autowired
+	DayPassBundleBookingRepository dayPassBundleRepo;
 
 	@Autowired
 	private BookingTypeResolver bookingTypeResolver;
@@ -90,22 +98,14 @@ public class BookingServiceImpl implements BookingService {
 	public PaginatedResponseDto getAllBookings(String companyId, String bookingType, Long clientId, String referenceId,
 			BookingStatus status, LocalDate fromDate, LocalDate toDate, SortFieldByBooking sortFieldByBooking,
 			SortingOrder order, int page, int size) {
+		
+		expireOldBookings();
 
-//		String fieldName = (sortFieldByBooking != null) ? sortFieldByBooking. : "DATE_OF_PURCHASE";
-
-//		String fieldName = null;
-//		if (sortFieldByBooking != null) {
 		String fieldName = FIELD_MAP.get(sortFieldByBooking);
-//		} else {
-//			fieldName = "ID";
-//		}
-//		Sort sort = order.equals(SortingOrder.DESC) ? Sort.by(fieldName).descending() : Sort.by(fieldName).ascending();
-//		Pageable pageable = PageRequest.of(page, size, sort);
 
 		Sort sort = order.equals(SortingOrder.DESC) ? Sort.by(fieldName).descending() : Sort.by(fieldName).ascending();
 		Pageable pageable = PageRequest.of(page, size, sort);
 
-//		Pageable pageable = PageRequest.of(page, size, Sort.by("createDate").descending());
 		Class<? extends Booking> bookingClass = null;
 
 		if (bookingType != null) {
@@ -131,6 +131,16 @@ public class BookingServiceImpl implements BookingService {
 		}
 
 		return buildResponse(result, page, size);
+	}
+	
+	@Transactional
+	public void expireOldBookings() {
+
+	    LocalDate today = LocalDate.now();
+
+	    bookingRepo.expirePastBookings(today);
+	    confBundleRepo.expireConferenceBundles(today);
+	    dayPassBundleRepo.expireDayPassBundles(today);
 	}
 
 	private static final Map<SortFieldByBooking, String> FIELD_MAP = Map.of(SortFieldByBooking.ID, "id",

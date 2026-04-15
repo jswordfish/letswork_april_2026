@@ -227,7 +227,7 @@ public class MailJetOtpService {
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("name", name);
-        variables.put("dateandtime", dateTime.toString());
+        variables.put("dateandtime", dateTime.toLocalDate().toString());
         variables.put("category", category);
         variables.put("subCategory", subCategory);
         variables.put("letswork", letsWorkCentre);

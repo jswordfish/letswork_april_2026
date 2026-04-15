@@ -155,11 +155,19 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 		String refId = generate("CONF_ROOM_DIRECT");
 		booking.setReferenceId(refId);
 		booking.setDateOfPurchase(LocalDateTime.now());
+		LocalDate today = LocalDate.now();
+	     
+	     if (request.getSlotDate().isBefore(today)) {
+	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
+	     }
 		booking.setStartDate(request.getSlotDate());
 		booking.setPrice(totalPrice);
 		booking.setDiscountedPrice(discountedPrice);
 		booking.setAmount(discountedPrice);
 		booking.setAppliedOffer(offer);
+		booking.setFrontendAmount(request.getFrontendAmount());
+		booking.setFrontendDiscountPercentage(request.getFrontendDiscountPercentage());
+		booking.setFrontendDiscountedAmount(request.getFrontendDiscountedAmount());;
 
 		try {
 			String qrPath = qrService.generateQRCodeWithBookingCodeRGB(refId);
@@ -358,9 +366,14 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 		booking.setLetsWorkCentre(existing.getLetsWorkCentre());
 		booking.setConferenceRoom(existing.getConferenceRoom());
 		booking.setCompanyId(existing.getCompanyId());
-		booking.setBookingStatus(BookingStatus.ACTIVE);
+		booking.setBookingStatus(BookingStatus.RESCHEDULED);
 		booking.setReferenceId(generate("CONF_ROOM_DIRECT"));
 		booking.setDateOfPurchase(LocalDateTime.now());
+		LocalDate today = LocalDate.now();
+	     
+	     if (newDate.isBefore(today)) {
+	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
+	     }
 		booking.setStartDate(newDate);
 		booking.setPrice(existing.getPrice());
 		booking.setDiscountedPrice(existing.getDiscountedPrice());

@@ -6,7 +6,18 @@ import lombok.Data;
 
 @Data
 public class CreateConferenceBundleBookingRequest {
+	
     private Long clientId;
+    
     private Long bundleId;
-    private BookedFrom bookedFrom = BookedFrom.APP;
+    
+    private BookedFrom bookedFrom;
+    
+	private float frontendAmount;
+	
+	private Integer frontendDiscountPercentage;
+	
+	private float frontendDiscountedAmount;
+
+    
 }

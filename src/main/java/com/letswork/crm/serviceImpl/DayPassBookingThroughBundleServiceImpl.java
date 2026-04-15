@@ -149,6 +149,11 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 	        booking.setLetsWorkCentre(centre);
 	        booking.setCreateDate(new Date());
 	        booking.setDateOfPurchase(LocalDateTime.now());
+	        LocalDate today = LocalDate.now();
+	     
+		     if (request.getDateOfUse().isBefore(today)) {
+		         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
+		     }
 	        booking.setStartDate(request.getDateOfUse());
 	        booking.setBookingStatus(BookingStatus.ACTIVE);
 	        String refId = generate("DayPassBookingThroughBundle");
@@ -298,7 +303,7 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 				.findByIdAndCompanyId(bookingId, companyId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking not found"));
 
-		if (existing.getBookingStatus().equals(BookingStatus.ACTIVE.toString()) ) {
+		if (existing.getBookingStatus() != BookingStatus.ACTIVE) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only ACTIVE bookings can be rescheduled");
 		}
 
@@ -336,6 +341,11 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 		String refId = generate("DayPassBookingThroughBundle");
 		booking.setReferenceId(refId);
 		booking.setDateOfPurchase(LocalDateTime.now());
+		LocalDate today = LocalDate.now();
+	     
+	     if (newDate.isBefore(today)) {
+	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
+	     }
 		booking.setStartDate(newDate);
 		booking.setNumberOfPasses(existing.getNumberOfPasses());
 		booking.setDayPassBundleBookingId(existing.getDayPassBundleBookingId());

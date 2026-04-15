@@ -17,6 +17,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
@@ -44,6 +45,12 @@ public class Booking extends Base{
 	
 	@ManyToOne
 	LetsWorkClient letsWorkClient;
+	
+	private float frontendAmount;
+	
+	private Integer frontendDiscountPercentage;
+	
+	private float frontendDiscountedAmount;
 
     private BigDecimal amount;
 
@@ -60,6 +67,7 @@ public class Booking extends Base{
     private BookingStatus bookingStatus;
     
     @Transient
+    @JsonIgnoreProperties("booking")
     Invoice invoice;
     
     @JsonProperty("bookingType")

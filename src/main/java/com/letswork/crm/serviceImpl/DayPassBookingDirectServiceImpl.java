@@ -133,8 +133,16 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
 		booking.setDiscountedPrice(discountedPrice);
 		booking.setAmount(discountedPrice);
 		booking.setAppliedOffer(offer);
+		booking.setFrontendAmount(request.getFrontendAmount());
+		booking.setFrontendDiscountPercentage(request.getFrontendDiscountPercentage());
+		booking.setFrontendDiscountedAmount(request.getFrontendDiscountedAmount());
 		booking.setCreateDate(new Date());
 		booking.setDateOfPurchase(LocalDateTime.now());
+		LocalDate today = LocalDate.now();
+	     
+	     if (request.getDateOfUse().isBefore(today)) {
+	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
+	     }
 		booking.setStartDate(request.getDateOfUse());
 		
 		File qrFile;
@@ -294,9 +302,14 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
 		booking.setLetsWorkClient(existing.getLetsWorkClient());
 		booking.setLetsWorkCentre(existing.getLetsWorkCentre());
 		booking.setPreviousBookingId(existing.getId());
-		booking.setBookingStatus(BookingStatus.ACTIVE);
+		booking.setBookingStatus(BookingStatus.RESCHEDULED);
 		booking.setReferenceId(generate("DAY_PASS_DIRECT"));
 		booking.setDateOfPurchase(LocalDateTime.now());
+		LocalDate today = LocalDate.now();
+	     
+	     if (newDate.isBefore(today)) {
+	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
+	     }
 		booking.setStartDate(newDate);
 		booking.setPrice(existing.getPrice());
 		booking.setNumberOfPasses(existing.getNumberOfPasses());

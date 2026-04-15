@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.letswork.crm.dtos.CreateConferenceBundleBookingRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ConferenceBundle;
 import com.letswork.crm.entities.ConferenceBundleBooking;
@@ -48,15 +49,13 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
     
     @Override
     public ConferenceBundleBooking createBundlePurchase(
-            Long clientId,
-            Long bundleId,
-            BookedFrom bookedFrom
+    		CreateConferenceBundleBookingRequest request
     ){
 
-        LetsWorkClient client = clientRepo.findById(clientId)
+        LetsWorkClient client = clientRepo.findById(request.getClientId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Client not found"));
 
-        ConferenceBundle bundle = bundleRepo.findById(bundleId)
+        ConferenceBundle bundle = bundleRepo.findById(request.getBundleId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bundle not found"));
 
         LocalDateTime now = LocalDateTime.now();   
@@ -73,9 +72,12 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
                         .remainingHours(bundle.getNumberOfHours())
                         .price(bundle.getPrice())
                         .amount(bundle.getPrice())
-                        .bookingStatus(bookedFrom == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE)
+                        .bookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE)
                         .referenceId(generate("CONF_BUNDLE"))
-                        .bookedFrom(bookedFrom)
+                        .bookedFrom(request.getBookedFrom())
+                        .frontendAmount(request.getFrontendAmount())
+                        .frontendDiscountPercentage(request.getFrontendDiscountPercentage())
+                        .frontendDiscountedAmount(request.getFrontendDiscountedAmount())
                         .createDate(createDate)
                         .expiryDate(expiryDate)
                         .companyId(bundle.getCompanyId())

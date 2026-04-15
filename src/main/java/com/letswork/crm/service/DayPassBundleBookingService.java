@@ -2,16 +2,16 @@ package com.letswork.crm.service;
 
 import java.time.LocalDateTime;
 
+import com.letswork.crm.dtos.DayPassBundleBookingRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.DayPassBundleBooking;
-import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortField;
 import com.letswork.crm.enums.SortingOrder;
 
 public interface DayPassBundleBookingService {
 
-	public DayPassBundleBooking dayPassBundleBooking(Long clientId, Long bundleId, Long letsWorkCentreId, BookedFrom bookedFrom);
+	public DayPassBundleBooking dayPassBundleBooking(DayPassBundleBookingRequest request);
 
 	public DayPassBundleBooking deductBundleWithDays(Long dayPassBookId, Integer numOfDays);
 

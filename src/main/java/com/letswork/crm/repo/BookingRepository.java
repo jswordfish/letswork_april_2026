@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,7 +26,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	
 	@Query("SELECT b FROM Booking b " +
 		       "WHERE b.companyId = :companyId " +
-		       "AND b.bookingStatus = 'ACTIVE' " +
+		       "AND b.bookingStatus <> 'DRAFT' " +
 		       "AND (:bookingType IS NULL OR TYPE(b) = :bookingType) " +
 		       "AND (:clientId IS NULL OR (b.letsWorkClient IS NOT NULL AND b.letsWorkClient.id = :clientId)) " +
 		       "AND (:referenceId IS NULL OR b.referenceId = :referenceId) " +
@@ -41,6 +43,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		        @Param("toDate") LocalDateTime toDate,
 		        Pageable pageable
 		);
+	
+	@Modifying
+	@Transactional
+	@Query("UPDATE Booking b SET b.bookingStatus = 'EXPIRED' " +
+	       "WHERE b.bookingStatus = 'ACTIVE' " +
+	       "AND b.startDate < :today")
+	int expirePastBookings(@Param("today") LocalDate today);
 	
 	@Query("SELECT COALESCE(SUM(b.numberOfPasses), 0) FROM Booking b " +
 		       "WHERE b.companyId = :companyId " +

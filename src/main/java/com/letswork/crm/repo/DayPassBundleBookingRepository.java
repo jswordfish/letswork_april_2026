@@ -3,9 +3,12 @@ package com.letswork.crm.repo;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -78,6 +81,13 @@ public interface DayPassBundleBookingRepository extends JpaRepository<DayPassBun
 			+  "AND TYPE(b) = 'DayPassBundleBooking' "
 			+ "  AND b.bookingStatus = 'ACTIVE'")
 	 Integer totalRemainingDaysDayPass(Long clientId);
+	
+	@Modifying
+	@Transactional
+	@Query("UPDATE DayPassBundleBooking b SET b.bookingStatus = 'EXPIRED' " +
+	       "WHERE b.bookingStatus = 'ACTIVE' " +
+	       "AND b.expiryDate < :today")
+	int expireDayPassBundles(@Param("today") LocalDate today);
  
 
 }

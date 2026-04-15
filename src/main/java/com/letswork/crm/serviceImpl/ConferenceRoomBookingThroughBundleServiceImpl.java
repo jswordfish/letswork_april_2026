@@ -177,6 +177,11 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
             booking.setNumberOfHours(usableHours);
             booking.setCompanyId(bundle.getCompanyId());
             booking.setDateOfPurchase(LocalDateTime.now());
+            LocalDate today = LocalDate.now();
+   	     
+	   	     if (request.getSlotDate().isBefore(today)) {
+	   	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
+	   	     }
             booking.setStartDate(request.getSlotDate());
             booking.setBookingStatus(BookingStatus.ACTIVE);
             String refId = generate("CONF_ROOM_BUNDLE");
@@ -476,11 +481,16 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
 		booking.setBundleBooking(existing.getBundleBooking());
 		booking.setCompanyId(existing.getCompanyId());
 		booking.setNumberOfHours(existing.getNumberOfHours());
-		booking.setBookingStatus(BookingStatus.ACTIVE);
+		booking.setBookingStatus(BookingStatus.RESCHEDULED);
 		String refId = generate("CONF_ROOM_DIRECT");
 		booking.setReferenceId(refId);
 		booking.setPreviousBookingId(existing.getId());
 		booking.setDateOfPurchase(LocalDateTime.now());
+		LocalDate today = LocalDate.now();
+	     
+	     if (newDate.isBefore(today)) {
+	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
+	     }
 		booking.setStartDate(newDate);
 		
 		try {

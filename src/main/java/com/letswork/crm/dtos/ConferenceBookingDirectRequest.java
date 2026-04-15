@@ -21,5 +21,11 @@ public class ConferenceBookingDirectRequest {
     private List<ConferenceRoomSlotRequest> slots;
 
     private Long offerId;
+    
+	private float frontendAmount;
+	
+	private Integer frontendDiscountPercentage;
+	
+	private float frontendDiscountedAmount;
 
 }

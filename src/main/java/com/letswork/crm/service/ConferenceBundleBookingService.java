@@ -2,9 +2,9 @@ package com.letswork.crm.service;
 
 import java.time.LocalDate;
 
+import com.letswork.crm.dtos.CreateConferenceBundleBookingRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ConferenceBundleBooking;
-import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortFieldByConferenceBundleBooking;
 import com.letswork.crm.enums.SortingOrder;
@@ -12,9 +12,7 @@ import com.letswork.crm.enums.SortingOrder;
 public interface ConferenceBundleBookingService {
 	
 	public ConferenceBundleBooking createBundlePurchase(
-            Long clientId,
-            Long bundleId,
-            BookedFrom bookedFrom
+			CreateConferenceBundleBookingRequest request
     );
 	
 	public ConferenceBundleBooking deductBundleWithHours(

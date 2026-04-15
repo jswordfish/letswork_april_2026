@@ -4,10 +4,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.ConferenceBundleBooking;
@@ -27,6 +31,13 @@ public interface ConferenceBundleBookingRepository
 			+  "AND TYPE(b) = 'ConferenceBundleBooking' "
 			+ "  AND b.bookingStatus = 'ACTIVE'")
 	 Float totalRemainingHoursConferenceBundle(Long clientId);
+    
+    @Modifying
+    @Transactional
+    @Query("UPDATE ConferenceBundleBooking b SET b.bookingStatus = 'EXPIRED' " +
+           "WHERE b.bookingStatus = 'ACTIVE' " +
+           "AND b.expiryDate < :today")
+    int expireConferenceBundles(@Param("today") LocalDate today);
     
     @Query("SELECT b FROM Booking b " +
             "WHERE TYPE(b) = ConferenceBundleBooking " +

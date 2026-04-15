@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.letswork.crm.enums.InvoiceStatus;
 
 import lombok.AllArgsConstructor;
@@ -34,7 +34,7 @@ public class Invoice extends Base{
 	
 	@ManyToOne
 	@JoinColumn(name = "booking__id")
-	@JsonIgnore
+	@JsonIgnoreProperties("invoice")
 	Booking booking;
 	
 	private BigDecimal amount;
