@@ -305,21 +305,21 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
 		booking = dayPassBookingDirectRepository.save(booking);
 //		
 //		Invoice
-		Invoice invoice = new Invoice();
-		invoice.setBooking(booking);
-		invoice.setAmount(booking.getAmount());
-		invoice.setInvoiceStatus(InvoiceStatus.PAID);
-		invoice.setCompanyId(booking.getCompanyId());
-		Invoice savedInvoice = invoiceRepository.save(invoice);
-
-		String html = pdfService.buildInvoiceHtml(savedInvoice);
-		byte[] pdfBytes = pdfService.generateInvoicePdf(html);
-
-		String s3Key = s3Service.uploadInvoicePdf("letsworkcentres", savedInvoice.getCompanyId(), savedInvoice.getId(),
-				pdfBytes);
-
-		savedInvoice.setPdfS3KeyName(s3Key);
-		invoiceRepository.save(savedInvoice);
+//		Invoice invoice = new Invoice();
+//		invoice.setBooking(booking);
+//		invoice.setAmount(booking.getAmount());
+//		invoice.setInvoiceStatus(InvoiceStatus.PAID);
+//		invoice.setCompanyId(booking.getCompanyId());
+//		Invoice savedInvoice = invoiceRepository.save(invoice);
+//
+//		String html = pdfService.buildInvoiceHtml(savedInvoice);
+//		byte[] pdfBytes = pdfService.generateInvoicePdf(html);
+//
+//		String s3Key = s3Service.uploadInvoicePdf("letsworkcentres", savedInvoice.getCompanyId(), savedInvoice.getId(),
+//				pdfBytes);
+//
+//		savedInvoice.setPdfS3KeyName(s3Key);
+//		invoiceRepository.save(savedInvoice);
 //	
 //		
 		return booking;
