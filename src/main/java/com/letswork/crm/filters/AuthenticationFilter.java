@@ -152,6 +152,31 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
+		    	if(url.endsWith("webhook")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
+		    	if(url.endsWith("get-parent-and-sub")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
+		    	if(url.endsWith("send-otp")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
+		    	if(url.endsWith("sendSmsOpt")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
+		    	if(url.endsWith("email")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
 		    	
 		    String token = httpRequest.getParameter("token");
 		    Enumeration<String> headerNames = httpRequest.getHeaderNames();
