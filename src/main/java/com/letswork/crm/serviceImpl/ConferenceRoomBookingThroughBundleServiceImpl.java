@@ -415,8 +415,9 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
     	ConferenceRoomBookingThroughBundle booking = bookingRepo.findByIdAndCompanyId(id, companyId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking not found"));
 
-		if (booking.getBookingStatus().equals(BookingStatus.ACTIVE.toString())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only ACTIVE bookings can be cancelled");
+		//if (  !( (booking.getBookingStatus().equals(BookingStatus.ACTIVE.toString()) || (booking.getBookingStatus().equals(BookingStatus.RESCHEDULED.toString()) )){
+    	if (!((booking.getBookingStatus() == BookingStatus.ACTIVE) || (booking.getBookingStatus() == BookingStatus.RESCHEDULED) ) ) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only ACTIVE/RESCHEDULED bookings can be cancelled");
 		}
 
 		validateCancellationAllowed(booking.getStartDate());

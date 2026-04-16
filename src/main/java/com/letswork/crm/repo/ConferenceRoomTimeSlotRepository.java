@@ -22,7 +22,7 @@ public interface ConferenceRoomTimeSlotRepository
 		       "AND t.letsWorkCentre.id = :centreId " +
 		       "AND t.conferenceRoom.id = :roomId " +
 		       "AND t.slotDate = :date " +
-		     //  "AND (t.softDelete  IS null OR t.softDelete = false) " +
+		       "AND (t.softDelete  IS null OR t.softDelete = false) " +
 		       "ORDER BY t.startTime")
 		List<ConferenceRoomTimeSlot> findBookedSlots(
 		        @Param("companyId") String companyId,

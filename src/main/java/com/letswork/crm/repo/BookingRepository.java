@@ -54,7 +54,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	@Query("SELECT COALESCE(SUM(b.numberOfPasses), 0) FROM Booking b " +
 		       "WHERE b.companyId = :companyId " +
 		       "AND TYPE(b) IN (:types) " +
-		       "AND (b.bookingStatus = 'ACTIVE' OR b.bookingStatus = 'DRAFT') " +
+		       "AND (b.bookingStatus = 'ACTIVE' OR b.bookingStatus = 'RESCHEDULED') " +
 		       "AND b.startDate = :date " +
 		       "AND b.letsWorkCentre.name = :centre " +
 		       "AND b.letsWorkCentre.city = :city " +
