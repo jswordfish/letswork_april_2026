@@ -39,6 +39,8 @@ public class Invoice extends Base{
 	
 	private BigDecimal amount;
 	
+	private float amountFinal;
+	
 	@Enumerated(EnumType.STRING)
     private InvoiceStatus invoiceStatus;
 	

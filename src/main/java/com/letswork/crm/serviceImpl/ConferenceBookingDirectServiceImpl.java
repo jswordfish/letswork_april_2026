@@ -168,6 +168,9 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 		booking.setFrontendAmount(request.getFrontendAmount());
 		booking.setFrontendDiscountPercentage(request.getFrontendDiscountPercentage());
 		booking.setFrontendDiscountedAmount(request.getFrontendDiscountedAmount());;
+		booking.setFrontendCgstPercentage(request.getFrontendCgstPercentage());
+		booking.setFrontendSgstPercentage(request.getFrontendSgstPercentage());
+		booking.setFrontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax());
 
 		try {
 			String qrPath = qrService.generateQRCodeWithBookingCodeRGB(refId);
@@ -342,9 +345,9 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only ACTIVE bookings can be rescheduled");
 		}
 
-		if (existing.getStartDate().equals(newDate)) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New date must be different from current booking date");
-		}
+//		if (existing.getStartDate().equals(newDate)) {
+//			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New date must be different from current booking date");
+//		}
 
 		validateConsecutiveSlots(newSlots);
 

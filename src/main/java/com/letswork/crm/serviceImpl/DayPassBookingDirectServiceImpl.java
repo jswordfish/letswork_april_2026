@@ -136,6 +136,9 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
 		booking.setFrontendAmount(request.getFrontendAmount());
 		booking.setFrontendDiscountPercentage(request.getFrontendDiscountPercentage());
 		booking.setFrontendDiscountedAmount(request.getFrontendDiscountedAmount());
+		booking.setFrontendCgstPercentage(request.getFrontendCgstPercentage());
+		booking.setFrontendSgstPercentage(request.getFrontendSgstPercentage());
+		booking.setFrontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax());
 		booking.setCreateDate(new Date());
 		booking.setDateOfPurchase(LocalDateTime.now());
 		LocalDate today = LocalDate.now();

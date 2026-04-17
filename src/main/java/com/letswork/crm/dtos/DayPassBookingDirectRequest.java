@@ -33,6 +33,11 @@ public class DayPassBookingDirectRequest {
 	private Integer frontendDiscountPercentage;
 	
 	private float frontendDiscountedAmount;
+	
+	private Integer frontendCgstPercentage;
+	
+	private Integer frontendSgstPercentage;
+	
+	private float frontendFinalAmountAfterAddingTax;
 
- 
 }

@@ -91,6 +91,7 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
                 Invoice invoice = new Invoice();
                 invoice.setBooking(booking);
                 invoice.setAmount(booking.getAmount());
+                invoice.setAmountFinal(booking.getFrontendFinalAmountAfterAddingTax());
                 invoice.setInvoiceStatus(InvoiceStatus.PAID);
                 invoice.setCompanyId(booking.getCompanyId());
                 Invoice savedInvoice = invoiceRepository.save(invoice);

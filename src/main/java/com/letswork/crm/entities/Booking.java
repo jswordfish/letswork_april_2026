@@ -51,6 +51,12 @@ public class Booking extends Base{
 	private Integer frontendDiscountPercentage;
 	
 	private float frontendDiscountedAmount;
+	
+	private Integer frontendCgstPercentage;
+	
+	private Integer frontendSgstPercentage;
+	
+	private float frontendFinalAmountAfterAddingTax;
 
     private BigDecimal amount;
 

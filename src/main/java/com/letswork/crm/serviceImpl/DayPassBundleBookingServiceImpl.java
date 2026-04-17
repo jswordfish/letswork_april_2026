@@ -70,7 +70,9 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
 				.bookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE).referenceId(generate("DAYPASS_BUNDLE")).bookedFrom(request.getBookedFrom())
 				.createDate(createDate).dateOfPurchase(LocalDateTime.now()).expiryDate(expiryDate).frontendAmount(request.getFrontendAmount())
                 .frontendDiscountPercentage(request.getFrontendDiscountPercentage())
-                .frontendDiscountedAmount(request.getFrontendDiscountedAmount()).build();
+                .frontendDiscountedAmount(request.getFrontendDiscountedAmount()).frontendCgstPercentage(request.getFrontendCgstPercentage())
+                .frontendSgstPercentage(request.getFrontendSgstPercentage())
+                .frontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax()).build();
 		booking.setStartDate(LocalDate.now());
 		DayPassBundleBooking savedBooking = dayPassBundleBookingRepository.save(booking);
 
