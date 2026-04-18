@@ -1,6 +1,7 @@
 package com.letswork.crm.controller;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -49,13 +50,18 @@ public class SmsOtpController {
             @RequestParam String mobile,
             @RequestParam String companyId) {
     	
-    	NewUserRegister newUserRegister = newUserRegisterRepository.findByPhoneNumberAndCompanyId(mobile, companyId).get();
-		if(newUserRegister == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No number Exists!");
-		}
-		if(Boolean.TRUE.equals(newUserRegister.getActive())) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account deactivated");
-		}
+    	Optional<NewUserRegister> optionalUser =
+    	        newUserRegisterRepository.findByPhoneNumberAndCompanyId(mobile, companyId);
+
+    	if (!optionalUser.isPresent()) {
+    	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No number exists!");
+    	}
+
+    	NewUserRegister user = optionalUser.get();
+
+    	if (Boolean.FALSE.equals(user.getActive())) {
+    	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account deactivated");
+    	}
 
         return ResponseEntity.ok(
                 smsOtpService.sendOtp(mobile, companyId)

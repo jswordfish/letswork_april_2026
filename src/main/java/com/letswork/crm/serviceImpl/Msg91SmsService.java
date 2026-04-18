@@ -15,14 +15,14 @@ import org.springframework.web.client.RestTemplate;
 public class Msg91SmsService {
 
     
-//    private String authKey = "483622ARnNMxn2xl69440651P1"; // Dhruv account
+    private String authKey = "483622ARnNMxn2xl69440651P1"; // Dhruv account
 	
-	private String authKey = "487978AIop6ncI769e325b9P1"; // letswork account..
+//	private String authKey = "487978AIop6ncI769e325b9P1"; // letswork account..
     
 
-//    private String widgetId = "356c77676263343436333531"; // Dhruv account
+    private String widgetId = "356c77676263343436333531"; // Dhruv account
     
-    private String widgetId = "366472667641393333383539"; // letswork account
+//    private String widgetId = "366472667641393333383539"; // letswork account
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -44,20 +44,35 @@ public class Msg91SmsService {
         ResponseEntity<Map> response =
                 restTemplate.postForEntity(url, request, Map.class);
 
-        System.out.println("MSG91 SEND RESPONSE: " + response.getBody());
+        Map<String, Object> responseBody = response.getBody();
 
-        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+        System.out.println("MSG91 SEND RESPONSE: " + responseBody);
+
+        if (!response.getStatusCode().is2xxSuccessful() || responseBody == null) {
             throw new RuntimeException("Failed to send OTP via MSG91");
         }
 
-        String type = (String) response.getBody().get("type");
-        String reqId = (String) response.getBody().get("message");
+        String type = String.valueOf(responseBody.get("type"));
 
-        if (!"success".equalsIgnoreCase(type) || reqId == null) {
-            throw new RuntimeException("Invalid MSG91 sendOtp response");
+        String reqId = null;
+
+        if (responseBody.get("request_id") != null) {
+            reqId = String.valueOf(responseBody.get("request_id"));
+        } else if (responseBody.get("reqId") != null) {
+            reqId = String.valueOf(responseBody.get("reqId"));
+        } else if (responseBody.get("message") != null) {
+            reqId = String.valueOf(responseBody.get("message")); // <-- THIS is what you're getting now
         }
 
-        return reqId; 
+        if (!"success".equalsIgnoreCase(type)) {
+            throw new RuntimeException("MSG91 Error Response: " + responseBody);
+        }
+
+        if (reqId == null || reqId.trim().isEmpty() || "null".equalsIgnoreCase(reqId)) {
+            throw new RuntimeException("MSG91 did not return valid request ID: " + responseBody);
+        }
+
+        return reqId;
     }
 
     public boolean verifyOtp(String reqId, String otp) {

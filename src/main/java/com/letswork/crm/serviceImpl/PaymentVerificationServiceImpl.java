@@ -47,9 +47,9 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
     private final LetsWorkClientRepository clientRepo;
     private final DayPassBundleRepository dayPassBundleRepo;
 
-    private String razorpayKeyId = "rzp_test_SKguaIWs4EkI1g";
+    private String razorpayKeyId = "rzp_live_ulbX2nk9nN1K8x";
 
-    private String razorpayKeySecret = "o5AgXZLJftz4fmxO9neqOGn7";
+    private String razorpayKeySecret = "XOyctgFeeDucL8LD3EDL5vIB";
 
     @Override
     @Transactional
