@@ -15,9 +15,14 @@ import org.springframework.web.client.RestTemplate;
 public class Msg91SmsService {
 
     
-    private String authKey = "483622ARnNMxn2xl69440651P1";
+//    private String authKey = "483622ARnNMxn2xl69440651P1"; // Dhruv account
+	
+	private String authKey = "487978AIop6ncI769e325b9P1"; // letswork account
+    
 
-    private String widgetId = "356c77676263343436333531";
+//    private String widgetId = "356c77676263343436333531"; // Dhruv account
+    
+    private String widgetId = "366472667641393333383539"; // letswork account
 
     private final RestTemplate restTemplate = new RestTemplate();
 
