@@ -305,8 +305,8 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 		ConferenceBookingDirect booking = bookingRepo.findByIdAndCompanyId(id, companyId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking not found"));
 
-		if (booking.getBookingStatus() != BookingStatus.ACTIVE) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only ACTIVE bookings can be cancelled");
+		if (!((booking.getBookingStatus() == BookingStatus.ACTIVE) || (booking.getBookingStatus() == BookingStatus.RESCHEDULED) ) ) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only ACTIVE/RESCHEDULED bookings can be cancelled");
 		}
 
 		validateCancellationAllowed(booking.getStartDate());
