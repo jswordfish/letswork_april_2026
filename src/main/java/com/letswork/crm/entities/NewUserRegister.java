@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.poiji.annotation.ExcelCellName;
 
@@ -74,4 +75,6 @@ public class NewUserRegister extends Base{
 	
 	private Boolean active;
 	
+	@ExcelCellName(value = "Client Company Name")
+	private String clientCompanyName;
 }

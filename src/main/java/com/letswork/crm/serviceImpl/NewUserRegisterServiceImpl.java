@@ -245,7 +245,7 @@ public class NewUserRegisterServiceImpl
 
         LetsWorkClient client = new LetsWorkClient();
 
-        client.setClientCompanyName(user.getName());
+        client.setClientCompanyName(user.getCompanyName() != null ? user.getCompanyName() : user.getName());
         client.setEmail(user.getEmail());
         client.setPhone(user.getPhoneNumber());
         client.setCategory(user.getCategory());
@@ -286,6 +286,7 @@ public class NewUserRegisterServiceImpl
     		if(!val.equalsIgnoreCase("ok")) {
     			return val;
     		}
+    		
     	}
 	    
 	    List<String> responses = new ArrayList<>();
@@ -294,7 +295,6 @@ public class NewUserRegisterServiceImpl
 	        try {
 	        	newUserRegister.setCompanyId(companyId); 
 
-	            
 	            saveOrUpdateManually(newUserRegister);
 
 	            responses.add("Saved or Updated: " + newUserRegister.getName() + " " + newUserRegister.getEmail());
@@ -328,13 +328,13 @@ public class NewUserRegisterServiceImpl
 			}
 		
 		
-		if(dto.getCategory() == null || dto.getCategory().length() == 0) {
-			return "Category Should not be null";	
-			}
-		
-		if(dto.getSubCategory() == null || dto.getSubCategory().length() == 0) {
-			return "SubCategory Should not be null";	
-			}
+//		if(dto.getCategory() == null || dto.getCategory().length() == 0) {
+//			return "Category Should not be null";	
+//			}
+//		
+//		if(dto.getSubCategory() == null || dto.getSubCategory().length() == 0) {
+//			return "SubCategory Should not be null";	
+//			}
 		
 		if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
 			return "LetsWorkCentre Should not be null";	
