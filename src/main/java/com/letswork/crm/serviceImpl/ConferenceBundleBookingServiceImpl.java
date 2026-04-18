@@ -49,7 +49,7 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
     
     @Override
     public ConferenceBundleBooking createBundlePurchase(
-    		CreateConferenceBundleBookingRequest request
+    		CreateConferenceBundleBookingRequest request //
     ){
 
         LetsWorkClient client = clientRepo.findById(request.getClientId())
