@@ -54,10 +54,8 @@ public class OtpController {
             @RequestParam String email,
             @RequestParam String companyId) {
     	NewUserRegister newUserRegister = newUserRegisterRepository.findByEmailAndCompanyId(email, companyId).get();
-    		if(newUserRegister == null) {
-    			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No Email Exists!");
-    		}
-    		if(Boolean.TRUE.equals(newUserRegister.getActive())) {
+    		
+    		if(Boolean.FALSE.equals(newUserRegister.getActive())) {
     			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account deactivated");
     		}
         return ResponseEntity.ok(otpService.sendOtp(email, companyId));

@@ -53,10 +53,6 @@ public class SmsOtpController {
     	Optional<NewUserRegister> optionalUser =
     	        newUserRegisterRepository.findByPhoneNumberAndCompanyId(mobile, companyId);
 
-    	if (!optionalUser.isPresent()) {
-    	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No number exists!");
-    	}
-
     	NewUserRegister user = optionalUser.get();
 
     	if (Boolean.FALSE.equals(user.getActive())) {
