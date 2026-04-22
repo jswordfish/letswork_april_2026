@@ -273,9 +273,9 @@ public class NewUserRegisterServiceImpl
 
         String newCompanyName = user.getClientCompanyName();
 
-        if (newCompanyName == null || newCompanyName.equals(oldCompanyName)) {
-            return;
-        }
+//        if (newCompanyName == null || newCompanyName.equals(oldCompanyName)) {
+//            return;
+//        }
 
         List<LetsWorkClient> clients = letsWorkClientRepo
                 .findByUserIdAndCompanyId(user.getId(), user.getCompanyId());
