@@ -195,13 +195,20 @@ public class NewUserRegisterServiceImpl
                     throw new RuntimeException("Phone number already in use");
                 }
             });
-
+            
+            String oldCompanyName = existing.getClientCompanyName();
+            
+            if (user.getClientCompanyName() == null) {
+                user.setClientCompanyName(oldCompanyName);
+            }
+            
             user.setId(existing.getId());
             user.setCreateDate(existing.getCreateDate());
             user.setUpdateDate(new Date());
 
             mapper.map(user, existing);
             saved = repo.save(existing);
+            updateClientCompanyNameIfChanged(saved, oldCompanyName);
 
         } else {
 
@@ -245,7 +252,7 @@ public class NewUserRegisterServiceImpl
 
         LetsWorkClient client = new LetsWorkClient();
 
-        client.setClientCompanyName(user.getCompanyName() != null ? user.getCompanyName() : user.getName());
+        client.setClientCompanyName(user.getClientCompanyName() != null ? user.getClientCompanyName() : user.getName());
         client.setEmail(user.getEmail());
         client.setPhone(user.getPhoneNumber());
         client.setCategory(user.getCategory());
@@ -260,6 +267,27 @@ public class NewUserRegisterServiceImpl
         client.setUpdateDate(new Date());
 
         letsWorkClientRepo.save(client);
+    }
+    
+    private void updateClientCompanyNameIfChanged(NewUserRegister user, String oldCompanyName) {
+
+        String newCompanyName = user.getClientCompanyName();
+
+        if (newCompanyName == null || newCompanyName.equals(oldCompanyName)) {
+            return;
+        }
+
+        List<LetsWorkClient> clients = letsWorkClientRepo
+                .findByUserIdAndCompanyId(user.getId(), user.getCompanyId());
+
+        if (clients == null || clients.isEmpty()) return;
+
+        for (LetsWorkClient client : clients) {
+            client.setClientCompanyName(newCompanyName);
+            client.setUpdateDate(new Date());
+        }
+
+        letsWorkClientRepo.saveAll(clients);
     }
     
     @Override
@@ -311,9 +339,9 @@ public class NewUserRegisterServiceImpl
 			return "Name Should not be null";
 		}
 	 			
-		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
-			return "CompanyId Should not be null";	
-			}
+//		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
+//			return "CompanyId Should not be null";	
+//			}
 		
 		if(dto.getEmail() == null || dto.getEmail().length() == 0) {
 			return "Email Should not be null";	
@@ -323,9 +351,9 @@ public class NewUserRegisterServiceImpl
 			return "Phone Number Should not be null";	
 			}
 		
-		if(dto.getDob() == null) {
-			return "Date of Birth Should not be null";	
-			}
+//		if(dto.getDob() == null) {
+//			return "Date of Birth Should not be null";	
+//			}
 		
 		
 //		if(dto.getCategory() == null || dto.getCategory().length() == 0) {
@@ -349,21 +377,21 @@ public class NewUserRegisterServiceImpl
 			}
 		
 		
-		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
-			return "CompanyId "+dto.getCompanyId()+" does not exists";
-		}
+//		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
+//			return "CompanyId "+dto.getCompanyId()+" does not exists";
+//		}
 		
-		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getCity(), dto.getState()) == null){
-			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
-		}
-		
-		if(categoryRepo.findByNameAndCompanyIdAndCategoryType(dto.getCategory(), dto.getCompanyId(), CategoryType.BUSINESS)==null) {
-			return "Category "+dto.getCategory()+" does not exists";
-		}
-		
-		if(subCategoryRepo.findByNameAndCompanyIdAndCategoryType(dto.getSubCategory(), dto.getCompanyId(), CategoryType.BUSINESS)==null) {
-			return "Sub-Category "+dto.getSubCategory()+" does not exists";
-		}
+//		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getCity(), dto.getState()) == null){
+//			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
+//		}
+//		
+//		if(categoryRepo.findByNameAndCompanyIdAndCategoryType(dto.getCategory(), dto.getCompanyId(), CategoryType.BUSINESS)==null) {
+//			return "Category "+dto.getCategory()+" does not exists";
+//		}
+//		
+//		if(subCategoryRepo.findByNameAndCompanyIdAndCategoryType(dto.getSubCategory(), dto.getCompanyId(), CategoryType.BUSINESS)==null) {
+//			return "Sub-Category "+dto.getSubCategory()+" does not exists";
+//		}
 		
 		 		
 		return "ok";

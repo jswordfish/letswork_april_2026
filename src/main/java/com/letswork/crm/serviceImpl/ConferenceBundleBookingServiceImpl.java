@@ -43,7 +43,7 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
 	private final ConferenceBundleRepository bundleRepo;
     private final ConferenceBundleBookingRepository bundleBookingRepo;
     private final LetsWorkClientRepository clientRepo;
-    
+    private final RazorpayService razorpayService;
     
     
     
@@ -86,6 +86,13 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
                         .companyId(bundle.getCompanyId())
                         .dateOfPurchase(LocalDateTime.now())
                         .build();
+        
+        String orderId = razorpayService.createOrder(
+                booking.getFrontendFinalAmountAfterAddingTax(), 
+                booking.getReferenceId()
+        );
+
+        booking.setRazorpayOrderId(orderId);
         
         ConferenceBundleBooking savedBooking = bundleBookingRepo.save(booking);
         

@@ -53,12 +53,22 @@ public class OtpController {
     public ResponseEntity<String> sendOtp(
             @RequestParam String email,
             @RequestParam String companyId) {
-    	NewUserRegister newUserRegister = newUserRegisterRepository.findByEmailAndCompanyId(email, companyId).get();
-    		
-    		if(Boolean.FALSE.equals(newUserRegister.getActive())) {
-    			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account deactivated");
-    		}
-        return ResponseEntity.ok(otpService.sendOtp(email, companyId));
+
+        Optional<NewUserRegister> optionalUser =
+                newUserRegisterRepository.findByEmailAndCompanyId(email, companyId);
+
+        if (optionalUser.isPresent()) {
+            NewUserRegister user = optionalUser.get();
+
+            if (Boolean.FALSE.equals(user.getActive())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Account deactivated");
+            }
+        }
+
+        return ResponseEntity.ok(
+                otpService.sendOtp(email, companyId)
+        );
     }
     
     @PostMapping("/reset-credits-mail")

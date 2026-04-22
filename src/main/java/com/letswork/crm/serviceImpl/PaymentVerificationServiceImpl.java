@@ -47,9 +47,13 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
     private final LetsWorkClientRepository clientRepo;
     private final DayPassBundleRepository dayPassBundleRepo;
 
-    private String razorpayKeyId = "rzp_live_ulbX2nk9nN1K8x";
-
-    private String razorpayKeySecret = "XOyctgFeeDucL8LD3EDL5vIB";
+//    private String razorpayKeyId = "rzp_live_ulbX2nk9nN1K8x"; //real
+    
+    private String razorpayKeyId = "rzp_test_SKguaIWs4EkI1g"; //test
+    
+    private String razorpayKeySecret = "o5AgXZLJftz4fmxO9neqOGn7"; //test
+    
+//    private String razorpayKeySecret = "XOyctgFeeDucL8LD3EDL5vIB"; //real
 
     @Override
     @Transactional
@@ -60,6 +64,8 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
             }
 
             RazorpayClient razorpayClient = new RazorpayClient(razorpayKeyId, razorpayKeySecret);
+            System.out.println("key id : "+razorpayKeyId+" secret key : "+razorpayKeySecret);
+            System.out.println(razorpayClient);
             com.razorpay.Payment razorpayPayment = razorpayClient.payments.fetch(paymentId);
 
             String razorpayStatus = razorpayPayment.get("status");

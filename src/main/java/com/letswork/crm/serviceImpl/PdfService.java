@@ -82,8 +82,8 @@ public class PdfService {
 	        LetsWorkClient client = booking.getLetsWorkClient();
 
 	        html = html.replace("${customerName}", client.getClientCompanyName());
-	        html = html.replace("${customerAddress}", 
-	                Optional.ofNullable(client.getLetsWorkCentre()).orElse("N/A"));
+//	        html = html.replace("${customerAddress}", 
+//	                Optional.ofNullable(client.getLetsWorkCentre()).orElse("N/A"));
 //	        html = html.replace("${customerGstin}", 
 //	                Optional.ofNullable(client.getGstNumber())).orElse("N/A"));
 
@@ -102,14 +102,18 @@ public class PdfService {
 	        BigDecimal discountedAmount = BigDecimal.valueOf(booking.getFrontendDiscountedAmount());
 
 	        // ================= TAX =================
-	        BigDecimal taxRate = new BigDecimal("0.09");
+//	        BigDecimal taxRate = new BigDecimal("0.09");
 
-	        BigDecimal cgst = discountedAmount.multiply(taxRate);
-	        BigDecimal sgst = discountedAmount.multiply(taxRate);
+	        float discountedAmount1 = invoice.getBooking().getFrontendDiscountedAmount();
 
-	        BigDecimal total = discountedAmount
-	                .add(cgst)
-	                .add(sgst);
+	        Integer cgstPercent = invoice.getBooking().getFrontendCgstPercentage();
+	        Integer sgstPercent = invoice.getBooking().getFrontendSgstPercentage();
+
+	        float cgstAmount = discountedAmount1 * cgstPercent / 100f;
+	        float sgstAmount = discountedAmount1 * sgstPercent / 100f;
+
+	        float total = invoice.getBooking().getFrontendFinalAmountAfterAddingTax();
+	                
 
 	        // ================= HTML REPLACEMENTS =================
 	        html = html.replace("${bookingRef}", booking.getReferenceId());
@@ -129,9 +133,13 @@ public class PdfService {
 	        html = html.replace("${discountedAmount}", discountedAmount.toPlainString());
 
 	        // TAX
-	        html = html.replace("${cgst}", cgst.toPlainString());
-	        html = html.replace("${sgst}", sgst.toPlainString());
-	        html = html.replace("${total}", total.toPlainString());
+	        
+	        html = html.replace("${cgstPercent}", String.valueOf(cgstPercent));
+	        html = html.replace("${sgstPercent}", String.valueOf(sgstPercent));
+	        
+	        html = html.replace("${cgst}", String.valueOf(cgstAmount));
+	        html = html.replace("${sgst}", String.valueOf(sgstAmount));
+	        html = html.replace("${total}", String.valueOf(total));
 
 	        return html;
 

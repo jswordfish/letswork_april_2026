@@ -49,15 +49,18 @@ public class SmsOtpController {
     public ResponseEntity<String> sendOtp(
             @RequestParam String mobile,
             @RequestParam String companyId) {
-    	
-    	Optional<NewUserRegister> optionalUser =
-    	        newUserRegisterRepository.findByPhoneNumberAndCompanyId(mobile, companyId);
 
-    	NewUserRegister user = optionalUser.get();
+        Optional<NewUserRegister> optionalUser =
+                newUserRegisterRepository.findByPhoneNumberAndCompanyId(mobile, companyId);
 
-    	if (Boolean.FALSE.equals(user.getActive())) {
-    	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account deactivated");
-    	}
+        if (optionalUser.isPresent()) {
+            NewUserRegister user = optionalUser.get();
+
+            if (Boolean.FALSE.equals(user.getActive())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Account deactivated");
+            }
+        }
 
         return ResponseEntity.ok(
                 smsOtpService.sendOtp(mobile, companyId)

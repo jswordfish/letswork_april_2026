@@ -65,6 +65,8 @@ public class Booking extends Base{
     private LocalDate startDate;
     
     private String referenceId;
+    
+    private String razorpayOrderId;
 
     @Enumerated(EnumType.STRING)
     private BookedFrom bookedFrom;

@@ -24,6 +24,7 @@ public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, 
                 Long userId,
                 String companyId
         );
+    
 
     Optional<LetsWorkClient>
         findByIdAndCompanyId(

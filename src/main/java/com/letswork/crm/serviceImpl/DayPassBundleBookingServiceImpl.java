@@ -45,7 +45,7 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
 	private final LetsWorkClientRepository clientRepo;
 	private final DayPassBundleRepository dayPassBundleRepository;
 	private final LetsWorkCentreRepository letsWorkCentreRepo;
-
+	private final RazorpayService razorpayService;
 	private final OffersRepository offersRepository;
 
 	@Override
@@ -74,6 +74,12 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
                 .frontendSgstPercentage(request.getFrontendSgstPercentage())
                 .frontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax()).build();
 		booking.setStartDate(LocalDate.now());
+		String orderId = razorpayService.createOrder(
+                booking.getFrontendFinalAmountAfterAddingTax(), 
+                booking.getReferenceId()
+        );
+
+        booking.setRazorpayOrderId(orderId);
 		DayPassBundleBooking savedBooking = dayPassBundleBookingRepository.save(booking);
 
 		return savedBooking;
