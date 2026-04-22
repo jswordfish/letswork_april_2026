@@ -54,6 +54,10 @@ public class GrevianceController {
         );
 
         Greviance saved = grevianceService.saveGreviance(greviance, image);
+        
+        String imageKey = saved.getImageS3Key() != null 
+                ? saved.getImageS3Key() 
+                : "";
 
         mailService.sendGrevianceEmail(
         		user.getEmail(),
@@ -63,7 +67,7 @@ public class GrevianceController {
                 saved.getSubCategory(),
                 saved.getLetsWorkCentre(),
                 saved.getIssue(),
-                saved.getImageS3Key()
+                imageKey
         );
 
         return ResponseEntity.ok(saved);

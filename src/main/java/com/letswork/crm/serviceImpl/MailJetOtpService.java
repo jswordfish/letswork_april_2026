@@ -221,9 +221,13 @@ public class MailJetOtpService {
         
         
         
-        String qrImageUrl =
-                "http://letsworkapp.in:8443/visitor/s3/presigned-url/email?key=" +
-                URLEncoder.encode(keyName, StandardCharsets.UTF_8);
+        String qrImageUrl = null;
+
+        if (keyName != null && !keyName.trim().isEmpty()) {
+            qrImageUrl =
+                    "http://letsworkapp.in:8443/visitor/s3/presigned-url/email?key=" +
+                    URLEncoder.encode(keyName, StandardCharsets.UTF_8);
+        }
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("name", name);
@@ -232,7 +236,7 @@ public class MailJetOtpService {
         variables.put("subCategory", subCategory);
         variables.put("letswork", letsWorkCentre);
         variables.put("issue", issue);
-        variables.put("urlIssue", qrImageUrl);
+        variables.put("urlIssue", qrImageUrl != null ? qrImageUrl : "");
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
@@ -360,7 +364,7 @@ public class MailJetOtpService {
             String email,
             String name,
             Float numOfHours,
-            BigDecimal price,
+            float price,
             LocalDate expiryDate,
             String bookingReference,
             byte[] invoicePdf
@@ -466,7 +470,7 @@ public class MailJetOtpService {
             String email,
             String name,
             Integer numOfDays,
-            BigDecimal price,
+            float price,
             LocalDateTime startDate,
             LocalDate expiryDate,
             String letsworkCenter,

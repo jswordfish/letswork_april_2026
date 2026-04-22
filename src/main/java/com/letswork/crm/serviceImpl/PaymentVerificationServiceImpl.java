@@ -1,6 +1,8 @@
 package com.letswork.crm.serviceImpl;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,6 +60,7 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
     @Override
     @Transactional
     public PaymentVerificationResponseDto verifyAndProcessPayment(String paymentId, String referenceId) {
+    	DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
         try {
             if (paymentRepository.existsByPaymentId(paymentId)) {
                 throw new RuntimeException("Payment already processed for paymentId: " + paymentId);
@@ -100,6 +103,7 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
                 invoice.setAmountFinal(booking.getFrontendFinalAmountAfterAddingTax());
                 invoice.setInvoiceStatus(InvoiceStatus.PAID);
                 invoice.setCompanyId(booking.getCompanyId());
+                invoice.setCreateDate(new Date());
                 Invoice savedInvoice = invoiceRepository.save(invoice);
 
                 String html = pdfService.buildInvoiceHtml(savedInvoice);
@@ -140,7 +144,7 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
             	            email,
             	            name,
             	            bundleBooking.getRemainingHours(),
-            	            booking.getAmount(),
+            	            booking.getFrontendFinalAmountAfterAddingTax(),
             	            bundleBooking.getExpiryDate(),
             	            reference,
             	            invoicePdf
@@ -158,8 +162,8 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
 
             	    slots.sort(Comparator.comparing(ConferenceRoomTimeSlot::getStartTime));
 
-            	    String startTime = slots.get(0).getStartTime().toString();
-            	    String endTime = slots.get(slots.size() - 1).getEndTime().toString();
+            	    String startTime = slots.get(0).getStartTime().format(timeFormatter);
+            	    String endTime = slots.get(slots.size() - 1).getEndTime().format(timeFormatter);
 
             	    mailService.sendConferenceDirectBookingEmail(
             	            email,
@@ -197,7 +201,7 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
             	            email,
             	            name,
             	            bundleBooking.getRemainingNumberOfDays(), 
-            	            booking.getAmount(),
+            	            booking.getFrontendFinalAmountAfterAddingTax(),
             	            bundleBooking.getDateOfPurchase(),
             	            bundleBooking.getExpiryDate(),
             	            bundleBooking.getLetsWorkCentre().getName(),

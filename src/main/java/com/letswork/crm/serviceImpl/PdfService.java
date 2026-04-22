@@ -28,6 +28,8 @@ public class PdfService {
 	
 	DateFormat dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
 	
+	DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
+	
 	public byte[] generateInvoicePdf(String html) {
 
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
@@ -157,14 +159,15 @@ public class PdfService {
 
 	        ConferenceBookingDirect conf = (ConferenceBookingDirect) booking;
 	        for (ConferenceRoomTimeSlot slot : conf.getSlots()) {
-
-
-	        	  rows.append(buildRowConferenceBookingDirect(
+	        	
+	        	String startTimeStr = slot.getStartTime().format(timeFormatter);
+	            String endTimeStr = slot.getEndTime().format(timeFormatter);
+	        	rows.append(buildRowConferenceBookingDirect(
 		                    index++,
-		                    "Conference Room Booking (" + slot.getStartTime() + " - " + slot.getEndTime() + ")",
+		                    "Conference Room Booking (" + startTimeStr + " - " + endTimeStr + ")",
 		                    conf.getConferenceRoom().getName(),
 		                    conf.getLetsWorkCentre().getName(),
-		                    conf.getAppliedOffer() == null?"NA": conf.getAppliedOffer().getName()
+		                    conf.getAppliedOffer() == null?"NA": conf.getAppliedOffer().getCode()
 		                   
 
 		            ));
@@ -211,7 +214,7 @@ public class PdfService {
 	                "Day pass Booking Direct",
 	                dp.getNumberOfPasses(),
 	                dateOfPurchase,
-	                dp.getAppliedOffer()==null?"NA": dp.getAppliedOffer().getName(),
+	                dp.getAppliedOffer()==null?"NA": dp.getAppliedOffer().getCode(),
 	                dp.getPreviousBookingId()
 	        ));
 	    }
