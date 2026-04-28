@@ -67,6 +67,8 @@ public class Booking extends Base{
     private String referenceId;
     
     private String razorpayOrderId;
+    
+    private LocalDate expiryDate;
 
     @Enumerated(EnumType.STRING)
     private BookedFrom bookedFrom;
@@ -81,6 +83,18 @@ public class Booking extends Base{
     @JsonProperty("bookingType")
     public String getBookingType() {
         return this.getClass().getSimpleName();
+    }
+    
+    public void setDateOfPurchase(LocalDateTime dateOfPurchase) {
+        if (dateOfPurchase != null) {
+            LocalDate inputDate = dateOfPurchase.toLocalDate();
+            LocalDate today = LocalDate.now();
+
+            if (inputDate.isBefore(today)) {
+                throw new IllegalArgumentException("Purchase date cannot be in the past.");
+            }
+        }
+        this.dateOfPurchase = dateOfPurchase;
     }
     
 }

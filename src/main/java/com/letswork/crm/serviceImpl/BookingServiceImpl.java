@@ -99,6 +99,7 @@ public class BookingServiceImpl implements BookingService {
 			BookingStatus status, LocalDate fromDate, LocalDate toDate, SortFieldByBooking sortFieldByBooking,
 			SortingOrder order, int page, int size) {
 		
+		markUsedBundles();
 		expireOldBookings();
 
 		String fieldName = FIELD_MAP.get(sortFieldByBooking);
@@ -141,6 +142,13 @@ public class BookingServiceImpl implements BookingService {
 	    bookingRepo.expirePastBookings(today);
 	    confBundleRepo.expireConferenceBundles(today);
 	    dayPassBundleRepo.expireDayPassBundles(today);
+	}
+	
+	@Transactional
+	public void markUsedBundles() {
+
+	    confBundleRepo.markConferenceBundlesAsUsed();
+	    dayPassBundleRepo.markDayPassBundlesAsUsed();
 	}
 
 	private static final Map<SortFieldByBooking, String> FIELD_MAP = Map.of(SortFieldByBooking.ID, "id",

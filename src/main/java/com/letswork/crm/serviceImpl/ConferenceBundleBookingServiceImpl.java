@@ -26,8 +26,10 @@ import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortFieldByConferenceBundleBooking;
 import com.letswork.crm.enums.SortingOrder;
+import com.letswork.crm.repo.BookingRepository;
 import com.letswork.crm.repo.ConferenceBundleBookingRepository;
 import com.letswork.crm.repo.ConferenceBundleRepository;
+import com.letswork.crm.repo.DayPassBundleBookingRepository;
 import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.service.ConferenceBundleBookingService;
 
@@ -44,6 +46,8 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
     private final ConferenceBundleBookingRepository bundleBookingRepo;
     private final LetsWorkClientRepository clientRepo;
     private final RazorpayService razorpayService;
+    private final BookingRepository bookingRepo;
+    private final DayPassBundleBookingRepository dayPassBundleRepo;
     
     
     
@@ -84,8 +88,9 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
                         .createDate(createDate)
                         .expiryDate(expiryDate)
                         .companyId(bundle.getCompanyId())
-                        .dateOfPurchase(LocalDateTime.now())
                         .build();
+        
+        booking.setDateOfPurchase(LocalDateTime.now());
         
         String orderId = razorpayService.createOrder(
                 booking.getFrontendFinalAmountAfterAddingTax(), 
@@ -165,6 +170,9 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
 	        int page,
 	        int size
 	) {
+		
+		markUsedBundles();
+		expireOldBookings();
 
 		String fieldName = FIELD_MAP.get(sortFieldConBooking);
 		Sort sort = order.equals(SortingOrder.DESC) ? Sort.by(fieldName).descending() : Sort.by(fieldName).ascending();
@@ -223,6 +231,23 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
 	    }
 
 	    return buildResponse(result, page, size);
+	}
+	
+	@Transactional
+	public void expireOldBookings() {
+
+	    LocalDate today = LocalDate.now();
+
+	    bookingRepo.expirePastBookings(today);
+	    bundleBookingRepo.expireConferenceBundles(today);
+	    dayPassBundleRepo.expireDayPassBundles(today);
+	}
+	
+	@Transactional
+	public void markUsedBundles() {
+
+		bundleBookingRepo.markConferenceBundlesAsUsed();
+	    dayPassBundleRepo.markDayPassBundlesAsUsed();
 	}
 
 	private static final Map<SortFieldByConferenceBundleBooking, String> FIELD_MAP = Map.of(

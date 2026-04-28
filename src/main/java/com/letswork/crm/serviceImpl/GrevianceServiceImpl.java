@@ -88,7 +88,7 @@ public class GrevianceServiceImpl implements GrevianceService {
         }
 
         SubCategory subCategory =
-                subCategoryRepo.findByNameAndCompanyIdAndCategoryType(
+                subCategoryRepo.findFirstByNameAndCompanyIdAndCategoryTypeOrderByCreateDateDesc(
                         greviance.getSubCategory(),
                         greviance.getCompanyId(),
                         CategoryType.GREVIANCE

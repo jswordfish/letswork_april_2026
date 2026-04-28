@@ -59,9 +59,10 @@ public class AmenitiesServiceImpl implements AmenitiesService {
         }
 
         Amenities existing =
-                repo.findByNameAndCompanyId(
+                repo.findByNameAndCompanyIdAndAmenityType(
                         amenities.getName(),
-                        amenities.getCompanyId()
+                        amenities.getCompanyId(),
+                        amenities.getAmenityType()
                 );
 
         Amenities saved;

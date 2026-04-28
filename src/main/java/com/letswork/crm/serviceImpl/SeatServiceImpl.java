@@ -382,77 +382,77 @@ public class SeatServiceImpl implements SeatService {
         seatRepository.deleteById(id);
     }
     
-//    @Override
-//    public List<SeatAvailabilityDto> getAllSeatsWithAvailability(
-//            String companyId, String letsWorkCentre, String city, String state) {
-//
-//        List<Seat> allSeats =
-//                seatRepository.findAllByCompanyIdAndLetsWorkCentreAndCityAndState(
-//                        companyId, letsWorkCentre, city, state);
-//
-//        // 🔥 Fetch active contract seat mappings in one query
-//        List<ContractSeatMapping> activeContractMappings =
-//                contractSeatMappingRepository.findActiveByLocation(
-//                        companyId, letsWorkCentre, city, state);
-//
-//        // 🔥 Build lookup map: SeatKey -> ContractSeatMapping
-//        Map<SeatKey, ContractSeatMapping> contractSeatMap =
-//                activeContractMappings.stream()
-//                        .collect(Collectors.toMap(
-//                                c -> new SeatKey(
-//                                        c.getLetsWorkCentre(),
-//                                        c.getCity(),
-//                                        c.getState(),
-//                                        c.getCompanyId(),
-//                                        c.getSeatType(),
-//                                        c.getSeatNumber()
-//                                ),
-//                                c -> c,
-//                                (a, b) -> a
-//                        ));
-//
-//        return allSeats.stream()
-//                .map(seat -> {
-//
-//                    SeatKey key = new SeatKey(
-//                            seat.getLetsWorkCentre(),
-//                            seat.getCity(),
-//                            seat.getState(),
-//                            seat.getCompanyId(),
-//                            seat.getSeatType(),
-//                            seat.getSeatNumber()
-//                    );
-//
-//                    ContractSeatMapping mapping = contractSeatMap.get(key);
-//                    boolean available = (mapping == null);
-//
-//                    SeatAvailabilityDto dto = new SeatAvailabilityDto();
-//                    dto.setSeat(seat);
-//                    dto.setAvailable(available);
-//
-//                    if (!available) {
-//
-//                        dto.setContractId(mapping.getContractId());
-//                        dto.setContractStartDate(mapping.getStartDate());
-//                        dto.setContractEndDate(
-//                                mapping.getActualEndDate() != null
-//                                        ? mapping.getActualEndDate()
-//                                        : mapping.getEndDate()
-//                        );
-//
-//                        // 🔥 Fetch Contract → LetsWorkClient → company name
-//                        contractRepository
-//                                .findByIdAndCompanyId(mapping.getContractId(), companyId)
-//                                .ifPresent(contract -> {
-//                                    LetsWorkClient client = contract.getLetsWorkClient();
-//                                    dto.setCompanyName(client.getClientCompanyName());
-//                                });
-//                    }
-//
-//                    return dto;
-//                })
-//                .collect(Collectors.toList());
-//    }
+    @Override
+    public List<SeatAvailabilityDto> getAllSeatsWithAvailability(
+            String companyId, String letsWorkCentre, String city, String state) {
+
+        List<Seat> allSeats =
+                seatRepository.findAllByCompanyIdAndLetsWorkCentreAndCityAndState(
+                        companyId, letsWorkCentre, city, state);
+
+        // 🔥 Fetch active contract seat mappings in one query
+        List<ContractSeatMapping> activeContractMappings =
+                contractSeatMappingRepository.findActiveByLocation(
+                        companyId, letsWorkCentre, city, state);
+
+        // 🔥 Build lookup map: SeatKey -> ContractSeatMapping
+        Map<SeatKey, ContractSeatMapping> contractSeatMap =
+                activeContractMappings.stream()
+                        .collect(Collectors.toMap(
+                                c -> new SeatKey(
+                                        c.getContract().getLetsWorkCentre().getName(),
+                                        c.getContract().getLetsWorkCentre().getCity(),
+                                        c.getContract().getLetsWorkCentre().getState(),
+                                        c.getCompanyId(),
+                                        c.getSeat().getSeatType(),
+                                        c.getSeat().getSeatNumber()
+                                ),
+                                c -> c,
+                                (a, b) -> a
+                        ));
+
+        return allSeats.stream()
+                .map(seat -> {
+
+                    SeatKey key = new SeatKey(
+                            seat.getLetsWorkCentre(),
+                            seat.getCity(),
+                            seat.getState(),
+                            seat.getCompanyId(),
+                            seat.getSeatType(),
+                            seat.getSeatNumber()
+                    );
+
+                    ContractSeatMapping mapping = contractSeatMap.get(key);
+                    boolean available = (mapping == null);
+
+                    SeatAvailabilityDto dto = new SeatAvailabilityDto();
+                    dto.setSeat(seat);
+                    dto.setAvailable(available);
+
+                    if (!available) {
+
+                        dto.setContractId(mapping.getContract().getId());
+                        dto.setContractStartDate(mapping.getStartDate());
+                        dto.setContractEndDate(
+                                mapping.getActualEndDate() != null
+                                        ? mapping.getActualEndDate()
+                                        : mapping.getEndDate()
+                        );
+
+                        // Fetch Contract - LetsWorkClient - company name
+                        contractRepository
+                                .findByIdAndCompanyId(mapping.getContract().getId(), companyId)
+                                .ifPresent(contract -> {
+                                    LetsWorkClient client = contract.getLetsWorkClient();
+                                    dto.setCompanyName(client.getClientCompanyName());
+                                });
+                    }
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
     
     
     @Override
@@ -676,11 +676,6 @@ public class SeatServiceImpl implements SeatService {
 	    return seatRepository.findByCabinDetails(companyId, letsWorkCentre, city, state, cabinName);
 	}
 
-	@Override
-	public List<SeatAvailabilityDto> getAllSeatsWithAvailability(String companyId, String letsWorkCentre, String city,
-			String state) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
     
 }

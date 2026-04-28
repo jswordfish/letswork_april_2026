@@ -55,7 +55,7 @@ public class GrevianceController {
 
         Greviance saved = grevianceService.saveGreviance(greviance, image);
         
-        String imageKey = saved.getImageS3Key() != null 
+        String imageKey = saved.getImageS3Key() != null
                 ? saved.getImageS3Key() 
                 : "";
 

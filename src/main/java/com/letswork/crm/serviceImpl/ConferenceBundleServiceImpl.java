@@ -1,15 +1,23 @@
 package com.letswork.crm.serviceImpl;
 
+import java.time.LocalDate;
 import java.util.Date;
-import java.util.List;
 
 import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ConferenceBundle;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.enums.SortingOrder;
 import com.letswork.crm.repo.ConferenceBundleRepository;
 import com.letswork.crm.service.ConferenceBundleService;
 import com.letswork.crm.service.TenantService;
@@ -35,19 +43,19 @@ public class ConferenceBundleServiceImpl implements ConferenceBundleService {
 
         Tenant tenant = tenantService.findTenantByCompanyId(bundle.getCompanyId());
         if (tenant == null) {
-            throw new RuntimeException("CompanyId invalid - " + bundle.getCompanyId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CompanyId invalid - " + bundle.getCompanyId());
         }
         
         if(bundle.getNumberOfHours() == null) {
-        	throw new RuntimeException("No of Hours can not be null");
+        	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No of Hours can not be null");
         }
         
         if(bundle.getValidForDays() == null) {
-        	throw new RuntimeException("Valid for Days can not be null");
+        	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Valid for Days can not be null");
         }
         
         if(bundle.getPrice() == null) {
-        	throw new RuntimeException("Price can not be null");
+        	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price can not be null");
         }
 
         ConferenceBundle existing =
@@ -70,7 +78,48 @@ public class ConferenceBundleServiceImpl implements ConferenceBundleService {
     }
 
     @Override
-    public List<ConferenceBundle> getAllByCompanyId(String companyId) {
-        return repo.findAllByCompanyId(companyId);
+    public PaginatedResponseDto getConferenceBundles(
+            String companyId,
+            Boolean showInApp,
+            LocalDate fromDate,
+            LocalDate toDate,
+            String sortBy,
+            SortingOrder order,
+            int page,
+            int size
+    ) {
+
+        Sort sort = order.equals(SortingOrder.DESC)
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<ConferenceBundle> result =
+                repo.filter(
+                        companyId,
+                        showInApp,
+                        fromDate == null ? null : fromDate.atStartOfDay(),
+                        toDate == null ? null : toDate.atTime(23, 59, 59),
+                        pageable
+                );
+
+        return buildResponse(result, page, size);
     }
+    
+    private PaginatedResponseDto buildResponse(Page<?> resultPage, int page, int size) {
+
+	    PaginatedResponseDto dto = new PaginatedResponseDto();
+	    dto.setSelectedPage(page);
+	    dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
+	    dto.setTotalNumberOfPages(resultPage.getTotalPages());
+	    dto.setRecordsFrom(page * size + 1);
+	    dto.setRecordsTo(
+	            Math.min((page + 1) * size, (int) resultPage.getTotalElements())
+	    );
+	    dto.setList(resultPage.getContent());
+
+	    return dto;
+	}
+    
 }

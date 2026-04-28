@@ -30,8 +30,8 @@ public class ContractSeatMapping extends Base{
 	@ManyToOne
 	Contract contract;
 
-    @Enumerated(EnumType.STRING)
-    private SeatType seatType;
+//    @Enumerated(EnumType.STRING)
+//    private SeatType seatType;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate startDate;

@@ -47,8 +47,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	@Modifying
 	@Transactional
 	@Query("UPDATE Booking b SET b.bookingStatus = 'EXPIRED' " +
-	       "WHERE b.bookingStatus = 'ACTIVE' " +
-	       "AND b.startDate < :today")
+	       "WHERE (b.bookingStatus = 'ACTIVE' OR b.bookingStatus = 'RESCHEDULED') " +
+	       "AND (" +
+	       "   (b.expiryDate IS NOT NULL AND b.expiryDate < :today) " +
+	       "   OR " +
+	       "   (b.expiryDate IS NULL AND b.startDate < :today)" +
+	       ")")
 	int expirePastBookings(@Param("today") LocalDate today);
 	
 	@Query("SELECT COALESCE(SUM(b.numberOfPasses), 0) FROM Booking b " +

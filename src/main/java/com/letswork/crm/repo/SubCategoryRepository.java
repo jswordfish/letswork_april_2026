@@ -12,6 +12,8 @@ import com.letswork.crm.enums.CategoryType;
 public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> {
 
     SubCategory findByNameAndCompanyIdAndCategoryType(String name, String companyId, CategoryType categoryType);
+    
+    SubCategory findFirstByNameAndCompanyIdAndCategoryTypeOrderByCreateDateDesc(String name, String companyId, CategoryType categoryType);
 
     List<SubCategory> findByCompanyIdAndCategoryType(String companyId, CategoryType categoryType);
 

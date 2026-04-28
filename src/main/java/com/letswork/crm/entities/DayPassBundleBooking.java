@@ -35,7 +35,7 @@ public class DayPassBundleBooking extends Booking {
 	
 	Long dayPassBundleeId;
 
-	private LocalDate expiryDate;
+	
 
 	Integer remainingNumberOfDays;
 	

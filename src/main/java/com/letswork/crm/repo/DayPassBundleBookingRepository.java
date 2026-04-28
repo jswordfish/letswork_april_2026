@@ -85,9 +85,16 @@ public interface DayPassBundleBookingRepository extends JpaRepository<DayPassBun
 	@Modifying
 	@Transactional
 	@Query("UPDATE DayPassBundleBooking b SET b.bookingStatus = 'EXPIRED' " +
-	       "WHERE b.bookingStatus = 'ACTIVE' " +
+	       "WHERE (b.bookingStatus = 'ACTIVE' OR b.bookingStatus = 'RESCHEDULED') " +
 	       "AND b.expiryDate < :today")
 	int expireDayPassBundles(@Param("today") LocalDate today);
+	
+	@Modifying
+	@Transactional
+	@Query("UPDATE DayPassBundleBooking b SET b.bookingStatus = 'USED' " +
+	       "WHERE (b.bookingStatus = 'ACTIVE' OR b.bookingStatus = 'RESCHEDULED') " +
+	       "AND b.remainingNumberOfDays <= 0")
+	int markDayPassBundlesAsUsed();
  
 
 }

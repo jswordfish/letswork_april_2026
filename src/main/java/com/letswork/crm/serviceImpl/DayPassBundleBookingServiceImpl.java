@@ -27,6 +27,8 @@ import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortField;
 import com.letswork.crm.enums.SortingOrder;
+import com.letswork.crm.repo.BookingRepository;
+import com.letswork.crm.repo.ConferenceBundleBookingRepository;
 import com.letswork.crm.repo.DayPassBundleBookingRepository;
 import com.letswork.crm.repo.DayPassBundleRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
@@ -47,6 +49,8 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
 	private final LetsWorkCentreRepository letsWorkCentreRepo;
 	private final RazorpayService razorpayService;
 	private final OffersRepository offersRepository;
+	private final BookingRepository bookingRepo;
+	private final ConferenceBundleBookingRepository confBundleRepo;
 
 	@Override
 	public DayPassBundleBooking dayPassBundleBooking(DayPassBundleBookingRequest request) {
@@ -68,12 +72,12 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
 				.dateOfPurchase(LocalDateTime.now()).letsWorkClient(client).letsWorkCentre(centre)
 				.dayPassBundleeId(request.getBundleId()).price(bundle.getPrice()).amount(bundle.getPrice()).remainingNumberOfDays(bundle.getNumberOfDays())
 				.bookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE).referenceId(generate("DAYPASS_BUNDLE")).bookedFrom(request.getBookedFrom())
-				.createDate(createDate).dateOfPurchase(LocalDateTime.now()).expiryDate(expiryDate).frontendAmount(request.getFrontendAmount())
+				.createDate(createDate).expiryDate(expiryDate).frontendAmount(request.getFrontendAmount())
                 .frontendDiscountPercentage(request.getFrontendDiscountPercentage())
                 .frontendDiscountedAmount(request.getFrontendDiscountedAmount()).frontendCgstPercentage(request.getFrontendCgstPercentage())
                 .frontendSgstPercentage(request.getFrontendSgstPercentage())
                 .frontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax()).build();
-		booking.setStartDate(LocalDate.now());
+		booking.setDateOfPurchase(LocalDateTime.now());
 		String orderId = razorpayService.createOrder(
                 booking.getFrontendFinalAmountAfterAddingTax(), 
                 booking.getReferenceId()
@@ -112,6 +116,9 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
 			LocalDateTime expiryFrom, LocalDateTime expiryTo, Integer remainingDays, Boolean paid, SortField sortField,
 			SortingOrder sortDir, int page, int size) {
 		// TODO Auto-generated method stub
+		
+		markUsedBundles();
+		expireOldBookings();
 
 		String fieldName = FIELD_MAP.get(sortField);
 		Sort sort = sortDir.equals(SortingOrder.DESC) ? Sort.by(fieldName).descending()
@@ -156,6 +163,23 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
 		}
 
 		return buildResponse(result, page, size);
+	}
+	
+	@Transactional
+	public void expireOldBookings() {
+
+	    LocalDate today = LocalDate.now();
+
+	    bookingRepo.expirePastBookings(today);
+	    confBundleRepo.expireConferenceBundles(today);
+	    dayPassBundleBookingRepository.expireDayPassBundles(today);
+	}
+	
+	@Transactional
+	public void markUsedBundles() {
+
+	    confBundleRepo.markConferenceBundlesAsUsed();
+	    dayPassBundleBookingRepository.markDayPassBundlesAsUsed();
 	}
 
 	//

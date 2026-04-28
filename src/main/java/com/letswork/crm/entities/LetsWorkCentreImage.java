@@ -8,6 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +34,7 @@ public class LetsWorkCentreImage extends Base {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lets_work_centre_id", nullable = false)
+    @JsonBackReference
     private LetsWorkCentre letsWorkCentre;
 
 }

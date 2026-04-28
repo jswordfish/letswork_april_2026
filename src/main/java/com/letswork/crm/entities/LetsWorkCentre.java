@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -66,13 +66,14 @@ public class LetsWorkCentre extends Base{
     
     private String longitude;
     
-    @JsonIgnore
+    
     @OneToMany(
             mappedBy = "letsWorkCentre",
             cascade = CascadeType.ALL,
             orphanRemoval = true
         )
-        private List<LetsWorkCentreImage> images = new ArrayList<>();
+    @JsonManagedReference
+    private List<LetsWorkCentreImage> images = new ArrayList<>();
     
     public void setImages(List<LetsWorkCentreImage> images) {
         this.images.clear();

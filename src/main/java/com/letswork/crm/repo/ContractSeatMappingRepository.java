@@ -24,7 +24,7 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
  	       "AND (c.seat.seatType =:seatType)") 
     Optional<ContractSeatMapping> findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
     		@Param("seatNumber") String seatNumber,
-    		@Param("seatType") String seatType,
+    		@Param("seatType") SeatType seatType,
     		@Param("letsWorkCentre") String letsWorkCentre,
             @Param("companyId") String companyId,
             @Param("city") String city,

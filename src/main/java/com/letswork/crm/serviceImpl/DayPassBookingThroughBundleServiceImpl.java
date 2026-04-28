@@ -155,6 +155,7 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 		         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
 		     }
 	        booking.setStartDate(request.getDateOfUse());
+	        booking.setExpiryDate(request.getDateOfUse());
 	        booking.setBookingStatus(BookingStatus.ACTIVE);
 	        String refId = generate("DayPassBookingThroughBundle");
 	        booking.setReferenceId(refId);
@@ -347,6 +348,7 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
 	     }
 		booking.setStartDate(newDate);
+		booking.setExpiryDate(newDate);
 		booking.setNumberOfPasses(existing.getNumberOfPasses());
 		booking.setDayPassBundleBookingId(existing.getDayPassBundleBookingId());
 //		booking.setDiscountedPrice(existing.getDiscountedPrice());

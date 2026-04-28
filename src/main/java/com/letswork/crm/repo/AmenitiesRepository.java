@@ -14,6 +14,8 @@ import com.letswork.crm.enums.AmenityType;
 public interface AmenitiesRepository extends JpaRepository<Amenities, Long> {
 
     Amenities findByNameAndCompanyId(String name, String companyId);
+    
+    Amenities findByNameAndCompanyIdAndAmenityType(String name, String companyId, AmenityType amenityType);
 
     Page<Amenities> findByAmenityTypeAndCompanyId(
             AmenityType amenityType,

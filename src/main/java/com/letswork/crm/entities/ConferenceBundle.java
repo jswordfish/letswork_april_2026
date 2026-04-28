@@ -31,5 +31,7 @@ public class ConferenceBundle extends Base{
 	private BigDecimal price;
 		
 	private Integer validForDays;
+	
+	private Boolean showInApp;
 
 }

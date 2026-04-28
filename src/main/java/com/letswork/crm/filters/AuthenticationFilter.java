@@ -172,10 +172,12 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
-		    	if(url.endsWith("email")) {
+		    	if(url.endsWith("/s3/presigned-url/email")) {
 		    		chain.doFilter(req, res);
 		    		return;
 		    	}
+		    	
+		    
 		    	
 		    	
 		    String token = httpRequest.getParameter("token");

@@ -1,14 +1,13 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Optional;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -23,8 +22,32 @@ import com.letswork.crm.entities.Invoice;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
+
 @Service
 public class PdfService {
+	
+	public void generatePdf(String html, OutputStream os) {
+        try {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+
+            builder.useFastMode();
+
+            // ✅ Load font properly
+            builder.useFont(() ->
+                    getClass()
+                            .getResourceAsStream("/fonts/NotoSans-Regular.ttf"),
+                    "NotoSans"
+            );
+
+            builder.withHtmlContent(html, null);
+            builder.toStream(os);
+
+            builder.run();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating PDF", e);
+        }
+    }
 	
 	DateFormat dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
 	
@@ -224,7 +247,7 @@ public class PdfService {
 	        DayPassBundleBooking dpb = (DayPassBundleBooking) booking;
 	        rows.append(buildRowDayPassBundleBooking(
 	                index++,
-	                "Day Pass Bundle Purchase",
+	                "Day Pass Bundle Purchase ("+dpb.getLetsWorkCentre().getName()+")",
 	                dpb.getExpiryDate().toString(),
 	                dpb.getRemainingNumberOfDays(),
 	                dpb.getAppliedOffer() ==null?"NA": dpb.getAppliedOffer().getName()

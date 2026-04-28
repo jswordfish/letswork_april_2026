@@ -35,9 +35,16 @@ public interface ConferenceBundleBookingRepository
     @Modifying
     @Transactional
     @Query("UPDATE ConferenceBundleBooking b SET b.bookingStatus = 'EXPIRED' " +
-           "WHERE b.bookingStatus = 'ACTIVE' " +
+           "WHERE (b.bookingStatus = 'ACTIVE' OR b.bookingStatus = 'RESCHEDULED') " +
            "AND b.expiryDate < :today")
     int expireConferenceBundles(@Param("today") LocalDate today);
+    
+    @Modifying
+    @Transactional
+    @Query("UPDATE ConferenceBundleBooking b SET b.bookingStatus = 'USED' " +
+           "WHERE (b.bookingStatus = 'ACTIVE' OR b.bookingStatus = 'RESCHEDULED') " +
+           "AND b.remainingHours <= 0")
+    int markConferenceBundlesAsUsed();
     
     @Query("SELECT b FROM Booking b " +
             "WHERE TYPE(b) = ConferenceBundleBooking " +

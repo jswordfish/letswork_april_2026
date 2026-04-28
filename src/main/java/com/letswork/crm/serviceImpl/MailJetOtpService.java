@@ -225,7 +225,7 @@ public class MailJetOtpService {
 
         if (keyName != null && !keyName.trim().isEmpty()) {
             qrImageUrl =
-                    "http://letsworkapp.in:8443/visitor/s3/presigned-url/email?key=" +
+                    "https://letsworkapp.in:8443/visitor/s3/presigned-url/email?s3Key=" +
                     URLEncoder.encode(keyName, StandardCharsets.UTF_8);
         }
 
@@ -236,7 +236,7 @@ public class MailJetOtpService {
         variables.put("subCategory", subCategory);
         variables.put("letswork", letsWorkCentre);
         variables.put("issue", issue);
-        variables.put("urlIssue", qrImageUrl != null ? qrImageUrl : "");
+        variables.put("QR_Code", qrImageUrl != null ? qrImageUrl : "");
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))

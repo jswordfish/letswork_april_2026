@@ -92,8 +92,12 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	        if (images != null && !images.isEmpty()) {
 	            existing.getImages().clear();
 	        }
-
+	        
+	        String existingVideoPath = existing.getBookTourVideoPath();
 	        mapper.map(centre, existing);
+	        if (bookTourVideo == null || bookTourVideo.isEmpty()) {
+	            existing.setBookTourVideoPath(existingVideoPath);
+	        }
 	        savedCentre = repo.save(existing);
 
 	    } else {
