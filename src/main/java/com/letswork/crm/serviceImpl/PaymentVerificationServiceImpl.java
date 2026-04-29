@@ -1,5 +1,7 @@
 package com.letswork.crm.serviceImpl;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Date;
@@ -104,6 +106,7 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
                 invoice.setInvoiceStatus(InvoiceStatus.PAID);
                 invoice.setCompanyId(booking.getCompanyId());
                 invoice.setCreateDate(new Date());
+                invoice.setDateOfCreation(LocalDate.now());
                 Invoice savedInvoice = invoiceRepository.save(invoice);
 
                 String html = pdfService.buildInvoiceHtml(savedInvoice);
@@ -144,8 +147,8 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
             	            email,
             	            name,
             	            bundleBooking.getRemainingHours(),
-            	            booking.getFrontendFinalAmountAfterAddingTax(),
-            	            bundleBooking.getExpiryDate(),
+            	            format(booking.getFrontendFinalAmountAfterAddingTax()),
+            	            formatDate(bundleBooking.getExpiryDate()),
             	            reference,
             	            invoicePdf
             	    );
@@ -169,7 +172,7 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
             	            email,
             	            name,
             	            directBooking.getLetsWorkCentre().getName(),
-            	            directBooking.getStartDate(),
+            	            formatDate(directBooking.getStartDate()),
             	            startTime,
             	            endTime,
             	            reference,
@@ -201,9 +204,9 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
             	            email,
             	            name,
             	            bundleBooking.getRemainingNumberOfDays(), 
-            	            booking.getFrontendFinalAmountAfterAddingTax(),
-            	            bundleBooking.getDateOfPurchase(),
-            	            bundleBooking.getExpiryDate(),
+            	            format(booking.getFrontendFinalAmountAfterAddingTax()),
+            	            formatDate(bundleBooking.getDateOfPurchase().toLocalDate()),
+            	            formatDate(bundleBooking.getExpiryDate()),
             	            bundleBooking.getLetsWorkCentre().getName(),
             	            reference,
             	            invoicePdf
@@ -217,7 +220,7 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
             	            email,
             	            name,
             	            directBooking.getLetsWorkCentre().getName(),
-            	            directBooking.getStartDate(),
+            	            formatDate(directBooking.getStartDate()),
             	            reference,
             	            directBooking.getNumberOfPasses(),
             	            invoicePdf,
@@ -244,6 +247,20 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
         }
     }
     
+    public static String formatDate(LocalDate date) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy");
+		return date.format(formatter);
+	}
+	
+	public static String formatDate(Date date) {
+		SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM yyyy");
+		return formatter.format(date);
+	}
+	
+	public static String format(Float num) {
+		return  String.format("%.02f", num);
+		
+	}
 
     private PaymentStatus mapRazorpayStatus(String razorpayStatus) {
         if ("captured".equalsIgnoreCase(razorpayStatus)) {

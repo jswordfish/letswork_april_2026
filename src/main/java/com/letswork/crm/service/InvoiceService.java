@@ -1,10 +1,9 @@
 package com.letswork.crm.service;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Invoice;
-import com.letswork.crm.enums.BookingType;
 import com.letswork.crm.enums.InvoiceStatus;
 
 public interface InvoiceService {
@@ -15,8 +14,8 @@ public interface InvoiceService {
             String companyId,
             String email,
             InvoiceStatus invoiceStatus,
-            Date fromDate,
-            Date toDate,
+            LocalDate fromDate,
+            LocalDate toDate,
             int page,
             int size
     );

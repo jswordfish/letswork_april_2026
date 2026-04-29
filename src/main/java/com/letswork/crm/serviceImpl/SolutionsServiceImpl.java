@@ -3,7 +3,6 @@ package com.letswork.crm.serviceImpl;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -17,10 +16,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.dtos.SolutionsDto;
 import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.SolutionType;
 import com.letswork.crm.entities.Solutions;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
+import com.letswork.crm.repo.SolutionTypeRepository;
 import com.letswork.crm.repo.SolutionsRepository;
 import com.letswork.crm.service.SolutionsService;
 import com.letswork.crm.service.TenantService;
@@ -44,95 +46,120 @@ public class SolutionsServiceImpl implements SolutionsService{
 
     @Autowired
     private ObjectMapper objectMapper;
+    
+    @Autowired
+    SolutionTypeRepository solutionTypeRepo;
 
     
     private String bucketName = "letsworkcentres";
 
-	@Override
-	public String saveOrUpdate(
-	        Solutions solution,
-	        MultipartFile image
-	) throws IOException {
+    @Override
+    public String saveOrUpdate(
+            SolutionsDto dto,
+            MultipartFile image
+    ) throws IOException {
 
-	    Tenant tenant =
-	            tenantService.findTenantByCompanyId(
-	                    solution.getCompanyId()
-	            );
+        // ✅ Validate tenant
+        Tenant tenant = tenantService.findTenantByCompanyId(dto.getCompanyId());
 
-	    if (tenant == null) {
-	        throw new RuntimeException(
-	                "Invalid companyId - " + solution.getCompanyId()
-	        );
-	    }
+        if (tenant == null) {
+            throw new RuntimeException("Invalid companyId - " + dto.getCompanyId());
+        }
 
-	    LetsWorkCentre centre =
-	            letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
-	                    solution.getLetsWorkCentre(),
-	                    solution.getCompanyId(),
-	                    solution.getCity(),
-	                    solution.getState()
-	            );
+        // ✅ Validate centre
+        LetsWorkCentre centre =
+                letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+                        dto.getLetsWorkCentre(),
+                        dto.getCompanyId(),
+                        dto.getCity(),
+                        dto.getState()
+                );
 
-	    if (centre == null) {
-	        throw new RuntimeException("This LetsWorkCentre does not exist");
-	    }
+        if (centre == null) {
+            throw new RuntimeException("This LetsWorkCentre does not exist");
+        }
 
-	    Solutions existing =
-	            repo.findByNameAndLetsWorkCentreAndCompanyId(
-	                    solution.getName(),
-	                    solution.getLetsWorkCentre(),
-	                    solution.getCompanyId()
-	            );
+        // ✅ Validate solutionTypeId
+        if (dto.getSolutionTypeId() == null) {
+            throw new RuntimeException("solutionTypeId is required");
+        }
 
-	    Solutions saved;
+        SolutionType solutionType = solutionTypeRepo.findById(dto.getSolutionTypeId())
+                .orElseThrow(() -> new RuntimeException("Invalid solutionTypeId"));
 
-	    if (existing != null) {
+        // ✅ Check existing
+        Solutions existing =
+                repo.findByNameAndLetsWorkCentreAndCompanyId(
+                        dto.getName(),
+                        dto.getLetsWorkCentre(),
+                        dto.getCompanyId()
+                );
 
-	        // ✅ SAFE MERGE (s3Path protected by @JsonIgnoreProperties)
-	        objectMapper.updateValue(existing, solution);
-	        existing.setUpdateDate(new Date());
+        Solutions solution;
+        boolean isUpdate = (existing != null);
 
-	        saved = repo.save(existing);
+        if (isUpdate) {
 
-	    } else {
+            solution = existing;
 
-	        solution.setCreateDate(new Date());
-	        solution.setUpdateDate(new Date());
+            solution.setName(dto.getName());
+            solution.setPrice(dto.getPrice());
+            solution.setLetsWorkCentre(dto.getLetsWorkCentre());
+            solution.setCity(dto.getCity());
+            solution.setState(dto.getState());
+            solution.setAmenities(dto.getAmenities());
 
-	        saved = repo.save(solution);
-	    }
+            solution.setSolutionType(solutionType); 
 
-	    // ✅ Image update ONLY if explicitly provided
-	    if (image != null && !image.isEmpty()) {
+            solution.setUpdateDate(new Date());
 
-	        File tempFile =
-	                File.createTempFile(
-	                        "solution_",
-	                        image.getOriginalFilename()
-	                );
+        } else {
 
-	        image.transferTo(tempFile);
+            solution = new Solutions();
 
-	        String s3Key =
-	                s3Service.uploadSolutionImage(
-	                        bucketName,
-	                        saved.getCompanyId(),
-	                        saved.getLetsWorkCentre(),
-	                        saved.getName(),
-	                        image.getOriginalFilename(),
-	                        tempFile
-	                );
+            solution.setName(dto.getName());
+            solution.setPrice(dto.getPrice());
+            solution.setLetsWorkCentre(dto.getLetsWorkCentre());
+            solution.setCity(dto.getCity());
+            solution.setState(dto.getState());
+            solution.setAmenities(dto.getAmenities());
 
-	        saved.setS3Path(s3Key);
-	        repo.save(saved);
+            solution.setSolutionType(solutionType); 
 
-	        tempFile.delete();
-	    }
+            solution.setCompanyId(dto.getCompanyId());
+            solution.setCreateDate(new Date());
+            solution.setUpdateDate(new Date());
+        }
 
-	    return existing != null
-	            ? "solution updated"
-	            : "solution created";
-	}
+        Solutions saved = repo.save(solution);
+
+        if (image != null && !image.isEmpty()) {
+
+            File tempFile = File.createTempFile(
+                    "solution_",
+                    image.getOriginalFilename()
+            );
+
+            image.transferTo(tempFile);
+
+            String s3Key =
+                    s3Service.uploadSolutionImage(
+                            bucketName,
+                            saved.getCompanyId(),
+                            saved.getLetsWorkCentre(),
+                            saved.getName(),
+                            image.getOriginalFilename(),
+                            tempFile
+                    );
+
+            saved.setS3Path(s3Key);
+            repo.save(saved);
+
+            tempFile.delete();
+        }
+
+        return isUpdate ? "solution updated" : "solution created";
+    }
 
 //	@Override
 //	public List<Solutions> findByCompanyId(String companyId) {

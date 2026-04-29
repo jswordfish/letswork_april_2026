@@ -12,7 +12,7 @@ import com.razorpay.RazorpayClient;
 public class RazorpayService {
 
 //    private String key = "rzp_live_ulbX2nk9nN1K8x"; //real
-//
+
 //    private String secret = "XOyctgFeeDucL8LD3EDL5vIB"; //real
     
 	private String key = "rzp_test_SKguaIWs4EkI1g"; //test

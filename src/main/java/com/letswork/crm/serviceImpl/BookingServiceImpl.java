@@ -2,6 +2,7 @@ package com.letswork.crm.serviceImpl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -19,12 +20,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Booking;
+import com.letswork.crm.entities.ConferenceBookingDirect;
+import com.letswork.crm.entities.ConferenceRoomBookingThroughBundle;
 import com.letswork.crm.entities.Invoice;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortFieldByBooking;
 import com.letswork.crm.enums.SortingOrder;
 import com.letswork.crm.repo.BookingRepository;
+import com.letswork.crm.repo.ConferenceBookingDirectRepository;
 import com.letswork.crm.repo.ConferenceBundleBookingRepository;
+import com.letswork.crm.repo.ConferenceRoomBookingThroughBundleRepository;
 import com.letswork.crm.repo.DayPassBundleBookingRepository;
 import com.letswork.crm.repo.InvoiceRepository;
 import com.letswork.crm.service.BookingService;
@@ -47,6 +52,12 @@ public class BookingServiceImpl implements BookingService {
 
 	@Autowired
 	private BookingTypeResolver bookingTypeResolver;
+	
+	@Autowired
+	ConferenceBookingDirectRepository conferenceBookingRepo;
+	
+	@Autowired
+	ConferenceRoomBookingThroughBundleRepository conferenceBookingBundleRepo;
 
 	@Override
 	public Booking save(Booking booking) {
@@ -101,6 +112,9 @@ public class BookingServiceImpl implements BookingService {
 		
 		markUsedBundles();
 		expireOldBookings();
+		expireCompletedConferenceBookings();
+		expireCompletedConferenceBookingsThroughBundle();
+		
 
 		String fieldName = FIELD_MAP.get(sortFieldByBooking);
 
@@ -149,6 +163,38 @@ public class BookingServiceImpl implements BookingService {
 
 	    confBundleRepo.markConferenceBundlesAsUsed();
 	    dayPassBundleRepo.markDayPassBundlesAsUsed();
+	}
+	
+	@Transactional
+	public void expireCompletedConferenceBookings() {
+
+	    LocalDate today = LocalDate.now();
+	    LocalTime now = LocalTime.now().withSecond(0).withNano(0);
+
+	    List<ConferenceBookingDirect> expiredBookings =
+	            conferenceBookingRepo.findExpiredBookings(today, now);
+
+	    for (ConferenceBookingDirect booking : expiredBookings) {
+	        booking.setBookingStatus(BookingStatus.EXPIRED);
+	    }
+
+	    conferenceBookingRepo.saveAll(expiredBookings);
+	}
+
+	@Transactional
+	public void expireCompletedConferenceBookingsThroughBundle() {
+
+	    LocalDate today = LocalDate.now();
+	    LocalTime now = LocalTime.now().withSecond(0).withNano(0);
+
+	    List<ConferenceRoomBookingThroughBundle> expiredBookings =
+	            conferenceBookingBundleRepo.findExpiredBookings(today, now);
+
+	    for (ConferenceRoomBookingThroughBundle booking : expiredBookings) {
+	        booking.setBookingStatus(BookingStatus.EXPIRED);
+	    }
+
+	    conferenceBookingBundleRepo.saveAll(expiredBookings);
 	}
 
 	private static final Map<SortFieldByBooking, String> FIELD_MAP = Map.of(SortFieldByBooking.ID, "id",

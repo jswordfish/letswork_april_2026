@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -42,5 +44,9 @@ public class Solutions extends Base{
 	private String s3Path;
 	
 	private String amenities;
+	
+	@ManyToOne
+	@JoinColumn(name = "solution_type_id")
+	private SolutionType solutionType;
 
 }

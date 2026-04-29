@@ -1,5 +1,8 @@
 package com.letswork.crm.repo;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -9,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.letswork.crm.entities.ConferenceBookingDirect;
 import com.letswork.crm.entities.ConferenceRoomBookingThroughBundle;
 import com.letswork.crm.enums.BookingStatus;
 
@@ -45,6 +49,17 @@ public interface ConferenceRoomBookingThroughBundleRepository
 	            @Param("maxHours") Float maxHours,
 	            Pageable pageable
 	    );
+	
+	@Query("SELECT b FROM ConferenceRoomBookingThroughBundle b " +
+		       "JOIN b.slots s " +
+		       "WHERE b.bookingStatus = 'ACTIVE' " +
+		       "GROUP BY b.id, b.startDate " +
+		       "HAVING b.startDate < :today " +
+		       "OR (b.startDate = :today AND MAX(s.endTime) <= :now)")
+		List<ConferenceRoomBookingThroughBundle> findExpiredBookings(
+		        @Param("today") LocalDate today,
+		        @Param("now") LocalTime now
+		);
 	
 	Optional<ConferenceRoomBookingThroughBundle> findByIdAndCompanyId(Long id, String companyId);
 	

@@ -2,6 +2,7 @@ package com.letswork.crm.serviceImpl;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -13,8 +14,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.LetsWorkCentre;
@@ -96,6 +99,17 @@ public class VisitorServiceImpl implements VisitorService {
 	    	visitor.setQrS3Path(existing.getQrS3Path());
 	        mapper.map(visitor, existing);
 	        existing.setUpdateDate(new Date());
+	        
+	        LocalDateTime visitDateTime = LocalDateTime.of(
+	                visitor.getVisitDate(),
+	                visitor.getTimeOfVisit()
+	        );
+
+	        LocalDateTime now = LocalDateTime.now();
+
+	        if (visitDateTime.isBefore(now)) {
+	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Visit date and time cannot be in the past");
+	        }
 
 	        saved = repo.save(existing);
 	        	if(saved.getQrS3Path() == null) {
@@ -108,6 +122,17 @@ public class VisitorServiceImpl implements VisitorService {
 	        visitor.setBookingCode(UUID.randomUUID().toString());
 	        visitor.setCreateDate(new Date());
 	        visitor.setUpdateDate(new Date());
+	        
+	        LocalDateTime visitDateTime = LocalDateTime.of(
+	                visitor.getVisitDate(),
+	                visitor.getTimeOfVisit()
+	        );
+
+	        LocalDateTime now = LocalDateTime.now();
+
+	        if (visitDateTime.isBefore(now)) {
+	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Visit date and time cannot be in the past");
+	        }
 
 	        saved = repo.save(visitor);
 

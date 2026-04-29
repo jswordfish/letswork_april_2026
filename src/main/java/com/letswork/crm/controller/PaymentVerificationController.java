@@ -29,8 +29,7 @@ public class PaymentVerificationController {
             @RequestBody VerifyPaymentRequest request,
             @RequestParam String token
     ) {
-    	PaymentVerificationResponseDto response = paymentVerificationService
-                .verifyAndProcessPayment(request.getPaymentId(), request.getReferenceId());
+    	PaymentVerificationResponseDto response = paymentVerificationService.verifyAndProcessPayment(request.getPaymentId(), request.getReferenceId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

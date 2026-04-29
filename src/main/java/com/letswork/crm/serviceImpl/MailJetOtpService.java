@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -364,8 +365,8 @@ public class MailJetOtpService {
             String email,
             String name,
             Float numOfHours,
-            float price,
-            LocalDate expiryDate,
+            String price,
+            String expiryDate,
             String bookingReference,
             byte[] invoicePdf
     ) {
@@ -381,7 +382,7 @@ public class MailJetOtpService {
         variables.put("name", name);
         variables.put("numOfHours", numOfHours);
         variables.put("price", price);
-        variables.put("expiryDate", expiryDate.toString());
+        variables.put("expiryDate", expiryDate);
         variables.put("bookingReference", bookingReference);
 
         Base64.Encoder encoder = Base64.getEncoder();
@@ -413,7 +414,7 @@ public class MailJetOtpService {
             String email,
             String name,
             String letsworkCenter,
-            LocalDate dateOfBooking,
+            String dateOfBooking,
             String startTime,
             String endTime,
             String bookingReference,
@@ -435,7 +436,7 @@ public class MailJetOtpService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("name", name);
         variables.put("letsworkCenter", letsworkCenter);
-        variables.put("dateOfBooking", dateOfBooking.toString());
+        variables.put("dateOfBooking", dateOfBooking);
         variables.put("from", startTime);
         variables.put("to", endTime);
         variables.put("bookingReference", bookingReference);
@@ -470,9 +471,9 @@ public class MailJetOtpService {
             String email,
             String name,
             Integer numOfDays,
-            float price,
-            LocalDateTime startDate,
-            LocalDate expiryDate,
+            String price,
+            String startDate,
+            String expiryDate,
             String letsworkCenter,
             String bookingReference,
             byte[] invoicePdf
@@ -489,8 +490,8 @@ public class MailJetOtpService {
         variables.put("name", name);
         variables.put("numOfDays", numOfDays);
         variables.put("price", price);
-        variables.put("startDate", startDate.toString());
-        variables.put("expiryDate", expiryDate.toString());
+        variables.put("startDate", startDate);
+        variables.put("expiryDate", expiryDate);
         variables.put("letsworkCenter", letsworkCenter);
         variables.put("bookingReference", bookingReference);
 
@@ -525,7 +526,7 @@ public class MailJetOtpService {
             String email,
             String name,
             String letsworkCenter,
-            LocalDate dateOfUse,
+            String dateOfUse,
             String bookingReference,
             Integer numberOfDays,
             byte[] invoicePdf,
@@ -546,7 +547,7 @@ public class MailJetOtpService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("name", name);
         variables.put("letsworkCenter", letsworkCenter);
-        variables.put("dateOfUse", dateOfUse.toString());
+        variables.put("dateOfUse", dateOfUse);
         variables.put("bookingReference", bookingReference);
         variables.put("numberOfDays", numberOfDays);
         variables.put("QR_Code", qrImageUrl);
@@ -606,10 +607,11 @@ public class MailJetOtpService {
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("letsworkCenter", letsworkCenter);
-        variables.put("dateOfUse", dateOfUse.toString());
+        variables.put("dateOfUse", formatDate(dateOfUse));
         variables.put("visitorName", visitorName);
         variables.put("name", nameOfVisited);
-        variables.put("timeOfVisit", timeOfVisit.toString());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
+        variables.put("timeOfVisit", timeOfVisit.format(formatter).toString());
         variables.put("numberOfGuests", numberOfGuests);
         variables.put("QR_Code", qrImageUrl);
         List<SendContact> list = new ArrayList<>();
@@ -636,5 +638,10 @@ public class MailJetOtpService {
             throw new RuntimeException("Failed to send Day Pass email", e);
         }
     }
+    
+    public static String formatDate(LocalDate date) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy");
+		return date.format(formatter);
+	}
 
 }

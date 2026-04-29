@@ -1,6 +1,7 @@
 package com.letswork.crm.repo;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,17 @@ public interface ConferenceBookingDirectRepository
 		        @Param("clientId") Long clientId, 
 		        @Param("date") LocalDate date
 		);
+		
+		@Query("SELECT b FROM ConferenceBookingDirect b " +
+			       "JOIN b.slots s " +
+			       "WHERE b.bookingStatus = 'ACTIVE' " +
+			       "GROUP BY b.id, b.startDate " +
+			       "HAVING b.startDate < :today " +
+			       "OR (b.startDate = :today AND MAX(s.endTime) <= :now)")
+			List<ConferenceBookingDirect> findExpiredBookings(
+			        @Param("today") LocalDate today,
+			        @Param("now") LocalTime now
+			);
 	
 	    @Query("SELECT b FROM ConferenceBookingDirect b " +
 	           "WHERE b.companyId = :companyId " +

@@ -51,8 +51,8 @@ public class InvoiceServiceImpl implements InvoiceService {
             String companyId,
             String email,
             InvoiceStatus invoiceStatus,
-            Date fromDate,
-            Date toDate,
+            LocalDate fromDate,
+            LocalDate toDate,
             int page,
             int size
     ) {

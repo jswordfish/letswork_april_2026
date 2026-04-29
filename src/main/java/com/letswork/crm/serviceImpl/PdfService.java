@@ -7,7 +7,11 @@ import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -99,7 +103,7 @@ public class PdfService {
 
 	        // ================= BASIC =================
 	        html = html.replace("${invoiceNumber}", String.valueOf(invoice.getId()));
-	        html = html.replace("${invoiceDate}", LocalDate.now().toString());
+	        html = html.replace("${invoiceDate}", formatDate(LocalDate.now()));
 	        BigDecimal invoiceAmount = BigDecimal.valueOf(booking.getFrontendAmount());
 	        html = html.replace("${amount}", invoiceAmount.toPlainString());
 
@@ -118,13 +122,13 @@ public class PdfService {
 	        html = html.replace("${lineItems}", lineItems);
 
 	     // ================= FRONTEND VALUES =================
-	        BigDecimal originalAmount = BigDecimal.valueOf(booking.getFrontendAmount());
+	        float originalAmount = booking.getFrontendAmount();
 
 	        Integer discountPercent = booking.getFrontendDiscountPercentage() != null
 	                ? booking.getFrontendDiscountPercentage()
 	                : 0;
 
-	        BigDecimal discountedAmount = BigDecimal.valueOf(booking.getFrontendDiscountedAmount());
+	        float discountedAmount = booking.getFrontendDiscountedAmount();
 
 	        // ================= TAX =================
 //	        BigDecimal taxRate = new BigDecimal("0.09");
@@ -153,24 +157,29 @@ public class PdfService {
 	        }
 
 	        // NEW FIELDS
-	        html = html.replace("${originalAmount}", originalAmount.toPlainString());
+	        html = html.replace("${originalAmount}", format(originalAmount));
 	        html = html.replace("${discountPercent}", String.valueOf(discountPercent));
-	        html = html.replace("${discountedAmount}", discountedAmount.toPlainString());
+	        html = html.replace("${discountedAmount}", format(discountedAmount));
 
 	        // TAX
 	        
 	        html = html.replace("${cgstPercent}", String.valueOf(cgstPercent));
 	        html = html.replace("${sgstPercent}", String.valueOf(sgstPercent));
 	        
-	        html = html.replace("${cgst}", String.valueOf(cgstAmount));
-	        html = html.replace("${sgst}", String.valueOf(sgstAmount));
-	        html = html.replace("${total}", String.valueOf(total));
+	        html = html.replace("${cgst}", format(cgstAmount));
+	        html = html.replace("${sgst}", format(sgstAmount));
+	        html = html.replace("${total}", format(total));
 
 	        return html;
 
 	    } catch (Exception e) {
 	        throw new RuntimeException("Failed to build invoice template", e);
 	    }
+	}
+	
+	public static String format(Float num) {
+		return  String.format("%.02f", num);
+		
 	}
 	
 	private String buildLineItems(Booking booking) {
@@ -181,19 +190,30 @@ public class PdfService {
 	    if (booking instanceof ConferenceBookingDirect) {
 
 	        ConferenceBookingDirect conf = (ConferenceBookingDirect) booking;
-	        for (ConferenceRoomTimeSlot slot : conf.getSlots()) {
-	        	
-	        	String startTimeStr = slot.getStartTime().format(timeFormatter);
-	            String endTimeStr = slot.getEndTime().format(timeFormatter);
-	        	rows.append(buildRowConferenceBookingDirect(
-		                    index++,
-		                    "Conference Room Booking (" + startTimeStr + " - " + endTimeStr + ")",
-		                    conf.getConferenceRoom().getName(),
-		                    conf.getLetsWorkCentre().getName(),
-		                    conf.getAppliedOffer() == null?"NA": conf.getAppliedOffer().getCode()
-		                   
 
-		            ));
+	        if (conf.getSlots() != null && !conf.getSlots().isEmpty()) {
+
+	            List<ConferenceRoomTimeSlot> slots = conf.getSlots();
+
+	            // Sort just in case slots aren't ordered
+	            slots.sort(Comparator.comparing(ConferenceRoomTimeSlot::getStartTime));
+
+	            LocalTime overallStartTime = slots.get(0).getStartTime();
+	            LocalTime overallEndTime = slots.get(slots.size() - 1).getEndTime();
+
+	            String startTimeStr = overallStartTime.format(timeFormatter);
+	            String endTimeStr = overallEndTime.format(timeFormatter);
+
+	            rows.append(buildRowConferenceBookingDirect(
+	                    index++,
+	                    "Conference Room Booking (" + startTimeStr + " - " + endTimeStr + ")",
+	                    conf.getConferenceRoom().getName(),
+	                    conf.getLetsWorkCentre().getName(),
+	                    conf.getAppliedOffer() == null
+	                            ? "NA"
+	                            : conf.getAppliedOffer().getCode(),
+	                    formatDate(conf.getDateOfPurchase().toLocalDate())
+	            ));
 	        }
 	    }
 	    // 🟢 Conference Bundle (FULL PURCHASE - NOT USAGE)
@@ -209,13 +229,14 @@ public class PdfService {
 	        	else {
 	        		dateOfPurchase = "NA";
 	        	}
+	        	
 	        rows.append(buildRowConferenceBundleBooking(
 	                index++,
 	                "Conference Room Bundle Booking",
 	                bundle.getConferenceBundle().getId(),
-	                dateOfPurchase,
-	                bundle.getRemainingHours(),
-	                bundle.getExpiryDate().toString()
+	                formatDate(bundle.getDateOfPurchase().toLocalDate()),
+	                bundle.getRemainingHours().intValue(),
+	                formatDate(bundle.getExpiryDate())
 	        ));
 	    }
 	    // 🟡 Day Pass Direct
@@ -234,12 +255,11 @@ public class PdfService {
 
 	        rows.append(buildRowDayPassBookingDirect(
 	                index++,
-	                "Day pass Booking Direct",
+	                "Day pass Booking Direct ("+dp.getLetsWorkCentre().getName()+")",
 	                dp.getNumberOfPasses(),
-	                dateOfPurchase,
-	                dp.getAppliedOffer()==null?"NA": dp.getAppliedOffer().getCode(),
-	                dp.getPreviousBookingId()
-	        ));
+	                formatDate(booking.getStartDate()),
+	                dp.getAppliedOffer()==null?"NA": dp.getAppliedOffer().getCode()
+	                	        ));
 	    }
 
 	    // 🟣 Day Pass Bundle (FULL PURCHASE - NOT USAGE)
@@ -248,7 +268,7 @@ public class PdfService {
 	        rows.append(buildRowDayPassBundleBooking(
 	                index++,
 	                "Day Pass Bundle Purchase ("+dpb.getLetsWorkCentre().getName()+")",
-	                dpb.getExpiryDate().toString(),
+	                formatDate(dpb.getExpiryDate()),
 	                dpb.getRemainingNumberOfDays(),
 	                dpb.getAppliedOffer() ==null?"NA": dpb.getAppliedOffer().getName()
 	        ));
@@ -281,7 +301,8 @@ public class PdfService {
 	        String description,
 	        String name,
 	        String center,
-	        String appliedOffer
+	        String appliedOffer,
+	        String dateOfPurchase
 	       
 	        
 	) {
@@ -292,6 +313,7 @@ public class PdfService {
 	            "<td>" + name + "</td>" +
 	            "<td>" + center + "</td>" +
 	            "<td>" + appliedOffer + "</td>" +
+	            "<td>" + dateOfPurchase + "</td>" +
 	            "</tr>";
 	}
 	
@@ -300,7 +322,7 @@ public class PdfService {
 	        String description,
 	        Long ConferenceBundleId,
 	        String dateOfPurchase,
-	        Float remainingHours,
+	        int remainingHours,
 	        String expiryDate
 	) {
          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -323,8 +345,7 @@ public class PdfService {
 	        String description,
 	        Integer numberOfPasses,
 	        String startDate,
-	        String appliedOffer ,
-	        Long previousBookingId
+	        String appliedOffer 
 	        
 	) {
          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -337,7 +358,7 @@ public class PdfService {
 	            "<td>" + numberOfPasses + "</td>" +
 	            "<td>" + startDate + "</td>" +
 	            "<td>" + appliedOffer + "</td>" +
-	            "<td>" + previousBookingId + "</td>" +
+//	            "<td>" + previousBookingId + "</td>" +
 	            "</tr>";
 	}
 	
@@ -357,6 +378,16 @@ public class PdfService {
 	            "<td>" + remainingNumberOfDays + "</td>" +
 	            "<td>" + Offer + "</td>" +
 	            "</tr>";
+	}
+	
+	public static String formatDate(LocalDate date) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy");
+		return date.format(formatter);
+	}
+	
+	public static String formatDate(Date date) {
+		SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM yyyy");
+		return formatter.format(date);
 	}
 
 }

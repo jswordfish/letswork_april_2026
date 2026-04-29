@@ -1,16 +1,11 @@
 package com.letswork.crm.entities;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.letswork.crm.enums.InvoiceStatus;
@@ -27,27 +22,12 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Invoice extends Base{
-	
-	@Id
+public class SolutionType extends Base {
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-	
-	@ManyToOne
-	@JoinColumn(name = "booking__id")
-	@JsonIgnoreProperties("invoice")
-	Booking booking;
-	
-	private LocalDate dateOfCreation;
-	
-	private BigDecimal amount;
-	
-	private float amountFinal;
-	
-	@Enumerated(EnumType.STRING)
-    private InvoiceStatus invoiceStatus;
-	
-	private String pdfS3KeyName;
-	
+
+    private String name;
 
 }
