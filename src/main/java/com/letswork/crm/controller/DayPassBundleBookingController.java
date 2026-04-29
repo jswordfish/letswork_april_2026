@@ -1,5 +1,6 @@
 package com.letswork.crm.controller;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -41,17 +42,17 @@ public class DayPassBundleBookingController {
 			@RequestParam(required = false) BookingStatus bookingStatus, @RequestParam(required = false) Long clientId,
 			@RequestParam(required = false) Long dayPassBundleeId,
 
-			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
 
-			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 
-			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 
 			@RequestParam(required = false) Long centreId,
 
-			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expiryFrom,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate expiryFrom,
 
-			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expiryTo,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate expiryTo,
 
 			@RequestParam(required = false) Integer remainingDays, @RequestParam(required = false) Boolean paid,
 			@RequestParam(defaultValue = "DATE_OF_PURCHASE") SortField sortField,
@@ -60,7 +61,7 @@ public class DayPassBundleBookingController {
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
 		return ResponseEntity.ok(service.filterDayPassBundleBooking(companyId, bookingStatus, clientId,
-				dayPassBundleeId, date, startDate, endDate, centreId, expiryFrom, expiryTo, remainingDays, paid,
+				dayPassBundleeId, date.atStartOfDay(), startDate.atStartOfDay(), endDate.atTime(23, 59, 59), centreId, expiryFrom.atStartOfDay(), expiryTo.atTime(23, 59, 59), remainingDays, paid,
 				sortField, sortDir, page, size
 
 		));

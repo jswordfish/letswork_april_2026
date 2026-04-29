@@ -1,6 +1,7 @@
 package com.letswork.crm.controller;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,14 +51,15 @@ public class InvoiceController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
+    	
 
         PaginatedResponseDto response =
                 invoiceService.getPaginated(
                         companyId,
                         email,
                         invoiceStatus,
-                        fromDate,
-                        toDate,
+                        fromDate.atStartOfDay(),
+                        toDate.atTime(23, 59, 59),
                         page,
                         size
                 );

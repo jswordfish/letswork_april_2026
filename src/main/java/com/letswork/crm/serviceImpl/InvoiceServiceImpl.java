@@ -1,6 +1,7 @@
 package com.letswork.crm.serviceImpl;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.transaction.Transactional;
@@ -51,8 +52,8 @@ public class InvoiceServiceImpl implements InvoiceService {
             String companyId,
             String email,
             InvoiceStatus invoiceStatus,
-            LocalDate fromDate,
-            LocalDate toDate,
+            LocalDateTime fromDate,
+            LocalDateTime toDate,
             int page,
             int size
     ) {
