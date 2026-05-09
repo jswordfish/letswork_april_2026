@@ -54,7 +54,7 @@ public interface DayPassBundleRepository
 		        @Param("numberOfDays") Integer numberOfDays,
 		        @Param("validForDays") Integer validForDays,
 		        @Param("discountPercentage") Integer discountPercentage,
-		        @Param("price") float price,
+		        @Param("price") Float price,
 		        @Param("search") String search
 		);
     

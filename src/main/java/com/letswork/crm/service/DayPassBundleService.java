@@ -24,7 +24,7 @@ public interface DayPassBundleService {
 	        Integer numberOfDays,
 	        Integer validForDays,
 	        Integer discountPercentage,
-	        float price,
+	        Float price,
 	        String search
 	);
 

@@ -106,7 +106,7 @@ public class DayPassBundleServiceImpl implements DayPassBundleService {
 	        Integer numberOfDays,
 	        Integer validForDays,
 	        Integer discountPercentage,
-	        float price,
+	        Float price,
 	        String search
 	) {
 	    return repo.searchBundles(
