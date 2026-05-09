@@ -313,10 +313,12 @@ public class SeatServiceImpl implements SeatService {
             String city,
             String state,
             SeatType seatType,
+            Boolean published,
             String search,
             String sort,
             int pageNo,
-            int pageSize) {
+            int pageSize
+    ) {
 
         Pageable pageable = buildPageable(sort, pageNo, pageSize);
 
@@ -326,6 +328,7 @@ public class SeatServiceImpl implements SeatService {
                 emptyToNull(city),
                 emptyToNull(state),
                 seatType,
+                published,
                 emptyToNull(search),
                 pageable
         );

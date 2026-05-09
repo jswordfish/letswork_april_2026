@@ -9,9 +9,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import com.letswork.crm.enums.EnquiryType;
-import com.letswork.crm.enums.Solution;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -41,8 +41,8 @@ public class Enquiry extends Base{
 	
 	private LocalDateTime time;
 	
-	@Enumerated(EnumType.STRING)
-	private Solution solution;
+	@ManyToOne
+	private Solutions solutions;
 	
 	private String description;
 	

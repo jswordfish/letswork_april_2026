@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.letswork.crm.dtos.EnquiryDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Enquiry;
 import com.letswork.crm.enums.EnquiryType;
@@ -29,12 +30,12 @@ public class EnquiryController {
     @PostMapping
     public ResponseEntity<Enquiry> createEnquiry(
             @RequestParam String token,
-            @RequestBody Enquiry enquiry
+            @RequestBody EnquiryDto dto
     ) {
 
 
         return ResponseEntity.ok(
-                enquiryService.createEnquiry(enquiry)
+                enquiryService.createEnquiry(dto)
         );
     }
 
@@ -46,7 +47,11 @@ public class EnquiryController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String phone,
-            @RequestParam(required = false) Solution solution,
+
+            @RequestParam(required = false) String letsWorkCentre,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) String search,
 
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -68,7 +73,10 @@ public class EnquiryController {
                         name,
                         email,
                         phone,
-                        solution,
+                        letsWorkCentre,
+                        city,
+                        state,
+                        search,
                         fromDate,
                         toDate,
                         enquiryType,

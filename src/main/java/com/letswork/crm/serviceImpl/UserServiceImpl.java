@@ -343,9 +343,23 @@ public class UserServiceImpl implements UserService{
 	public Page<User> getUsers(
 	        String companyId,
 	        String search,
+	        String department,
+	        String roleOrDesig,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
 	        Pageable pageable
 	) {
-	    return repo.searchUsers(companyId, search, pageable);
+	    return repo.searchUsers(
+	            companyId,
+	            search,
+	            department,
+	            roleOrDesig,
+	            letsWorkCentre,
+	            city,
+	            state,
+	            pageable
+	    );
 	}
 
 }

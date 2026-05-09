@@ -68,8 +68,9 @@ public class AmenitiesServiceImpl implements AmenitiesService {
         Amenities saved;
 
         if (existing != null) {
-
+        	String existingS3Path = existing.getS3Path();
         	mapper.map(amenities, existing);
+        	existing.setS3Path(existingS3Path);
             existing.setUpdateDate(new Date());
 
             saved = repo.save(existing);
@@ -120,6 +121,7 @@ public class AmenitiesServiceImpl implements AmenitiesService {
     public PaginatedResponseDto listPaginated(
             String companyId,
             AmenityType type,
+            String search,
             int page,
             int size
     ) {
@@ -130,20 +132,12 @@ public class AmenitiesServiceImpl implements AmenitiesService {
                 Sort.by("id").ascending()
         );
 
-        Page<Amenities> resultPage;
-
-        if (type != null) {
-            resultPage = repo.findByAmenityTypeAndCompanyId(
-                    type,
-                    companyId,
-                    pageable
-            );
-        } else {
-            resultPage = repo.findByCompanyId(
-                    companyId,
-                    pageable
-            );
-        }
+        Page<Amenities> resultPage = repo.searchAmenities(
+                companyId,
+                type,
+                search,
+                pageable
+        );
 
         PaginatedResponseDto dto = new PaginatedResponseDto();
         dto.setSelectedPage(page);

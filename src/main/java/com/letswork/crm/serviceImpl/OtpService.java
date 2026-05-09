@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.entities.EmailOtp;
 import com.letswork.crm.entities.User;
@@ -108,14 +110,14 @@ public class OtpService {
 
         EmailOtp emailOtp =
             otpRepository.findTopByEmailAndVerifiedFalseOrderByExpiresAtDesc(email)
-                .orElseThrow(() -> new RuntimeException("OTP not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "OTP not found"));
 
         if (emailOtp.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("OTP expired");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OTP expired");
         }
 
         if (!emailOtp.getOtp().equals(otp)) {
-            throw new RuntimeException("Invalid OTP");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid OTP");
         }
 
         emailOtp.setVerified(true);

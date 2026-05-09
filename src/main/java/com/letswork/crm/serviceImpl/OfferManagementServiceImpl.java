@@ -1,6 +1,8 @@
 package com.letswork.crm.serviceImpl;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -64,11 +66,13 @@ public class OfferManagementServiceImpl implements OfferManagementService {
     
     @Override
     public List<Offers> getOffers(String companyId, String code, OfferType offerType) {
+    	
+    	expireOffers();
 
         // 🔹 If code is present → return single result
         if (code != null && !code.isBlank()) {
 
-        	Offers offer = offersRepository.findByCodeAndCompanyId(code, companyId).orElse(null);
+        	Offers offer = offersRepository.findByCodeAndCompanyIdAndActiveTrue(code, companyId).orElse(null);
 
         	if (offer == null) {
         	    return Collections.emptyList();
@@ -80,23 +84,37 @@ public class OfferManagementServiceImpl implements OfferManagementService {
         // 🔹 If offerType filter is present
         if (offerType != null) {
             return offersRepository
-                    .findAllByCompanyIdAndOfferType(companyId, offerType);
+                    .findAllByCompanyIdAndOfferTypeAndActiveTrue(companyId, offerType);
         }
 
         // 🔹 Default → all offers
-        return offersRepository.findAllByCompanyId(companyId);
+        return offersRepository.findAllByCompanyIdAndActiveTrue(companyId);
+    }
+    
+    public void expireOffers() {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Offers> expiredOffers = offersRepository.findExpiredOffers(now);
+
+        for (Offers offer : expiredOffers) {
+            offer.setActive(false);
+            offer.setUpdateDate(new Date());
+        }
+
+        offersRepository.saveAll(expiredOffers);
     }
 
     // Existing methods (kept for compatibility if used elsewhere)
 
     @Override
     public Offers getByCodeAndCompanyId(String code, String companyId) {
-    	return offersRepository.findByCodeAndCompanyId(code, companyId).orElse(null);
+    	return offersRepository.findByCodeAndCompanyIdAndActiveTrue(code, companyId).orElse(null);
     }
 
     @Override
     public List<Offers> getAllByCompanyId(String companyId) {
-        return offersRepository.findAllByCompanyId(companyId);
+        return offersRepository.findAllByCompanyIdAndActiveTrue(companyId);
     }
 
     

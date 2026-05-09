@@ -29,7 +29,7 @@ public class DayPassBundleBookingController {
 
 	private final DayPassBundleBookingService service;
 
-	// ✅ CREATE BUNDLE BOOKING
+	// CREATE BUNDLE BOOKING
 	@PostMapping("/create")
 	public ResponseEntity<DayPassBundleBooking> createBundleBooking(@RequestBody DayPassBundleBookingRequest request, @RequestParam String token) {
 
@@ -60,10 +60,23 @@ public class DayPassBundleBookingController {
 
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
-		return ResponseEntity.ok(service.filterDayPassBundleBooking(companyId, bookingStatus, clientId,
-				dayPassBundleeId, date.atStartOfDay(), startDate.atStartOfDay(), endDate.atTime(23, 59, 59), centreId, expiryFrom.atStartOfDay(), expiryTo.atTime(23, 59, 59), remainingDays, paid,
-				sortField, sortDir, page, size
-
-		));
+		return ResponseEntity.ok(service.filterDayPassBundleBooking(
+			    companyId, 
+			    bookingStatus, 
+			    clientId,
+			    dayPassBundleeId, 
+			    (date != null) ? date.atStartOfDay() : null, 
+			    (startDate != null) ? startDate.atStartOfDay() : null, 
+			    (endDate != null) ? endDate.atTime(23, 59, 59) : null, 
+			    centreId, 
+			    (expiryFrom != null) ? expiryFrom.atStartOfDay() : null, 
+			    (expiryTo != null) ? expiryTo.atTime(23, 59, 59) : null, 
+			    remainingDays, 
+			    paid,
+			    sortField, 
+			    sortDir, 
+			    page, 
+			    size
+			));
 	}
 }

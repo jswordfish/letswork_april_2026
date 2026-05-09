@@ -15,9 +15,14 @@ import com.letswork.crm.entities.User;
 
 public interface UserService {
 	
-	public Page<User> getUsers(
+	Page<User> getUsers(
 	        String companyId,
 	        String search,
+	        String department,
+	        String roleOrDesig,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
 	        Pageable pageable
 	);
 	

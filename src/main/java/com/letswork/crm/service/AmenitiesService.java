@@ -20,9 +20,10 @@ public interface AmenitiesService {
     
     List<Amenities> listByCompanyId(String companyId);
     
-    PaginatedResponseDto listPaginated(
+    public PaginatedResponseDto listPaginated(
             String companyId,
             AmenityType type,
+            String search,
             int page,
             int size
     );

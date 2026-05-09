@@ -87,6 +87,7 @@ public class ReferralServiceImpl implements ReferralService {
             String email,
             String name,
             String emailOfUser,
+            String search,
             LocalDate fromDate,
             LocalDate toDate,
             int page,
@@ -99,11 +100,16 @@ public class ReferralServiceImpl implements ReferralService {
                 Sort.by("id").descending()
         );
 
+        if (search != null && search.trim().isEmpty()) {
+            search = null;
+        }
+
         Page<Referral> resultPage = referralRepo.filter(
                 companyId,
                 email,
                 name,
                 emailOfUser,
+                search,
                 fromDate,
                 toDate,
                 pageable

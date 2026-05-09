@@ -184,6 +184,7 @@ public class VisitorServiceImpl implements VisitorService {
 	        String city,
 	        String state,
 	        String type,
+	        String search,
 	        int page,
 	        int size
 	) {
@@ -194,6 +195,10 @@ public class VisitorServiceImpl implements VisitorService {
 	            Sort.by("visitDate").descending()
 	    );
 
+	    if (search != null && search.trim().isEmpty()) {
+	        search = null;
+	    }
+
 	    Page<Visitor> pageResult = repo.filter(
 	            companyId,
 	            name,
@@ -203,6 +208,7 @@ public class VisitorServiceImpl implements VisitorService {
 	            centre,
 	            city,
 	            state,
+	            search,
 	            pageable
 	    );
 

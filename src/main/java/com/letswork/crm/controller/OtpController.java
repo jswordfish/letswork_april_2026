@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.entities.EmailOtp;
 import com.letswork.crm.entities.NewUserRegister;
@@ -146,12 +147,18 @@ public class OtpController {
 
         try {
             emailOtp = otpService.verifyOtp(email, otp);
-        } catch (RuntimeException e) {
+        } catch (ResponseStatusException e) {
             response.put("status", "ERROR");
-            response.put("message", e.getMessage());
-            return ResponseEntity.ok(response);
+            
+            response.put("message", e.getReason()); 
+            
+            return ResponseEntity.status(e.getStatus()).body(response);
+        } catch (Exception e) {
+            response.put("status", "ERROR");
+            response.put("message", "Internal Server Error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-
+        
         // 1️⃣ INTERNAL USER (highest priority)
         User internalUser = userRepo.findByEmail(email, companyId);
         if (internalUser != null) {

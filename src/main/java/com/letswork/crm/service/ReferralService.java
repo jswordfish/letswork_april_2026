@@ -16,6 +16,7 @@ public interface ReferralService {
 	        String email,
 	        String name,
 	        String emailOfUser,
+	        String search,
 	        LocalDate fromDate,
 	        LocalDate toDate,
 	        int page,

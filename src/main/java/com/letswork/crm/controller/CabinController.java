@@ -60,6 +60,7 @@ public class CabinController {
             @RequestParam(required = false) String state,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String sort,
+            @RequestParam(required = false) CabinStatus cabinStatus,
             @RequestParam String token,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -72,6 +73,7 @@ public class CabinController {
                         state,
                         search,
                         sort,
+                        cabinStatus,
                         page,
                         size
                 )

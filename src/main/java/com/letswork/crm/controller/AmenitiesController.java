@@ -56,6 +56,7 @@ public class AmenitiesController {
     public ResponseEntity<PaginatedResponseDto> list(
             @RequestParam String companyId,
             @RequestParam(required = false) AmenityType type,
+            @RequestParam(required = false) String search,
             @RequestParam String token,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -65,6 +66,7 @@ public class AmenitiesController {
                 service.listPaginated(
                         companyId,
                         type,
+                        search,
                         page,
                         size
                 )

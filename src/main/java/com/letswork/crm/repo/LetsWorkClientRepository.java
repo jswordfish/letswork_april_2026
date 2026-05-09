@@ -64,6 +64,7 @@ public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, 
 		    "     OR c.letsWorkCentre LIKE %:search% " +
 		    "     OR c.city LIKE %:search% " +
 		    "     OR c.state LIKE %:search%" +
+		    "     OR c.email LIKE %:search%" +
 		    ")"
 		)
 		Page<LetsWorkClient> searchClientCompanies(

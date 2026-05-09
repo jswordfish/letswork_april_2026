@@ -58,8 +58,8 @@ public class InvoiceController {
                         companyId,
                         email,
                         invoiceStatus,
-                        fromDate.atStartOfDay(),
-                        toDate.atTime(23, 59, 59),
+                        fromDate,
+                        toDate,
                         page,
                         size
                 );

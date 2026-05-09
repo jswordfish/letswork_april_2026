@@ -212,7 +212,7 @@ public class PdfService {
 	                    conf.getAppliedOffer() == null
 	                            ? "NA"
 	                            : conf.getAppliedOffer().getCode(),
-	                    formatDate(conf.getDateOfPurchase().toLocalDate())
+	                    formatDate(conf.getStartDate())
 	            ));
 	        }
 	    }
@@ -302,7 +302,7 @@ public class PdfService {
 	        String name,
 	        String center,
 	        String appliedOffer,
-	        String dateOfPurchase
+	        String dateOfUse
 	       
 	        
 	) {
@@ -313,7 +313,7 @@ public class PdfService {
 	            "<td>" + name + "</td>" +
 	            "<td>" + center + "</td>" +
 	            "<td>" + appliedOffer + "</td>" +
-	            "<td>" + dateOfPurchase + "</td>" +
+	            "<td>" + dateOfUse + "</td>" +
 	            "</tr>";
 	}
 	

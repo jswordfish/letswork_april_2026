@@ -44,6 +44,7 @@ public class ReferralController {
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String emailOfUser,
+            @RequestParam(required = false) String search,
 
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -62,6 +63,7 @@ public class ReferralController {
                         email,
                         name,
                         emailOfUser,
+                        search,
                         fromDate,
                         toDate,
                         page,

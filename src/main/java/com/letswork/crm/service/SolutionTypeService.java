@@ -8,5 +8,8 @@ public interface SolutionTypeService {
 
     SolutionType saveOrUpdate(SolutionType solutionType);
 
-    List<SolutionType> getSolutionTypes(String companyId, String name);
+    public List<SolutionType> getSolutionTypes(
+            String companyId,
+            String search
+    );
 }

@@ -96,6 +96,31 @@ public class DayPassBundleServiceImpl implements DayPassBundleService {
 		// TODO Auto-generated method stub
 		return repo.findByLetsWorkCentreAndCompanyIdAndCityAndState(letsWorkCentre, companyId, city, state);
 	}
+	
+	@Override
+	public List<DayPassBundle> searchBundles(
+	        String companyId,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
+	        Integer numberOfDays,
+	        Integer validForDays,
+	        Integer discountPercentage,
+	        float price,
+	        String search
+	) {
+	    return repo.searchBundles(
+	            companyId,
+	            letsWorkCentre,
+	            city,
+	            state,
+	            numberOfDays,
+	            validForDays,
+	            discountPercentage,
+	            price,
+	            search
+	    );
+	}
 
 //	@Override
 //	public DayPassBundle saveOrUpdate(DayPassBundle bundle) {

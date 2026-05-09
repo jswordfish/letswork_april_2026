@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -106,46 +107,101 @@ public class BookingServiceImpl implements BookingService {
 
 
 	@Override
-	public PaginatedResponseDto getAllBookings(String companyId, String bookingType, Long clientId, String referenceId,
-			BookingStatus status, LocalDate fromDate, LocalDate toDate, SortFieldByBooking sortFieldByBooking,
-			SortingOrder order, int page, int size) {
-		
-		markUsedBundles();
-		expireOldBookings();
-		expireCompletedConferenceBookings();
-		expireCompletedConferenceBookingsThroughBundle();
-		
+	public PaginatedResponseDto getAllBookings(
+	        String companyId,
+	        List<String> bookingTypes,
+	        Long clientId,
+	        String referenceId,
+	        BookingStatus status,
+	        String roomName,
+	        String search,
+	        LocalDate fromDate,
+	        LocalDate toDate,
+	        SortFieldByBooking sortFieldByBooking,
+	        SortingOrder order,
+	        int page,
+	        int size
+	) {
 
-		String fieldName = FIELD_MAP.get(sortFieldByBooking);
+	    markUsedBundles();
+	    expireOldBookings();
+	    expireCompletedConferenceBookings();
+	    expireCompletedConferenceBookingsThroughBundle();
+	    
+	    if (search != null && search.trim().isEmpty()) {
+	        search = null;
+	    }
 
-		Sort sort = order.equals(SortingOrder.DESC) ? Sort.by(fieldName).descending() : Sort.by(fieldName).ascending();
-		Pageable pageable = PageRequest.of(page, size, sort);
+	    String fieldName = FIELD_MAP.get(sortFieldByBooking);
 
-		Class<? extends Booking> bookingClass = null;
+	    Sort sort = order.equals(SortingOrder.DESC)
+	            ? Sort.by(fieldName).descending()
+	            : Sort.by(fieldName).ascending();
 
-		if (bookingType != null) {
-			bookingClass = bookingTypeResolver.resolve(bookingType);
+	    Pageable pageable = PageRequest.of(page, size, sort);
 
-			if (bookingClass == null) {
-				throw new RuntimeException("Invalid booking type: " + bookingType);
-			}
-		}
+	    List<Class<? extends Booking>> bookingClasses = null;
 
-		Page<Booking> result = bookingRepo.filterAllBookings(companyId, bookingClass, clientId, referenceId, status,
-				fromDate == null ? null : fromDate.atStartOfDay(), toDate == null ? null : toDate.atTime(23, 59, 59),
-				pageable);
+	    if (bookingTypes != null && !bookingTypes.isEmpty()) {
+	        bookingClasses = bookingTypes.stream()
+	                .map(type -> {
+	                    Class<? extends Booking> clazz =
+	                            bookingTypeResolver.resolve(type);
 
-		for (Booking booking : result.getContent()) {
+	                    if (clazz == null) {
+	                        throw new RuntimeException(
+	                                "Invalid booking type: " + type
+	                        );
+	                    }
+	                    return clazz;
+	                })
+	                .collect(Collectors.toList());
+	    }
 
-			Invoice invoice = invoiceRepo.findByBookingReferenceId(booking.getReferenceId()).orElse(null);
+	    Page<Booking> result;
 
-//	    	invoice.setBooking(null);
+	    LocalDateTime startDate =
+	            fromDate == null ? null : fromDate.atStartOfDay();
 
-			booking.setInvoice(invoice);
+	    LocalDateTime endDate =
+	            toDate == null ? null : toDate.atTime(23, 59, 59);
 
-		}
+	    if (bookingClasses != null && !bookingClasses.isEmpty()) {
+	    	result = bookingRepo.filterAllBookingsWithTypes(
+	    	        companyId,
+	    	        bookingClasses,
+	    	        clientId,
+	    	        referenceId,
+	    	        status,
+	    	        roomName,
+	    	        search,
+	    	        startDate,
+	    	        endDate,
+	    	        pageable
+	    	);
+	    } else {
+	    	result = bookingRepo.filterAllBookings(
+	    	        companyId,
+	    	        clientId,
+	    	        referenceId,
+	    	        status,
+	    	        roomName,
+	    	        search,
+	    	        startDate,
+	    	        endDate,
+	    	        pageable
+	    	);
+	    }
 
-		return buildResponse(result, page, size);
+	    for (Booking booking : result.getContent()) {
+	        Invoice invoice = invoiceRepo
+	                .findByBookingReferenceId(booking.getReferenceId())
+	                .orElse(null);
+
+	        booking.setInvoice(invoice);
+	    }
+
+	    return buildResponse(result, page, size);
 	}
 	
 	@Transactional

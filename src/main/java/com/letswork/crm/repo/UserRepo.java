@@ -20,21 +20,33 @@ public interface UserRepo extends CrudRepository<User, Long> {
 	@Query(
 	        "SELECT u FROM User u " +
 	        "WHERE u.companyId = :companyId " +
+
+	        "AND (:department IS NULL OR u.department = :department) " +
+	        "AND (:roleOrDesig IS NULL OR u.roleOrDesig = :roleOrDesig) " +
+	        "AND (:letsWorkCentre IS NULL OR u.letsWorkCentre = :letsWorkCentre) " +
+	        "AND (:city IS NULL OR u.city = :city) " +
+	        "AND (:state IS NULL OR u.state = :state) " +
+
 	        "AND ( " +
-	        "     :search IS NULL " +
-	        "     OR u.firstName LIKE %:search% " +
-	        "     OR u.lastName LIKE %:search% " +
-	        "     OR u.email LIKE %:search% " +
-	        "     OR u.empId LIKE %:search% " +
-	        "     OR u.roleOrDesig LIKE %:search% " +
-	        "     OR u.department LIKE %:search% " +
-	        "     OR u.city LIKE %:search% " +
-	        "     OR u.state LIKE %:search% " +
+	        "   :search IS NULL " +
+	        "   OR u.firstName LIKE %:search% " +
+	        "   OR u.lastName LIKE %:search% " +
+	        "   OR u.email LIKE %:search% " +
+	        "   OR u.empId LIKE %:search% " +
+	        "   OR u.roleOrDesig LIKE %:search% " +
+	        "   OR u.department LIKE %:search% " +
+	        "   OR u.city LIKE %:search% " +
+	        "   OR u.state LIKE %:search% " +
 	        ")"
 	)
 	Page<User> searchUsers(
 	        @Param("companyId") String companyId,
 	        @Param("search") String search,
+	        @Param("department") String department,
+	        @Param("roleOrDesig") String roleOrDesig,
+	        @Param("letsWorkCentre") String letsWorkCentre,
+	        @Param("city") String city,
+	        @Param("state") String state,
 	        Pageable pageable
 	);
 	

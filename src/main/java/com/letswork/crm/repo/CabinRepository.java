@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.Cabin;
+import com.letswork.crm.enums.CabinStatus;
 
 @Repository
 public interface CabinRepository extends JpaRepository<Cabin, Long> {
@@ -32,6 +33,7 @@ public interface CabinRepository extends JpaRepository<Cabin, Long> {
 		       "AND (:letsWorkCentre IS NULL OR c.letsWorkCentre = :letsWorkCentre) " +
 		       "AND (:city IS NULL OR c.city = :city) " +
 		       "AND (:state IS NULL OR c.state = :state) " +
+		       "AND (:cabinStatus IS NULL OR c.cabinStatus = :cabinStatus) " +
 		       "AND ( " +
 		       "     :search IS NULL " +
 		       "     OR c.cabinName LIKE %:search% " +
@@ -41,11 +43,14 @@ public interface CabinRepository extends JpaRepository<Cabin, Long> {
 		       "     OR c.letsWorkCentre LIKE %:search% " +
 		       ")"
 		)
-		Page<Cabin> searchCabins(@Param("companyId") String companyId,
-		                         @Param("letsWorkCentre") String letsWorkCentre,
-		                         @Param("city") String city,
-		                         @Param("state") String state,
-		                         @Param("search") String search,
-		                         Pageable pageable);
+		Page<Cabin> searchCabins(
+		        @Param("companyId") String companyId,
+		        @Param("letsWorkCentre") String letsWorkCentre,
+		        @Param("city") String city,
+		        @Param("state") String state,
+		        @Param("search") String search,
+		        @Param("cabinStatus") CabinStatus cabinStatus,
+		        Pageable pageable
+		);
 	
 }

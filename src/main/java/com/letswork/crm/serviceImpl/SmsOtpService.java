@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.SmsOtp;
@@ -132,10 +134,10 @@ public class SmsOtpService {
                 smsOtpRepository
                         .findTopByMobileAndVerifiedFalseOrderByCreatedAtDesc(mobile)
                         .orElseThrow(() ->
-                                new RuntimeException("OTP not found"));
+                                new ResponseStatusException(HttpStatus.BAD_REQUEST, "OTP not found"));
 
         if (smsOtp.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("OTP expired");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OTP expired");
         }
 
         boolean verified =
@@ -145,7 +147,7 @@ public class SmsOtpService {
                 );
 
         if (!verified) {
-            throw new RuntimeException("Invalid OTP");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid OTP");
         }
 
         smsOtp.setVerified(true);

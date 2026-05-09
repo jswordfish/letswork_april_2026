@@ -34,7 +34,7 @@ public class Offers extends Base{
 	private String code;
 	
 	private Integer discount;
-		
+	
 	private String minDiscountValue;
 	
 	private LocalDateTime startDate;

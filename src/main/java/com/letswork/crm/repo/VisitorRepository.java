@@ -41,17 +41,33 @@ public interface VisitorRepository extends JpaRepository<Visitor, Long> {
             LocalDate visitDate
     );
 
-    @Query(
-    	    "SELECT v FROM Visitor v " +
-    	    "WHERE v.companyId = :companyId " +
-    	    "AND (:name IS NULL OR v.name = :name) " +
-    	    "AND (:email IS NULL OR v.email = :email) " +
-    	    "AND (:emailOfVisitor IS NULL OR v.emailOfVisitor = :emailOfVisitor) " +
-    	    "AND (:visitDate IS NULL OR v.visitDate = :visitDate) " +
-    	    "AND (:centre IS NULL OR v.letsWorkCentre = :centre) " +
-    	    "AND (:city IS NULL OR v.city = :city) " +
-    	    "AND (:state IS NULL OR v.state = :state)"
-    	)
+    @Query("SELECT v FROM Visitor v " +
+    	       "WHERE v.companyId = :companyId " +
+    	       "AND (:name IS NULL OR v.name = :name) " +
+    	       "AND (:email IS NULL OR v.email = :email) " +
+    	       "AND (:emailOfVisitor IS NULL OR v.emailOfVisitor = :emailOfVisitor) " +
+    	       "AND (:visitDate IS NULL OR v.visitDate = :visitDate) " +
+    	       "AND (:centre IS NULL OR v.letsWorkCentre = :centre) " +
+    	       "AND (:city IS NULL OR v.city = :city) " +
+    	       "AND (:state IS NULL OR v.state = :state) " +
+    	       "AND (" +
+    	       "    :search IS NULL " +
+    	       "    OR LOWER(v.name) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "    OR LOWER(v.nameOfUser) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "    OR LOWER(v.phoneOfUser) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "    OR LOWER(v.phone) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "    OR LOWER(v.email) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "    OR LOWER(v.emailOfVisitor) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "    OR LOWER(v.bookingCode) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "    OR LOWER(v.qrS3Path) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "    OR LOWER(v.letsWorkCentre) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "    OR LOWER(v.city) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "    OR LOWER(v.state) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "    OR CAST(v.numberOfGuests AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+    	       "    OR CAST(v.visited AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+    	       "    OR CAST(v.visitDate AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+    	       "    OR CAST(v.timeOfVisit AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+    	       ")")
     	Page<Visitor> filter(
     	        @Param("companyId") String companyId,
     	        @Param("name") String name,
@@ -61,6 +77,7 @@ public interface VisitorRepository extends JpaRepository<Visitor, Long> {
     	        @Param("centre") String centre,
     	        @Param("city") String city,
     	        @Param("state") String state,
+    	        @Param("search") String search,
     	        Pageable pageable
     	);
     

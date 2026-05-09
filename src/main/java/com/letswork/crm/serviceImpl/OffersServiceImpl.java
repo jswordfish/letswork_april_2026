@@ -40,7 +40,7 @@ public class OffersServiceImpl implements OffersService {
         }
 
         Optional<Offers> existingOpt =
-                offersRepository.findByNameAndCompanyId(
+                offersRepository.findByNameAndCompanyIdAndActiveTrue(
                         offer.getName(),
                         offer.getCompanyId()
                 );
@@ -66,14 +66,14 @@ public class OffersServiceImpl implements OffersService {
 
     @Override
     public List<Offers> getAllByCompanyId(String companyId) {
-        return offersRepository.findByCompanyId(companyId);
+        return offersRepository.findByCompanyIdAndActiveTrue(companyId);
     }
 
     @Override
     public Offers getByCodeAndCompanyId(String code, String companyId) {
 
         return offersRepository
-                .findByCodeAndCompanyId(code, companyId)
+                .findByCodeAndCompanyIdAndActiveTrue(code, companyId)
                 .orElseThrow(() ->
                         new RuntimeException("Offer not found")
                 );

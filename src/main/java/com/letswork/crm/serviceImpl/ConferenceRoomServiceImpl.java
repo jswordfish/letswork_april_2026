@@ -98,8 +98,9 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	    ConferenceRoom saved;
 
 	    if (existing != null) {
-
+	    	String existingS3Path = existing.getS3Path();
 	    	mapper.map(conferenceRoom, existing);
+	    	existing.setS3Path(existingS3Path);
 	        existing.setUpdateDate(new Date());
 
 	        saved = repo.save(existing);

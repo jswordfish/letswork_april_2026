@@ -19,6 +19,7 @@ public interface GrevianceService {
 	        String category,
 	        String subCategory,
 	        GrevianceStatus status,
+	        String search,
 	        int page,
 	        int size
 	);

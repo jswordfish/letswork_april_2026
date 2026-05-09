@@ -1,6 +1,6 @@
 package com.letswork.crm.repo;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -20,14 +20,14 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 	           "WHERE i.companyId = :companyId " +
 	           "AND (:email IS NULL OR i.booking.letsWorkClient.email = :email) " +
 	           "AND (:invoiceStatus IS NULL OR i.invoiceStatus = :invoiceStatus) " +
-	           "AND (:fromDate IS NULL OR i.createDate >= :fromDate) " +
-	           "AND (:toDate IS NULL OR i.createDate <= :toDate)")
+	           "AND (:fromDate IS NULL OR i.dateOfCreation >= :fromDate) " +
+	           "AND (:toDate IS NULL OR i.dateOfCreation <= :toDate)")
 	    Page<Invoice> filter(
 	            @Param("companyId") String companyId,
 	            @Param("email") String email,
 	            @Param("invoiceStatus") InvoiceStatus invoiceStatus,
-	            @Param("fromDate") LocalDateTime fromDate,
-	            @Param("toDate") LocalDateTime toDate,
+	            @Param("fromDate") LocalDate fromDate,
+	            @Param("toDate") LocalDate toDate,
 	            Pageable pageable
 	    );
 	

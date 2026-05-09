@@ -54,13 +54,15 @@ public class SolutionTypeServiceImpl implements SolutionTypeService {
     }
 
     @Override
-    public List<SolutionType> getSolutionTypes(String companyId, String name) {
+    public List<SolutionType> getSolutionTypes(
+            String companyId,
+            String search
+    ) {
 
-        if (name != null && !name.isEmpty()) {
-            SolutionType type = repo.findByNameAndCompanyId(name, companyId);
-            return type != null ? List.of(type) : List.of();
+        if (search != null && search.trim().isEmpty()) {
+            search = null;
         }
 
-        return repo.findAllByCompanyId(companyId);
+        return repo.search(companyId, search);
     }
 }

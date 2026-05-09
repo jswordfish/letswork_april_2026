@@ -32,6 +32,12 @@ public class MailJetOtpService {
     private static final String API_KEY = "8259d51f87852f8c7b9f6b08e627f94d";
     private static final String SECRET_KEY = "184fc8e67edae36b2b5ad191e8bd2e53";
     private static final String SENDER_EMAIL = "sales@zimulate.me";
+    
+//    String cc1 = "Dhruvjani4321@gmail.com"; //test
+//    String cc2 = "suyashpadwal10@gmail.com"; //test
+    
+    String cc1 = "sales@letswork.co.in"; //prod
+//    String cc2 = "hemangi@Lets Work.co.in"; //prod
 
     public void sendOtpEmail(String email, String otp) {
 
@@ -48,6 +54,10 @@ public class MailJetOtpService {
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+//                        new SendContact(cc2)
+                ))
                 .from(new SendContact(SENDER_EMAIL, "Zimulate"))
                 .subject("Your OTP Verification Code")
                 .templateID(7595302L)   
@@ -98,6 +108,10 @@ public class MailJetOtpService {
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+//                        new SendContact(cc2)
+                ))
                 .from(new SendContact(SENDER_EMAIL, "Zimulate"))
                 .subject("Your Day Pass Booking Confirmation")
                 .templateID(7636985L)
@@ -152,6 +166,10 @@ public class MailJetOtpService {
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+//                        new SendContact(cc2)
+                ))
                 .from(new SendContact(SENDER_EMAIL, "Zimulate"))
                 .subject("Your Conference Room Booking Confirmation")
                 .templateID(7637073L)
@@ -184,6 +202,10 @@ public class MailJetOtpService {
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+//                        new SendContact(cc2)
+                ))
                 .from(new SendContact(SENDER_EMAIL, "Zimulate"))
                 .subject("Credits have been reset for this month")
                 .templateID(7657590L)   
@@ -241,6 +263,10 @@ public class MailJetOtpService {
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+//                        new SendContact(cc2)
+                ))
                 .from(new SendContact(SENDER_EMAIL, "Zimulate"))
                 .subject("A grievance has been raised")
                 .templateID(7700595L)
@@ -292,6 +318,10 @@ public class MailJetOtpService {
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+//                        new SendContact(cc2)
+                ))
                 .from(new SendContact(SENDER_EMAIL, "Letswork"))
                 .subject("Conference Room Booking (Bundle)")
                 .templateID(7861806L)
@@ -343,6 +373,9 @@ public class MailJetOtpService {
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+                ))
                 .from(new SendContact(SENDER_EMAIL, "Letswork"))
                 .subject("Day Pass Booking (Bundle)")
                 .templateID(7861850L)
@@ -389,6 +422,10 @@ public class MailJetOtpService {
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+//                        new SendContact(cc2)
+                ))
                 .from(new SendContact(SENDER_EMAIL, "Letswork"))
                 .subject("Conference Room Bundle Booking")
                 .templateID(7861768L)
@@ -446,6 +483,10 @@ public class MailJetOtpService {
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+//                        new SendContact(cc2)
+                ))
                 .from(new SendContact(SENDER_EMAIL, "Letswork"))
                 .subject("Conference Room Booking Confirmation")
                 .templateID(7861968L)
@@ -497,6 +538,10 @@ public class MailJetOtpService {
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+//                        new SendContact(cc2)
+                ))
                 .from(new SendContact(SENDER_EMAIL, "Letswork"))
                 .subject("Day Pass Bundle Booking Confirmation")
                 .templateID(7861829L)
@@ -554,6 +599,10 @@ public class MailJetOtpService {
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+//                        new SendContact(cc2)
+                ))
                 .from(new SendContact(SENDER_EMAIL, "Letswork"))
                 .subject("Day Pass Booking Confirmation")
                 .templateID(7862004L)
@@ -621,6 +670,10 @@ public class MailJetOtpService {
 
         TransactionalEmail emailMessage = TransactionalEmail.builder()
                 .to(list)
+                .cc(List.of(
+                        new SendContact(cc1)
+//                        new SendContact(cc2)
+                ))
                 .from(new SendContact(SENDER_EMAIL, "Zimulate"))
                 .subject("Visit confirmed")
                 .templateID(7922371L)

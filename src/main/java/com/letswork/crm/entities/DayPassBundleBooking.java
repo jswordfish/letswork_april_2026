@@ -35,8 +35,6 @@ public class DayPassBundleBooking extends Booking {
 	
 	Long dayPassBundleeId;
 
-	
-
 	Integer remainingNumberOfDays;
 	
 	BigDecimal price;
@@ -47,9 +45,5 @@ public class DayPassBundleBooking extends Booking {
 	Float discountedPrice;
 
 	Boolean paid;
-
-	
-	
-	
 
 }

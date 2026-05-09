@@ -22,6 +22,7 @@ public interface SolutionsService {
 	PaginatedResponseDto getPaginated(
 	        String companyId,
 	        String letsWorkCentre,
+	        String search,
 	        int page,
 	        int size
 	);

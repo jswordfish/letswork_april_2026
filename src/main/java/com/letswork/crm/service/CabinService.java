@@ -20,13 +20,14 @@ public interface CabinService {
     
     PaginatedResponseDto findByLetsWorkCentre(String letsWorkCentre, String companyId, String city, String state, int page);
     
-    public PaginatedResponseDto listCabins(
+    PaginatedResponseDto listCabins(
             String companyId,
             String letsWorkCentre,
             String city,
             String state,
             String search,
             String sort,
+            CabinStatus cabinStatus,
             int page,
             int size
     );

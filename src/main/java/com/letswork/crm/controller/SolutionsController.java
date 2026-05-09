@@ -52,6 +52,7 @@ public class SolutionsController {
 	        @RequestParam String companyId,
 	        @RequestParam(required = false) String letsWorkCentre,
 	        @RequestParam(required = false) String name,
+	        @RequestParam(required = false) String search,
 	        @RequestParam String token,
 	        @RequestParam(defaultValue = "0") int page,
 	        @RequestParam(defaultValue = "10") int size
@@ -71,6 +72,7 @@ public class SolutionsController {
 	            solutionsService.getPaginated(
 	                    companyId,
 	                    letsWorkCentre,
+	                    search,
 	                    page,
 	                    size
 	            )

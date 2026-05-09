@@ -66,7 +66,7 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
 
 		Date createDate = new Date();
 
-		LocalDate expiryDate = LocalDate.now().plusDays(bundle.getValidForDays());
+		LocalDate expiryDate = LocalDate.now().plusDays(Math.max(0, bundle.getValidForDays() - 1));
 
 		DayPassBundleBooking booking = DayPassBundleBooking.builder().companyId(bundle.getCompanyId())
 				.dateOfPurchase(LocalDateTime.now()).letsWorkClient(client).letsWorkCentre(centre)

@@ -34,10 +34,12 @@ public class SolutionTypeController {
 
     @GetMapping("/get")
     public ResponseEntity<List<SolutionType>> get(
-    		@RequestParam String companyId,
-    		@RequestParam String token,
-            @RequestParam(required = false) String name
+            @RequestParam String companyId,
+            @RequestParam String token,
+            @RequestParam(required = false) String search
     ) {
-        return ResponseEntity.ok(service.getSolutionTypes(companyId, name));
+        return ResponseEntity.ok(
+                service.getSolutionTypes(companyId, search)
+        );
     }
 }

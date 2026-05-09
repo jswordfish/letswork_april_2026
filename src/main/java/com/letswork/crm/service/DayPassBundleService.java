@@ -15,5 +15,17 @@ public interface DayPassBundleService {
             String city,
             String state
             );
+    
+    public List<DayPassBundle> searchBundles(
+	        String companyId,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
+	        Integer numberOfDays,
+	        Integer validForDays,
+	        Integer discountPercentage,
+	        float price,
+	        String search
+	);
 
 }

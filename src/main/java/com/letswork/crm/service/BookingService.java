@@ -1,6 +1,7 @@
 package com.letswork.crm.service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Booking;
@@ -14,14 +15,16 @@ public interface BookingService {
 	
 	PaginatedResponseDto getAllBookings(
 	        String companyId,
-	        String bookingType,
+	        List<String> bookingTypes,
 	        Long clientId,
 	        String referenceId,
 	        BookingStatus status,
+	        String roomName,
+	        String search,
 	        LocalDate fromDate,
 	        LocalDate toDate,
 	        SortFieldByBooking sortFieldByBooking,
-			SortingOrder order, 
+	        SortingOrder order,
 	        int page,
 	        int size
 	);

@@ -27,18 +27,81 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	@Query("SELECT b FROM Booking b " +
 		       "WHERE b.companyId = :companyId " +
 		       "AND b.bookingStatus <> 'DRAFT' " +
-		       "AND (:bookingType IS NULL OR TYPE(b) = :bookingType) " +
 		       "AND (:clientId IS NULL OR (b.letsWorkClient IS NOT NULL AND b.letsWorkClient.id = :clientId)) " +
 		       "AND (:referenceId IS NULL OR b.referenceId = :referenceId) " +
 		       "AND (:status IS NULL OR b.bookingStatus = :status) " +
 		       "AND (:fromDate IS NULL OR b.dateOfPurchase >= :fromDate) " +
-		       "AND (:toDate IS NULL OR b.dateOfPurchase <= :toDate)")
+		       "AND (:toDate IS NULL OR b.dateOfPurchase <= :toDate) " +
+		       "AND (" +
+		       "    :roomName IS NULL " +
+		       "    OR TREAT(b AS ConferenceBookingDirect).conferenceRoom.name = :roomName " +
+		       "    OR TREAT(b AS ConferenceRoomBookingThroughBundle).conferenceRoom.name = :roomName " +
+		       ") " +
+		       "AND (" +
+		       "    :search IS NULL " +
+		       "    OR CAST(b.id AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR LOWER(b.referenceId) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+		       "    OR LOWER(b.razorpayOrderId) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+		       "    OR CAST(b.amount AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.frontendAmount AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.frontendDiscountPercentage AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.frontendDiscountedAmount AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.frontendCgstPercentage AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.frontendSgstPercentage AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.frontendFinalAmountAfterAddingTax AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.dateOfPurchase AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.startDate AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.expiryDate AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.bookedFrom AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.bookingStatus AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.letsWorkClient.id AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR LOWER(TREAT(b AS ConferenceBookingDirect).conferenceRoom.name) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+		       "    OR LOWER(TREAT(b AS ConferenceRoomBookingThroughBundle).conferenceRoom.name) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+		       ")")
 		Page<Booking> filterAllBookings(
 		        @Param("companyId") String companyId,
-		        @Param("bookingType") Class<? extends Booking> bookingType,
 		        @Param("clientId") Long clientId,
 		        @Param("referenceId") String referenceId,
 		        @Param("status") BookingStatus status,
+		        @Param("roomName") String roomName,
+		        @Param("search") String search,
+		        @Param("fromDate") LocalDateTime fromDate,
+		        @Param("toDate") LocalDateTime toDate,
+		        Pageable pageable
+		);
+	
+	@Query("SELECT b FROM Booking b " +
+		       "WHERE b.companyId = :companyId " +
+		       "AND b.bookingStatus <> 'DRAFT' " +
+		       "AND TYPE(b) IN :bookingTypes " +
+		       "AND (:clientId IS NULL OR (b.letsWorkClient IS NOT NULL AND b.letsWorkClient.id = :clientId)) " +
+		       "AND (:referenceId IS NULL OR b.referenceId = :referenceId) " +
+		       "AND (:status IS NULL OR b.bookingStatus = :status) " +
+		       "AND (:fromDate IS NULL OR b.dateOfPurchase >= :fromDate) " +
+		       "AND (:toDate IS NULL OR b.dateOfPurchase <= :toDate) " +
+		       "AND (" +
+		       "    :roomName IS NULL " +
+		       "    OR TREAT(b AS ConferenceBookingDirect).conferenceRoom.name = :roomName " +
+		       "    OR TREAT(b AS ConferenceRoomBookingThroughBundle).conferenceRoom.name = :roomName " +
+		       ") " +
+		       "AND (" +
+		       "    :search IS NULL " +
+		       "    OR CAST(b.id AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR LOWER(b.referenceId) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+		       "    OR LOWER(b.razorpayOrderId) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+		       "    OR CAST(b.amount AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(b.bookingStatus AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR LOWER(TREAT(b AS ConferenceBookingDirect).conferenceRoom.name) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+		       "    OR LOWER(TREAT(b AS ConferenceRoomBookingThroughBundle).conferenceRoom.name) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+		       ")")
+		Page<Booking> filterAllBookingsWithTypes(
+		        @Param("companyId") String companyId,
+		        @Param("bookingTypes") List<Class<? extends Booking>> bookingTypes,
+		        @Param("clientId") Long clientId,
+		        @Param("referenceId") String referenceId,
+		        @Param("status") BookingStatus status,
+		        @Param("roomName") String roomName,
+		        @Param("search") String search,
 		        @Param("fromDate") LocalDateTime fromDate,
 		        @Param("toDate") LocalDateTime toDate,
 		        Pageable pageable

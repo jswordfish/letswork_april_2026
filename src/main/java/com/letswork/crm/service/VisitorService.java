@@ -27,6 +27,7 @@ public interface VisitorService {
 	        String city,
 	        String state,
 	        String type,
+	        String search,
 	        int page,
 	        int size
 	);

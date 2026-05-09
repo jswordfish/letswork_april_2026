@@ -66,7 +66,7 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
         Date createDate = new Date(); 
 
         LocalDate expiryDate = now
-                .plusDays(bundle.getValidForDays())
+                .plusDays(Math.max(0, bundle.getValidForDays() - 1))
                 .toLocalDate();
 
         ConferenceBundleBooking booking =

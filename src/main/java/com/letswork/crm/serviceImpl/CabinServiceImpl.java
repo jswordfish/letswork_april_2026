@@ -322,14 +322,13 @@ public class CabinServiceImpl implements CabinService {
             String state,
             String search,
             String sort,
+            CabinStatus cabinStatus,
             int page,
             int size
     ) {
 
-        // Default sort (id desc)
         Sort sortSpec = Sort.by("id").descending();
 
-        // Parse sort like: cabinName=asc
         if (sort != null && !sort.isEmpty()) {
             String[] parts = sort.split("=");
 
@@ -345,8 +344,15 @@ public class CabinServiceImpl implements CabinService {
 
         Pageable pageable = PageRequest.of(page, size, sortSpec);
 
-        Page<Cabin> pageData =
-        		cabinRepository.searchCabins(companyId, letsWorkCentre, city, state, search, pageable);
+        Page<Cabin> pageData = cabinRepository.searchCabins(
+                companyId,
+                letsWorkCentre,
+                city,
+                state,
+                search,
+                cabinStatus,
+                pageable
+        );
 
         PaginatedResponseDto response = new PaginatedResponseDto();
         response.setRecordsFrom(page * size + 1);

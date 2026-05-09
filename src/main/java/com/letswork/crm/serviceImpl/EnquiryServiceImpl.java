@@ -1,5 +1,6 @@
 package com.letswork.crm.serviceImpl;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,16 +8,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.letswork.crm.dtos.EnquiryDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Enquiry;
 import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.Solutions;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.EnquiryType;
-import com.letswork.crm.enums.Solution;
 import com.letswork.crm.repo.EnquiryRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
+import com.letswork.crm.repo.SolutionsRepository;
 import com.letswork.crm.service.EnquiryService;
 import com.letswork.crm.service.TenantService;
 
@@ -33,24 +38,85 @@ public class EnquiryServiceImpl implements EnquiryService {
     
     @Autowired
 	LetsWorkCentreRepository letsWorkCentreRepo;
+    
+    @Autowired
+    SolutionsRepository solutionsRepo;
 
     @Override
-    public Enquiry createEnquiry(Enquiry enquiry) {
-    	
-		Tenant tenant = tenantService.findTenantByCompanyId(enquiry.getCompanyId());
-		
-		if(tenant==null) {
-			
-			throw new RuntimeException("CompanyId invalid - "+enquiry.getCompanyId());
-			
-		}
-		
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(enquiry.getLetsWorkCentre(), enquiry.getCompanyId(), enquiry.getCity(), enquiry.getState());
-		
-		if(centre==null) {
-			throw new RuntimeException("This LetsWorkCentre does not exists");
-		}
+    public Enquiry createEnquiry(EnquiryDto dto) {
 
+        Tenant tenant = tenantService.findTenantByCompanyId(dto.getCompanyId());
+
+        if (tenant == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CompanyId invalid - " + dto.getCompanyId()
+            );
+        }
+
+        LetsWorkCentre centre =
+                letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+                        dto.getLetsWorkCentre(),
+                        dto.getCompanyId(),
+                        dto.getCity(),
+                        dto.getState()
+                );
+
+        if (centre == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This LetsWorkCentre does not exist"
+            );
+        }
+
+        Enquiry enquiry = new Enquiry();
+
+        enquiry.setName(dto.getName());
+        enquiry.setEmail(dto.getEmail());
+        enquiry.setPhoneNumber(dto.getPhoneNumber());
+        enquiry.setDescription(dto.getDescription());
+        enquiry.setLetsWorkCentre(dto.getLetsWorkCentre());
+        enquiry.setCity(dto.getCity());
+        enquiry.setState(dto.getState());
+        enquiry.setEnquiryType(dto.getEnquiryType());
+
+        if (dto.getEnquiryType() == EnquiryType.SOLUTIONS) {
+
+            if (dto.getSolutionId() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solution id is required for SOLUTIONS enquiry");
+            }
+
+            Solutions solution = solutionsRepo.findById(dto.getSolutionId())
+                    .orElseThrow(() ->
+                            new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solution not found")
+                    );
+
+            enquiry.setSolutions(solution);
+
+            // not needed for solution enquiry
+            enquiry.setDate(null);
+            enquiry.setTime(null);
+
+        } else if (dto.getEnquiryType() == EnquiryType.BOOK_A_TOUR) {
+        	
+        	if (dto.getSolutionName() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solution name is required for book a tour enquiry");
+            }
+        	
+        	Solutions solution = solutionsRepo.findByNameAndLetsWorkCentreAndCompanyId(dto.getSolutionName(), dto.getLetsWorkCentre(), dto.getCompanyId());
+        	
+        	if(solution==null) {
+        		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solution not found");
+        	}
+        	
+            enquiry.setSolutions(solution);
+
+            if (dto.getDate() == null || dto.getTime() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Date and time are required for BOOK_A_TOUR enquiry"
+                );
+            }
+
+            enquiry.setDate(dto.getDate());
+            enquiry.setTime(dto.getTime());
+        }
+
+        enquiry.setCompanyId(dto.getCompanyId());
         enquiry.setCreateDate(new Date());
         enquiry.setUpdateDate(new Date());
 
@@ -63,7 +129,10 @@ public class EnquiryServiceImpl implements EnquiryService {
             String name,
             String email,
             String phone,
-            Solution solution,
+            String letsWorkCentre,
+            String city,
+            String state,
+            String search,
             Date fromDate,
             Date toDate,
             EnquiryType enquiryType,
@@ -74,15 +143,22 @@ public class EnquiryServiceImpl implements EnquiryService {
         Pageable pageable = PageRequest.of(
                 page,
                 size,
-                Sort.by("date").descending()
+                Sort.by("id").descending()
         );
+
+        if (search != null && search.trim().isEmpty()) {
+            search = null;
+        }
 
         Page<Enquiry> resultPage = enquiryRepository.findByFilters(
                 companyId,
                 name,
                 email,
                 phone,
-                solution,
+                letsWorkCentre,
+                city,
+                state,
+                search,
                 fromDate,
                 toDate,
                 enquiryType,

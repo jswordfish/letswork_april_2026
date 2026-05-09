@@ -20,16 +20,18 @@ public interface SeatService {
 	
 	public List<Seat> bulkCreate(BulkSeatCreationDto dto);
 
-	public PaginatedResponseDto listSeats(
+	PaginatedResponseDto listSeats(
 	        String companyId,
 	        String letsWorkCentre,
 	        String city,
 	        String state,
 	        SeatType seatType,
+	        Boolean published,
 	        String search,
 	        String sort,
 	        int pageNo,
-	        int pageSize);
+	        int pageSize
+	);
     
     PaginatedResponseDto listPublishedSeats(String companyId, String letsWorkCentre, String city, String state, int pageNo, int pageSize);
 

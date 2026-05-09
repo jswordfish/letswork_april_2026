@@ -125,12 +125,17 @@ public class GrevianceServiceImpl implements GrevianceService {
             String category,
             String subCategory,
             GrevianceStatus status,
+            String search,
             int page,
             int size
     ) {
 
         Pageable pageable =
                 PageRequest.of(page, size, Sort.by("createDate").descending());
+
+        if (search != null && search.trim().isEmpty()) {
+            search = null;
+        }
 
         Page<Greviance> greviancePage =
                 grevianceRepo.filter(
@@ -142,6 +147,7 @@ public class GrevianceServiceImpl implements GrevianceService {
                         category,
                         subCategory,
                         status,
+                        search,
                         pageable
                 );
 

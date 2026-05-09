@@ -87,6 +87,7 @@ public class GrevianceController {
             @RequestParam(required = false) String subCategory,
 
             @RequestParam(required = false) GrevianceStatus grevianceStatus,
+            @RequestParam(required = false) String search,
 
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -101,6 +102,7 @@ public class GrevianceController {
                         category,
                         subCategory,
                         grevianceStatus,
+                        search,
                         page,
                         size
                 )

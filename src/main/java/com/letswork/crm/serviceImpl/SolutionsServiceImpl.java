@@ -99,7 +99,9 @@ public class SolutionsServiceImpl implements SolutionsService{
         boolean isUpdate = (existing != null);
 
         if (isUpdate) {
-
+        	
+        	String existingS3Path = existing.getS3Path();
+        	
             solution = existing;
 
             solution.setName(dto.getName());
@@ -108,9 +110,8 @@ public class SolutionsServiceImpl implements SolutionsService{
             solution.setCity(dto.getCity());
             solution.setState(dto.getState());
             solution.setAmenities(dto.getAmenities());
-
-            solution.setSolutionType(solutionType); 
-
+            solution.setSolutionType(solutionType);
+	        solution.setS3Path(existingS3Path);
             solution.setUpdateDate(new Date());
 
         } else {
@@ -167,47 +168,40 @@ public class SolutionsServiceImpl implements SolutionsService{
 //		return repo.findByCompanyId(companyId);
 //	}
 	
-	@Override
-	public PaginatedResponseDto getPaginated(
-	        String companyId,
-	        String letsWorkCentre,
-	        int page,
-	        int size
-	) {
+    @Override
+    public PaginatedResponseDto getPaginated(
+            String companyId,
+            String letsWorkCentre,
+            String search,
+            int page,
+            int size
+    ) {
 
-	    Pageable pageable = PageRequest.of(
-	            page,
-	            size,
-	            Sort.by("id").descending()
-	    );
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("id").descending()
+        );
 
-	    Page<Solutions> resultPage;
+        Page<Solutions> resultPage = repo.searchSolutions(
+                companyId,
+                letsWorkCentre,
+                search,
+                pageable
+        );
 
-	    if (letsWorkCentre != null) {
-	        resultPage = repo.findByLetsWorkCentreAndCompanyId(
-	                letsWorkCentre,
-	                companyId,
-	                pageable
-	        );
-	    } else {
-	        resultPage = repo.findByCompanyId(
-	                companyId,
-	                pageable
-	        );
-	    }
+        PaginatedResponseDto dto = new PaginatedResponseDto();
+        dto.setSelectedPage(page);
+        dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
+        dto.setTotalNumberOfPages(resultPage.getTotalPages());
+        dto.setRecordsFrom(page * size + 1);
+        dto.setRecordsTo(
+                Math.min((page + 1) * size, (int) resultPage.getTotalElements())
+        );
+        dto.setList(resultPage.getContent());
 
-	    PaginatedResponseDto dto = new PaginatedResponseDto();
-	    dto.setSelectedPage(page);
-	    dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
-	    dto.setTotalNumberOfPages(resultPage.getTotalPages());
-	    dto.setRecordsFrom(page * size + 1);
-	    dto.setRecordsTo(
-	            Math.min((page + 1) * size, (int) resultPage.getTotalElements())
-	    );
-	    dto.setList(resultPage.getContent());
-
-	    return dto;
-	}
+        return dto;
+    }
 
 //	@Override
 //	public List<Solutions> findByLetsWorkCentreAndCompanyId(String letsWorkCentre, String companyId) {

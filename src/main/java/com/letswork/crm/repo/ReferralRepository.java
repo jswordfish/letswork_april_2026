@@ -26,15 +26,27 @@ public interface ReferralRepository extends JpaRepository<Referral, Long> {
     @Query("SELECT r FROM Referral r " +
     	       "WHERE r.companyId = :companyId " +
     	       "AND (:email IS NULL OR r.email = :email) " +
-    	       "AND (:name IS NULL OR r.name LIKE %:name%) " +
+    	       "AND (:name IS NULL OR LOWER(r.name) LIKE LOWER(CONCAT('%', CONCAT(:name, '%')))) " +
     	       "AND (:emailOfUser IS NULL OR r.emailOfUser = :emailOfUser) " +
     	       "AND (:fromDate IS NULL OR r.joiningDate >= :fromDate) " +
-    	       "AND (:toDate IS NULL OR r.joiningDate <= :toDate)")
+    	       "AND (:toDate IS NULL OR r.joiningDate <= :toDate) " +
+    	       "AND (" +
+    	       "     :search IS NULL " +
+    	       "     OR LOWER(r.email) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "     OR LOWER(r.name) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "     OR LOWER(r.phoneNumber) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "     OR LOWER(r.emailOfUser) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "     OR LOWER(r.nameOfUser) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "     OR LOWER(r.phoneOfUser) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
+    	       "     OR CAST(r.joiningDate AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+    	       "     OR CAST(r.receivedBonus AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+    	       ")")
     	Page<Referral> filter(
     	        @Param("companyId") String companyId,
     	        @Param("email") String email,
     	        @Param("name") String name,
     	        @Param("emailOfUser") String emailOfUser,
+    	        @Param("search") String search,
     	        @Param("fromDate") LocalDate fromDate,
     	        @Param("toDate") LocalDate toDate,
     	        Pageable pageable

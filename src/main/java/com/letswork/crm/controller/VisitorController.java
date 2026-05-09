@@ -75,6 +75,7 @@ public class VisitorController {
 	    );
 	}
 	
+	
 	@GetMapping("/s3/presigned-url")
 	public ResponseEntity<String> getPresignedUrl(
 	        @RequestParam String s3Key,
@@ -200,6 +201,7 @@ public class VisitorController {
 	        @RequestParam(required = false) String city,
 	        @RequestParam(required = false) String state,
 	        @RequestParam(required = false) String type,
+	        @RequestParam(required = false) String search,
 	        @RequestParam String token,
 	        @RequestParam(defaultValue = "0") int page,
 	        @RequestParam(defaultValue = "10") int size
@@ -216,6 +218,7 @@ public class VisitorController {
 	                    city,
 	                    state,
 	                    type,
+	                    search,
 	                    page,
 	                    size
 	            )

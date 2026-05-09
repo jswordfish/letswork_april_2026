@@ -96,17 +96,20 @@ public class UserController {
 	public ResponseEntity<Page<User>> getUsers(
 	        @RequestParam String companyId,
 	        @RequestParam(required = false) String search,
+	        @RequestParam(required = false) String department,
+	        @RequestParam(required = false) String roleOrDesig,
+	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) String city,
+	        @RequestParam(required = false) String state,
 	        @RequestParam(defaultValue = "0") int page,
 	        @RequestParam(defaultValue = "10") int size,
 	        @RequestParam(required = false) String sort,
 	        @RequestParam String token
 	) {
 
-	    // Default sort
 	    String sortField = "id";
 	    String sortDirection = "desc";
 
-	    // Parse `sort=field=asc
 	    if (sort != null && sort.contains("=")) {
 	        String[] parts = sort.split("=");
 	        sortField = parts[0];
@@ -121,7 +124,16 @@ public class UserController {
 	                    : Sort.by(sortField).descending()
 	    );
 
-	    Page<User> users = service.getUsers(companyId, search, pageable);
+	    Page<User> users = service.getUsers(
+	            companyId,
+	            search,
+	            department,
+	            roleOrDesig,
+	            letsWorkCentre,
+	            city,
+	            state,
+	            pageable
+	    );
 
 	    return ResponseEntity.ok(users);
 	}

@@ -45,6 +45,7 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 		       "AND (:city IS NULL OR s.city = :city) " +
 		       "AND (:state IS NULL OR s.state = :state) " +
 		       "AND (:seatType IS NULL OR s.seatType = :seatType) " +
+		       "AND (:published IS NULL OR s.published = :published) " +
 		       "AND (" +
 		       "    :search IS NULL " +
 		       "    OR s.seatNumber LIKE %:search% " +
@@ -52,7 +53,7 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 		       "    OR s.city LIKE %:search% " +
 		       "    OR s.state LIKE %:search% " +
 		       "    OR s.letsWorkCentre LIKE %:search% " +
-		       "    OR s.seatType LIKE %:search% " +
+		       "    OR CAST(s.seatType AS string) LIKE %:search% " +
 		       ")"
 		)
 		Page<Seat> findWithFilters(
@@ -61,6 +62,7 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 		        @Param("city") String city,
 		        @Param("state") String state,
 		        @Param("seatType") SeatType seatType,
+		        @Param("published") Boolean published,
 		        @Param("search") String search,
 		        Pageable pageable
 		);
