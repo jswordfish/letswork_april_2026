@@ -141,7 +141,7 @@ public class BookingServiceImpl implements BookingService {
 	        LocalDate fromDate,
 	        LocalDate toDate,
 	        LocalDate startDateFromDate,
-            LocalDate startDateToDate,
+	        LocalDate startDateToDate,
 	        SortFieldByBooking sortFieldByBooking,
 	        SortingOrder order,
 	        int page,
@@ -161,6 +161,10 @@ public class BookingServiceImpl implements BookingService {
 	        bookingTypes = null;
 	    }
 
+	    if (status != null && status.isEmpty()) {
+	        status = null;
+	    }
+
 	    String fieldName = FIELD_MAP.get(sortFieldByBooking);
 
 	    Sort sort = order == SortingOrder.DESC
@@ -169,19 +173,8 @@ public class BookingServiceImpl implements BookingService {
 
 	    Pageable pageable = PageRequest.of(page, size, sort);
 
-	    // ✅ IMPORTANT CHANGE (List → CSV)
-	    
-	    
-	    List<String> statusList = (status == null || status.isEmpty())
-	    	    ? null
-	    	    : status.stream()
-	    	            .map(Enum::name)
-	    	            .collect(Collectors.toCollection(ArrayList::new));
-
 	    LocalDateTime startDate = fromDate == null ? null : fromDate.atStartOfDay();
 	    LocalDateTime endDate = toDate == null ? null : toDate.atTime(23, 59, 59);
-
-	    String bookedFromStr = bookedFrom == null ? null : bookedFrom.name();
 
 	    Page<Booking> result;
 
@@ -202,8 +195,8 @@ public class BookingServiceImpl implements BookingService {
 	                validatedTypes,
 	                clientId,
 	                referenceId,
-	                statusList,
-	                bookedFromStr,
+	                status,
+	                bookedFrom,
 	                roomName,
 	                search,
 	                startDate,
@@ -219,14 +212,14 @@ public class BookingServiceImpl implements BookingService {
 	                companyId,
 	                clientId,
 	                referenceId,
-	                statusList,
-	                bookedFromStr,
+	                status,
+	                bookedFrom,
 	                roomName,
 	                search,
 	                startDate,
 	                endDate,
 	                startDateFromDate,
-                    startDateToDate,
+	                startDateToDate,
 	                pageable
 	        );
 	    }

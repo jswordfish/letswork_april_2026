@@ -16,6 +16,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.Booking;
+import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 
 @Repository
@@ -24,34 +25,36 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	
 	Optional<Booking> findByReferenceId(String referenceId);
 	
-	@Query("SELECT b FROM Booking b  LEFT JOIN b.conferenceRoom cr LEFT JOIN b.letsWorkClient c " +
+	@Query("SELECT b FROM Booking b " +
+		       "LEFT JOIN b.conferenceRoom cr " +
+		       "LEFT JOIN b.letsWorkClient c " +
 		       "WHERE b.companyId = :companyId " +
 		       "AND b.bookingStatus <> 'DRAFT' " +
-		       "AND (:clientId IS NULL OR b.letsWorkClient.id = :clientId) " +
+		       "AND (:clientId IS NULL OR c.id = :clientId) " +
 		       "AND (:referenceId IS NULL OR b.referenceId = :referenceId) " +
-		       "AND (:statuses IS NULL OR STR(b.bookingStatus) IN (:statuses)) " + // 💡 Changed to clean IN clause
+		       "AND (COALESCE(:statuses, NULL) IS NULL OR b.bookingStatus IN :statuses) " +
 		       "AND (:bookedFrom IS NULL OR b.bookedFrom = :bookedFrom) " +
-		       "AND (:fromDate IS NULL OR b.dateOfPurchase >= :fromDate) " + // 💡 camelCase property names
+		       "AND (:fromDate IS NULL OR b.dateOfPurchase >= :fromDate) " +
 		       "AND (:toDate IS NULL OR b.dateOfPurchase <= :toDate) " +
 		       "AND (:startDateFromDate IS NULL OR b.startDate >= :startDateFromDate) " +
 		       "AND (:startDateToDate IS NULL OR b.startDate <= :startDateToDate) " +
-		       "AND (:roomName IS NULL OR LOWER(b.conferenceRoom.name) = LOWER(:roomName)) " +
+		       "AND (:roomName IS NULL OR LOWER(cr.name) = LOWER(:roomName)) " +
 		       "AND (:search IS NULL OR " +
 		       "     CAST(b.id AS string) LIKE CONCAT('%', :search, '%') OR " +
 		       "     LOWER(b.referenceId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
 		       "     LOWER(b.razorpayOrderId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
 		       "     CAST(b.amount AS string) LIKE CONCAT('%', :search, '%') OR " +
-		       "     LOWER(b.bookingType) LIKE LOWER(CONCAT('%', :search, '%')) OR " + // 💡 Handled discriminator string
-		       "     LOWER(b.conferenceRoom.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		       "     LOWER(b.letsWorkClient.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " + // 🆕 Added
-		       "     LOWER(b.letsWorkClient.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%'))" + // 🆕 Added
+		       "     LOWER(b.bookingType) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		       "     LOWER(cr.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		       "     LOWER(c.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		       "     LOWER(c.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%'))" +
 		       ")")
 		Page<Booking> filterAllBookings(
 		        @Param("companyId") String companyId,
 		        @Param("clientId") Long clientId,
 		        @Param("referenceId") String referenceId,
-		        @Param("statuses") List<String> statuses, // 💡 Updated from String statusCsv
-		        @Param("bookedFrom") String bookedFrom,
+		        @Param("statuses") List<BookingStatus> statuses,
+		        @Param("bookedFrom") BookedFrom bookedFrom,
 		        @Param("roomName") String roomName,
 		        @Param("search") String search,
 		        @Param("fromDate") LocalDateTime fromDate,
@@ -61,44 +64,47 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		        Pageable pageable
 		);
 
-	@Query("SELECT b FROM Booking b LEFT JOIN b.conferenceRoom cr LEFT JOIN b.letsWorkClient c " +
+	@Query("SELECT b FROM Booking b " +
+		       "LEFT JOIN b.conferenceRoom cr " +
+		       "LEFT JOIN b.letsWorkClient c " +
 		       "WHERE b.companyId = :companyId " +
 		       "AND b.bookingStatus <> 'DRAFT' " +
-		       "AND b.bookingType IN (:bookingTypes) " +
-		       "AND (:clientId IS NULL OR b.letsWorkClient.id = :clientId) " +
+		       "AND b.bookingType IN :bookingTypes " +
+		       "AND (:clientId IS NULL OR c.id = :clientId) " +
 		       "AND (:referenceId IS NULL OR b.referenceId = :referenceId) " +
-		       "AND (:statuses IS NULL OR STR(b.bookingStatus) IN (:statuses)) " +
+		       "AND (COALESCE(:statuses, NULL) IS NULL OR b.bookingStatus IN :statuses) " +
 		       "AND (:bookedFrom IS NULL OR b.bookedFrom = :bookedFrom) " +
 		       "AND (:fromDate IS NULL OR b.dateOfPurchase >= :fromDate) " +
 		       "AND (:toDate IS NULL OR b.dateOfPurchase <= :toDate) " +
 		       "AND (:startDateFromDate IS NULL OR b.startDate >= :startDateFromDate) " +
 		       "AND (:startDateToDate IS NULL OR b.startDate <= :startDateToDate) " +
-		       "AND (:roomName IS NULL OR LOWER(b.conferenceRoom.name) = LOWER(:roomName)) " +
+		       "AND (:roomName IS NULL OR LOWER(cr.name) = LOWER(:roomName)) " +
 		       "AND (:search IS NULL OR " +
 		       "     CAST(b.id AS string) LIKE CONCAT('%', :search, '%') OR " +
 		       "     LOWER(b.referenceId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
 		       "     LOWER(b.razorpayOrderId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
 		       "     CAST(b.amount AS string) LIKE CONCAT('%', :search, '%') OR " +
-		       "     CAST(b.bookingType AS string) LIKE CONCAT('%', :search, '%') OR " +
-		       "     LOWER(b.conferenceRoom.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		       "     LOWER(b.letsWorkClient.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " + // 🆕 Added
-		       "     LOWER(b.letsWorkClient.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%'))" + // 🆕 Added
+		       "     LOWER(b.bookingType) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		       "     LOWER(cr.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		       "     LOWER(c.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		       "     LOWER(c.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%'))" +
 		       ")")
-	Page<Booking> filterAllBookingsWithTypes(
-	        @Param("companyId") String companyId,
-	        @Param("bookingTypes") List<String> bookingTypes,
-	        @Param("clientId") Long clientId,
-	        @Param("referenceId") String referenceId,
-	        @Param("statuses") List<String> statuses,
-	        @Param("bookedFrom") String bookedFrom,
-	        @Param("roomName") String roomName,
-	        @Param("search") String search,
-	        @Param("fromDate") LocalDateTime fromDate,
-	        @Param("toDate") LocalDateTime toDate,
-	        @Param("startDateFromDate") LocalDate startDateFromDate,
-	        @Param("startDateToDate") LocalDate startDateToDate,
-	        Pageable pageable
-	);
+		Page<Booking> filterAllBookingsWithTypes(
+		        @Param("companyId") String companyId,
+		        @Param("bookingTypes") List<String> bookingTypes,
+		        @Param("clientId") Long clientId,
+		        @Param("referenceId") String referenceId,
+		        @Param("statuses") List<BookingStatus> statuses,
+		        @Param("bookedFrom") BookedFrom bookedFrom,
+		        @Param("roomName") String roomName,
+		        @Param("search") String search,
+		        @Param("fromDate") LocalDateTime fromDate,
+		        @Param("toDate") LocalDateTime toDate,
+		        @Param("startDateFromDate") LocalDate startDateFromDate,
+		        @Param("startDateToDate") LocalDate startDateToDate,
+		        Pageable pageable
+		);
+	
 	
 	@Modifying
 	@Transactional
