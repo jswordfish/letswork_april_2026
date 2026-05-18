@@ -8,7 +8,7 @@ import com.letswork.crm.enums.BookedFrom;
 import lombok.Data;
 
 @Data
-public class ConferenceBookingDirectRequest {
+public class ConferenceBookingDirectRequest extends MultipleBookingMapperDto{
 	
 	private Long clientId;
 

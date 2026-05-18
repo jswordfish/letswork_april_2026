@@ -33,8 +33,7 @@ public class ConferenceBookingDirect extends Booking{
   @ManyToOne	
   LetsWorkCentre letsWorkCentre;
   
-//  @Transient
-//  private List<BundleBookingCreditMapper> multipleBundleList;
+
 
   @OneToMany(fetch = FetchType.EAGER,
 		  mappedBy = "booking",
@@ -43,8 +42,7 @@ public class ConferenceBookingDirect extends Booking{
   @JsonManagedReference
   private List<ConferenceRoomTimeSlot> slots = new ArrayList<>();
   
-//  @Lob
-//  private String multipleBundleListJson;
+
   
   @ManyToOne
   ConferenceRoom conferenceRoom;
@@ -66,28 +64,7 @@ public class ConferenceBookingDirect extends Booking{
 	this.letsWorkCentre = letsWorkCentre;
   }
 
-//  public List<BundleBookingCreditMapper> getMultipleBundleList() {
-//	  if(this.getMultipleBundleListJson() != null) {
-//		  String json = this.getMultipleBundleListJson();
-//		  try {
-//			  this.multipleBundleList = mapper.readValue(json, new com.fasterxml.jackson.core.type.TypeReference<List<BundleBookingCreditMapper>>() {});
-//		  }
-//		  catch (Exception e) {
-//			  return multipleBundleList;
-//		  }
-//	  }
-//	return multipleBundleList;
-//  }
-//
-//  public void setMultipleBundleList(List<BundleBookingCreditMapper> multipleBundleList) {
-//	this.multipleBundleList = multipleBundleList;
-//	 try {
-//			this.multipleBundleListJson =  mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this.multipleBundleList);
-//		  } catch (JsonProcessingException e) {
-//			// TODO Auto-generated catch block
-//		  }
-//	
-//  }
+
 
   public List<ConferenceRoomTimeSlot> getSlots() {
 	return slots;
@@ -97,26 +74,7 @@ public class ConferenceBookingDirect extends Booking{
 	this.slots = slots;
   }
   
-//  ObjectMapper mapper = new ObjectMapper();
-//
-//  public String getMultipleBundleListJson() {
-//	  if(this.multipleBundleListJson != null) {
-//		  return this.multipleBundleListJson;
-//	  }
-//	  if(this.multipleBundleList != null) {
-//		  try {
-//			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this.multipleBundleList);
-//		  } catch (JsonProcessingException e) {
-//			// TODO Auto-generated catch block
-//			return multipleBundleListJson;
-//		  }
-//	  }
-//	return multipleBundleListJson;
-//  }
-//
-//  public void setMultipleBundleListJson(String multipleBundleListJson) {
-//	this.multipleBundleListJson = multipleBundleListJson;
-//  }
+
 
   public ConferenceRoom getConferenceRoom() {
 	return conferenceRoom;
