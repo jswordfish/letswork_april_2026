@@ -59,7 +59,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		        @Param("startDateToDate") LocalDate startDateToDate,
 		        Pageable pageable
 		);
-
+//
 	@Query("SELECT b FROM Booking b  LEFT JOIN b.conferenceRoom cr LEFT JOIN b.letsWorkClient c " +
 		       "WHERE b.companyId = :companyId " +
 		       "AND b.bookingStatus <> 'DRAFT' " +
