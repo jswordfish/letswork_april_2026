@@ -13,6 +13,7 @@ public interface GrevianceService {
 	PaginatedResponseDto getGreviances(
 	        String companyId,
 	        Long clientId,
+	        Long userId,
 	        String centre,
 	        String city,
 	        String state,

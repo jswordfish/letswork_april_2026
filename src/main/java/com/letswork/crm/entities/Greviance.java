@@ -30,6 +30,8 @@ public class Greviance extends Base{
 	
 	private Long clientId;
 	
+	private Long userId;
+	
 	private String letsWorkCentre;
 	
 	private String city;

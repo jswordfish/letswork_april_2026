@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Booking;
+import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortFieldByBooking;
 import com.letswork.crm.enums.SortingOrder;
@@ -18,16 +19,21 @@ public interface BookingService {
 	        List<String> bookingTypes,
 	        Long clientId,
 	        String referenceId,
-	        BookingStatus status,
+	        List<BookingStatus> status,
+	        BookedFrom bookedFrom,
 	        String roomName,
 	        String search,
 	        LocalDate fromDate,
 	        LocalDate toDate,
+	        LocalDate startDateFromDate,
+            LocalDate startDateToDate,
 	        SortFieldByBooking sortFieldByBooking,
 	        SortingOrder order,
 	        int page,
 	        int size
 	);
+	
+	void deactivateBooking(Long bookingId);
 	
 	void deleteDraftBooking(Long bookingId);
 	

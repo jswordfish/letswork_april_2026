@@ -77,6 +77,7 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
                         .price(bundle.getPrice())
                         .amount(bundle.getPrice())
                         .bookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE)
+                        .bookedFrom(request.getBookedFrom())
                         .referenceId(generate("CONF_BUNDLE"))
                         .bookedFrom(request.getBookedFrom())
                         .frontendAmount(request.getFrontendAmount())

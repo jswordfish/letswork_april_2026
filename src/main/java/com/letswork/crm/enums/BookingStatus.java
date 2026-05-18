@@ -7,6 +7,7 @@ public enum BookingStatus {
 	RESCHEDULED,
 	USED,
 	EXPIRED,
-	DRAFT
+	DRAFT,
+	DEACTIVATED
 
 }

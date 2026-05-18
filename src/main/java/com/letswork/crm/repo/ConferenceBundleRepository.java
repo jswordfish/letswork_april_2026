@@ -16,7 +16,8 @@ import com.letswork.crm.entities.ConferenceBundle;
 public interface ConferenceBundleRepository
         extends JpaRepository<ConferenceBundle, Long> {
 
-    ConferenceBundle findByNumberOfHoursAndCompanyId(
+    ConferenceBundle findByNameAndNumberOfHoursAndCompanyId(
+    		String name,
             Float numberOfHours,
             String companyId
     );

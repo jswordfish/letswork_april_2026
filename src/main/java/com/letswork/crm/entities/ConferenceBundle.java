@@ -26,6 +26,8 @@ public class ConferenceBundle extends Base{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
+	private String name;
+	
 	private Float numberOfHours;
 	
 	private BigDecimal price;

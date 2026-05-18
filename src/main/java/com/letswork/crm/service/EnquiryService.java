@@ -5,8 +5,8 @@ import java.util.Date;
 import com.letswork.crm.dtos.EnquiryDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Enquiry;
+import com.letswork.crm.enums.EnquiryStatus;
 import com.letswork.crm.enums.EnquiryType;
-import com.letswork.crm.enums.Solution;
 
 public interface EnquiryService {
 	
@@ -24,8 +24,12 @@ public interface EnquiryService {
 	        Date fromDate,
 	        Date toDate,
 	        EnquiryType enquiryType,
+	        EnquiryStatus enquiryStatus,
+	        String solutionName,
 	        int page,
 	        int size
 	);
+	
+	public String updateEnquiryStatus(Long enquiryId);
 
 }

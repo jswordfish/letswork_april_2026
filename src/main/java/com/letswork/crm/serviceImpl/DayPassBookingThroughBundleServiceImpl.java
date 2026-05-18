@@ -34,6 +34,7 @@ import com.letswork.crm.entities.DayPassLimit;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortFieldByThroughBundle;
 import com.letswork.crm.enums.SortingOrder;
@@ -159,6 +160,7 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 	        booking.setBookingStatus(BookingStatus.ACTIVE);
 	        String refId = generate("DayPassBookingThroughBundle");
 	        booking.setReferenceId(refId);
+	        booking.setBookedFrom(BookedFrom.APP);
 	        
 	        File qrFile;
 	        try {

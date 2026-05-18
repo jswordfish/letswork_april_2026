@@ -59,7 +59,8 @@ public class ConferenceBundleServiceImpl implements ConferenceBundleService {
         }
 
         ConferenceBundle existing =
-                repo.findByNumberOfHoursAndCompanyId(
+                repo.findByNameAndNumberOfHoursAndCompanyId(
+                		bundle.getName(),
                         bundle.getNumberOfHours(),
                         bundle.getCompanyId()
                 );

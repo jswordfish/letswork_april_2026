@@ -10,8 +10,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.Enquiry;
+import com.letswork.crm.enums.EnquiryStatus;
 import com.letswork.crm.enums.EnquiryType;
-import com.letswork.crm.enums.Solution;
 
 @Repository
 public interface EnquiryRepository extends JpaRepository<Enquiry, Long> {
@@ -27,6 +27,8 @@ public interface EnquiryRepository extends JpaRepository<Enquiry, Long> {
 		       "AND (:fromDate IS NULL OR e.date >= :fromDate) " +
 		       "AND (:toDate IS NULL OR e.date <= :toDate) " +
 		       "AND (:enquiryType IS NULL OR e.enquiryType = :enquiryType) " +
+		       "AND (:enquiryStatus IS NULL OR e.enquiryStatus = :enquiryStatus) " +
+		       "AND (:solutionName IS NULL OR LOWER(e.solutions.name) = LOWER(:solutionName)) " +
 		       "AND (" +
 		       "    :search IS NULL " +
 		       "    OR LOWER(e.name) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
@@ -39,6 +41,7 @@ public interface EnquiryRepository extends JpaRepository<Enquiry, Long> {
 		       "    OR CAST(e.date AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
 		       "    OR CAST(e.time AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
 		       "    OR CAST(e.enquiryType AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+		       "    OR CAST(e.enquiryStatus AS string) LIKE CONCAT('%', CONCAT(:search, '%'))" +
 		       "    OR LOWER(e.solutions.name) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
 		       ")")
 		Page<Enquiry> findByFilters(
@@ -53,6 +56,8 @@ public interface EnquiryRepository extends JpaRepository<Enquiry, Long> {
 		        @Param("fromDate") Date fromDate,
 		        @Param("toDate") Date toDate,
 		        @Param("enquiryType") EnquiryType enquiryType,
+		        @Param("enquiryStatus") EnquiryStatus enquiryStatus,
+		        @Param("solutionName") String solutionName,
 		        Pageable pageable
 		);
 	

@@ -1,9 +1,13 @@
 package com.letswork.crm.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -30,7 +34,17 @@ public class LetsWorkClient extends Base{
     @NotBlank
     private String clientCompanyName;
     
+    @Column(name = "user_id")
     private Long userId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(
+        name = "user_id",
+        referencedColumnName = "id",
+        insertable = false,
+        updatable = false
+    )
+    private NewUserRegister user;
     
     private String email;
     

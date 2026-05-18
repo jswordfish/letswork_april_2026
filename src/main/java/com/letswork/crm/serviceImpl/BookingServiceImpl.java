@@ -22,8 +22,13 @@ import org.springframework.web.server.ResponseStatusException;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Booking;
 import com.letswork.crm.entities.ConferenceBookingDirect;
+import com.letswork.crm.entities.ConferenceBundle;
+import com.letswork.crm.entities.ConferenceBundleBooking;
 import com.letswork.crm.entities.ConferenceRoomBookingThroughBundle;
+import com.letswork.crm.entities.DayPassBundle;
+import com.letswork.crm.entities.DayPassBundleBooking;
 import com.letswork.crm.entities.Invoice;
+import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortFieldByBooking;
 import com.letswork.crm.enums.SortingOrder;
@@ -32,6 +37,7 @@ import com.letswork.crm.repo.ConferenceBookingDirectRepository;
 import com.letswork.crm.repo.ConferenceBundleBookingRepository;
 import com.letswork.crm.repo.ConferenceRoomBookingThroughBundleRepository;
 import com.letswork.crm.repo.DayPassBundleBookingRepository;
+import com.letswork.crm.repo.DayPassBundleRepository;
 import com.letswork.crm.repo.InvoiceRepository;
 import com.letswork.crm.service.BookingService;
 import com.letswork.crm.util.BookingTypeResolver;
@@ -59,6 +65,9 @@ public class BookingServiceImpl implements BookingService {
 	
 	@Autowired
 	ConferenceRoomBookingThroughBundleRepository conferenceBookingBundleRepo;
+	
+	@Autowired
+	DayPassBundleRepository dayPassBundleRepository;
 
 	@Override
 	public Booking save(Booking booking) {
@@ -74,7 +83,7 @@ public class BookingServiceImpl implements BookingService {
 
 	    List<Booking> drafts = bookingRepo.findExpiredDrafts(expiryTime);
 	    
-	    System.out.println("Drafts found: " + drafts.size());
+//	    System.out.println("Drafts found: " + drafts.size());
 	    
 	    for (Booking booking : drafts) {
 	    	
@@ -84,26 +93,38 @@ public class BookingServiceImpl implements BookingService {
 	}
 	
 	@Override
-    @Transactional
-    public void deleteDraftBooking(Long bookingId) {
+	@Transactional
+	public void deleteDraftBooking(Long bookingId) {
 
-        // 1️⃣ Fetch booking
-        Booking booking = bookingRepo.findById(bookingId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Booking not found with id: " + bookingId
-                ));
+	    Booking booking = bookingRepo.findById(bookingId)
+	            .orElseThrow(() -> new ResponseStatusException(
+	                    HttpStatus.BAD_REQUEST,
+	                    "Booking not found with id: " + bookingId
+	            ));
 
-        // 2️⃣ Validate status
-        if (booking.getBookingStatus() != BookingStatus.DRAFT) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Only DRAFT bookings can be deleted"
-            );
-        }
+	    if (booking.getBookingStatus() != BookingStatus.DRAFT) {
+	        throw new ResponseStatusException(
+	                HttpStatus.BAD_REQUEST,
+	                "Only DRAFT bookings can be deleted"
+	        );
+	    }
 
-        // 3️⃣ Delete booking
-        bookingRepo.delete(booking);
-    }
+	    if (booking instanceof ConferenceBookingDirect) {
+	        ConferenceBookingDirect conferenceBooking =
+	                (ConferenceBookingDirect) booking;
+	        conferenceBooking.getSlots().clear();
+	        bookingRepo.save(conferenceBooking);
+	    }
+
+	    if (booking instanceof ConferenceRoomBookingThroughBundle) {
+	        ConferenceRoomBookingThroughBundle bundleBooking =
+	                (ConferenceRoomBookingThroughBundle) booking;
+	        bundleBooking.getSlots().clear();
+	        bookingRepo.save(bundleBooking);
+	    }
+
+	    bookingRepo.delete(booking);
+	}
 
 
 	@Override
@@ -112,11 +133,14 @@ public class BookingServiceImpl implements BookingService {
 	        List<String> bookingTypes,
 	        Long clientId,
 	        String referenceId,
-	        BookingStatus status,
+	        List<BookingStatus> status,
+	        BookedFrom bookedFrom,
 	        String roomName,
 	        String search,
 	        LocalDate fromDate,
 	        LocalDate toDate,
+	        LocalDate startDateFromDate,
+            LocalDate startDateToDate,
 	        SortFieldByBooking sortFieldByBooking,
 	        SortingOrder order,
 	        int page,
@@ -127,77 +151,87 @@ public class BookingServiceImpl implements BookingService {
 	    expireOldBookings();
 	    expireCompletedConferenceBookings();
 	    expireCompletedConferenceBookingsThroughBundle();
-	    
+
 	    if (search != null && search.trim().isEmpty()) {
 	        search = null;
 	    }
 
+	    if (bookingTypes != null && bookingTypes.isEmpty()) {
+	        bookingTypes = null;
+	    }
+
 	    String fieldName = FIELD_MAP.get(sortFieldByBooking);
 
-	    Sort sort = order.equals(SortingOrder.DESC)
+	    Sort sort = order == SortingOrder.DESC
 	            ? Sort.by(fieldName).descending()
 	            : Sort.by(fieldName).ascending();
 
 	    Pageable pageable = PageRequest.of(page, size, sort);
 
-	    List<Class<? extends Booking>> bookingClasses = null;
+	    // ✅ IMPORTANT CHANGE (List → CSV)
+	    String statusCsv = (status == null || status.isEmpty())
+	            ? null
+	            : status.stream()
+	                    .map(Enum::name)
+	                    .collect(Collectors.joining(","));
 
-	    if (bookingTypes != null && !bookingTypes.isEmpty()) {
-	        bookingClasses = bookingTypes.stream()
-	                .map(type -> {
-	                    Class<? extends Booking> clazz =
-	                            bookingTypeResolver.resolve(type);
+	    LocalDateTime startDate = fromDate == null ? null : fromDate.atStartOfDay();
+	    LocalDateTime endDate = toDate == null ? null : toDate.atTime(23, 59, 59);
 
-	                    if (clazz == null) {
-	                        throw new RuntimeException(
-	                                "Invalid booking type: " + type
-	                        );
-	                    }
-	                    return clazz;
-	                })
-	                .collect(Collectors.toList());
-	    }
+	    String bookedFromStr = bookedFrom == null ? null : bookedFrom.name();
 
 	    Page<Booking> result;
 
-	    LocalDateTime startDate =
-	            fromDate == null ? null : fromDate.atStartOfDay();
+	    if (bookingTypes != null && !bookingTypes.isEmpty()) {
 
-	    LocalDateTime endDate =
-	            toDate == null ? null : toDate.atTime(23, 59, 59);
+	        List<String> validatedTypes = bookingTypes.stream()
+	                .map(type -> {
+	                    Class<? extends Booking> clazz = bookingTypeResolver.resolve(type);
+	                    if (clazz == null) {
+	                        throw new RuntimeException("Invalid booking type: " + type);
+	                    }
+	                    return type;
+	                })
+	                .collect(Collectors.toList());
 
-	    if (bookingClasses != null && !bookingClasses.isEmpty()) {
-	    	result = bookingRepo.filterAllBookingsWithTypes(
-	    	        companyId,
-	    	        bookingClasses,
-	    	        clientId,
-	    	        referenceId,
-	    	        status,
-	    	        roomName,
-	    	        search,
-	    	        startDate,
-	    	        endDate,
-	    	        pageable
-	    	);
+	        result = bookingRepo.filterAllBookingsWithTypes(
+	                companyId,
+	                validatedTypes,
+	                clientId,
+	                referenceId,
+	                statusCsv,
+	                bookedFromStr,
+	                roomName,
+	                search,
+	                startDate,
+	                endDate,
+	                startDateFromDate,
+	                startDateToDate,
+	                pageable
+	        );
+
 	    } else {
-	    	result = bookingRepo.filterAllBookings(
-	    	        companyId,
-	    	        clientId,
-	    	        referenceId,
-	    	        status,
-	    	        roomName,
-	    	        search,
-	    	        startDate,
-	    	        endDate,
-	    	        pageable
-	    	);
+
+	        result = bookingRepo.filterAllBookings(
+	                companyId,
+	                clientId,
+	                referenceId,
+	                statusCsv,
+	                bookedFromStr,
+	                roomName,
+	                search,
+	                startDate,
+	                endDate,
+	                startDateFromDate,
+                    startDateToDate,
+	                pageable
+	        );
 	    }
 
 	    for (Booking booking : result.getContent()) {
 	        Invoice invoice = invoiceRepo
 	                .findByBookingReferenceId(booking.getReferenceId())
 	                .orElse(null);
-
 	        booking.setInvoice(invoice);
 	    }
 
@@ -254,8 +288,8 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	private static final Map<SortFieldByBooking, String> FIELD_MAP = Map.of(SortFieldByBooking.ID, "id",
-			SortFieldByBooking.AMOUNT, "amount", SortFieldByBooking.DATE_OF_PURCHASE, "dateOfPurchase",
-			SortFieldByBooking.START_DATE, "startDate");
+			SortFieldByBooking.AMOUNT, "amount", SortFieldByBooking.DATE_OF_PURCHASE, "date_of_purchase",
+			SortFieldByBooking.START_DATE, "start_date");
 
 	private PaginatedResponseDto buildResponse(Page<?> resultPage, int page, int size) {
 
@@ -268,6 +302,66 @@ public class BookingServiceImpl implements BookingService {
 		dto.setList(resultPage.getContent());
 
 		return dto;
+	}
+
+	@Override
+	public void deactivateBooking(Long bookingId) {
+
+	    Booking booking = bookingRepo.findById(bookingId)
+	            .orElseThrow(() -> new ResponseStatusException(
+	                    HttpStatus.BAD_REQUEST,
+	                    "Booking not found with id: " + bookingId
+	            ));
+
+	    if (booking.getBookingStatus() != BookingStatus.ACTIVE) {
+	        throw new ResponseStatusException(
+	                HttpStatus.BAD_REQUEST,
+	                "Only ACTIVE bookings can be deactivated"
+	        );
+	    }
+
+	    // Validation for Conference Bundle
+	    if (booking instanceof ConferenceBundleBooking) {
+
+	        ConferenceBundleBooking conferenceBooking =
+	                (ConferenceBundleBooking) booking;
+
+	        ConferenceBundle conferenceBundle =
+	                conferenceBooking.getConferenceBundle();
+
+	        if (conferenceBundle != null &&
+	                conferenceBooking.getRemainingHours() < conferenceBundle.getNumberOfHours()) {
+
+	            throw new ResponseStatusException(
+	                    HttpStatus.BAD_REQUEST,
+	                    "Conference bundle cannot be deactivated because it has already been used"
+	            );
+	        }
+	    }
+
+	    // Validation for Day Pass Bundle
+	    if (booking instanceof DayPassBundleBooking) {
+
+	        DayPassBundleBooking dayPassBooking =
+	                (DayPassBundleBooking) booking;
+
+	        DayPassBundle dayPassBundle = dayPassBundleRepository
+	                .findById(dayPassBooking.getDayPassBundleeId())
+	                .orElseThrow(() -> new ResponseStatusException(
+	                        HttpStatus.BAD_REQUEST,
+	                        "Day pass bundle not found"
+	                ));
+
+	        if (dayPassBooking.getRemainingNumberOfDays() < dayPassBundle.getNumberOfDays()) {
+	            throw new ResponseStatusException(
+	                    HttpStatus.BAD_REQUEST,
+	                    "Day pass bundle cannot be deactivated because it has already been used"
+	            );
+	        }
+	    }
+
+	    booking.setBookingStatus(BookingStatus.DEACTIVATED);
+	    bookingRepo.save(booking);
 	}
 
 }

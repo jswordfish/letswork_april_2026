@@ -71,7 +71,7 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
 		DayPassBundleBooking booking = DayPassBundleBooking.builder().companyId(bundle.getCompanyId())
 				.dateOfPurchase(LocalDateTime.now()).letsWorkClient(client).letsWorkCentre(centre)
 				.dayPassBundleeId(request.getBundleId()).price(bundle.getPrice()).amount(bundle.getPrice()).remainingNumberOfDays(bundle.getNumberOfDays())
-				.bookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE).referenceId(generate("DAYPASS_BUNDLE")).bookedFrom(request.getBookedFrom())
+				.bookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE).bookedFrom(request.getBookedFrom()).referenceId(generate("DAYPASS_BUNDLE")).bookedFrom(request.getBookedFrom())
 				.createDate(createDate).expiryDate(expiryDate).frontendAmount(request.getFrontendAmount())
                 .frontendDiscountPercentage(request.getFrontendDiscountPercentage())
                 .frontendDiscountedAmount(request.getFrontendDiscountedAmount()).frontendCgstPercentage(request.getFrontendCgstPercentage())

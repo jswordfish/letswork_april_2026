@@ -1,6 +1,5 @@
 package com.letswork.crm.serviceImpl;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +17,7 @@ import com.letswork.crm.entities.Enquiry;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Solutions;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.enums.EnquiryStatus;
 import com.letswork.crm.enums.EnquiryType;
 import com.letswork.crm.repo.EnquiryRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
@@ -75,6 +75,7 @@ public class EnquiryServiceImpl implements EnquiryService {
         enquiry.setCity(dto.getCity());
         enquiry.setState(dto.getState());
         enquiry.setEnquiryType(dto.getEnquiryType());
+        enquiry.setEnquiryStatus(EnquiryStatus.RAISED);
 
         if (dto.getEnquiryType() == EnquiryType.SOLUTIONS) {
 
@@ -136,6 +137,8 @@ public class EnquiryServiceImpl implements EnquiryService {
             Date fromDate,
             Date toDate,
             EnquiryType enquiryType,
+            EnquiryStatus enquiryStatus,
+            String solutionName,
             int page,
             int size
     ) {
@@ -162,6 +165,8 @@ public class EnquiryServiceImpl implements EnquiryService {
                 fromDate,
                 toDate,
                 enquiryType,
+                enquiryStatus,
+                solutionName,
                 pageable
         );
 
@@ -177,4 +182,26 @@ public class EnquiryServiceImpl implements EnquiryService {
 
         return dto;
     }
+
+	@Override
+	public String updateEnquiryStatus(Long enquiryId) {
+		
+		Enquiry enquiry = enquiryRepository.findById(enquiryId)
+	            .orElseThrow(() -> new RuntimeException("Enquiry not found"));
+
+	    EnquiryStatus currentStatus = enquiry.getEnquiryStatus();
+
+	    if (currentStatus == EnquiryStatus.RAISED) {
+	        enquiry.setEnquiryStatus(EnquiryStatus.IN_PROGRESS);
+	    } else if (currentStatus == EnquiryStatus.IN_PROGRESS) {
+	        enquiry.setEnquiryStatus(EnquiryStatus.RESOLVED);
+	    } else {
+	        throw new RuntimeException("Enquiry is already resolved");
+	    }
+
+	    enquiryRepository.save(enquiry);
+	    return "Status updated successfully";
+	    
+	}
+	
 }

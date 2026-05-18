@@ -3,6 +3,8 @@ package com.letswork.crm.dtos;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.letswork.crm.enums.BookedFrom;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +25,8 @@ public class DayPassBookingDirectRequest {
 	private String city;
 	private String state;
 	private LocalDate dateOfUse;
+	
+	private BookedFrom bookedFrom;
   
 	private Long offerId;
 	

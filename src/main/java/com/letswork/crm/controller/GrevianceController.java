@@ -48,7 +48,7 @@ public class GrevianceController {
                 new ObjectMapper().readValue(grevianceJson, Greviance.class);
 
         NewUserRegister user = userRepo.findById(
-                greviance.getClientId()
+                greviance.getUserId()
         ).orElseThrow(() ->
                 new RuntimeException("User not found for given ID")
         );
@@ -79,6 +79,7 @@ public class GrevianceController {
             @RequestParam String token,
 
             @RequestParam(required = false) Long clientId,
+            @RequestParam(required = false) Long userId,
             @RequestParam(required = false) String centre,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
@@ -96,6 +97,7 @@ public class GrevianceController {
                 grevianceService.getGreviances(
                         companyId,
                         clientId,
+                        userId,
                         centre,
                         city,
                         state,

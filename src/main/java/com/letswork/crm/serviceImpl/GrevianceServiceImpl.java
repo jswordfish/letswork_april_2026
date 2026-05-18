@@ -1,5 +1,8 @@
 package com.letswork.crm.serviceImpl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,13 +10,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.letswork.crm.dtos.GrevianceResponseDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Category;
 import com.letswork.crm.entities.Greviance;
 import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.SubCategory;
 import com.letswork.crm.entities.Tenant;
@@ -22,6 +29,7 @@ import com.letswork.crm.enums.GrevianceStatus;
 import com.letswork.crm.repo.CategoryRepository;
 import com.letswork.crm.repo.GrevianceRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
+import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.SubCategoryRepository;
 import com.letswork.crm.service.GrevianceService;
@@ -46,6 +54,9 @@ public class GrevianceServiceImpl implements GrevianceService {
 	LetsWorkCentreRepository letsWorkCentreRepo;
 	
 	@Autowired
+	private LetsWorkClientRepository letsWorkClientRepo;
+	
+	@Autowired
 	S3Service s3Service;
 
     @Override
@@ -55,7 +66,7 @@ public class GrevianceServiceImpl implements GrevianceService {
                 tenantService.findTenantByCompanyId(greviance.getCompanyId());
 
         if (tenant == null) {
-            throw new RuntimeException("CompanyId invalid - " + greviance.getCompanyId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CompanyId invalid - " + greviance.getCompanyId());
         }
 
         LetsWorkCentre centre =
@@ -67,13 +78,19 @@ public class GrevianceServiceImpl implements GrevianceService {
                 );
 
         if (centre == null) {
-            throw new RuntimeException("This LetsWorkCentre does not exist");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This LetsWorkCentre does not exist");
         }
 
         NewUserRegister user = userRepo.findById(
+                greviance.getUserId()
+        ).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found for given id")
+        );
+        
+        LetsWorkClient client = letsWorkClientRepo.findById(
                 greviance.getClientId()
         ).orElseThrow(() ->
-                new RuntimeException("User not found for given id")
+                new ResponseStatusException(HttpStatus.BAD_REQUEST, "Client company not found for given id")
         );
 
         Category category =
@@ -119,6 +136,7 @@ public class GrevianceServiceImpl implements GrevianceService {
     public PaginatedResponseDto getGreviances(
             String companyId,
             Long clientId,
+            Long userId,
             String centre,
             String city,
             String state,
@@ -131,7 +149,7 @@ public class GrevianceServiceImpl implements GrevianceService {
     ) {
 
         Pageable pageable =
-                PageRequest.of(page, size, Sort.by("createDate").descending());
+                PageRequest.of(page, size, Sort.by("id").descending());
 
         if (search != null && search.trim().isEmpty()) {
             search = null;
@@ -141,6 +159,7 @@ public class GrevianceServiceImpl implements GrevianceService {
                 grevianceRepo.filter(
                         companyId,
                         clientId,
+                        userId,
                         centre,
                         city,
                         state,
@@ -151,17 +170,47 @@ public class GrevianceServiceImpl implements GrevianceService {
                         pageable
                 );
 
+        List<GrevianceResponseDto> responseList =
+                greviancePage.getContent().stream().map(g -> {
+
+                    GrevianceResponseDto response = new GrevianceResponseDto();
+
+                    response.setId(g.getId());
+                    response.setClientId(g.getClientId());
+                    response.setUserId(g.getUserId());
+                    response.setLetsWorkCentre(g.getLetsWorkCentre());
+                    response.setCity(g.getCity());
+                    response.setState(g.getState());
+                    response.setCategory(g.getCategory());
+                    response.setSubCategory(g.getSubCategory());
+                    response.setIssue(g.getIssue());
+                    response.setGrevianceStatus(g.getGrevianceStatus());
+                    response.setImageS3Key(g.getImageS3Key());
+
+                    if (g.getClientId() != null) {
+                        LetsWorkClient client =
+                                letsWorkClientRepo.findById(g.getClientId()).orElse(null);
+                        response.setClient(client);
+                    }
+
+                    if (g.getUserId() != null) {
+                        NewUserRegister user =
+                        		userRepo.findById(g.getUserId()).orElse(null);
+                        response.setUser(user);
+                    }
+
+                    return response;
+                }).collect(Collectors.toList());
+
         PaginatedResponseDto dto = new PaginatedResponseDto();
         dto.setSelectedPage(page);
         dto.setTotalNumberOfPages(greviancePage.getTotalPages());
         dto.setTotalNumberOfRecords((int) greviancePage.getTotalElements());
-
         dto.setRecordsFrom(page * size + 1);
         dto.setRecordsTo(
                 Math.min((page + 1) * size, dto.getTotalNumberOfRecords())
         );
-
-        dto.setList(greviancePage.getContent());
+        dto.setList(responseList);
 
         return dto;
     }

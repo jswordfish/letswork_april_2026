@@ -92,6 +92,8 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	        throw new RuntimeException("CompanyId invalid - " + clientCompany.getCompanyId());
 	    }
 
+	    // ✅ NO need to fetch user anymore
+
 	    LetsWorkCentre centre =
 	            letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
 	                    clientCompany.getLetsWorkCentre(),
@@ -104,10 +106,10 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	        throw new RuntimeException("This LetsWorkCentre does not exist");
 	    }
 
-	    // 🔹 Upload documents if present
+	    // Upload docs
 	    if (aadhaar != null && !aadhaar.isEmpty()) {
 	        String key = s3Service.uploadClientKycDocument(
-	        		"letsworkcentres",
+	                "letsworkcentres",
 	                clientCompany.getCompanyId(),
 	                clientCompany.getClientCompanyName(),
 	                "aadhaar",
@@ -119,7 +121,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 
 	    if (pan != null && !pan.isEmpty()) {
 	        String key = s3Service.uploadClientKycDocument(
-	        		"letsworkcentres",
+	                "letsworkcentres",
 	                clientCompany.getCompanyId(),
 	                clientCompany.getClientCompanyName(),
 	                "pan",
@@ -131,7 +133,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 
 	    if (tan != null && !tan.isEmpty()) {
 	        String key = s3Service.uploadClientKycDocument(
-	        		"letsworkcentres",
+	                "letsworkcentres",
 	                clientCompany.getCompanyId(),
 	                clientCompany.getClientCompanyName(),
 	                "tan",
@@ -143,7 +145,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 
 	    if (gst != null && !gst.isEmpty()) {
 	        String key = s3Service.uploadClientKycDocument(
-	        		"letsworkcentres",
+	                "letsworkcentres",
 	                clientCompany.getCompanyId(),
 	                clientCompany.getClientCompanyName(),
 	                "gst",
@@ -153,7 +155,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	        clientCompany.setGstCertificateS3Key(key);
 	    }
 
-	    // 🔹 Update or create logic (your existing code)
+	    // Update
 	    if (clientCompany.getId() != null) {
 
 	        LetsWorkClient existing =
@@ -173,8 +175,10 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	        return "record updated";
 	    }
 
+	    // Create
 	    clientCompany.setCreateDate(new Date());
 	    clientCompany.setUpdateDate(new Date());
+
 	    repo.save(clientCompany);
 
 	    return "record saved";

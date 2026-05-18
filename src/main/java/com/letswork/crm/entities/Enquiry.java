@@ -11,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import com.letswork.crm.enums.EnquiryStatus;
 import com.letswork.crm.enums.EnquiryType;
 
 import lombok.AllArgsConstructor;
@@ -54,5 +55,8 @@ public class Enquiry extends Base{
 	
 	@Enumerated(EnumType.STRING)
 	private EnquiryType enquiryType;
+	
+	@Enumerated(EnumType.STRING)
+	private EnquiryStatus enquiryStatus;
 
 }

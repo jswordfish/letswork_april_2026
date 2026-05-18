@@ -18,6 +18,7 @@ public interface GrevianceRepository extends JpaRepository<Greviance, Long> {
 	@Query("SELECT g FROM Greviance g " +
 		       "WHERE g.companyId = :companyId " +
 		       "AND (:clientId IS NULL OR g.clientId = :clientId) " +
+		       "AND (:userId IS NULL OR g.userId = :userId) " +
 		       "AND (:centre IS NULL OR g.letsWorkCentre = :centre) " +
 		       "AND (:city IS NULL OR g.city = :city) " +
 		       "AND (:state IS NULL OR g.state = :state) " +
@@ -39,6 +40,7 @@ public interface GrevianceRepository extends JpaRepository<Greviance, Long> {
 		Page<Greviance> filter(
 		        @Param("companyId") String companyId,
 		        @Param("clientId") Long clientId,
+		        @Param("userId") Long userId,
 		        @Param("centre") String centre,
 		        @Param("city") String city,
 		        @Param("state") String state,

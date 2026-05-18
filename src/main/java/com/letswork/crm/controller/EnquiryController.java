@@ -5,7 +5,9 @@ import java.util.Date;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.letswork.crm.dtos.EnquiryDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Enquiry;
+import com.letswork.crm.enums.EnquiryStatus;
 import com.letswork.crm.enums.EnquiryType;
-import com.letswork.crm.enums.Solution;
 import com.letswork.crm.service.EnquiryService;
 
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,17 @@ public class EnquiryController {
 
         return ResponseEntity.ok(
                 enquiryService.createEnquiry(dto)
+        );
+    }
+    
+    @PutMapping("/status/{id}")
+    public ResponseEntity<String> updateStatus(
+            @PathVariable Long id,
+            @RequestParam String companyId,
+            @RequestParam String token
+    ) {
+        return ResponseEntity.ok(
+                enquiryService.updateEnquiryStatus(id)
         );
     }
 
@@ -62,6 +75,9 @@ public class EnquiryController {
             Date toDate,
 
             @RequestParam(required = false) EnquiryType enquiryType,
+            
+            @RequestParam(required = false) EnquiryStatus enquiryStatus,
+            @RequestParam(required = false) String solutionName,
 
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -80,6 +96,8 @@ public class EnquiryController {
                         fromDate,
                         toDate,
                         enquiryType,
+                        enquiryStatus,
+                        solutionName,
                         page,
                         size
                 )
