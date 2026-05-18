@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,13 +28,12 @@ import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ConferenceBookingDirect;
 import com.letswork.crm.entities.ConferenceRoom;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
-import com.letswork.crm.entities.Invoice;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.Offers;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
-import com.letswork.crm.enums.InvoiceStatus;
 import com.letswork.crm.enums.SortFieldByConferenceBookingDirect;
 import com.letswork.crm.enums.SortingOrder;
 import com.letswork.crm.repo.ConferenceBookingDirectRepository;
@@ -65,6 +65,7 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 	private final S3Service s3Service;
 	private final InvoiceRepository invoiceRepository;
     private final PdfService pdfService;
+    private final RazorpayService razorpayService;
 
 	@Transactional
 	@Override
@@ -151,7 +152,8 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 		booking.setLetsWorkCentre(centre);
 		booking.setConferenceRoom(room);
 		booking.setCompanyId(centre.getCompanyId());
-		booking.setBookingStatus(BookingStatus.DRAFT);
+		booking.setBookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE);
+		booking.setBookedFrom(request.getBookedFrom());
 		String refId = generate("CONF_ROOM_DIRECT");
 		booking.setReferenceId(refId);
 		booking.setDateOfPurchase(LocalDateTime.now());
@@ -161,6 +163,7 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
 	     }
 		booking.setStartDate(request.getSlotDate());
+		booking.setExpiryDate(request.getSlotDate());
 		booking.setPrice(totalPrice);
 		booking.setDiscountedPrice(discountedPrice);
 		booking.setAmount(discountedPrice);
@@ -171,6 +174,13 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 		booking.setFrontendCgstPercentage(request.getFrontendCgstPercentage());
 		booking.setFrontendSgstPercentage(request.getFrontendSgstPercentage());
 		booking.setFrontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax());
+		
+		String orderId = razorpayService.createOrder(
+                booking.getFrontendFinalAmountAfterAddingTax(), 
+                booking.getReferenceId()
+        );
+		booking.setCreateDate(new Date());
+        booking.setRazorpayOrderId(orderId);
 
 		try {
 			String qrPath = qrService.generateQRCodeWithBookingCodeRGB(refId);
@@ -378,6 +388,7 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
 	     }
 		booking.setStartDate(newDate);
+		booking.setExpiryDate(newDate);
 		booking.setPrice(existing.getPrice());
 		booking.setDiscountedPrice(existing.getDiscountedPrice());
 

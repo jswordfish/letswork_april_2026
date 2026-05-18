@@ -3,8 +3,10 @@ package com.letswork.crm.serviceImpl;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,6 +35,7 @@ import com.letswork.crm.entities.ConferenceRoomTimeSlot;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortFieldByConferenceThroughBundle;
 import com.letswork.crm.enums.SortingOrder;
@@ -74,6 +77,7 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
     public List<ConferenceRoomBookingThroughBundle> bookUsingMultipleBundles(
             ConferenceRoomBundleBookingRequest request
     		) {
+    	DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
     	
 		Tenant tenant = tenantService.findTenantByCompanyId(request.getCompanyId());
 		
@@ -176,6 +180,7 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
             booking.setLetsWorkClient(client);
             booking.setNumberOfHours(usableHours);
             booking.setCompanyId(bundle.getCompanyId());
+            booking.setCreateDate(new Date());
             booking.setDateOfPurchase(LocalDateTime.now());
             LocalDate today = LocalDate.now();
    	     
@@ -183,9 +188,11 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
 	   	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
 	   	     }
             booking.setStartDate(request.getSlotDate());
+            booking.setExpiryDate(request.getSlotDate());
             booking.setBookingStatus(BookingStatus.ACTIVE);
             String refId = generate("CONF_ROOM_BUNDLE");
             booking.setReferenceId(refId);
+            booking.setBookedFrom(BookedFrom.APP);;
 
             booking = bookingRepo.save(booking);
             
@@ -263,8 +270,8 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
             remainingRequired -= usableHours;
             
          // Calculate start & end time from slots
-            String startTime = bookingSlots.get(0).getStartTime().toString();
-            String endTime = bookingSlots.get(bookingSlots.size() - 1).getEndTime().toString();
+            String startTime = bookingSlots.get(0).getStartTime().format(timeFormatter);
+            String endTime = bookingSlots.get(bookingSlots.size() - 1).getEndTime().format(timeFormatter);
 
             // Prepare email DTO
             ConferenceBookingThroughBundleEmailDto dto = new ConferenceBookingThroughBundleEmailDto();
@@ -493,6 +500,7 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
 	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
 	     }
 		booking.setStartDate(newDate);
+		booking.setExpiryDate(newDate);
 		
 		try {
             String qrPath = qrService.generateQRCodeWithBookingCodeRGB(

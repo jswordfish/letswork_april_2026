@@ -31,6 +31,7 @@ import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.Offers;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.InvoiceStatus;
 import com.letswork.crm.enums.SortFieldByDirect;
@@ -64,6 +65,7 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
     private final S3Service s3Service;
     private final InvoiceRepository invoiceRepository;
     private final PdfService pdfService;
+    private final RazorpayService razorpayService;
 
 	@Override
 	public DayPassBookingDirect createBooking(DayPassBookingDirectRequest request) {
@@ -124,8 +126,8 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
 		booking.setLetsWorkClient(client);
 		booking.setLetsWorkCentre(centre);
 		booking.setCompanyId(centre.getCompanyId());
-		booking.setDateOfPurchase(LocalDateTime.now());
-		booking.setBookingStatus(BookingStatus.DRAFT);
+		booking.setBookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE);
+		booking.setBookedFrom(request.getBookedFrom());
 		String refId = generate("DAY_PASS_DIRECT");
 		booking.setReferenceId(refId);
 		booking.setPrice(totalPrice);
@@ -141,12 +143,19 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
 		booking.setFrontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax());
 		booking.setCreateDate(new Date());
 		booking.setDateOfPurchase(LocalDateTime.now());
+		String orderId = razorpayService.createOrder(
+                booking.getFrontendFinalAmountAfterAddingTax(), 
+                booking.getReferenceId()
+        );
+
+        booking.setRazorpayOrderId(orderId);
 		LocalDate today = LocalDate.now();
 	     
 	     if (request.getDateOfUse().isBefore(today)) {
 	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
 	     }
 		booking.setStartDate(request.getDateOfUse());
+		booking.setExpiryDate(request.getDateOfUse());
 		
 		File qrFile;
         try {
@@ -314,6 +323,7 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
 	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
 	     }
 		booking.setStartDate(newDate);
+		booking.setExpiryDate(newDate);
 		booking.setPrice(existing.getPrice());
 		booking.setNumberOfPasses(existing.getNumberOfPasses());
 		booking.setDiscountedPrice(existing.getDiscountedPrice());
