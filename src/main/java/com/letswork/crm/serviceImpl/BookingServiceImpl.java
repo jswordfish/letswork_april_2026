@@ -138,6 +138,7 @@ public class BookingServiceImpl implements BookingService {
 	        BookedFrom bookedFrom,
 	        String roomName,
 	        String search,
+	        String letsWorkCentre,
 	        LocalDate fromDate,
 	        LocalDate toDate,
 	        LocalDate startDateFromDate,
@@ -199,6 +200,7 @@ public class BookingServiceImpl implements BookingService {
 	                bookedFrom,
 	                roomName,
 	                search,
+	                letsWorkCentre,
 	                startDate,
 	                endDate,
 	                startDateFromDate,
@@ -208,20 +210,21 @@ public class BookingServiceImpl implements BookingService {
 
 	    } else {
 
-	        result = bookingRepo.filterAllBookings(
-	                companyId,
-	                clientId,
-	                referenceId,
-	                status,
-	                bookedFrom,
-	                roomName,
-	                search,
-	                startDate,
-	                endDate,
-	                startDateFromDate,
-	                startDateToDate,
-	                pageable
-	        );
+	    	result = bookingRepo.filterAllBookings(
+	    	        companyId,
+	    	        clientId,
+	    	        referenceId,
+	    	        status,
+	    	        bookedFrom,
+	    	        roomName,
+	    	        search,
+	    	        letsWorkCentre,
+	    	        startDate,
+	    	        endDate,
+	    	        startDateFromDate,
+	    	        startDateToDate,
+	    	        pageable
+	    	);
 	    }
 
 	    for (Booking booking : result.getContent()) {

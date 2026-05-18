@@ -69,6 +69,7 @@ public class BookingController {
 	        @RequestParam(required = false) BookedFrom bookedFrom,
 	        @RequestParam(required = false) String roomName,
 	        @RequestParam(required = false) String search,
+	        @RequestParam(required = false) String letsWorkCentre,
 
 	        @RequestParam(required = false)
 	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -101,6 +102,7 @@ public class BookingController {
 	                    bookedFrom,
 	                    roomName,
 	                    search,
+	                    letsWorkCentre,
 	                    fromDate,
 	                    toDate,
 	                    startDateFromDate,

@@ -14,7 +14,7 @@ public interface BookingService {
 	
 	Booking save(Booking booking);
 	
-	PaginatedResponseDto getAllBookings(
+	public PaginatedResponseDto getAllBookings(
 	        String companyId,
 	        List<String> bookingTypes,
 	        Long clientId,
@@ -23,10 +23,11 @@ public interface BookingService {
 	        BookedFrom bookedFrom,
 	        String roomName,
 	        String search,
+	        String letsWorkCentre,
 	        LocalDate fromDate,
 	        LocalDate toDate,
 	        LocalDate startDateFromDate,
-            LocalDate startDateToDate,
+	        LocalDate startDateToDate,
 	        SortFieldByBooking sortFieldByBooking,
 	        SortingOrder order,
 	        int page,

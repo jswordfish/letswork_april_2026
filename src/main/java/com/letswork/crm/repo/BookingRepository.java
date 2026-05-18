@@ -39,6 +39,14 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		       "AND (:startDateFromDate IS NULL OR b.startDate >= :startDateFromDate) " +
 		       "AND (:startDateToDate IS NULL OR b.startDate <= :startDateToDate) " +
 		       "AND (:roomName IS NULL OR LOWER(cr.name) = LOWER(:roomName)) " +
+
+		       "AND (:letsWorkCentre IS NULL OR (" +
+		       "   LOWER(TREAT(b AS ConferenceBookingDirect).letsWorkCentre.name) = LOWER(:letsWorkCentre) OR " +
+		       "   LOWER(TREAT(b AS ConferenceRoomBookingThroughBundle).letsWorkCentre.name) = LOWER(:letsWorkCentre) OR " +
+		       "   LOWER(TREAT(b AS DayPassBookingDirect).letsWorkCentre.name) = LOWER(:letsWorkCentre) OR " +
+		       "   LOWER(TREAT(b AS DayPassBookingThroughBundle).letsWorkCentre.name) = LOWER(:letsWorkCentre)" +
+		       ")) " +
+
 		       "AND (:search IS NULL OR " +
 		       "     CAST(b.id AS string) LIKE CONCAT('%', :search, '%') OR " +
 		       "     LOWER(b.referenceId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -57,6 +65,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		        @Param("bookedFrom") BookedFrom bookedFrom,
 		        @Param("roomName") String roomName,
 		        @Param("search") String search,
+		        @Param("letsWorkCentre") String letsWorkCentre,
 		        @Param("fromDate") LocalDateTime fromDate,
 		        @Param("toDate") LocalDateTime toDate,
 		        @Param("startDateFromDate") LocalDate startDateFromDate,
@@ -79,6 +88,14 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		       "AND (:startDateFromDate IS NULL OR b.startDate >= :startDateFromDate) " +
 		       "AND (:startDateToDate IS NULL OR b.startDate <= :startDateToDate) " +
 		       "AND (:roomName IS NULL OR LOWER(cr.name) = LOWER(:roomName)) " +
+
+		       "AND (:letsWorkCentre IS NULL OR (" +
+		       "   LOWER(TREAT(b AS ConferenceBookingDirect).letsWorkCentre.name) = LOWER(:letsWorkCentre) OR " +
+		       "   LOWER(TREAT(b AS ConferenceRoomBookingThroughBundle).letsWorkCentre.name) = LOWER(:letsWorkCentre) OR " +
+		       "   LOWER(TREAT(b AS DayPassBookingDirect).letsWorkCentre.name) = LOWER(:letsWorkCentre) OR " +
+		       "   LOWER(TREAT(b AS DayPassBookingThroughBundle).letsWorkCentre.name) = LOWER(:letsWorkCentre)" +
+		       ")) " +
+
 		       "AND (:search IS NULL OR " +
 		       "     CAST(b.id AS string) LIKE CONCAT('%', :search, '%') OR " +
 		       "     LOWER(b.referenceId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -98,6 +115,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		        @Param("bookedFrom") BookedFrom bookedFrom,
 		        @Param("roomName") String roomName,
 		        @Param("search") String search,
+		        @Param("letsWorkCentre") String letsWorkCentre,
 		        @Param("fromDate") LocalDateTime fromDate,
 		        @Param("toDate") LocalDateTime toDate,
 		        @Param("startDateFromDate") LocalDate startDateFromDate,
