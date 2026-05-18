@@ -170,11 +170,8 @@ public class BookingServiceImpl implements BookingService {
 	    Pageable pageable = PageRequest.of(page, size, sort);
 
 	    // ✅ IMPORTANT CHANGE (List → CSV)
-	    String statusCsv = (status == null || status.isEmpty())
-	            ? null
-	            : status.stream()
-	                    .map(Enum::name)
-	                    .collect(Collectors.joining(","));
+	    
+	    
 	    List<String> statusList = (status == null || status.isEmpty())
 	    	    ? null
 	    	    : status.stream()

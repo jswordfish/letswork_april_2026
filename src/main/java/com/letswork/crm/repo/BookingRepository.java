@@ -16,6 +16,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.Booking;
+import com.letswork.crm.enums.BookingStatus;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
@@ -28,7 +29,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		       "AND b.bookingStatus <> 'DRAFT' " +
 		       "AND (:clientId IS NULL OR b.letsWorkClient.id = :clientId) " +
 		       "AND (:referenceId IS NULL OR b.referenceId = :referenceId) " +
-		       "AND (:statuses IS NULL OR b.bookingStatus IN (:statuses)) " + // 💡 Changed to clean IN clause
+		       "AND (:statuses IS NULL OR STR(b.bookingStatus) IN (:statuses)) " + // 💡 Changed to clean IN clause
 		       "AND (:bookedFrom IS NULL OR b.bookedFrom = :bookedFrom) " +
 		       "AND (:fromDate IS NULL OR b.dateOfPurchase >= :fromDate) " + // 💡 camelCase property names
 		       "AND (:toDate IS NULL OR b.dateOfPurchase <= :toDate) " +
@@ -66,7 +67,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		       "AND b.bookingType IN (:bookingTypes) " +
 		       "AND (:clientId IS NULL OR b.letsWorkClient.id = :clientId) " +
 		       "AND (:referenceId IS NULL OR b.referenceId = :referenceId) " +
-		       "AND (:statuses IS NULL OR b.bookingStatus IN (:statuses)) " +
+		       "AND (:statuses IS NULL OR STR(b.bookingStatus) IN (:statuses)) " +
 		       "AND (:bookedFrom IS NULL OR b.bookedFrom = :bookedFrom) " +
 		       "AND (:fromDate IS NULL OR b.dateOfPurchase >= :fromDate) " +
 		       "AND (:toDate IS NULL OR b.dateOfPurchase <= :toDate) " +
