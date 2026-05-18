@@ -23,7 +23,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	
 	Optional<Booking> findByReferenceId(String referenceId);
 	
-	@Query("SELECT b FROM Booking b " +
+	@Query("SELECT b FROM Booking b LEFT JOIN b.conferenceRoom cr LEFT JOIN b.letsWorkClient c  " +
 		       "WHERE b.companyId = :companyId " +
 		       "AND b.bookingStatus <> 'DRAFT' " +
 		       "AND (:clientId IS NULL OR b.letsWorkClient.id = :clientId) " +
@@ -60,7 +60,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		        Pageable pageable
 		);
 
-	@Query("SELECT b FROM Booking b " +
+	@Query("SELECT b FROM Booking b LEFT JOIN b.conferenceRoom cr LEFT JOIN b.letsWorkClient c " +
 		       "WHERE b.companyId = :companyId " +
 		       "AND b.bookingStatus <> 'DRAFT' " +
 		       "AND b.bookingType IN (:bookingTypes) " +
