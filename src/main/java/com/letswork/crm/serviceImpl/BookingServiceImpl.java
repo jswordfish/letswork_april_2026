@@ -3,6 +3,7 @@ package com.letswork.crm.serviceImpl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -174,6 +175,11 @@ public class BookingServiceImpl implements BookingService {
 	            : status.stream()
 	                    .map(Enum::name)
 	                    .collect(Collectors.joining(","));
+	    List<String> statusList = (status == null || status.isEmpty())
+	    	    ? null
+	    	    : status.stream()
+	    	            .map(Enum::name)
+	    	            .collect(Collectors.toCollection(ArrayList::new));
 
 	    LocalDateTime startDate = fromDate == null ? null : fromDate.atStartOfDay();
 	    LocalDateTime endDate = toDate == null ? null : toDate.atTime(23, 59, 59);
@@ -199,7 +205,7 @@ public class BookingServiceImpl implements BookingService {
 	                validatedTypes,
 	                clientId,
 	                referenceId,
-	                statusCsv,
+	                statusList,
 	                bookedFromStr,
 	                roomName,
 	                search,
@@ -216,7 +222,7 @@ public class BookingServiceImpl implements BookingService {
 	                companyId,
 	                clientId,
 	                referenceId,
-	                statusCsv,
+	                statusList,
 	                bookedFromStr,
 	                roomName,
 	                search,
@@ -287,9 +293,13 @@ public class BookingServiceImpl implements BookingService {
 	    conferenceBookingBundleRepo.saveAll(expiredBookings);
 	}
 
+//	private static final Map<SortFieldByBooking, String> FIELD_MAP = Map.of(SortFieldByBooking.ID, "id",
+//			SortFieldByBooking.AMOUNT, "amount", SortFieldByBooking.DATE_OF_PURCHASE, "date_of_purchase",
+//			SortFieldByBooking.START_DATE, "start_date");
+	
 	private static final Map<SortFieldByBooking, String> FIELD_MAP = Map.of(SortFieldByBooking.ID, "id",
-			SortFieldByBooking.AMOUNT, "amount", SortFieldByBooking.DATE_OF_PURCHASE, "date_of_purchase",
-			SortFieldByBooking.START_DATE, "start_date");
+			SortFieldByBooking.AMOUNT, "amount", SortFieldByBooking.DATE_OF_PURCHASE, "dateOfPurchase",
+			SortFieldByBooking.START_DATE, "startDate");
 
 	private PaginatedResponseDto buildResponse(Page<?> resultPage, int page, int size) {
 

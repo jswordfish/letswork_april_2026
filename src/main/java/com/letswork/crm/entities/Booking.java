@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
@@ -79,6 +80,10 @@ public class Booking extends Base{
     @Transient
     @JsonIgnoreProperties("booking")
     Invoice invoice;
+    
+ // 1. Map the discriminator column as a read-only string field for JPQL/Criteria queries
+    @Column(name = "booking_type", insertable = false, updatable = false)
+    private String bookingType;
     
     @JsonProperty("bookingType")
     public String getBookingType() {
