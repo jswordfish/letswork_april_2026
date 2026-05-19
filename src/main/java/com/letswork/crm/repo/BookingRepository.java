@@ -40,11 +40,23 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		       "AND (:startDateToDate IS NULL OR b.startDate <= :startDateToDate) " +
 		       "AND (:roomName IS NULL OR LOWER(cr.name) = LOWER(:roomName)) " +
 
-		       "AND (:letsWorkCentre IS NULL OR (" +
-		       "   LOWER(TREAT(b AS ConferenceBookingDirect).letsWorkCentre.name) = LOWER(:letsWorkCentre) OR " +
-		       "   LOWER(TREAT(b AS ConferenceRoomBookingThroughBundle).letsWorkCentre.name) = LOWER(:letsWorkCentre) OR " +
-		       "   LOWER(TREAT(b AS DayPassBookingDirect).letsWorkCentre.name) = LOWER(:letsWorkCentre) OR " +
-		       "   LOWER(TREAT(b AS DayPassBookingThroughBundle).letsWorkCentre.name) = LOWER(:letsWorkCentre)" +
+		       "AND (:letsWorkCentre IS NULL OR b.bookingType IN ('ConferenceBundleBooking', 'DayPassBundleBooking') OR ( " +
+
+		       "   (b.bookingType = 'ConferenceBookingDirect' AND " +
+		       "       LOWER(TREAT(b AS ConferenceBookingDirect).letsWorkCentre.name) " +
+		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+
+		       "   (b.bookingType = 'ConferenceRoomBookingThroughBundle' AND " +
+		       "       LOWER(TREAT(b AS ConferenceRoomBookingThroughBundle).letsWorkCentre.name) " +
+		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+
+		       "   (b.bookingType = 'DayPassBookingDirect' AND " +
+		       "       LOWER(TREAT(b AS DayPassBookingDirect).letsWorkCentre.name) " +
+		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+
+		       "   (b.bookingType = 'DayPassBookingThroughBundle' AND " +
+		       "       LOWER(TREAT(b AS DayPassBookingThroughBundle).letsWorkCentre.name) " +
+		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) " +
 		       ")) " +
 
 		       "AND (:search IS NULL OR " +
@@ -73,7 +85,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		        Pageable pageable
 		);
 
-	@Query("SELECT b FROM Booking b " +
+		@Query("SELECT b FROM Booking b " +
 		       "LEFT JOIN b.conferenceRoom cr " +
 		       "LEFT JOIN b.letsWorkClient c " +
 		       "WHERE b.companyId = :companyId " +
@@ -89,11 +101,23 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		       "AND (:startDateToDate IS NULL OR b.startDate <= :startDateToDate) " +
 		       "AND (:roomName IS NULL OR LOWER(cr.name) = LOWER(:roomName)) " +
 
-		       "AND (:letsWorkCentre IS NULL OR (" +
-		       "   LOWER(TREAT(b AS ConferenceBookingDirect).letsWorkCentre.name) = LOWER(:letsWorkCentre) OR " +
-		       "   LOWER(TREAT(b AS ConferenceRoomBookingThroughBundle).letsWorkCentre.name) = LOWER(:letsWorkCentre) OR " +
-		       "   LOWER(TREAT(b AS DayPassBookingDirect).letsWorkCentre.name) = LOWER(:letsWorkCentre) OR " +
-		       "   LOWER(TREAT(b AS DayPassBookingThroughBundle).letsWorkCentre.name) = LOWER(:letsWorkCentre)" +
+		       "AND (:letsWorkCentre IS NULL OR b.bookingType IN ('ConferenceBundleBooking', 'DayPassBundleBooking') OR ( " +
+
+		       "   (b.bookingType = 'ConferenceBookingDirect' AND " +
+		       "       LOWER(TREAT(b AS ConferenceBookingDirect).letsWorkCentre.name) " +
+		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+
+		       "   (b.bookingType = 'ConferenceRoomBookingThroughBundle' AND " +
+		       "       LOWER(TREAT(b AS ConferenceRoomBookingThroughBundle).letsWorkCentre.name) " +
+		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+
+		       "   (b.bookingType = 'DayPassBookingDirect' AND " +
+		       "       LOWER(TREAT(b AS DayPassBookingDirect).letsWorkCentre.name) " +
+		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+
+		       "   (b.bookingType = 'DayPassBookingThroughBundle' AND " +
+		       "       LOWER(TREAT(b AS DayPassBookingThroughBundle).letsWorkCentre.name) " +
+		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) " +
 		       ")) " +
 
 		       "AND (:search IS NULL OR " +
