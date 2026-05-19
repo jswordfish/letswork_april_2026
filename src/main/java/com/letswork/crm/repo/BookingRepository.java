@@ -28,6 +28,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	@Query("SELECT b FROM Booking b " +
 		       "LEFT JOIN b.conferenceRoom cr " +
 		       "LEFT JOIN b.letsWorkClient c " +
+		       "LEFT JOIN TREAT(b AS ConferenceBookingDirect).letsWorkCentre cwDirect " +
+		       "LEFT JOIN TREAT(b AS ConferenceRoomBookingThroughBundle).letsWorkCentre cwThroughBundle " +
+		       "LEFT JOIN TREAT(b AS DayPassBookingDirect).letsWorkCentre dpDirect " +
+		       "LEFT JOIN TREAT(b AS DayPassBookingThroughBundle).letsWorkCentre dpThroughBundle " +
+		       "LEFT JOIN TREAT(b AS DayPassBundleBooking).letsWorkCentre dpBundleCentre " +
 		       "WHERE b.companyId = :companyId " +
 		       "AND b.bookingStatus <> 'DRAFT' " +
 		       "AND (:clientId IS NULL OR c.id = :clientId) " +
@@ -40,24 +45,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		       "AND (:startDateToDate IS NULL OR b.startDate <= :startDateToDate) " +
 		       "AND (:roomName IS NULL OR LOWER(cr.name) = LOWER(:roomName)) " +
 
-		       "AND (:letsWorkCentre IS NULL OR b.bookingType IN ('ConferenceBundleBooking', 'DayPassBundleBooking') OR ( " +
-
-		       "   (b.bookingType = 'ConferenceBookingDirect' AND " +
-		       "       LOWER(TREAT(b AS ConferenceBookingDirect).letsWorkCentre.name) " +
-		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-
-		       "   (b.bookingType = 'ConferenceRoomBookingThroughBundle' AND " +
-		       "       LOWER(TREAT(b AS ConferenceRoomBookingThroughBundle).letsWorkCentre.name) " +
-		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-
-		       "   (b.bookingType = 'DayPassBookingDirect' AND " +
-		       "       LOWER(TREAT(b AS DayPassBookingDirect).letsWorkCentre.name) " +
-		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-
-		       "   (b.bookingType = 'DayPassBookingThroughBundle' AND " +
-		       "       LOWER(TREAT(b AS DayPassBookingThroughBundle).letsWorkCentre.name) " +
-		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) " +
-		       ")) " +
+				"AND (:letsWorkCentre IS NULL OR b.bookingType IN ('ConferenceBundleBooking', 'DayPassBundleBooking') OR ( " +
+				"   (b.bookingType = 'ConferenceBookingDirect' AND LOWER(cwDirect.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+				"   (b.bookingType = 'ConferenceRoomBookingThroughBundle' AND LOWER(cwThroughBundle.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+				"   (b.bookingType = 'DayPassBookingDirect' AND LOWER(dpDirect.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+				"   (b.bookingType = 'DayPassBookingThroughBundle' AND LOWER(dpThroughBundle.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) " +
+				"   (b.bookingType = 'DayPassBundleBooking' AND LOWER(dpBundleCentre.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) " + 
+			       ")) " +
 
 		       "AND (:search IS NULL OR " +
 		       "     CAST(b.id AS string) LIKE CONCAT('%', :search, '%') OR " +
@@ -85,15 +79,21 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		        Pageable pageable
 		);
 
-		@Query("SELECT b FROM Booking b " +
+	@Query("SELECT b FROM Booking b " +
 		       "LEFT JOIN b.conferenceRoom cr " +
 		       "LEFT JOIN b.letsWorkClient c " +
+		       // Explicit LEFT JOINs for treated subclasses to prevent record dropping
+		       "LEFT JOIN TREAT(b AS ConferenceBookingDirect).letsWorkCentre cwDirect " +
+		       "LEFT JOIN TREAT(b AS ConferenceRoomBookingThroughBundle).letsWorkCentre cwThroughBundle " +
+		       "LEFT JOIN TREAT(b AS DayPassBookingDirect).letsWorkCentre dpDirect " +
+		       "LEFT JOIN TREAT(b AS DayPassBookingThroughBundle).letsWorkCentre dpThroughBundle " +
+		       "LEFT JOIN TREAT(b AS DayPassBundleBooking).letsWorkCentre dpBundleCentre " + 
 		       "WHERE b.companyId = :companyId " +
 		       "AND b.bookingStatus <> 'DRAFT' " +
-		       "AND b.bookingType IN :bookingTypes " +
+		       "AND b.bookingType IN :bookingTypes " + // Kept from original method
 		       "AND (:clientId IS NULL OR c.id = :clientId) " +
 		       "AND (:referenceId IS NULL OR b.referenceId = :referenceId) " +
-		       "AND (COALESCE(:statuses, NULL) IS NULL OR b.bookingStatus IN :statuses) " +
+		       "AND (:checkStatuses = false OR b.bookingStatus IN (:statuses)) " + // Replaced risky COALESCE block
 		       "AND (:bookedFrom IS NULL OR b.bookedFrom = :bookedFrom) " +
 		       "AND (:fromDate IS NULL OR b.dateOfPurchase >= :fromDate) " +
 		       "AND (:toDate IS NULL OR b.dateOfPurchase <= :toDate) " +
@@ -101,23 +101,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		       "AND (:startDateToDate IS NULL OR b.startDate <= :startDateToDate) " +
 		       "AND (:roomName IS NULL OR LOWER(cr.name) = LOWER(:roomName)) " +
 
-		       "AND (:letsWorkCentre IS NULL OR b.bookingType IN ('ConferenceBundleBooking', 'DayPassBundleBooking') OR ( " +
-
-		       "   (b.bookingType = 'ConferenceBookingDirect' AND " +
-		       "       LOWER(TREAT(b AS ConferenceBookingDirect).letsWorkCentre.name) " +
-		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-
-		       "   (b.bookingType = 'ConferenceRoomBookingThroughBundle' AND " +
-		       "       LOWER(TREAT(b AS ConferenceRoomBookingThroughBundle).letsWorkCentre.name) " +
-		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-
-		       "   (b.bookingType = 'DayPassBookingDirect' AND " +
-		       "       LOWER(TREAT(b AS DayPassBookingDirect).letsWorkCentre.name) " +
-		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-
-		       "   (b.bookingType = 'DayPassBookingThroughBundle' AND " +
-		       "       LOWER(TREAT(b AS DayPassBookingThroughBundle).letsWorkCentre.name) " +
-		       "       LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) " +
+		       // Updated Centre Filter matching DayPassBundleBooking against the center parameter
+		       "AND (:letsWorkCentre IS NULL OR b.bookingType IN ('ConferenceBundleBooking') OR ( " +
+		       "   (b.bookingType = 'ConferenceBookingDirect' AND LOWER(cwDirect.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+		       "   (b.bookingType = 'ConferenceRoomBookingThroughBundle' AND LOWER(cwThroughBundle.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+		       "   (b.bookingType = 'DayPassBookingDirect' AND LOWER(dpDirect.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+		       "   (b.bookingType = 'DayPassBookingThroughBundle' AND LOWER(dpThroughBundle.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
+		       "   (b.bookingType = 'DayPassBundleBooking' AND LOWER(dpBundleCentre.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) " +
 		       ")) " +
 
 		       "AND (:search IS NULL OR " +
@@ -130,22 +120,23 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		       "     LOWER(c.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
 		       "     LOWER(c.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%'))" +
 		       ")")
-		Page<Booking> filterAllBookingsWithTypes(
-		        @Param("companyId") String companyId,
-		        @Param("bookingTypes") List<String> bookingTypes,
-		        @Param("clientId") Long clientId,
-		        @Param("referenceId") String referenceId,
-		        @Param("statuses") List<BookingStatus> statuses,
-		        @Param("bookedFrom") BookedFrom bookedFrom,
-		        @Param("roomName") String roomName,
-		        @Param("search") String search,
-		        @Param("letsWorkCentre") String letsWorkCentre,
-		        @Param("fromDate") LocalDateTime fromDate,
-		        @Param("toDate") LocalDateTime toDate,
-		        @Param("startDateFromDate") LocalDate startDateFromDate,
-		        @Param("startDateToDate") LocalDate startDateToDate,
-		        Pageable pageable
-		);
+	Page<Booking> filterAllBookingsWithTypes(
+	        @Param("companyId") String companyId,
+	        @Param("bookingTypes") List<String> bookingTypes,
+	        @Param("clientId") Long clientId,
+	        @Param("referenceId") String referenceId,
+	        @Param("statuses") List<BookingStatus> statuses,
+	        @Param("checkStatuses") boolean checkStatuses, // Added parameter flag
+	        @Param("bookedFrom") BookedFrom bookedFrom,
+	        @Param("roomName") String roomName,
+	        @Param("search") String search,
+	        @Param("letsWorkCentre") String letsWorkCentre,
+	        @Param("fromDate") LocalDateTime fromDate,
+	        @Param("toDate") LocalDateTime toDate,
+	        @Param("startDateFromDate") LocalDate startDateFromDate,
+	        @Param("startDateToDate") LocalDate startDateToDate,
+	        Pageable pageable
+	);
 	
 	
 	@Modifying

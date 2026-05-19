@@ -190,13 +190,17 @@ public class BookingServiceImpl implements BookingService {
 	                    return type;
 	                })
 	                .collect(Collectors.toList());
-
+	        boolean st = false;
+	        		if(status.size() > 0) {
+	        			st = true;
+	        		}
 	        result = bookingRepo.filterAllBookingsWithTypes(
 	                companyId,
 	                validatedTypes,
 	                clientId,
 	                referenceId,
 	                status,
+	                st,
 	                bookedFrom,
 	                roomName,
 	                search,
