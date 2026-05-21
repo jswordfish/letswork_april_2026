@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class BundleUsageRequest {
 	
-	private Long bookingId;
+	private Long bundleBookingId;
 	
     private Float hoursDeducted;
 

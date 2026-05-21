@@ -19,6 +19,8 @@ public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, 
 	
 	Optional<LetsWorkClient> findByEmailAndCompanyId(String email, String companyId);
 	
+	Optional<LetsWorkClient> findByClientCompanyNameAndCompanyId(String clientCompanyName, String companyId);
+	
     List<LetsWorkClient>
         findByUserIdAndCompanyId(
                 Long userId,
@@ -65,6 +67,9 @@ public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, 
 		    "     OR c.city LIKE %:search% " +
 		    "     OR c.state LIKE %:search%" +
 		    "     OR c.email LIKE %:search%" +
+		    "     OR c.phone LIKE %:search%" +
+		    "     OR c.category LIKE %:search%" +
+		    "     OR c.subCategory LIKE %:search%" +
 		    ")"
 		)
 		Page<LetsWorkClient> searchClientCompanies(

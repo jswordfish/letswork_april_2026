@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -22,10 +23,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.letswork.crm.dtos.BundleBookingCreditMapper;
+import com.letswork.crm.dtos.BundleUsageRequest;
 import com.letswork.crm.dtos.ConferenceBookingDirectRequest;
 import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ConferenceBookingDirect;
+import com.letswork.crm.entities.ConferenceBundleBooking;
 import com.letswork.crm.entities.ConferenceRoom;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
 import com.letswork.crm.entities.LetsWorkCentre;
@@ -37,6 +41,7 @@ import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortFieldByConferenceBookingDirect;
 import com.letswork.crm.enums.SortingOrder;
 import com.letswork.crm.repo.ConferenceBookingDirectRepository;
+import com.letswork.crm.repo.ConferenceBundleBookingRepository;
 import com.letswork.crm.repo.ConferenceRoomRepository;
 import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
 import com.letswork.crm.repo.InvoiceRepository;
@@ -66,169 +71,198 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 	private final InvoiceRepository invoiceRepository;
     private final PdfService pdfService;
     private final RazorpayService razorpayService;
+    private final ConferenceBundleBookingRepository bundleRepo;
 
-	@Transactional
-	@Override
-	public ConferenceBookingDirect createDraftBooking(ConferenceBookingDirectRequest request) {
+    @Transactional
+    @Override
+    public ConferenceBookingDirect createDraftBooking(ConferenceBookingDirectRequest request) {
 
-		// 1. Tenant validation
-		Tenant tenant = tenantService.findTenantByCompanyId(request.getCompanyId());
-		if (tenant == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid companyId");
-		}
+        // 1. Tenant validation
+        Tenant tenant = tenantService.findTenantByCompanyId(request.getCompanyId());
+        if (tenant == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid companyId");
+        }
 
-		// 2. Centre validation
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(request.getCentre(),
-				request.getCompanyId(), request.getCity(), request.getState());
+        // 2. Centre validation
+        LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+                request.getCentre(), request.getCompanyId(), request.getCity(), request.getState());
+        if (centre == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Centre not found");
+        }
 
-		if (centre == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Centre not found");
-		}
+        // 3. Client
+        LetsWorkClient client = clientRepo.findById(request.getClientId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Client not found"));
 
-		// 3. Client
-		LetsWorkClient client = clientRepo.findById(request.getClientId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Client not found"));
+        // 4. Room validation
+        ConferenceRoom room = roomRepo.findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
+                request.getRoomName(), request.getCentre(), request.getCompanyId(), request.getCity(), request.getState());
+        if (room == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Room not found");
+        }
+        
+        List<ConferenceBookingDirect> existingDrafts = bookingRepo.findExistingDrafts(client.getId(), request.getSlotDate());
+        for (ConferenceBookingDirect draft : existingDrafts) {
+            boolean sameSlots = draft.getSlots().stream().allMatch(existingSlot ->
+                    request.getSlots().stream().anyMatch(reqSlot ->
+                            reqSlot.getStartTime().equals(existingSlot.getStartTime())
+                    )
+            );
+            if (sameSlots) {
+                return draft; 
+            }
+        }
 
-		// 4. Room validation
-		ConferenceRoom room = roomRepo.findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(request.getRoomName(),
-				request.getCentre(), request.getCompanyId(), request.getCity(), request.getState());
+        // 5. Validate slots
+        validateConsecutiveSlots(request.getSlots());
 
-		if (room == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Room not found");
-		}
-		
-		List<ConferenceBookingDirect> existingDrafts =
-		        bookingRepo.findExistingDrafts(client.getId(), request.getSlotDate());
+        for (ConferenceRoomSlotRequest slot : request.getSlots()) {
+            boolean exists = timeSlotRepo.existsByCompanyIdAndLetsWorkCentreAndCityAndStateAndRoomNameAndSlotDateAndStartTime(
+                    request.getCompanyId(), request.getCentre(), request.getCity(), request.getState(),
+                    request.getRoomName(), request.getSlotDate(), slot.getStartTime());
+            if (exists) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Slot already booked");
+            }
+        }
 
-		for (ConferenceBookingDirect draft : existingDrafts) {
+        // 6. Handle Bundles & Credits (Hybrid Logic)
+        float totalHoursRequired = request.getSlots().size() / 2.0f;
+        float hoursCoveredByBundles = 0f;
+        List<BundleBookingCreditMapper> bundleMappers = new ArrayList<>();
 
-		    boolean sameSlots = draft.getSlots().stream().allMatch(existingSlot ->
-		            request.getSlots().stream().anyMatch(reqSlot ->
-		                    reqSlot.getStartTime().equals(existingSlot.getStartTime())
-		            )
-		    );
+        if (request.getBundleUsages() != null && !request.getBundleUsages().isEmpty()) {
+            for (BundleUsageRequest usage : request.getBundleUsages()) {
+                
+                // Note: Assuming you have access to bundleRepo here
+                ConferenceBundleBooking bundle = bundleRepo.findById(usage.getBundleBookingId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bundle not found"));
 
-		    if (sameSlots) {
-		        return draft; 
-		    }
-		}
+                if (bundle.getBookingStatus() != BookingStatus.ACTIVE || bundle.getExpiryDate().isBefore(LocalDate.now())) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bundle not active or expired: " + bundle.getId());
+                }
 
-		// 5. Validate slots
-		validateConsecutiveSlots(request.getSlots());
+                float usableHours = Math.min(bundle.getRemainingHours(), usage.getHoursDeducted());
+                if (usableHours <= 0) continue;
 
-		for (ConferenceRoomSlotRequest slot : request.getSlots()) {
-			boolean exists = timeSlotRepo
-					.existsByCompanyIdAndLetsWorkCentreAndCityAndStateAndRoomNameAndSlotDateAndStartTime(
-							request.getCompanyId(), request.getCentre(), request.getCity(), request.getState(),
-							request.getRoomName(), request.getSlotDate(), slot.getStartTime());
+                // Deduct from bundle
+                bundle.setRemainingHours(bundle.getRemainingHours() - usableHours);
+                bundleRepo.save(bundle);
+                
+                hoursCoveredByBundles += usableHours;
 
-			if (exists) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Slot already booked");
-			}
-		}
+                // Map the usage for JSON
+                BundleBookingCreditMapper mapper = new BundleBookingCreditMapper();
+                mapper.setBundleId(bundle.getId());
+                mapper.setBundleName(bundle.getConferenceBundle().getName()); 
+                mapper.setCreditsUsed(Math.round(usableHours)); // Adjust logic if 1 hr = 2 credits
+                bundleMappers.add(mapper);
+            }
 
-		// 6. Calculate hours
-		int credits = request.getSlots().size();
-		float hours = credits / 2.0f;
+            // Deduct from client's global balance
+            Float currentCredits = Optional.ofNullable(client.getPurchasedConferenceCredits()).orElse(0f);
+            client.setPurchasedConferenceCredits(currentCredits - hoursCoveredByBundles);
+            clientRepo.save(client);
+        }
 
-		// 7. Pricing
-		BigDecimal pricePerHour = room.getHalfHourPrice().multiply(new BigDecimal("2"));
+        // 7. Pricing
+        // Optional: If you want to calculate backend price based on remaining hours:
+        // float billableHours = totalHoursRequired - hoursCoveredByBundles;
+        
+        BigDecimal pricePerHour = room.getHalfHourPrice().multiply(new BigDecimal("2"));
+        BigDecimal totalPrice = pricePerHour.multiply(BigDecimal.valueOf(totalHoursRequired));
+        BigDecimal discountedPrice = totalPrice;
+        Offers offer = null;
 
-		BigDecimal totalPrice = pricePerHour.multiply(BigDecimal.valueOf(hours));
+        if (request.getOfferId() != null) {
+            offer = offersRepo.findById(request.getOfferId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid offer"));
+            discountedPrice = applyOffer(totalPrice, offer);
+        }
 
-		BigDecimal discountedPrice = totalPrice;
-		Offers offer = null;
+        // 8. Create booking
+        ConferenceBookingDirect booking = new ConferenceBookingDirect();
+        booking.setLetsWorkClient(client);
+        booking.setLetsWorkCentre(centre);
+        booking.setConferenceRoom(room);
+        booking.setCompanyId(centre.getCompanyId());
+        booking.setBookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE);
+        booking.setBookedFrom(request.getBookedFrom());
+        
+        String refId = generate("CONF_ROOM_DIRECT");
+        booking.setReferenceId(refId);
+        booking.setDateOfPurchase(LocalDateTime.now());
+        
+        LocalDate today = LocalDate.now();
+        if (request.getSlotDate().isBefore(today)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
+        }
+        
+        booking.setStartDate(request.getSlotDate());
+        booking.setExpiryDate(request.getSlotDate());
+        booking.setPrice(totalPrice);
+        booking.setDiscountedPrice(discountedPrice);
+        booking.setAmount(discountedPrice);
+        booking.setAppliedOffer(offer);
+        
+        // Frontend calculation fields
+        booking.setFrontendAmount(request.getFrontendAmount());
+        booking.setFrontendDiscountPercentage(request.getFrontendDiscountPercentage());
+        booking.setFrontendDiscountedAmount(request.getFrontendDiscountedAmount());
+        booking.setFrontendCgstPercentage(request.getFrontendCgstPercentage());
+        booking.setFrontendSgstPercentage(request.getFrontendSgstPercentage());
+        booking.setFrontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax());
+        
+        // Attach the bundle mappings to trigger JSON serialization
+        if (!bundleMappers.isEmpty()) {
+            booking.setMultipleBundleList(bundleMappers);
+        }
 
-		if (request.getOfferId() != null) {
-			offer = offersRepo.findById(request.getOfferId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid offer"));
+        booking.setCreateDate(new Date());
 
-			discountedPrice = applyOffer(totalPrice, offer);
-		}
+        // 🔥 Conditional Razorpay logic
+        if (booking.getFrontendFinalAmountAfterAddingTax() > 0) {
+            String orderId = razorpayService.createOrder(
+                    booking.getFrontendFinalAmountAfterAddingTax(), 
+                    booking.getReferenceId()
+            );
+            booking.setRazorpayOrderId(orderId);
+        } else {
+            // If final amount is 0, they paid 100% via bundles. No Razorpay order needed.
+            booking.setRazorpayOrderId("PAID_VIA_BUNDLES");
+        }
 
-		// 8. Create booking
-		ConferenceBookingDirect booking = new ConferenceBookingDirect();
+        try {
+            String qrPath = qrService.generateQRCodeWithBookingCodeRGB(refId);
+            File qrFile = new File(qrPath);
+            String s3Path = s3Service.uploadConferenceRoomQrCode(
+                    "letsworkcentres", client.getCompanyId(), client.getEmail(), refId, qrFile);
+            booking.setQrS3Path(s3Path);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "QR generation failed: " + e.getMessage());
+        }
 
-		booking.setLetsWorkClient(client);
-		booking.setLetsWorkCentre(centre);
-		booking.setConferenceRoom(room);
-		booking.setCompanyId(centre.getCompanyId());
-		booking.setBookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE);
-		booking.setBookedFrom(request.getBookedFrom());
-		String refId = generate("CONF_ROOM_DIRECT");
-		booking.setReferenceId(refId);
-		booking.setDateOfPurchase(LocalDateTime.now());
-		LocalDate today = LocalDate.now();
-	     
-	     if (request.getSlotDate().isBefore(today)) {
-	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
-	     }
-		booking.setStartDate(request.getSlotDate());
-		booking.setExpiryDate(request.getSlotDate());
-		booking.setPrice(totalPrice);
-		booking.setDiscountedPrice(discountedPrice);
-		booking.setAmount(discountedPrice);
-		booking.setAppliedOffer(offer);
-		booking.setFrontendAmount(request.getFrontendAmount());
-		booking.setFrontendDiscountPercentage(request.getFrontendDiscountPercentage());
-		booking.setFrontendDiscountedAmount(request.getFrontendDiscountedAmount());;
-		booking.setFrontendCgstPercentage(request.getFrontendCgstPercentage());
-		booking.setFrontendSgstPercentage(request.getFrontendSgstPercentage());
-		booking.setFrontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax());
-		
-		String orderId = razorpayService.createOrder(
-                booking.getFrontendFinalAmountAfterAddingTax(), 
-                booking.getReferenceId()
-        );
-		booking.setCreateDate(new Date());
-        booking.setRazorpayOrderId(orderId);
+        booking = bookingRepo.save(booking);
 
-		try {
-			String qrPath = qrService.generateQRCodeWithBookingCodeRGB(refId);
+        // 9. Create & map slots
+        List<ConferenceRoomTimeSlot> slots = new ArrayList<>();
+        for (ConferenceRoomSlotRequest s : request.getSlots()) {
+            ConferenceRoomTimeSlot t = new ConferenceRoomTimeSlot();
+            t.setConferenceRoom(room);
+            t.setSlotDate(request.getSlotDate());
+            t.setStartTime(s.getStartTime());
+            t.setEndTime(s.getEndTime());
+            t.setLetsWorkCentre(centre);
+            t.setCompanyId(centre.getCompanyId());
+            t.setBooking(booking);
+            slots.add(t);
+        }
 
-			File qrFile = new File(qrPath);
+        booking.setSlots(slots);
+        timeSlotRepo.saveAll(slots);
+        bookingRepo.save(booking);
 
-			String s3Path = s3Service.uploadConferenceRoomQrCode("letsworkcentres", client.getCompanyId(),
-					client.getEmail(), refId, qrFile);
-
-			booking.setQrS3Path(s3Path);
-
-		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "QR generation failed: " + e.getMessage());
-		}
-
-		// Save booking FIRST
-		booking = bookingRepo.save(booking);
-
-		// 9. Create & map slots
-		List<ConferenceRoomTimeSlot> slots = new ArrayList<>();
-
-		for (ConferenceRoomSlotRequest s : request.getSlots()) {
-
-			ConferenceRoomTimeSlot t = new ConferenceRoomTimeSlot();
-
-			t.setConferenceRoom(room);
-			t.setSlotDate(request.getSlotDate());
-			t.setStartTime(s.getStartTime());
-			t.setEndTime(s.getEndTime());
-			t.setLetsWorkCentre(centre);
-			t.setCompanyId(centre.getCompanyId());
-			// 🔥 CRITICAL LINE
-			t.setBooking(booking);
-
-			slots.add(t);
-		}
-
-		// 🔥 Link slots to booking
-		booking.setSlots(slots);
-
-		// Save slots
-		timeSlotRepo.saveAll(slots);
-
-		// Optional (safe)
-		bookingRepo.save(booking);
-
-		return booking;
-	}
+        return booking;
+    }
 
 	private BigDecimal applyOffer(BigDecimal price, Offers offer) {
 	    // Discount amount = (price * discount) / 100

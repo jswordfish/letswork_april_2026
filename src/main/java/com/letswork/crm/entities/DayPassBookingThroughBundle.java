@@ -37,8 +37,7 @@ public class DayPassBookingThroughBundle extends Booking{
 	
 	Long previousBookingId;
 	
-	@ManyToOne
-	LetsWorkCentre letsWorkCentre;
+	
 	
 	String qrS3Path;
 

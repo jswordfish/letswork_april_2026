@@ -28,50 +28,47 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	@Query("SELECT b FROM Booking b " +
 		       "LEFT JOIN b.conferenceRoom cr " +
 		       "LEFT JOIN b.letsWorkClient c " +
-		       "LEFT JOIN TREAT(b AS ConferenceBookingDirect).letsWorkCentre cwDirect " +
-		       "LEFT JOIN TREAT(b AS ConferenceRoomBookingThroughBundle).letsWorkCentre cwThroughBundle " +
-		       "LEFT JOIN TREAT(b AS DayPassBookingDirect).letsWorkCentre dpDirect " +
-		       "LEFT JOIN TREAT(b AS DayPassBookingThroughBundle).letsWorkCentre dpThroughBundle " +
-		       "LEFT JOIN TREAT(b AS DayPassBundleBooking).letsWorkCentre dpBundleCentre " +
+		       "LEFT JOIN b.letsWorkCentre lwc " + 
 		       "WHERE b.companyId = :companyId " +
 		       "AND b.bookingStatus <> 'DRAFT' " +
 		       "AND (:clientId IS NULL OR c.id = :clientId) " +
 		       "AND (:referenceId IS NULL OR b.referenceId = :referenceId) " +
-		       "AND (COALESCE(:statuses, NULL) IS NULL OR b.bookingStatus IN :statuses) " +
+		       "AND (:checkStatuses = false OR b.bookingStatus IN :statuses) " + 
 		       "AND (:bookedFrom IS NULL OR b.bookedFrom = :bookedFrom) " +
 		       "AND (:fromDate IS NULL OR b.dateOfPurchase >= :fromDate) " +
 		       "AND (:toDate IS NULL OR b.dateOfPurchase <= :toDate) " +
 		       "AND (:startDateFromDate IS NULL OR b.startDate >= :startDateFromDate) " +
 		       "AND (:startDateToDate IS NULL OR b.startDate <= :startDateToDate) " +
-		       "AND (:roomName IS NULL OR LOWER(cr.name) = LOWER(:roomName)) " +
+		       
+		       // 🔥 Fixed Room Names Filter
+		       "AND (:checkRooms = false OR cr.name IN :roomNames) " +
 
-				"AND (:letsWorkCentre IS NULL OR b.bookingType IN ('ConferenceBundleBooking', 'DayPassBundleBooking') OR ( " +
-				"   (b.bookingType = 'ConferenceBookingDirect' AND LOWER(cwDirect.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-				"   (b.bookingType = 'ConferenceRoomBookingThroughBundle' AND LOWER(cwThroughBundle.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-				"   (b.bookingType = 'DayPassBookingDirect' AND LOWER(dpDirect.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-				"   (b.bookingType = 'DayPassBookingThroughBundle' AND LOWER(dpThroughBundle.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) " +
-				"   (b.bookingType = 'DayPassBundleBooking' AND LOWER(dpBundleCentre.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) " + 
-			       ")) " +
+		       // 🔥 Fixed Centres Filter (Removed the bug causing nulls)
+		       "AND (:checkCentres = false OR lwc.name IN :letsWorkCentres) " +
 
 		       "AND (:search IS NULL OR " +
-		       "     CAST(b.id AS string) LIKE CONCAT('%', :search, '%') OR " +
+		       "     STR(b.id) LIKE CONCAT('%', :search, '%') OR " + 
 		       "     LOWER(b.referenceId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
 		       "     LOWER(b.razorpayOrderId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		       "     CAST(b.amount AS string) LIKE CONCAT('%', :search, '%') OR " +
-		       "     LOWER(b.bookingType) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		       "     LOWER(cr.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		       "     LOWER(c.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		       "     LOWER(c.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%'))" +
+		       "     STR(b.amount) LIKE CONCAT('%', :search, '%') OR " +     
+		       "     LOWER(b.bookingType) LIKE LOWER(CONCAT('%', :search, '%')) OR " + 
+		       "     LOWER(cr.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +       
+		       "     LOWER(c.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +         
+		       "     LOWER(c.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%')) OR" + 
+		       "     LOWER(c.phone) LIKE LOWER(CONCAT('%', :search, '%'))" + 
 		       ")")
 		Page<Booking> filterAllBookings(
 		        @Param("companyId") String companyId,
 		        @Param("clientId") Long clientId,
 		        @Param("referenceId") String referenceId,
 		        @Param("statuses") List<BookingStatus> statuses,
+		        @Param("checkStatuses") boolean checkStatuses, 
 		        @Param("bookedFrom") BookedFrom bookedFrom,
-		        @Param("roomName") String roomName,
+		        @Param("roomNames") List<String> roomNames,
+		        @Param("checkRooms") boolean checkRooms,
 		        @Param("search") String search,
-		        @Param("letsWorkCentre") String letsWorkCentre,
+		        @Param("letsWorkCentres") List<String> letsWorkCentres,
+		        @Param("checkCentres") boolean checkCentres,
 		        @Param("fromDate") LocalDateTime fromDate,
 		        @Param("toDate") LocalDateTime toDate,
 		        @Param("startDateFromDate") LocalDate startDateFromDate,
@@ -79,64 +76,58 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 		        Pageable pageable
 		);
 
-	@Query("SELECT b FROM Booking b " +
+		@Query("SELECT b FROM Booking b " +
 		       "LEFT JOIN b.conferenceRoom cr " +
 		       "LEFT JOIN b.letsWorkClient c " +
-		       // Explicit LEFT JOINs for treated subclasses to prevent record dropping
-		       "LEFT JOIN TREAT(b AS ConferenceBookingDirect).letsWorkCentre cwDirect " +
-		       "LEFT JOIN TREAT(b AS ConferenceRoomBookingThroughBundle).letsWorkCentre cwThroughBundle " +
-		       "LEFT JOIN TREAT(b AS DayPassBookingDirect).letsWorkCentre dpDirect " +
-		       "LEFT JOIN TREAT(b AS DayPassBookingThroughBundle).letsWorkCentre dpThroughBundle " +
-		       "LEFT JOIN TREAT(b AS DayPassBundleBooking).letsWorkCentre dpBundleCentre " + 
+		       "LEFT JOIN b.letsWorkCentre lwc " + 
 		       "WHERE b.companyId = :companyId " +
 		       "AND b.bookingStatus <> 'DRAFT' " +
-		       "AND b.bookingType IN :bookingTypes " + // Kept from original method
+		       "AND b.bookingType IN :bookingTypes " +
 		       "AND (:clientId IS NULL OR c.id = :clientId) " +
 		       "AND (:referenceId IS NULL OR b.referenceId = :referenceId) " +
-		       "AND (:checkStatuses = false OR b.bookingStatus IN (:statuses)) " + // Replaced risky COALESCE block
+		       "AND (:checkStatuses = false OR b.bookingStatus IN :statuses) " + 
 		       "AND (:bookedFrom IS NULL OR b.bookedFrom = :bookedFrom) " +
 		       "AND (:fromDate IS NULL OR b.dateOfPurchase >= :fromDate) " +
 		       "AND (:toDate IS NULL OR b.dateOfPurchase <= :toDate) " +
 		       "AND (:startDateFromDate IS NULL OR b.startDate >= :startDateFromDate) " +
 		       "AND (:startDateToDate IS NULL OR b.startDate <= :startDateToDate) " +
-		       "AND (:roomName IS NULL OR LOWER(cr.name) = LOWER(:roomName)) " +
+		       
+		       // 🔥 Fixed Room Names Filter
+		       "AND (:checkRooms = false OR cr.name IN :roomNames) " +
 
-		       // Updated Centre Filter matching DayPassBundleBooking against the center parameter
-		       "AND (:letsWorkCentre IS NULL OR b.bookingType IN ('ConferenceBundleBooking') OR ( " +
-		       "   (b.bookingType = 'ConferenceBookingDirect' AND LOWER(cwDirect.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-		       "   (b.bookingType = 'ConferenceRoomBookingThroughBundle' AND LOWER(cwThroughBundle.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-		       "   (b.bookingType = 'DayPassBookingDirect' AND LOWER(dpDirect.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-		       "   (b.bookingType = 'DayPassBookingThroughBundle' AND LOWER(dpThroughBundle.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) OR " +
-		       "   (b.bookingType = 'DayPassBundleBooking' AND LOWER(dpBundleCentre.name) LIKE LOWER(CONCAT('%', :letsWorkCentre, '%'))) " +
-		       ")) " +
+		       // 🔥 Fixed Centres Filter (Removed the bug causing nulls)
+		       "AND (:checkCentres = false OR lwc.name IN :letsWorkCentres) " +
 
 		       "AND (:search IS NULL OR " +
-		       "     CAST(b.id AS string) LIKE CONCAT('%', :search, '%') OR " +
+		       "     STR(b.id) LIKE CONCAT('%', :search, '%') OR " + 
 		       "     LOWER(b.referenceId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
 		       "     LOWER(b.razorpayOrderId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		       "     CAST(b.amount AS string) LIKE CONCAT('%', :search, '%') OR " +
-		       "     LOWER(b.bookingType) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		       "     LOWER(cr.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		       "     LOWER(c.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		       "     LOWER(c.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%'))" +
+		       "     STR(b.amount) LIKE CONCAT('%', :search, '%') OR " +     
+		       "     LOWER(b.bookingType) LIKE LOWER(CONCAT('%', :search, '%')) OR " + 
+		       "     LOWER(cr.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +       
+		       "     LOWER(c.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +         
+		       "     LOWER(c.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%')) OR" + 
+		       "     LOWER(c.phone) LIKE LOWER(CONCAT('%', :search, '%'))" +
 		       ")")
-	Page<Booking> filterAllBookingsWithTypes(
-	        @Param("companyId") String companyId,
-	        @Param("bookingTypes") List<String> bookingTypes,
-	        @Param("clientId") Long clientId,
-	        @Param("referenceId") String referenceId,
-	        @Param("statuses") List<BookingStatus> statuses,
-	        @Param("checkStatuses") boolean checkStatuses, // Added parameter flag
-	        @Param("bookedFrom") BookedFrom bookedFrom,
-	        @Param("roomName") String roomName,
-	        @Param("search") String search,
-	        @Param("letsWorkCentre") String letsWorkCentre,
-	        @Param("fromDate") LocalDateTime fromDate,
-	        @Param("toDate") LocalDateTime toDate,
-	        @Param("startDateFromDate") LocalDate startDateFromDate,
-	        @Param("startDateToDate") LocalDate startDateToDate,
-	        Pageable pageable
-	);
+		Page<Booking> filterAllBookingsWithTypes(
+		        @Param("companyId") String companyId,
+		        @Param("bookingTypes") List<String> bookingTypes,
+		        @Param("clientId") Long clientId,
+		        @Param("referenceId") String referenceId,
+		        @Param("statuses") List<BookingStatus> statuses,
+		        @Param("checkStatuses") boolean checkStatuses, 
+		        @Param("bookedFrom") BookedFrom bookedFrom,
+		        @Param("roomNames") List<String> roomNames,
+		        @Param("checkRooms") boolean checkRooms,
+		        @Param("search") String search,
+		        @Param("letsWorkCentres") List<String> letsWorkCentres,
+		        @Param("checkCentres") boolean checkCentres,
+		        @Param("fromDate") LocalDateTime fromDate,
+		        @Param("toDate") LocalDateTime toDate,
+		        @Param("startDateFromDate") LocalDate startDateFromDate,
+		        @Param("startDateToDate") LocalDate startDateToDate,
+		        Pageable pageable
+		);
 	
 	
 	@Modifying

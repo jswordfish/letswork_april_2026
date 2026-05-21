@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class ConferenceBookingDirectRequest extends MultipleBookingMapperDto{
 	
+	private List<BundleUsageRequest> bundleUsages;
+	
 	private Long clientId;
 
     private String companyId;

@@ -30,8 +30,7 @@ public class DayPassBundleBooking extends Booking {
 	 * Temp fix to avoid nested foreign constraint problem
 	 */
 	
-	@ManyToOne
-	LetsWorkCentre letsWorkCentre;
+	
 	
 	Long dayPassBundleeId;
 

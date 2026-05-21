@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DayPassBundleUsageRequest {
 
-	private Long dayPassBundleBookingId;
+	private Long bundleBookingId;
 
 	private Integer daysDeducted;
 	

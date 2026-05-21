@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.letswork.crm.dtos.BundleBookingCreditMapper;
 import com.letswork.crm.dtos.DayPassBookingThroughBundleEmailDto;
 import com.letswork.crm.dtos.DayPassBookingThroughBundleRequest;
 import com.letswork.crm.dtos.DayPassBundleUsageRequest;
@@ -79,14 +81,13 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 	public List<DayPassBookingThroughBundle> dayPassBookingThroughBundleBooking(
 	        DayPassBookingThroughBundleRequest request) {
 
+	    // 1. Initial Validations
 	    Tenant tenant = tenantService.findTenantByCompanyId(request.getCompanyId());
-
 	    if (tenant == null) {
 	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CompanyId invalid - " + request.getCompanyId());
 	    }
 
 	    LetsWorkCentre centre = letsWorkCentreService.findById(request.getLetsworkCenterId());
-
 	    if (centre == null) {
 	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This LetsWorkCentre does not exists");
 	    }
@@ -108,80 +109,62 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 	    );
 
 	    if (remainingPasses <= 0) {
-	        throw new ResponseStatusException(
-	                HttpStatus.BAD_REQUEST,
-	                "Day pass limit reached for this date"
-	        );
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Day pass limit reached for this date");
 	    }
 
 	    if (totalRequestedPasses > remainingPasses) {
-	        throw new ResponseStatusException(
-	                HttpStatus.BAD_REQUEST,
-	                "Only " + remainingPasses + " day passes remaining for this date"
-	        );
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only " + remainingPasses + " day passes remaining for this date");
 	    }
 
-	    List<DayPassBookingThroughBundle> bookings = new ArrayList<>();
+	    LocalDate today = LocalDate.now();
+	    if (request.getDateOfUse().isBefore(today)) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
+	    }
 
-	    // ✅ EMAIL QUEUE
-	    List<DayPassBookingThroughBundleEmailDto> emailQueue = new ArrayList<>();
+	    // 2. Initialize Single Booking
+	    DayPassBookingThroughBundle singleBooking = new DayPassBookingThroughBundle();
+	    singleBooking.setCompanyId(request.getCompanyId());
+	    singleBooking.setNumberOfPasses(totalRequestedPasses);
+	    singleBooking.setLetsWorkClient(client);
+	    singleBooking.setLetsWorkCentre(centre);
+	    singleBooking.setCreateDate(new Date());
+	    singleBooking.setDateOfPurchase(LocalDateTime.now());
+	    singleBooking.setStartDate(request.getDateOfUse());
+	    singleBooking.setExpiryDate(request.getDateOfUse());
+	    singleBooking.setBookingStatus(BookingStatus.ACTIVE);
+	    
+	    String refId = generate("DayPassBookingThroughBundle");
+	    singleBooking.setReferenceId(refId);
+	    singleBooking.setBookedFrom(BookedFrom.APP);
+
+	    // 3. Generate One QR Code
+	    try {
+	        String qrPath = qrService.generateQRCodeWithBookingCodeRGB(refId);
+	        File qrFile = new File(qrPath);
+	        String s3Path = s3Service.uploadBookDayPassQrCode(
+	                "letsworkcentres",
+	                request.getCompanyId(),
+	                client.getEmail(),
+	                refId,
+	                qrFile
+	        );
+	        singleBooking.setQrS3Path(s3Path);
+	    } catch (Exception e) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to generate/upload QR code", e);
+	    }
+
+	    // 4. Process Bundles & Populate Mapping List
+	    List<BundleBookingCreditMapper> bundleMappers = new ArrayList<>();
+	    Long primaryBundleId = null;
+	    String primaryBundleRefForEmail = "MULTIPLE_BUNDLES"; // Fallback for email DTO
 
 	    for (DayPassBundleUsageRequest usage : request.getBundleUsages()) {
-
 	        DayPassBundleBooking bundle = dayPassBundleBookingRepository
-	                .findById(usage.getDayPassBundleBookingId())
+	                .findById(usage.getBundleBookingId())
 	                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bundle not found"));
 
-	        int remaining = bundle.getRemainingNumberOfDays();
-
-	        if (remaining < usage.getDaysDeducted()) {
-	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not enough days in bundle");
-	        }
-
-	        bundle.setCompanyId(request.getCompanyId());
-
-	        // ✅ Create booking
-	        DayPassBookingThroughBundle booking = new DayPassBookingThroughBundle();
-
-	        booking.setDayPassBundleBookingId(bundle.getId());
-	        booking.setCompanyId(bundle.getCompanyId());
-	        booking.setNumberOfPasses(usage.getDaysDeducted());
-	        booking.setLetsWorkClient(client);
-	        booking.setLetsWorkCentre(centre);
-	        booking.setCreateDate(new Date());
-	        booking.setDateOfPurchase(LocalDateTime.now());
-	        LocalDate today = LocalDate.now();
-	     
-		     if (request.getDateOfUse().isBefore(today)) {
-		         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
-		     }
-	        booking.setStartDate(request.getDateOfUse());
-	        booking.setExpiryDate(request.getDateOfUse());
-	        booking.setBookingStatus(BookingStatus.ACTIVE);
-	        String refId = generate("DayPassBookingThroughBundle");
-	        booking.setReferenceId(refId);
-	        booking.setBookedFrom(BookedFrom.APP);
-	        
-	        File qrFile;
-	        try {
-	            String qrPath = qrService.generateQRCodeWithBookingCodeRGB(
-	                    refId
-	            );
-
-	            qrFile = new File(qrPath);
-
-	            String s3Path = s3Service.uploadBookDayPassQrCode(
-	                    "letsworkcentres",
-	                    request.getCompanyId(),
-	                    client.getEmail(),
-	                    refId,
-	                    qrFile
-	            );
-
-	            booking.setQrS3Path(s3Path);
-	            
-	        } catch (Exception e) {
-	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to generate/upload QR code", e);
+	        if (bundle.getRemainingNumberOfDays() < usage.getDaysDeducted()) {
+	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not enough days in bundle: " + bundle.getId());
 	        }
 
 	        // Deduct bundle
@@ -190,40 +173,48 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 	                usage.getDaysDeducted()
 	        );
 
-	        DayPassBookingThroughBundle savedBooking =
-	                dayPassBookingThroughBundleRepository.save(booking);
-	        
-	        Integer currentCredits = Optional
-                    .ofNullable(client.getPurchasedDayPassCredits())
-                    .orElse(0);
+	        if (primaryBundleId == null) {
+	            primaryBundleId = bundle.getId();
+	            primaryBundleRefForEmail = bundle.getReferenceId(); // Keep first ref for legacy email templates
+	        }
 
-            Integer daysToDeduct = Optional
-                    .ofNullable(booking.getNumberOfPasses())
-                    .orElse(0);
-
-            client.setPurchasedDayPassCredits(currentCredits - daysToDeduct);
-            
-            clientRepo.save(client);
-
-	        bookings.add(savedBooking);
-
-	        // ✅ ADD TO EMAIL QUEUE
-	        emailQueue.add(new DayPassBookingThroughBundleEmailDto(
-	                client.getEmail(),
-	                client.getClientCompanyName(),
-	                centre.getName(),
-	                request.getDateOfUse(),
-	                savedBooking.getReferenceId(),
-	                bundle.getReferenceId(), 
-	                usage.getDaysDeducted(),
-	                savedBooking.getQrS3Path()
-	        ));
+	        // Add to JSON mapping list
+	        BundleBookingCreditMapper mapper = new BundleBookingCreditMapper();
+	        mapper.setBundleId(bundle.getId());
+	        mapper.setBundleName("Day Pass Bundle"); // Replace with bundle.getBundleName() if available
+	        mapper.setCreditsUsed(usage.getDaysDeducted());
+	        bundleMappers.add(mapper);
 	    }
 
-	    // ✅ SEND EMAILS AFTER LOOP
+	    // Attach mappings to trigger JSON serialization
+	    singleBooking.setMultipleBundleList(bundleMappers);
+	    singleBooking.setDayPassBundleBookingId(primaryBundleId); // Legacy DB column fallback
+
+	    // 5. Deduct Total Client Credits Once
+	    Integer currentCredits = Optional.ofNullable(client.getPurchasedDayPassCredits()).orElse(0);
+	    client.setPurchasedDayPassCredits(currentCredits - totalRequestedPasses);
+	    clientRepo.save(client);
+
+	    // 6. Save Single Booking
+	    singleBooking = dayPassBookingThroughBundleRepository.save(singleBooking);
+
+	    // 7. Send Single Email
+	    List<DayPassBookingThroughBundleEmailDto> emailQueue = new ArrayList<>();
+	    emailQueue.add(new DayPassBookingThroughBundleEmailDto(
+	            client.getEmail(),
+	            client.getClientCompanyName(),
+	            centre.getName(),
+	            request.getDateOfUse(),
+	            singleBooking.getReferenceId(),
+	            primaryBundleRefForEmail, // Passing the primary bundle's reference ID
+	            totalRequestedPasses,
+	            singleBooking.getQrS3Path()
+	    ));
+	    
 	    sendDayPassBundleEmails(emailQueue);
 
-	    return bookings;
+	    // Return as a singleton list to match your existing method signature
+	    return Collections.singletonList(singleBooking);
 	}
 	
 	@Async

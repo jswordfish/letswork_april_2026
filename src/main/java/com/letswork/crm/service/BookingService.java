@@ -21,9 +21,9 @@ public interface BookingService {
 	        String referenceId,
 	        List<BookingStatus> status,
 	        BookedFrom bookedFrom,
-	        String roomName,
+	        List<String> roomNames, // Changed to List
 	        String search,
-	        String letsWorkCentre,
+	        List<String> letsWorkCentres, // Changed to List
 	        LocalDate fromDate,
 	        LocalDate toDate,
 	        LocalDate startDateFromDate,

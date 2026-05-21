@@ -136,9 +136,9 @@ public class BookingServiceImpl implements BookingService {
 	        String referenceId,
 	        List<BookingStatus> status,
 	        BookedFrom bookedFrom,
-	        String roomName,
+	        List<String> roomNames, // Changed to List
 	        String search,
-	        String letsWorkCentre,
+	        List<String> letsWorkCentres, // Changed to List
 	        LocalDate fromDate,
 	        LocalDate toDate,
 	        LocalDate startDateFromDate,
@@ -149,11 +149,13 @@ public class BookingServiceImpl implements BookingService {
 	        int size
 	) {
 
+	    // Execute lifecycle hooks
 	    markUsedBundles();
 	    expireOldBookings();
 	    expireCompletedConferenceBookings();
 	    expireCompletedConferenceBookingsThroughBundle();
 
+	    // Clean up empty filter inputs
 	    if (search != null && search.trim().isEmpty()) {
 	        search = null;
 	    }
@@ -162,25 +164,39 @@ public class BookingServiceImpl implements BookingService {
 	        bookingTypes = null;
 	    }
 
-	    if (status != null && status.isEmpty()) {
-	        status = null;
-	    }
+	    // Safe statuses
+	    boolean checkStatuses = (status != null && !status.isEmpty());
+	    List<BookingStatus> safeStatuses = checkStatuses 
+	            ? status 
+	            : List.of(BookingStatus.DRAFT);
 
+	    // Safe Room Names
+	    boolean checkRooms = (roomNames != null && !roomNames.isEmpty());
+	    List<String> safeRooms = checkRooms 
+	            ? roomNames 
+	            : List.of(""); // Dummy value
+
+	    // Safe Centres
+	    boolean checkCentres = (letsWorkCentres != null && !letsWorkCentres.isEmpty());
+	    List<String> safeCentres = checkCentres 
+	            ? letsWorkCentres 
+	            : List.of(""); // Dummy value
+
+	    // Dynamic Sorting Construction
 	    String fieldName = FIELD_MAP.get(sortFieldByBooking);
-
 	    Sort sort = order == SortingOrder.DESC
 	            ? Sort.by(fieldName).descending()
 	            : Sort.by(fieldName).ascending();
 
 	    Pageable pageable = PageRequest.of(page, size, sort);
 
+	    // Convert LocalDates into accurate LocalDateTime bounds
 	    LocalDateTime startDate = fromDate == null ? null : fromDate.atStartOfDay();
 	    LocalDateTime endDate = toDate == null ? null : toDate.atTime(23, 59, 59);
 
 	    Page<Booking> result;
 
 	    if (bookingTypes != null && !bookingTypes.isEmpty()) {
-
 	        List<String> validatedTypes = bookingTypes.stream()
 	                .map(type -> {
 	                    Class<? extends Booking> clazz = bookingTypeResolver.resolve(type);
@@ -190,21 +206,20 @@ public class BookingServiceImpl implements BookingService {
 	                    return type;
 	                })
 	                .collect(Collectors.toList());
-	        boolean st = false;
-	        		if(status.size() > 0) {
-	        			st = true;
-	        		}
+
 	        result = bookingRepo.filterAllBookingsWithTypes(
 	                companyId,
 	                validatedTypes,
 	                clientId,
 	                referenceId,
-	                status,
-	                st,
+	                safeStatuses,   
+	                checkStatuses,  
 	                bookedFrom,
-	                roomName,
+	                safeRooms, // Updated
+	                checkRooms, // Added flag
 	                search,
-	                letsWorkCentre,
+	                safeCentres, // Updated
+	                checkCentres, // Added flag
 	                startDate,
 	                endDate,
 	                startDateFromDate,
@@ -213,24 +228,27 @@ public class BookingServiceImpl implements BookingService {
 	        );
 
 	    } else {
-
-	    	result = bookingRepo.filterAllBookings(
-	    	        companyId,
-	    	        clientId,
-	    	        referenceId,
-	    	        status,
-	    	        bookedFrom,
-	    	        roomName,
-	    	        search,
-	    	        letsWorkCentre,
-	    	        startDate,
-	    	        endDate,
-	    	        startDateFromDate,
-	    	        startDateToDate,
-	    	        pageable
-	    	);
+	        result = bookingRepo.filterAllBookings(
+	                companyId,
+	                clientId,
+	                referenceId,
+	                safeStatuses,   
+	                checkStatuses,  
+	                bookedFrom,
+	                safeRooms, // Updated
+	                checkRooms, // Added flag
+	                search,
+	                safeCentres, // Updated
+	                checkCentres, // Added flag
+	                startDate,
+	                endDate,
+	                startDateFromDate,
+	                startDateToDate,
+	                pageable
+	        );
 	    }
 
+	    // Attach transient invoices
 	    for (Booking booking : result.getContent()) {
 	        Invoice invoice = invoiceRepo
 	                .findByBookingReferenceId(booking.getReferenceId())

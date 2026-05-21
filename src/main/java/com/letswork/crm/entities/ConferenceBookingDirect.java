@@ -30,8 +30,7 @@ import lombok.Setter;
 public class ConferenceBookingDirect extends Booking{
 	
 	
-  @ManyToOne	
-  LetsWorkCentre letsWorkCentre;
+  
   
 //  @Transient
 //  private List<BundleBookingCreditMapper> multipleBundleList;
@@ -58,13 +57,7 @@ public class ConferenceBookingDirect extends Booking{
   
   String qrS3Path;
 
-  public LetsWorkCentre getLetsWorkCentre() {
-	return letsWorkCentre;
-  }
-
-  public void setLetsWorkCentre(LetsWorkCentre letsWorkCentre) {
-	this.letsWorkCentre = letsWorkCentre;
-  }
+  
 
 //  public List<BundleBookingCreditMapper> getMultipleBundleList() {
 //	  if(this.getMultipleBundleListJson() != null) {

@@ -5,9 +5,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -20,30 +22,33 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.letswork.crm.dtos.BundleBookingCreditMapper;
 import com.letswork.crm.dtos.DayPassBookingDirectRequest;
+import com.letswork.crm.dtos.DayPassBundleUsageRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Booking;
 import com.letswork.crm.entities.DayPassBookingDirect;
 import com.letswork.crm.entities.DayPassBookingThroughBundle;
+import com.letswork.crm.entities.DayPassBundleBooking;
 import com.letswork.crm.entities.DayPassLimit;
-import com.letswork.crm.entities.Invoice;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.Offers;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
-import com.letswork.crm.enums.InvoiceStatus;
 import com.letswork.crm.enums.SortFieldByDirect;
 import com.letswork.crm.enums.SortingOrder;
 import com.letswork.crm.repo.BookingRepository;
 import com.letswork.crm.repo.DayPassBookingDirectRepository;
+import com.letswork.crm.repo.DayPassBundleBookingRepository;
 import com.letswork.crm.repo.DayPassLimitRepo;
 import com.letswork.crm.repo.InvoiceRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.OffersRepository;
 import com.letswork.crm.service.DayPassBookingDirectService;
+import com.letswork.crm.service.DayPassBundleBookingService;
 import com.letswork.crm.service.QRCodeService;
 import com.letswork.crm.service.TenantService;
 
@@ -66,105 +71,144 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
     private final InvoiceRepository invoiceRepository;
     private final PdfService pdfService;
     private final RazorpayService razorpayService;
+    private final DayPassBundleBookingRepository dayPassBundleBookingRepository;
+    private final DayPassBundleBookingService dayPassBundleBookingService;
 
-	@Override
-	public DayPassBookingDirect createBooking(DayPassBookingDirectRequest request) {
+    @Transactional
+    @Override
+    public DayPassBookingDirect createBooking(DayPassBookingDirectRequest request) {
 
-		// 1. Tenant validation
-		Tenant tenant = tenantService.findTenantByCompanyId(request.getCompanyId());
-		if (tenant == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid companyId");
-		}
+        // 1. Tenant validation
+        Tenant tenant = tenantService.findTenantByCompanyId(request.getCompanyId());
+        if (tenant == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid companyId");
+        }
 
-		// 2. Centre validation
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(request.getCentre(),
-				request.getCompanyId(), request.getCity(), request.getState());
+        // 2. Centre validation
+        LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+                request.getCentre(), request.getCompanyId(), request.getCity(), request.getState());
+        if (centre == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Centre not found");
+        }
 
-		if (centre == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Centre not found");
-		}
-
-		// 3. Client
-		LetsWorkClient client = clientRepo.findById(request.getClientId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Client not found"));
-		
-		Integer remainingPasses = getRemainingDayPass(
-	            request.getCompanyId(),
-	            request.getCentre(),
-	            request.getCity(),
-	            request.getState(),
-	            request.getDateOfUse()
-	    );
-
-	    if (remainingPasses <= 0) {
-	        throw new ResponseStatusException(
-	                HttpStatus.BAD_REQUEST,
-	                "Day pass limit reached for this date"
-	        );
-	    }
-
-	    if (request.getNumberOfPasses() > remainingPasses) {
-	        throw new ResponseStatusException(
-	                HttpStatus.BAD_REQUEST,
-	                "Only " + remainingPasses + " day passes remaining for this date"
-	        );
-	    }
-
-		BigDecimal totalPrice = request.getPrice().multiply(BigDecimal.valueOf(request.getNumberOfPasses())); 
-
-		BigDecimal discountedPrice = totalPrice;
-		Offers offer = null;
-
-		if (request.getOfferId() != null) {
-			offer = offersRepo.findById(request.getOfferId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid offer"));
-
-			discountedPrice = applyOffer(totalPrice, offer);
-		}
-		// 4. Create booking
-		DayPassBookingDirect booking = new DayPassBookingDirect();
-
-		booking.setLetsWorkClient(client);
-		booking.setLetsWorkCentre(centre);
-		booking.setCompanyId(centre.getCompanyId());
-		booking.setBookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE);
-		booking.setBookedFrom(request.getBookedFrom());
-		String refId = generate("DAY_PASS_DIRECT");
-		booking.setReferenceId(refId);
-		booking.setPrice(totalPrice);
-		booking.setNumberOfPasses(request.getNumberOfPasses());
-		booking.setDiscountedPrice(discountedPrice);
-		booking.setAmount(discountedPrice);
-		booking.setAppliedOffer(offer);
-		booking.setFrontendAmount(request.getFrontendAmount());
-		booking.setFrontendDiscountPercentage(request.getFrontendDiscountPercentage());
-		booking.setFrontendDiscountedAmount(request.getFrontendDiscountedAmount());
-		booking.setFrontendCgstPercentage(request.getFrontendCgstPercentage());
-		booking.setFrontendSgstPercentage(request.getFrontendSgstPercentage());
-		booking.setFrontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax());
-		booking.setCreateDate(new Date());
-		booking.setDateOfPurchase(LocalDateTime.now());
-		String orderId = razorpayService.createOrder(
-                booking.getFrontendFinalAmountAfterAddingTax(), 
-                booking.getReferenceId()
+        // 3. Client
+        LetsWorkClient client = clientRepo.findById(request.getClientId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Client not found"));
+        
+        // 4. Availability Check
+        Integer remainingPasses = getRemainingDayPass(
+                request.getCompanyId(), request.getCentre(), request.getCity(), 
+                request.getState(), request.getDateOfUse()
         );
 
-        booking.setRazorpayOrderId(orderId);
-		LocalDate today = LocalDate.now();
-	     
-	     if (request.getDateOfUse().isBefore(today)) {
-	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
-	     }
-		booking.setStartDate(request.getDateOfUse());
-		booking.setExpiryDate(request.getDateOfUse());
-		
-		File qrFile;
-        try {
-            String qrPath = qrService.generateQRCodeWithBookingCodeRGB(
-                    refId
+        if (remainingPasses <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Day pass limit reached for this date");
+        }
+
+        if (request.getNumberOfPasses() > remainingPasses) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                    "Only " + remainingPasses + " day passes remaining for this date");
+        }
+        
+        LocalDate today = LocalDate.now();
+        if (request.getDateOfUse().isBefore(today)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
+        }
+
+        // 5. Handle Bundles & Credits (Hybrid Logic)
+        int passesCoveredByBundles = 0;
+        List<BundleBookingCreditMapper> bundleMappers = new ArrayList<>();
+
+        if (request.getBundleUsages() != null && !request.getBundleUsages().isEmpty()) {
+            for (DayPassBundleUsageRequest usage : request.getBundleUsages()) {
+                
+                // Assuming dayPassBundleBookingRepository is injected in this service
+                DayPassBundleBooking bundle = dayPassBundleBookingRepository.findById(usage.getBundleBookingId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bundle not found"));
+
+                if (bundle.getRemainingNumberOfDays() < usage.getDaysDeducted()) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not enough days in bundle: " + bundle.getId());
+                }
+
+                // Deduct from specific bundle
+                dayPassBundleBookingService.deductBundleWithDays(bundle.getId(), usage.getDaysDeducted());
+                passesCoveredByBundles += usage.getDaysDeducted();
+
+                // Map the usage for JSON
+                BundleBookingCreditMapper mapper = new BundleBookingCreditMapper();
+                mapper.setBundleId(bundle.getId());
+                mapper.setBundleName("Day Pass Bundle"); // Adjust if your entity has a getBundleName() method
+                mapper.setCreditsUsed(usage.getDaysDeducted());
+                bundleMappers.add(mapper);
+            }
+
+            // Deduct from client's global balance once
+            Integer currentCredits = Optional.ofNullable(client.getPurchasedDayPassCredits()).orElse(0);
+            client.setPurchasedDayPassCredits(currentCredits - passesCoveredByBundles);
+            clientRepo.save(client);
+        }
+
+        // 6. Pricing Calculation
+        BigDecimal totalPrice = request.getPrice().multiply(BigDecimal.valueOf(request.getNumberOfPasses())); 
+        BigDecimal discountedPrice = totalPrice;
+        Offers offer = null;
+
+        if (request.getOfferId() != null) {
+            offer = offersRepo.findById(request.getOfferId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid offer"));
+            discountedPrice = applyOffer(totalPrice, offer);
+        }
+
+        // 7. Create booking
+        DayPassBookingDirect booking = new DayPassBookingDirect();
+        booking.setLetsWorkClient(client);
+        booking.setLetsWorkCentre(centre);
+        booking.setCompanyId(centre.getCompanyId());
+        booking.setBookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE);
+        booking.setBookedFrom(request.getBookedFrom());
+        
+        String refId = generate("DAY_PASS_DIRECT");
+        booking.setReferenceId(refId);
+        booking.setPrice(totalPrice);
+        booking.setNumberOfPasses(request.getNumberOfPasses());
+        booking.setDiscountedPrice(discountedPrice);
+        booking.setAmount(discountedPrice);
+        booking.setAppliedOffer(offer);
+        
+        // Frontend calculation fields
+        booking.setFrontendAmount(request.getFrontendAmount());
+        booking.setFrontendDiscountPercentage(request.getFrontendDiscountPercentage());
+        booking.setFrontendDiscountedAmount(request.getFrontendDiscountedAmount());
+        booking.setFrontendCgstPercentage(request.getFrontendCgstPercentage());
+        booking.setFrontendSgstPercentage(request.getFrontendSgstPercentage());
+        booking.setFrontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax());
+        
+        booking.setCreateDate(new Date());
+        booking.setDateOfPurchase(LocalDateTime.now());
+        booking.setStartDate(request.getDateOfUse());
+        booking.setExpiryDate(request.getDateOfUse());
+
+        // Attach the bundle mappings to trigger JSON serialization
+        if (!bundleMappers.isEmpty()) {
+            booking.setMultipleBundleList(bundleMappers);
+        }
+
+        // 🔥 Conditional Razorpay logic
+        if (booking.getFrontendFinalAmountAfterAddingTax() > 0) {
+            String orderId = razorpayService.createOrder(
+                    booking.getFrontendFinalAmountAfterAddingTax(), 
+                    booking.getReferenceId()
             );
+            booking.setRazorpayOrderId(orderId);
+        } else {
+            booking.setRazorpayOrderId("PAID_VIA_BUNDLES"); // Skip Razorpay if 100% paid by bundles
+        }
 
+        // 8. Generate QR Code
+        File qrFile;
+        try {
+            String qrPath = qrService.generateQRCodeWithBookingCodeRGB(refId);
             qrFile = new File(qrPath);
-
             String s3Path = s3Service.uploadBookDayPassQrCode(
                     "letsworkcentres",
                     request.getCompanyId(),
@@ -172,16 +216,14 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
                     refId,
                     qrFile
             );
-
             booking.setQrS3Path(s3Path);
-            
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to generate/upload QR code", e);
         }
-		
-		booking = dayPassBookingDirectRepository.save(booking);
-		return booking;
-	}
+        
+        booking = dayPassBookingDirectRepository.save(booking);
+        return booking;
+    }
 
 	public static String generate(String prefix) {
 

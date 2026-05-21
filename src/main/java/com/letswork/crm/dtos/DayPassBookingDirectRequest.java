@@ -2,6 +2,7 @@ package com.letswork.crm.dtos;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import com.letswork.crm.enums.BookedFrom;
 
@@ -17,6 +18,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Builder
 public class DayPassBookingDirectRequest {
+	
+	private List<DayPassBundleUsageRequest> bundleUsages;
 
 	private Long clientId;
 	private Integer numberOfPasses;

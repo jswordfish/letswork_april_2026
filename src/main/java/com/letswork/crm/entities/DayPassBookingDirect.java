@@ -22,8 +22,7 @@ public class DayPassBookingDirect extends Booking {
 
 	private Integer numberOfPasses;
 
-	@ManyToOne
-	LetsWorkCentre letsWorkCentre;
+	
 
 	BigDecimal price;
 

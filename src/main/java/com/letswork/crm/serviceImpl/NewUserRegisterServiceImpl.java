@@ -242,8 +242,8 @@ public class NewUserRegisterServiceImpl
 
         boolean exists =
                 letsWorkClientRepo
-                    .findByEmailAndCompanyId(
-                            user.getEmail(),
+                    .findByClientCompanyNameAndCompanyId(
+                            user.getClientCompanyName(),
                             user.getCompanyId()
                     )
                     .isPresent();

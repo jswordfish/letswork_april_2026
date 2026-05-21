@@ -34,8 +34,7 @@ public class ConferenceRoomBookingThroughBundle extends Booking{
    @ManyToOne
    ConferenceRoom conferenceRoom;
    
-   @ManyToOne
-   LetsWorkCentre letsWorkCentre;
+   
 
    private Integer numberOfGuests;
 

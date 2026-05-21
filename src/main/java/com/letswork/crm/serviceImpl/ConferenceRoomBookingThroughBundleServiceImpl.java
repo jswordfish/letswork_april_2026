@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -23,8 +24,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.letswork.crm.dtos.BundleBookingCreditMapper;
 import com.letswork.crm.dtos.BundleUsageRequest;
-import com.letswork.crm.dtos.ConferenceBookingThroughBundleEmailDto;
 import com.letswork.crm.dtos.ConferenceRoomBundleBookingRequest;
 import com.letswork.crm.dtos.ConferenceRoomSlotRequest;
 import com.letswork.crm.dtos.PaginatedResponseDto;
@@ -75,80 +76,75 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
     @Transactional
     @Override
     public List<ConferenceRoomBookingThroughBundle> bookUsingMultipleBundles(
-            ConferenceRoomBundleBookingRequest request
-    		) {
-    	DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
-    	
-		Tenant tenant = tenantService.findTenantByCompanyId(request.getCompanyId());
-		
-		if(tenant==null) {
-			
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CompanyId invalid - "+request.getCompanyId());
-			
-		}
-		
-		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(request.getCentre(), request.getCompanyId(), request.getCity(), request.getState());
-		
-		if(centre==null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This LetsWorkCentre does not exists");
-		}
-		
-		LetsWorkClient client = clientRepo.findById(request.getClientId())
+            ConferenceRoomBundleBookingRequest request) {
+        
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
+        
+        // 1. Validations
+        Tenant tenant = tenantService.findTenantByCompanyId(request.getCompanyId());
+        if(tenant == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CompanyId invalid - " + request.getCompanyId());
+        }
+        
+        LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+                request.getCentre(), request.getCompanyId(), request.getCity(), request.getState());
+        if(centre == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This LetsWorkCentre does not exists");
+        }
+        
+        LetsWorkClient client = clientRepo.findById(request.getClientId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Client not found"));
 
-        // 3. Validate room
-        ConferenceRoom room = roomRepo
-                .findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
-                        request.getRoomName(),
-                        request.getCentre(),
-                        request.getCompanyId(),
-                        request.getCity(),
-                        request.getState()
-                );
-
+        ConferenceRoom room = roomRepo.findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
+                request.getRoomName(), request.getCentre(), request.getCompanyId(), request.getCity(), request.getState());
         if (room == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Room not found");
         }
 
-        // 4. Validate slots
         validateConsecutiveSlots(request.getSlots());
         
         for (ConferenceRoomSlotRequest slot : request.getSlots()) {
-
-            boolean exists = timeSlotRepo
-                    .existsByCompanyIdAndLetsWorkCentreAndCityAndStateAndRoomNameAndSlotDateAndStartTime(
-                            request.getCompanyId(),
-                            request.getCentre(),
-                            request.getCity(),
-                            request.getState(),
-                            request.getRoomName(),
-                            request.getSlotDate(),
-                            slot.getStartTime()
-                    );
-
+            boolean exists = timeSlotRepo.existsByCompanyIdAndLetsWorkCentreAndCityAndStateAndRoomNameAndSlotDateAndStartTime(
+                    request.getCompanyId(), request.getCentre(), request.getCity(), request.getState(),
+                    request.getRoomName(), request.getSlotDate(), slot.getStartTime());
             if (exists) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Slot already booked for time: " + slot.getStartTime()
-                );
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Slot already booked for time: " + slot.getStartTime());
             }
         }
 
         float totalHoursRequired = request.getSlots().size() / 2.0f;
-
         float remainingRequired = totalHoursRequired;
 
-        List<ConferenceRoomBookingThroughBundle> bookings = new ArrayList<>();
-        List<ConferenceRoomTimeSlot> allSlotsToSave = new ArrayList<>();
+        // 2. Initialize Single Booking
+        ConferenceRoomBookingThroughBundle singleBooking = new ConferenceRoomBookingThroughBundle();
+        singleBooking.setConferenceRoom(room);
+        singleBooking.setLetsWorkCentre(centre);
+        singleBooking.setLetsWorkClient(client);
+        singleBooking.setCompanyId(request.getCompanyId());
+        singleBooking.setCreateDate(new Date());
+        singleBooking.setDateOfPurchase(LocalDateTime.now());
+        
+        LocalDate today = LocalDate.now();
+        if (request.getSlotDate().isBefore(today)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
+        }
+        
+        singleBooking.setStartDate(request.getSlotDate());
+        singleBooking.setExpiryDate(request.getSlotDate());
+        singleBooking.setBookingStatus(BookingStatus.ACTIVE);
+        String refId = generate("CONF_ROOM_BUNDLE");
+        singleBooking.setReferenceId(refId);
+        singleBooking.setBookedFrom(BookedFrom.APP);
+        singleBooking.setNumberOfHours(totalHoursRequired);
 
-        List<ConferenceRoomSlotRequest> slotQueue = new ArrayList<>(request.getSlots());
-        List<ConferenceBookingThroughBundleEmailDto> emailQueue = new ArrayList<>();
+        // 3. Process Bundles & Populate multipleBundleList
+        List<BundleBookingCreditMapper> bundleMappers = new ArrayList<>();
+        ConferenceBundleBooking primaryBundle = null; 
 
         for (BundleUsageRequest usage : request.getBundleUsages()) {
-
             if (remainingRequired <= 0) break;
 
-            ConferenceBundleBooking bundle = bundleRepo.findById(usage.getBookingId())
+            ConferenceBundleBooking bundle = bundleRepo.findById(usage.getBundleBookingId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bundle not found"));
 
             if (bundle.getBookingStatus() != BookingStatus.ACTIVE) {
@@ -159,157 +155,98 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bundle expired: " + bundle.getId());
             }
 
-            float usableHours = Math.min(
-                    bundle.getRemainingHours(),
-                    usage.getHoursDeducted()
-            );
-
+            float usableHours = Math.min(bundle.getRemainingHours(), usage.getHoursDeducted());
             if (usableHours <= 0) continue;
 
             if (usableHours > remainingRequired) {
                 usableHours = remainingRequired;
             }
 
-            // ✅ Create booking
-            ConferenceRoomBookingThroughBundle booking =
-                    new ConferenceRoomBookingThroughBundle();
-
-            booking.setBundleBooking(bundle);
-            booking.setConferenceRoom(room);
-            booking.setLetsWorkCentre(centre);
-            booking.setLetsWorkClient(client);
-            booking.setNumberOfHours(usableHours);
-            booking.setCompanyId(bundle.getCompanyId());
-            booking.setCreateDate(new Date());
-            booking.setDateOfPurchase(LocalDateTime.now());
-            LocalDate today = LocalDate.now();
-   	     
-	   	     if (request.getSlotDate().isBefore(today)) {
-	   	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
-	   	     }
-            booking.setStartDate(request.getSlotDate());
-            booking.setExpiryDate(request.getSlotDate());
-            booking.setBookingStatus(BookingStatus.ACTIVE);
-            String refId = generate("CONF_ROOM_BUNDLE");
-            booking.setReferenceId(refId);
-            booking.setBookedFrom(BookedFrom.APP);;
-
-            booking = bookingRepo.save(booking);
-            
-            Float currentCredits = Optional
-                    .ofNullable(client.getPurchasedConferenceCredits())
-                    .orElse(0f);
-
-            Float hoursToDeduct = Optional
-                    .ofNullable(booking.getNumberOfHours())
-                    .orElse(0f);
-
-            client.setPurchasedConferenceCredits(currentCredits - hoursToDeduct);
-            
-            clientRepo.save(client);
-
-            // ✅ FIXED: safer slot calculation
-            int slotsNeeded = Math.round(usableHours * 2);
-
-            List<ConferenceRoomTimeSlot> bookingSlots = new ArrayList<>();
-
-            for (int i = 0; i < slotsNeeded; i++) {
-
-                if (slotQueue.isEmpty()) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not enough slots provided");
-                }
-
-                ConferenceRoomSlotRequest s = slotQueue.remove(0);
-
-                ConferenceRoomTimeSlot t = new ConferenceRoomTimeSlot();
-                t.setConferenceRoom(room);
-                t.setSlotDate(request.getSlotDate());
-                t.setStartTime(s.getStartTime());
-                t.setEndTime(s.getEndTime());
-                t.setLetsWorkCentre(centre);
-                t.setBooking(booking);
-                t.setCompanyId(centre.getCompanyId());
-
-
-                bookingSlots.add(t);
-            }
-
-            booking.setSlots(bookingSlots);
-            bookingRepo.save(booking);
-
-            allSlotsToSave.addAll(bookingSlots);
-
+            // Deduct from bundle directly
             bundle.setRemainingHours(bundle.getRemainingHours() - usableHours);
             bundleRepo.save(bundle);
             
-            try {
-                String qrPath = qrService.generateQRCodeWithBookingCodeRGB(
-                		refId
-                );
-
-                File qrFile = new File(qrPath);
-
-                String s3Path = s3Service.uploadConferenceRoomQrCode(
-                        "letsworkcentres",
-                        client.getCompanyId(),
-                        client.getEmail(),
-                        refId,
-                        qrFile
-                );
-
-                booking.setQrS3Path(s3Path);
-                
-
-            } catch (Exception e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "QR generation failed: " + e.getMessage());
+            if (primaryBundle == null) {
+                primaryBundle = bundle; // Keeping the first bundle to satisfy the legacy @ManyToOne relation
             }
-            
-            bookings.add(booking);
 
-            // Track remaining requirement
+            // Map the usage to your new JSON mapper list
+            BundleBookingCreditMapper mapper = new BundleBookingCreditMapper();
+            mapper.setBundleId(bundle.getId());
+            mapper.setBundleName(bundle.getConferenceBundle().getName()); // Assuming ConferenceBundleBooking has getBundleName()
+            
+            // Note: usableHours is float, creditsUsed is Integer. Adjust multiplier if 1 hr = 2 credits
+            mapper.setCreditsUsed(Math.round(usableHours * 2)); 
+            
+            bundleMappers.add(mapper);
             remainingRequired -= usableHours;
-            
-         // Calculate start & end time from slots
-            String startTime = bookingSlots.get(0).getStartTime().format(timeFormatter);
-            String endTime = bookingSlots.get(bookingSlots.size() - 1).getEndTime().format(timeFormatter);
-
-            // Prepare email DTO
-            ConferenceBookingThroughBundleEmailDto dto = new ConferenceBookingThroughBundleEmailDto();
-            dto.setEmail(client.getEmail());
-            dto.setName(client.getClientCompanyName());
-            dto.setLetsworkCenter(centre.getName());
-            dto.setBookingReference(booking.getReferenceId());
-            dto.setDateOfBooking(request.getSlotDate());
-            dto.setStartTime(startTime);
-            dto.setEndTime(endTime);
-            dto.setQrS3Path(booking.getQrS3Path());
-
-            emailQueue.add(dto);
-            
         }
 
-        // Final validation
         if (remainingRequired > 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not enough total hours across bundles");
         }
 
-        // Save all slots in batch
-        timeSlotRepo.saveAll(allSlotsToSave);
-        
-        for (ConferenceBookingThroughBundleEmailDto dto : emailQueue) {
-            mailService.sendConferenceBookingThroughBundleEmail(
-                    dto.getEmail(),
-                    dto.getName(),
-                    dto.getLetsworkCenter(),
-                    dto.getDateOfBooking(),
-                    dto.getStartTime(),
-                    dto.getEndTime(),
-                    dto.getBookingReference(),
-                    dto.getQrS3Path()
-            );
+        // Attach data to the single booking
+        singleBooking.setMultipleBundleList(bundleMappers); // This triggers your JSON serialization block
+        singleBooking.setBundleBooking(primaryBundle);      // Fallback for legacy DB column
+
+        // Deduct total hours from client once
+        Float currentCredits = Optional.ofNullable(client.getPurchasedConferenceCredits()).orElse(0f);
+        client.setPurchasedConferenceCredits(currentCredits - totalHoursRequired);
+        clientRepo.save(client);
+
+        // Save booking to get the ID for slot mapping
+        singleBooking = bookingRepo.save(singleBooking);
+
+        // 4. Process all Slots for this single booking
+        List<ConferenceRoomTimeSlot> allSlotsToSave = new ArrayList<>();
+        for (ConferenceRoomSlotRequest s : request.getSlots()) {
+            ConferenceRoomTimeSlot t = new ConferenceRoomTimeSlot();
+            t.setConferenceRoom(room);
+            t.setSlotDate(request.getSlotDate());
+            t.setStartTime(s.getStartTime());
+            t.setEndTime(s.getEndTime());
+            t.setLetsWorkCentre(centre);
+            t.setBooking(singleBooking);
+            t.setCompanyId(centre.getCompanyId());
+            
+            allSlotsToSave.add(t);
         }
 
-        return bookings;
+        timeSlotRepo.saveAll(allSlotsToSave);
+        singleBooking.setSlots(allSlotsToSave);
+        singleBooking = bookingRepo.save(singleBooking);
+
+        // 5. Generate One QR Code
+        try {
+            String qrPath = qrService.generateQRCodeWithBookingCodeRGB(refId);
+            File qrFile = new File(qrPath);
+            String s3Path = s3Service.uploadConferenceRoomQrCode(
+                    "letsworkcentres", client.getCompanyId(), client.getEmail(), refId, qrFile);
+            
+            singleBooking.setQrS3Path(s3Path);
+            singleBooking = bookingRepo.save(singleBooking);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "QR generation failed: " + e.getMessage());
+        }
+
+        // 6. Send One Email
+        String startTime = allSlotsToSave.get(0).getStartTime().format(timeFormatter);
+        String endTime = allSlotsToSave.get(allSlotsToSave.size() - 1).getEndTime().format(timeFormatter);
+
+        mailService.sendConferenceBookingThroughBundleEmail(
+                client.getEmail(),
+                client.getClientCompanyName(),
+                centre.getName(),
+                request.getSlotDate(),
+                startTime,
+                endTime,
+                singleBooking.getReferenceId(),
+                singleBooking.getQrS3Path()
+        );
+
+        // Return as a List to satisfy the existing method signature, though it now holds exactly one item
+        return Collections.singletonList(singleBooking);
     }
     
     public static String generate(String prefix) {

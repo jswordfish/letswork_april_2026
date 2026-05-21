@@ -67,9 +67,9 @@ public class BookingController {
 	        @Parameter(array = @ArraySchema(schema = @Schema(type = "string")))
 	        @RequestParam(required = false) List<BookingStatus> status,
 	        @RequestParam(required = false) BookedFrom bookedFrom,
-	        @RequestParam(required = false) String roomName,
+	        @RequestParam(required = false) List<String> roomNames, // Changed to List
 	        @RequestParam(required = false) String search,
-	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) List<String> letsWorkCentres, // Changed to List
 
 	        @RequestParam(required = false)
 	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -100,9 +100,9 @@ public class BookingController {
 	                    referenceId,
 	                    status,
 	                    bookedFrom,
-	                    roomName,
+	                    roomNames, // Passed as List
 	                    search,
-	                    letsWorkCentre,
+	                    letsWorkCentres, // Passed as List
 	                    fromDate,
 	                    toDate,
 	                    startDateFromDate,
