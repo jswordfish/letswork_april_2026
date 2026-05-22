@@ -6,12 +6,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +28,19 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.ConferenceBookingDirect;
+import com.letswork.crm.entities.ConferenceRoomBookingThroughBundle;
+import com.letswork.crm.entities.ConferenceRoomTimeSlot;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.NewUserRegister;
+import com.letswork.crm.repo.ConferenceBookingDirectRepository;
+import com.letswork.crm.repo.ConferenceBundleBookingRepository;
+import com.letswork.crm.repo.ConferenceRoomBookingThroughBundleRepository;
+import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
+import com.letswork.crm.repo.DayPassBookingDirectRepository;
+import com.letswork.crm.repo.DayPassBookingThroughBundleRepository;
+import com.letswork.crm.repo.DayPassBundleBookingRepository;
+import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.serviceImpl.OtpService;
@@ -44,6 +59,30 @@ public class NewUserRegisterController {
     
     @Autowired
     NewUserRegisterRepository newUserRegisterRepository;
+    
+    @Autowired
+    LetsWorkClientRepository letsWorkClientRepo;
+    
+    @Autowired
+    ConferenceBookingDirectRepository conferenceBookingDirectRepo;
+    
+    @Autowired
+    ConferenceRoomTimeSlotRepository timeSlotRepo;
+    
+    @Autowired
+    ConferenceRoomBookingThroughBundleRepository conferenceRoomBookingThroughBundleRepo;
+    
+    @Autowired
+    DayPassBookingDirectRepository dayPassBookingDirectRepo;
+    
+    @Autowired
+    DayPassBookingThroughBundleRepository dayPassBookingThroughBundleRepo;
+    
+    @Autowired
+    DayPassBundleBookingRepository dayPassBundleBookingRepo;
+    
+    @Autowired
+    ConferenceBundleBookingRepository conferenceBundleBookingRepo;
     
     TokenService2 tokenService = new TokenService2();
 
@@ -114,6 +153,8 @@ public class NewUserRegisterController {
 
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String subCategory,
+            
+            @RequestParam(required = false) String search,
 
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -135,12 +176,106 @@ public class NewUserRegisterController {
                         state,
                         category,
                         subCategory,
+                        search,
                         fromDate,
                         toDate,
                         page,
                         size
                 )
         );
+    }
+    
+    @Transactional
+    @DeleteMapping
+    public String deleteUser(
+            @RequestParam String email,
+            @RequestParam String companyId,
+            @RequestParam String token
+    ) {
+
+        NewUserRegister user =
+                newUserRegisterRepository
+                        .findByEmailAndCompanyId(email, companyId)
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "User not found"
+                                )
+                        );
+
+        LetsWorkClient client =
+                letsWorkClientRepo
+                        .findByClientCompanyNameAndCompanyId(
+                                user.getClientCompanyName(),
+                                companyId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "Client company not found"
+                                )
+                        );
+
+        
+
+        List<ConferenceBookingDirect> conferenceBookings =
+                conferenceBookingDirectRepo.findByLetsWorkClient(client);
+
+        for (ConferenceBookingDirect booking : conferenceBookings) {
+
+            if (booking.getSlots() != null) {
+
+                for (ConferenceRoomTimeSlot slot : booking.getSlots()) {
+
+                    slot.setSoftDelete(true);
+
+                    timeSlotRepo.save(slot);
+                }
+            }
+        }
+
+        conferenceBookingDirectRepo.deleteAll(conferenceBookings);
+
+        
+
+        List<ConferenceRoomBookingThroughBundle> bundleBookings =
+                conferenceRoomBookingThroughBundleRepo
+                        .findByLetsWorkClient(client);
+
+        for (ConferenceRoomBookingThroughBundle booking : bundleBookings) {
+
+            if (booking.getSlots() != null) {
+
+                for (ConferenceRoomTimeSlot slot : booking.getSlots()) {
+
+                    slot.setSoftDelete(true);
+
+                    timeSlotRepo.save(slot);
+                }
+            }
+        }
+
+        conferenceRoomBookingThroughBundleRepo.deleteAll(bundleBookings);
+
+        
+
+        dayPassBookingDirectRepo.deleteByLetsWorkClient(client);
+
+        dayPassBookingThroughBundleRepo.deleteByLetsWorkClient(client);
+        
+        dayPassBundleBookingRepo.deleteByLetsWorkClient(client);
+        
+        conferenceBundleBookingRepo.deleteByLetsWorkClient(client);
+
+        
+
+        letsWorkClientRepo.delete(client);
+
+        
+
+        newUserRegisterRepository.delete(user);
+
+        return "User deleted successfully";
     }
     
     @PostMapping("/set-monthly")

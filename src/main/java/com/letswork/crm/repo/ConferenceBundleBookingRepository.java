@@ -15,11 +15,17 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.ConferenceBundleBooking;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.enums.BookingStatus;
 
 @Repository
 public interface ConferenceBundleBookingRepository
         extends JpaRepository<ConferenceBundleBooking, Long> {
+	
+	List<ConferenceBundleBooking> findByLetsWorkClient(LetsWorkClient client);
+	
+	List<ConferenceBundleBooking> deleteByLetsWorkClient(LetsWorkClient client);
+
 
     List<ConferenceBundleBooking> findByLetsWorkClientIdAndRemainingHoursGreaterThan(
             Long clientId,

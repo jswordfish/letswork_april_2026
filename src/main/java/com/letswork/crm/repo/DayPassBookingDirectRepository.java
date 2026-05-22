@@ -1,6 +1,7 @@
 package com.letswork.crm.repo;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -11,9 +12,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.DayPassBookingDirect;
+import com.letswork.crm.entities.LetsWorkClient;
 
 @Repository
 public interface DayPassBookingDirectRepository extends JpaRepository<DayPassBookingDirect, Long> {
+	
+	List<DayPassBookingDirect> findByLetsWorkClient(LetsWorkClient client);
+	
+	List<DayPassBookingDirect> deleteByLetsWorkClient(LetsWorkClient client);
+
 
 //	@Query("SELECT b FROM DayPassBookingDirect b " + "WHERE b.companyId = :companyId "
 //			+ "AND (:clientId IS NULL OR b.letsWorkClient.id = :clientId) "

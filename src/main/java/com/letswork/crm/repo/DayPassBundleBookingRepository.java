@@ -2,6 +2,7 @@ package com.letswork.crm.repo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -13,11 +14,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.letswork.crm.entities.ConferenceBundleBooking;
 import com.letswork.crm.entities.DayPassBundleBooking;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.enums.BookingStatus;
 
 @Repository
 public interface DayPassBundleBookingRepository extends JpaRepository<DayPassBundleBooking, Long> {
+	
+	List<DayPassBundleBooking> findByLetsWorkClient(LetsWorkClient client);
+	
+	List<DayPassBundleBooking> deleteByLetsWorkClient(LetsWorkClient client);
+
 
 //	@Query("SELECT b FROM DayPassBundleBooking b " + "WHERE b.companyId = :companyId "
 //			+ "AND (:clientId IS NULL OR b.letsWorkClient.id = :clientId) "

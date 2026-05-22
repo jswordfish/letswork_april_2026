@@ -12,13 +12,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.letswork.crm.entities.ConferenceBookingDirect;
 import com.letswork.crm.entities.ConferenceRoomBookingThroughBundle;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.enums.BookingStatus;
 
 @Repository
 public interface ConferenceRoomBookingThroughBundleRepository
         extends JpaRepository<ConferenceRoomBookingThroughBundle, Long> {
+	
+	List<ConferenceRoomBookingThroughBundle> findByLetsWorkClient(LetsWorkClient client);
 	
 	@Query("SELECT b FROM Booking b " +
 		       "LEFT JOIN b.letsWorkCentre c " +

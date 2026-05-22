@@ -69,7 +69,21 @@ public interface NewUserRegisterRepository extends JpaRepository<NewUserRegister
         	    "AND (:category IS NULL OR u.category = :category) " +
         	    "AND (:subCategory IS NULL OR u.subCategory = :subCategory) " +
         	    "AND (:fromDate IS NULL OR u.createDate >= :fromDate) " +
-        	    "AND (:toDate IS NULL OR u.createDate <= :toDate)"
+        	    "AND (:toDate IS NULL OR u.createDate <= :toDate)" +
+
+		        "AND (" +
+		        ":search IS NULL OR " +
+		
+		        "LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(u.phoneNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(u.category) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(u.subCategory) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(u.city) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(u.state) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(u.letsWorkCentre) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(u.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%'))" +
+		        ")"
         	)
         	Page<NewUserRegister> filter(
         	        @Param("companyId") String companyId,
@@ -79,6 +93,7 @@ public interface NewUserRegisterRepository extends JpaRepository<NewUserRegister
         	        @Param("state") String state,
         	        @Param("category") String category,
         	        @Param("subCategory") String subCategory,
+        	        @Param("search") String search,
         	        @Param("fromDate") Date fromDate,
         	        @Param("toDate") Date toDate,
         	        Pageable pageable

@@ -66,6 +66,7 @@ public interface NewUserRegisterService {
             String state,
             String category,
             String subCategory,
+            String search,
             LocalDate fromDate,
             LocalDate toDate,
             int page,

@@ -406,6 +406,7 @@ public class NewUserRegisterServiceImpl
             String state,
             String category,
             String subCategory,
+            String search,
             LocalDate fromDate,
             LocalDate toDate,
             int page,
@@ -423,6 +424,7 @@ public class NewUserRegisterServiceImpl
                         state,
                         category,
                         subCategory,
+                        search,
                         fromDate == null ? null : java.sql.Date.valueOf(fromDate),
                         toDate == null ? null : java.sql.Date.valueOf(toDate),
                         pageable

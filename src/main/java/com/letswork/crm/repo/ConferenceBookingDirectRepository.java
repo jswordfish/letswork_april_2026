@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.ConferenceBookingDirect;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.enums.BookingStatus;
 
 @Repository
@@ -28,6 +29,8 @@ public interface ConferenceBookingDirectRepository
 		        @Param("clientId") Long clientId, 
 		        @Param("date") LocalDate date
 		);
+		
+		List<ConferenceBookingDirect> findByLetsWorkClient(LetsWorkClient client);
 		
 		@Query("SELECT b FROM ConferenceBookingDirect b " +
 			       "JOIN b.slots s " +
