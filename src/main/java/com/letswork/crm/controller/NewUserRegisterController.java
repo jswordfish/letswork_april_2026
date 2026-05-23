@@ -227,9 +227,9 @@ public class NewUserRegisterController {
 
                 for (ConferenceRoomTimeSlot slot : booking.getSlots()) {
 
-                    slot.setSoftDelete(true);
+//                    slot.setSoftDelete(true);
 
-                    timeSlotRepo.save(slot);
+                    timeSlotRepo.delete(slot);
                 }
             }
         }
@@ -248,9 +248,9 @@ public class NewUserRegisterController {
 
                 for (ConferenceRoomTimeSlot slot : booking.getSlots()) {
 
-                    slot.setSoftDelete(true);
+//                    slot.setSoftDelete(true);
 
-                    timeSlotRepo.save(slot);
+                    timeSlotRepo.delete(slot);
                 }
             }
         }
