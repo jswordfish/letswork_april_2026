@@ -21,6 +21,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -98,6 +99,8 @@ public class Booking extends Base{
   @Transient
   private List<BundleBookingCreditMapper> multipleBundleList;
   
+  @Transient
+  @JsonIgnore
   ObjectMapper mapper = new ObjectMapper();
   
 	@Lob

@@ -31,6 +31,9 @@ import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ConferenceBookingDirect;
 import com.letswork.crm.entities.ConferenceRoomBookingThroughBundle;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
+import com.letswork.crm.entities.DayPassBookingDirect;
+import com.letswork.crm.entities.DayPassBookingThroughBundle;
+import com.letswork.crm.entities.Invoice;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.repo.ConferenceBookingDirectRepository;
@@ -40,6 +43,7 @@ import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
 import com.letswork.crm.repo.DayPassBookingDirectRepository;
 import com.letswork.crm.repo.DayPassBookingThroughBundleRepository;
 import com.letswork.crm.repo.DayPassBundleBookingRepository;
+import com.letswork.crm.repo.InvoiceRepository;
 import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.NewUserRegisterService;
@@ -83,6 +87,9 @@ public class NewUserRegisterController {
     
     @Autowired
     ConferenceBundleBookingRepository conferenceBundleBookingRepo;
+    
+    @Autowired
+    InvoiceRepository invoiceRepo;
     
     TokenService2 tokenService = new TokenService2();
 
@@ -234,8 +241,7 @@ public class NewUserRegisterController {
             }
         }
 
-        conferenceBookingDirectRepo.deleteAll(conferenceBookings);
-
+       
         
 
         List<ConferenceRoomBookingThroughBundle> bundleBookings =
@@ -253,15 +259,37 @@ public class NewUserRegisterController {
                     timeSlotRepo.delete(slot);
                 }
             }
+            
+            
         }
+        
+        conferenceBookingDirectRepo.deleteAll(conferenceBookings);
+
 
         conferenceRoomBookingThroughBundleRepo.deleteAll(bundleBookings);
 
+        List<DayPassBookingDirect> directs = dayPassBookingDirectRepo.findByLetsWorkClient(client);
+
+        	for(DayPassBookingDirect direct : directs) {
+        		direct.setAppliedOffer(null);
+        		
+        		Invoice invoice = direct.getInvoice();
+        		
+        		direct.setInvoice(null);
+        		
+        		invoiceRepo.deleteById(invoice.getId());
+        		
+        		dayPassBookingDirectRepo.deleteById(direct.getId());
+        	}
         
-
-        dayPassBookingDirectRepo.deleteByLetsWorkClient(client);
-
-        dayPassBookingThroughBundleRepo.deleteByLetsWorkClient(client);
+       // dayPassBookingDirectRepo.deleteByLetsWorkClient(client);
+        	
+        List<DayPassBookingThroughBundle> bookingsBundle = dayPassBookingThroughBundleRepo.findByLetsWorkClient(client);
+        	for(DayPassBookingThroughBundle b : bookingsBundle) {
+        		dayPassBookingThroughBundleRepo.deleteById(b.getId());
+        	}
+       
+       // dayPassBookingThroughBundleRepo.deleteByLetsWorkClient(client);
         
         dayPassBundleBookingRepo.deleteByLetsWorkClient(client);
         
