@@ -1,5 +1,8 @@
 package com.letswork.crm.entities;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -7,7 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -37,23 +41,20 @@ public class LetsWorkClient extends Base{
     @Column(name = "user_id")
     private Long userId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(
-        name = "user_id",
-        referencedColumnName = "id",
-        insertable = false,
-        updatable = false
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "letsworkclient_users",
+        joinColumns = @JoinColumn(name = "client_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private NewUserRegister user;
+    private Set<NewUserRegister> users = new HashSet<>();
     
     private String email;
     
     private String userEmail;
         
     private String phone;
-
-    //private Integer totalEmployees;
-
+    
     private String category;
     
     private String subCategory;

@@ -1,17 +1,11 @@
 package com.letswork.crm.entities;
 
-import java.time.LocalDateTime;
-
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import com.letswork.crm.enums.AmenityType;
-import com.letswork.crm.enums.BookingStatus;
-import com.letswork.crm.enums.SeatType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Amenities extends Base{
 	
 	@Id
@@ -34,9 +29,6 @@ public class Amenities extends Base{
 	private String name;
 	
 	private String description;
-	
-	@Enumerated(EnumType.STRING)
-	private AmenityType amenityType;
 	
 	private String s3Path;
 

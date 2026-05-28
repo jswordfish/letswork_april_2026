@@ -22,7 +22,6 @@ public interface AmenitiesService {
     
     public PaginatedResponseDto listPaginated(
             String companyId,
-            AmenityType type,
             String search,
             int page,
             int size

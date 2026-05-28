@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.letswork.crm.dtos.ConferenceRoomRequestDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ConferenceRoom;
 import com.letswork.crm.service.ConferenceRoomService;
@@ -40,10 +41,10 @@ public class ConferenceRoomController {
 	        @RequestParam String token
 	) throws IOException {
 
-	    ConferenceRoom room =
+	    ConferenceRoomRequestDto room =
 	            new ObjectMapper().readValue(
 	                    roomJson,
-	                    ConferenceRoom.class
+	                    ConferenceRoomRequestDto.class
 	            );
 
 	    return ResponseEntity.ok(

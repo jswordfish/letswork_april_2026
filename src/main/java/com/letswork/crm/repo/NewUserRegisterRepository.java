@@ -81,8 +81,7 @@ public interface NewUserRegisterRepository extends JpaRepository<NewUserRegister
 		        "LOWER(u.subCategory) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
 		        "LOWER(u.city) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
 		        "LOWER(u.state) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.letsWorkCentre) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%'))" +
+		        "LOWER(u.letsWorkCentre) LIKE LOWER(CONCAT('%', :search, '%'))" +
 		        ")"
         	)
         	Page<NewUserRegister> filter(

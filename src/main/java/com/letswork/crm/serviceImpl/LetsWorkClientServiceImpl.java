@@ -3,6 +3,7 @@ package com.letswork.crm.serviceImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -79,6 +80,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	ModelMapper mapper = new ModelMapper();
 
 	@Override
+	@Transactional
 	public String saveOrUpdate(
 	        LetsWorkClient clientCompany,
 	        MultipartFile aadhaar,
@@ -87,12 +89,25 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	        MultipartFile gst
 	) throws IOException {
 
-	    Tenant tenant = tenantService.findTenantByCompanyId(clientCompany.getCompanyId());
+	    Tenant tenant =
+	            tenantService.findTenantByCompanyId(
+	                    clientCompany.getCompanyId()
+	            );
+
 	    if (tenant == null) {
-	        throw new RuntimeException("CompanyId invalid - " + clientCompany.getCompanyId());
+	        throw new RuntimeException(
+	                "CompanyId invalid - " + clientCompany.getCompanyId()
+	        );
 	    }
 
-	    // ✅ NO need to fetch user anymore
+	    NewUserRegister primaryUser =
+	            userRepo.findById(clientCompany.getUserId())
+	                    .orElseThrow(() ->
+	                            new RuntimeException(
+	                                    "User not found with id: "
+	                                            + clientCompany.getUserId()
+	                            )
+	                    );
 
 	    LetsWorkCentre centre =
 	            letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
@@ -103,59 +118,87 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	            );
 
 	    if (centre == null) {
-	        throw new RuntimeException("This LetsWorkCentre does not exist");
+	        throw new RuntimeException(
+	                "This LetsWorkCentre does not exist"
+	        );
 	    }
 
-	    // Upload docs
+	    if (clientCompany.getUsers() == null) {
+	        clientCompany.setUsers(new HashSet<>());
+	    }
+
+	    clientCompany.getUsers().add(primaryUser);
+
+	    
+
 	    if (aadhaar != null && !aadhaar.isEmpty()) {
-	        String key = s3Service.uploadClientKycDocument(
-	                "letsworkcentres",
-	                clientCompany.getCompanyId(),
-	                clientCompany.getClientCompanyName(),
-	                "aadhaar",
-	                aadhaar.getBytes(),
-	                aadhaar.getOriginalFilename()
-	        );
+
+	        String key =
+	                s3Service.uploadClientKycDocument(
+	                        "letsworkcentres",
+	                        clientCompany.getCompanyId(),
+	                        clientCompany.getClientCompanyName(),
+	                        "aadhaar",
+	                        aadhaar.getBytes(),
+	                        aadhaar.getOriginalFilename()
+	                );
+
 	        clientCompany.setAadhaarS3Key(key);
 	    }
 
+	    
+
 	    if (pan != null && !pan.isEmpty()) {
-	        String key = s3Service.uploadClientKycDocument(
-	                "letsworkcentres",
-	                clientCompany.getCompanyId(),
-	                clientCompany.getClientCompanyName(),
-	                "pan",
-	                pan.getBytes(),
-	                pan.getOriginalFilename()
-	        );
+
+	        String key =
+	                s3Service.uploadClientKycDocument(
+	                        "letsworkcentres",
+	                        clientCompany.getCompanyId(),
+	                        clientCompany.getClientCompanyName(),
+	                        "pan",
+	                        pan.getBytes(),
+	                        pan.getOriginalFilename()
+	                );
+
 	        clientCompany.setPanS3Key(key);
 	    }
 
+	    
+
 	    if (tan != null && !tan.isEmpty()) {
-	        String key = s3Service.uploadClientKycDocument(
-	                "letsworkcentres",
-	                clientCompany.getCompanyId(),
-	                clientCompany.getClientCompanyName(),
-	                "tan",
-	                tan.getBytes(),
-	                tan.getOriginalFilename()
-	        );
+
+	        String key =
+	                s3Service.uploadClientKycDocument(
+	                        "letsworkcentres",
+	                        clientCompany.getCompanyId(),
+	                        clientCompany.getClientCompanyName(),
+	                        "tan",
+	                        tan.getBytes(),
+	                        tan.getOriginalFilename()
+	                );
+
 	        clientCompany.setTanS3Key(key);
 	    }
 
+	    
+
 	    if (gst != null && !gst.isEmpty()) {
-	        String key = s3Service.uploadClientKycDocument(
-	                "letsworkcentres",
-	                clientCompany.getCompanyId(),
-	                clientCompany.getClientCompanyName(),
-	                "gst",
-	                gst.getBytes(),
-	                gst.getOriginalFilename()
-	        );
+
+	        String key =
+	                s3Service.uploadClientKycDocument(
+	                        "letsworkcentres",
+	                        clientCompany.getCompanyId(),
+	                        clientCompany.getClientCompanyName(),
+	                        "gst",
+	                        gst.getBytes(),
+	                        gst.getOriginalFilename()
+	                );
+
 	        clientCompany.setGstCertificateS3Key(key);
 	    }
 
-	    // Update
+	    
+
 	    if (clientCompany.getId() != null) {
 
 	        LetsWorkClient existing =
@@ -163,19 +206,49 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	                        clientCompany.getId(),
 	                        clientCompany.getCompanyId()
 	                ).orElseThrow(() ->
-	                        new RuntimeException("Client company not found")
+	                        new RuntimeException(
+	                                "Client company not found"
+	                        )
 	                );
 
-	        clientCompany.setCreateDate(existing.getCreateDate());
-	        clientCompany.setUpdateDate(new Date());
+	        Date createDate = existing.getCreateDate();
+
+
+	        if (clientCompany.getAadhaarS3Key() == null) {
+	            clientCompany.setAadhaarS3Key(
+	                    existing.getAadhaarS3Key()
+	            );
+	        }
+
+	        if (clientCompany.getPanS3Key() == null) {
+	            clientCompany.setPanS3Key(
+	                    existing.getPanS3Key()
+	            );
+	        }
+
+	        if (clientCompany.getTanS3Key() == null) {
+	            clientCompany.setTanS3Key(
+	                    existing.getTanS3Key()
+	            );
+	        }
+
+	        if (clientCompany.getGstCertificateS3Key() == null) {
+	            clientCompany.setGstCertificateS3Key(
+	                    existing.getGstCertificateS3Key()
+	            );
+	        }
 
 	        mapper.map(clientCompany, existing);
 
+	        existing.setCreateDate(createDate);
+	        existing.setUpdateDate(new Date());
+
 	        repo.save(existing);
+
 	        return "record updated";
 	    }
 
-	    // Create
+	    
 	    clientCompany.setCreateDate(new Date());
 	    clientCompany.setUpdateDate(new Date());
 

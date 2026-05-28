@@ -82,6 +82,7 @@ public class ConferenceBundleServiceImpl implements ConferenceBundleService {
     public PaginatedResponseDto getConferenceBundles(
             String companyId,
             Boolean showInApp,
+            String search,
             LocalDate fromDate,
             LocalDate toDate,
             String sortBy,
@@ -100,6 +101,7 @@ public class ConferenceBundleServiceImpl implements ConferenceBundleService {
                 repo.filter(
                         companyId,
                         showInApp,
+                        search,
                         fromDate == null ? null : fromDate.atStartOfDay(),
                         toDate == null ? null : toDate.atTime(23, 59, 59),
                         pageable

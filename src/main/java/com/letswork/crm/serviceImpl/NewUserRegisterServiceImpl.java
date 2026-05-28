@@ -85,14 +85,17 @@ public class NewUserRegisterServiceImpl
             throw new RuntimeException("Invalid companyId: " + user.getCompanyId());
         }
 
+        
         if (repo.findByEmailAndCompanyId(
-                user.getEmail(), user.getCompanyId()).isPresent()) {
+                user.getEmail(),
+                user.getCompanyId()).isPresent()) {
 
             throw new RuntimeException("User already registered with this email");
         }
 
         if (repo.findByPhoneNumberAndCompanyId(
-                user.getPhoneNumber(), user.getCompanyId()).isPresent()) {
+                user.getPhoneNumber(),
+                user.getCompanyId()).isPresent()) {
 
             throw new RuntimeException("User already registered with this phone number");
         }
@@ -100,10 +103,12 @@ public class NewUserRegisterServiceImpl
         user.setCreateDate(new Date());
         user.setUpdateDate(new Date());
         user.setActive(true);
-        
+
+        user.setInternal(false);
+
         NewUserRegister saved = repo.save(user);
-        
-        createClientCompanyIfNotExists(saved);
+
+        createClientCompanyMapping(saved);
 
         return saved;
     }
@@ -111,13 +116,15 @@ public class NewUserRegisterServiceImpl
     @Override
     public NewUserRegister saveOrUpdateManually(NewUserRegister user) {
 
-        // 1️⃣ Validate company 
+        
         Tenant tenant =
                 tenantService.findTenantByCompanyId(user.getCompanyId());
+
         if (tenant == null) {
             throw new RuntimeException("Invalid companyId - " + user.getCompanyId());
         }
 
+        
         LetsWorkCentre centre =
                 letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
                         user.getLetsWorkCentre(),
@@ -130,112 +137,185 @@ public class NewUserRegisterServiceImpl
             throw new RuntimeException("This LetsWorkCentre does not exists");
         }
 
-        // 2️⃣ Validate category
+        
         if (user.getCategory() != null) {
+
             Category category =
                     categoryRepo.findByNameAndCompanyIdAndCategoryType(
                             user.getCategory(),
                             user.getCompanyId(),
                             CategoryType.BUSINESS
                     );
+
             if (category == null) {
                 throw new RuntimeException("Invalid category");
             }
         }
 
-        // 3️⃣ Validate sub-category
+        
         if (user.getSubCategory() != null) {
+
             SubCategory sub =
                     subCategoryRepo.findByNameAndCompanyIdAndCategoryType(
                             user.getSubCategory(),
                             user.getCompanyId(),
                             CategoryType.BUSINESS
                     );
+
             if (sub == null) {
                 throw new RuntimeException("Invalid sub-category");
             }
         }
 
-        // 4️⃣ Find existing user
-        NewUserRegister existing = null;
+        
+        if (Boolean.TRUE.equals(user.getInternal())) {
 
-        if (user.getId() != null) {
-            existing = repo.findById(user.getId()).orElse(null);
-        }
+            NewUserRegister existing = null;
 
-        if (existing == null && user.getEmail() != null) {
-            existing =
-                    repo.findByEmailAndCompanyId(
-                            user.getEmail(),
-                            user.getCompanyId()
-                    ).orElse(null);
-        }
-
-        NewUserRegister saved; // ✅ important
-
-        // 5️⃣ UPDATE
-        if (existing != null) {
-
-            final Long existingId = existing.getId();
-
-            repo.findByEmailAndCompanyId(
-                    user.getEmail(),
-                    user.getCompanyId()
-            ).ifPresent(u -> {
-                if (!u.getId().equals(existingId)) {
-                    throw new RuntimeException("Email already in use");
-                }
-            });
-
-            repo.findByPhoneNumberAndCompanyId(
-                    user.getPhoneNumber(),
-                    user.getCompanyId()
-            ).ifPresent(u -> {
-                if (!u.getId().equals(existingId)) {
-                    throw new RuntimeException("Phone number already in use");
-                }
-            });
-            
-            String oldCompanyName = existing.getClientCompanyName();
-            
-            if (user.getClientCompanyName() == null) {
-                user.setClientCompanyName(oldCompanyName);
+            if (user.getEmail() != null) {
+                existing = repo.findByEmailAndCompanyId(
+                        user.getEmail(),
+                        user.getCompanyId()
+                ).orElse(null);
             }
+
+            if (existing == null && user.getPhoneNumber() != null) {
+                existing = repo.findByPhoneNumberAndCompanyId(
+                        user.getPhoneNumber(),
+                        user.getCompanyId()
+                ).orElse(null);
+            }
+
             
-            user.setId(existing.getId());
-            user.setCreateDate(existing.getCreateDate());
+            if (existing != null) {
+
+                existing.setName(user.getName());
+                existing.setDob(user.getDob());
+                existing.setProfileImagePath(user.getProfileImagePath());
+
+                existing.setConferenceCredits(user.getConferenceCredits());
+                existing.setDayPass(user.getDayPass());
+                existing.setFreeConferenceCredits(user.getFreeConferenceCredits());
+                existing.setFreeDayPass(user.getFreeDayPass());
+                existing.setMonthly(user.getMonthly());
+
+                existing.setUpdateDate(new Date());
+
+                NewUserRegister saved = repo.save(existing);
+
+                createClientCompanyMapping(saved);
+
+                return saved;
+            }
+
+           
+            user.setCreateDate(new Date());
             user.setUpdateDate(new Date());
+            user.setActive(true);
+            user.setInternal(true);
 
-            mapper.map(user, existing);
-            saved = repo.save(existing);
-            updateClientCompanyNameIfChanged(saved, oldCompanyName);
+            NewUserRegister saved = repo.save(user);
 
-        } else {
+            createClientCompanyMapping(saved);
 
-            // 6️⃣ CREATE
+            return saved;
+        }
+
+        
+
+        else {
+
+
             if (repo.findByEmailAndCompanyId(
                     user.getEmail(),
                     user.getCompanyId()
             ).isPresent()) {
-                throw new RuntimeException("Email already exists");
+
+                throw new RuntimeException("User already registered with this email");
             }
 
             if (repo.findByPhoneNumberAndCompanyId(
                     user.getPhoneNumber(),
                     user.getCompanyId()
             ).isPresent()) {
-                throw new RuntimeException("Phone number already exists");
+
+                throw new RuntimeException("User already registered with this phone number");
             }
 
             user.setCreateDate(new Date());
             user.setUpdateDate(new Date());
             user.setActive(true);
-            saved = repo.save(user);
+
+            user.setInternal(false);
+
+            NewUserRegister saved = repo.save(user);
+
+            createClientCompanyMapping(saved);
+
+            return saved;
+        }
+    }
+    
+    private void createClientCompanyMapping(NewUserRegister user) {
+
+        String finalCompanyName;
+
+        
+
+        if (Boolean.TRUE.equals(user.getInternal())) {
+
+            finalCompanyName = user.getClientCompanyName();
+
+            boolean exists =
+                    letsWorkClientRepo
+                            .findByClientCompanyNameAndCompanyId(
+                                    finalCompanyName,
+                                    user.getCompanyId()
+                            )
+                            .stream()
+                            .anyMatch(client ->
+                                    client.getUserId().equals(user.getId())
+                            );
+
+            if (exists) {
+                return;
+            }
         }
 
-        createClientCompanyIfNotExists(saved);
+        
+        else {
 
-        return saved;
+            finalCompanyName =
+                    user.getClientCompanyName() + "_" + user.getEmail();
+        }
+
+        LetsWorkClient client = new LetsWorkClient();
+
+        client.setClientCompanyName(
+                finalCompanyName != null
+                        ? finalCompanyName
+                        : user.getName()
+        );
+
+        client.setEmail(user.getEmail());
+        client.setPhone(user.getPhoneNumber());
+
+        client.setCategory(user.getCategory());
+        client.setSubCategory(user.getSubCategory());
+
+        client.setLetsWorkCentre(user.getLetsWorkCentre());
+
+        client.setCity(user.getCity());
+        client.setState(user.getState());
+
+        client.setCompanyId(user.getCompanyId());
+
+        client.setUserId(user.getId());
+
+        client.setCreateDate(new Date());
+        client.setUpdateDate(new Date());
+
+        letsWorkClientRepo.save(client);
     }
     
     private void createClientCompanyIfNotExists(NewUserRegister user) {
@@ -305,34 +385,63 @@ public class NewUserRegisterServiceImpl
     }
     
     @Override
-	public String uploadNewUserFromExcel(MultipartFile file, String companyId) throws IOException {
-    	
-	    List<NewUserRegister> userRegisters = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, NewUserRegister.class);
-	    
-	    for(NewUserRegister dto : userRegisters) {
-    		String val = validate(dto);
-    		if(!val.equalsIgnoreCase("ok")) {
-    			return val;
-    		}
-    		
-    	}
-	    
-	    List<String> responses = new ArrayList<>();
+    public String uploadNewUserFromExcel(
+            MultipartFile file,
+            String companyId
+    ) throws IOException {
 
-	    for (NewUserRegister newUserRegister : userRegisters) {
-	        try {
-	        	newUserRegister.setCompanyId(companyId); 
+        List<NewUserRegister> userRegisters =
+                Poiji.fromExcel(
+                        file.getInputStream(),
+                        PoijiExcelType.XLSX,
+                        NewUserRegister.class
+                );
 
-	            saveOrUpdateManually(newUserRegister);
+        for (NewUserRegister dto : userRegisters) {
 
-	            responses.add("Saved or Updated: " + newUserRegister.getName() + " " + newUserRegister.getEmail());
-	        } catch (Exception e) {
-	            responses.add("Error saving " + newUserRegister.getEmail() + ": " + e.getMessage());
-	        }
-	    }
+            String val = validate(dto);
 
-	    return "ok";
-	}
+            if (!val.equalsIgnoreCase("ok")) {
+                return val;
+            }
+        }
+
+        List<String> responses = new ArrayList<>();
+
+        for (NewUserRegister newUserRegister : userRegisters) {
+
+            try {
+
+                newUserRegister.setCompanyId(companyId);
+
+                // =====================================================
+                // IMPORTED USERS ARE ALWAYS INTERNAL
+                // =====================================================
+
+                newUserRegister.setInternal(true);
+
+                saveOrUpdateManually(newUserRegister);
+
+                responses.add(
+                        "Saved or Updated: "
+                                + newUserRegister.getName()
+                                + " "
+                                + newUserRegister.getEmail()
+                );
+
+            } catch (Exception e) {
+
+                responses.add(
+                        "Error saving "
+                                + newUserRegister.getEmail()
+                                + ": "
+                                + e.getMessage()
+                );
+            }
+        }
+
+        return "ok";
+    }
     
     private String validate(NewUserRegister dto) {
 		if(dto.getName() == null || dto.getName().length() == 0) {

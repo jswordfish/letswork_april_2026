@@ -59,10 +59,9 @@ public class AmenitiesServiceImpl implements AmenitiesService {
         }
 
         Amenities existing =
-                repo.findByNameAndCompanyIdAndAmenityType(
+                repo.findByNameAndCompanyId(
                         amenities.getName(),
-                        amenities.getCompanyId(),
-                        amenities.getAmenityType()
+                        amenities.getCompanyId()
                 );
 
         Amenities saved;
@@ -114,13 +113,13 @@ public class AmenitiesServiceImpl implements AmenitiesService {
 
     @Override
     public List<Amenities> listByAmenityType(String companyId, AmenityType type) {
-        return repo.findByAmenityTypeAndCompanyId(type, companyId);
+//        return repo.findByAmenityTypeAndCompanyId(type, companyId);
+    	return null;
     }
     
     @Override
     public PaginatedResponseDto listPaginated(
             String companyId,
-            AmenityType type,
             String search,
             int page,
             int size
@@ -134,7 +133,6 @@ public class AmenitiesServiceImpl implements AmenitiesService {
 
         Page<Amenities> resultPage = repo.searchAmenities(
                 companyId,
-                type,
                 search,
                 pageable
         );

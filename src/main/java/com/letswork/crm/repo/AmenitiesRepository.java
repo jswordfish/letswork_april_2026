@@ -17,27 +17,24 @@ public interface AmenitiesRepository extends JpaRepository<Amenities, Long> {
 
     Amenities findByNameAndCompanyId(String name, String companyId);
     
-    Amenities findByNameAndCompanyIdAndAmenityType(String name, String companyId, AmenityType amenityType);
+//    Amenities findByNameAndCompanyIdAndAmenityType(String name, String companyId, AmenityType amenityType);
 
-    Page<Amenities> findByAmenityTypeAndCompanyId(
-            AmenityType amenityType,
-            String companyId,
-            Pageable pageable
-    );
+//    Page<Amenities> findByAmenityTypeAndCompanyId(
+//            AmenityType amenityType,
+//            String companyId,
+//            Pageable pageable
+//    );
     
     @Query("SELECT a FROM Amenities a " +
     	       "WHERE (:companyId IS NULL OR a.companyId = :companyId) " +
-    	       "AND (:type IS NULL OR a.amenityType = :type) " +
     	       "AND (" +
     	       "   :search IS NULL " +
     	       "   OR LOWER(a.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
     	       "   OR LOWER(a.description) LIKE LOWER(CONCAT('%', :search, '%')) " +
-    	       "   OR LOWER(a.amenityType) LIKE LOWER(CONCAT('%', :search, '%')) " +
     	       "   OR LOWER(a.s3Path) LIKE LOWER(CONCAT('%', :search, '%')) " +
     	       ")")
     	Page<Amenities> searchAmenities(
     	        @Param("companyId") String companyId,
-    	        @Param("type") AmenityType type,
     	        @Param("search") String search,
     	        Pageable pageable
     	);
@@ -47,7 +44,7 @@ public interface AmenitiesRepository extends JpaRepository<Amenities, Long> {
             Pageable pageable
     );
 
-    List<Amenities> findByAmenityTypeAndCompanyId(AmenityType amenityType, String companyId);
+//    List<Amenities> findByAmenityTypeAndCompanyId(AmenityType amenityType, String companyId);
     List<Amenities> findByCompanyId(String companyId);
     
 }

@@ -25,14 +25,16 @@ public class RazorpayService {
 
             JSONObject options = new JSONObject();
 
-            // Razorpay expects amount in paise
-            options.put("amount", amount*(100));
+            // Convert to paise and make it integer
+            long amountInPaise = Math.round(amount * 100);
+
+            options.put("amount", amountInPaise);
             options.put("currency", "INR");
             options.put("receipt", referenceId);
 
             Order order = client.orders.create(options);
 
-            return order.get("id");
+            return order.get("id").toString();
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to create Razorpay order", e);

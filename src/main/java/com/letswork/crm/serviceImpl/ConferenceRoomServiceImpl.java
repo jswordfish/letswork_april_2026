@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.ConferenceRoomExcelDto;
+import com.letswork.crm.dtos.ConferenceRoomRequestDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.entities.Amenities;
 import com.letswork.crm.entities.ConferenceRoom;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.repo.AmenitiesRepository;
 import com.letswork.crm.repo.ConferenceRoomRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.service.ConferenceRoomService;
@@ -51,33 +56,36 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	@Autowired
     S3Service s3Service;
 	
+	@Autowired
+	private AmenitiesRepository amenitiesRepo;
+	
 	private String bucketName = "letsworkcentres";
 	
 	ModelMapper mapper = new ModelMapper();
 
 	@Override
 	public String saveOrUpdate(
-	        ConferenceRoom conferenceRoom,
+	        ConferenceRoomRequestDto dto,
 	        MultipartFile image
 	) throws IOException {
 
 	    Tenant tenant =
 	            tenantService.findTenantByCompanyId(
-	                    conferenceRoom.getCompanyId()
+	                    dto.getCompanyId()
 	            );
 
 	    if (tenant == null) {
 	        throw new RuntimeException(
-	                "Invalid companyId - " + conferenceRoom.getCompanyId()
+	                "Invalid companyId - " + dto.getCompanyId()
 	        );
 	    }
 
 	    LetsWorkCentre centre =
 	            letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
-	                    conferenceRoom.getLetsWorkCentre(),
-	                    conferenceRoom.getCompanyId(),
-	                    conferenceRoom.getCity(),
-	                    conferenceRoom.getState()
+	                    dto.getLetsWorkCentre(),
+	                    dto.getCompanyId(),
+	                    dto.getCity(),
+	                    dto.getState()
 	            );
 
 	    if (centre == null) {
@@ -86,26 +94,51 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	        );
 	    }
 
+	    Set<Amenities> amenities =
+	            new HashSet<>(
+	                    amenitiesRepo.findAllById(dto.getAmenityIds())
+	            );
+
 	    ConferenceRoom existing =
 	            repo.findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
-	                    conferenceRoom.getName(),
-	                    conferenceRoom.getLetsWorkCentre(),
-	                    conferenceRoom.getCompanyId(),
-	                    conferenceRoom.getCity(),
-	                    conferenceRoom.getState()
+	                    dto.getName(),
+	                    dto.getLetsWorkCentre(),
+	                    dto.getCompanyId(),
+	                    dto.getCity(),
+	                    dto.getState()
 	            );
 
 	    ConferenceRoom saved;
 
 	    if (existing != null) {
-	    	String existingS3Path = existing.getS3Path();
-	    	mapper.map(conferenceRoom, existing);
-	    	existing.setS3Path(existingS3Path);
+
+	        String existingS3Path = existing.getS3Path();
+
+	        existing.setName(dto.getName());
+	        existing.setCapacity(dto.getCapacity());
+	        existing.setLetsWorkCentre(dto.getLetsWorkCentre());
+	        existing.setHalfHourPrice(dto.getHalfHourPrice());
+	        existing.setState(dto.getState());
+	        existing.setCity(dto.getCity());
+	        existing.setAmenities(amenities);
+
+	        existing.setS3Path(existingS3Path);
 	        existing.setUpdateDate(new Date());
 
 	        saved = repo.save(existing);
 
 	    } else {
+
+	        ConferenceRoom conferenceRoom = new ConferenceRoom();
+
+	        conferenceRoom.setCompanyId(dto.getCompanyId());
+	        conferenceRoom.setName(dto.getName());
+	        conferenceRoom.setCapacity(dto.getCapacity());
+	        conferenceRoom.setLetsWorkCentre(dto.getLetsWorkCentre());
+	        conferenceRoom.setHalfHourPrice(dto.getHalfHourPrice());
+	        conferenceRoom.setState(dto.getState());
+	        conferenceRoom.setCity(dto.getCity());
+	        conferenceRoom.setAmenities(amenities);
 
 	        conferenceRoom.setCreateDate(new Date());
 	        conferenceRoom.setUpdateDate(new Date());
@@ -134,6 +167,7 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	                );
 
 	        saved.setS3Path(s3Url);
+
 	        repo.save(saved);
 
 	        tempFile.delete();

@@ -43,6 +43,8 @@ public class ConferenceBundleController {
 
             @RequestParam(required = false) Boolean showInApp,
 
+            @RequestParam(required = false) String search,
+
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate fromDate,
@@ -61,6 +63,7 @@ public class ConferenceBundleController {
                 service.getConferenceBundles(
                         companyId,
                         showInApp,
+                        search,
                         fromDate,
                         toDate,
                         sortBy,

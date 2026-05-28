@@ -40,9 +40,9 @@ public class ConferenceRoomAmenityMappingServiceImpl implements ConferenceRoomAm
                 .orElseThrow(() -> new RuntimeException("Amenity not found with id: " + amenityId));
 
         // ❗ VALIDATION: only conference room amenities allowed
-        if (amenity.getAmenityType() != AmenityType.CONFERENCE_ROOM) {
-            throw new RuntimeException("Only CONFERENCE_ROOM type amenities are allowed.");
-        }
+//        if (amenity.getAmenityType() != AmenityType.CONFERENCE_ROOM) {
+//            throw new RuntimeException("Only CONFERENCE_ROOM type amenities are allowed.");
+//        }
 
         // prevent duplicate mapping
         ConferenceRoomAmenityMapping existing =

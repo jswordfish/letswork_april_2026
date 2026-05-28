@@ -14,6 +14,7 @@ public interface ConferenceBundleService {
 	public PaginatedResponseDto getConferenceBundles(
             String companyId,
             Boolean showInApp,
+            String search,
             LocalDate fromDate,
             LocalDate toDate,
             String sortBy,

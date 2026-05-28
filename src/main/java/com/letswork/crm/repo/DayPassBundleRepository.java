@@ -35,16 +35,16 @@ public interface DayPassBundleRepository
 		       "AND (:validForDays IS NULL OR d.validForDays = :validForDays) " +
 		       "AND (:discountPercentage IS NULL OR d.discountPercentage = :discountPercentage) " +
 		       "AND (:price IS NULL OR d.price = :price) " +
-		       "AND (" +
-		       "  :search IS NULL " +
-		       "  OR LOWER(d.companyId) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
-		       "  OR LOWER(d.letsWorkCentre.name) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
-		       "  OR LOWER(d.letsWorkCentre.city) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
-		       "  OR LOWER(d.letsWorkCentre.state) LIKE LOWER(CONCAT('%', CONCAT(:search, '%'))) " +
-		       "  OR CAST(d.numberOfDays AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
-		       "  OR CAST(d.validForDays AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
-		       "  OR CAST(d.discountPercentage AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
-		       "  OR CAST(d.price AS string) LIKE CONCAT('%', CONCAT(:search, '%')) " +
+
+		       "AND ( " +
+		       "   :search IS NULL " +
+		       "   OR LOWER(d.letsWorkCentre.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "   OR LOWER(d.letsWorkCentre.city) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "   OR LOWER(d.letsWorkCentre.state) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "   OR FUNCTION('STR', d.numberOfDays) LIKE CONCAT('%', :search, '%') " +
+		       "   OR FUNCTION('STR', d.validForDays) LIKE CONCAT('%', :search, '%') " +
+		       "   OR FUNCTION('STR', d.discountPercentage) LIKE CONCAT('%', :search, '%') " +
+		       "   OR FUNCTION('STR', d.price) LIKE CONCAT('%', :search, '%') " +
 		       ")")
 		List<DayPassBundle> searchBundles(
 		        @Param("companyId") String companyId,

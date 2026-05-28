@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.letswork.crm.dtos.ConferenceRoomRequestDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ConferenceRoom;
 
@@ -12,7 +13,7 @@ import com.letswork.crm.entities.ConferenceRoom;
 public interface ConferenceRoomService {
 	
 	public String saveOrUpdate(
-	        ConferenceRoom conferenceRoom,
+			ConferenceRoomRequestDto dto,
 	        MultipartFile image
 	) throws IOException;
 	
