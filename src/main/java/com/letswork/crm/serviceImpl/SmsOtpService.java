@@ -2,6 +2,7 @@ package com.letswork.crm.serviceImpl;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -10,9 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.SmsOtp;
 import com.letswork.crm.entities.User;
+import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.SmsOtpRepository;
 import com.letswork.crm.repo.UserRepo;
@@ -32,6 +35,9 @@ public class SmsOtpService {
     
     @Autowired
     NewUserRegisterRepository newUserRegisterRepository;
+    
+    @Autowired
+    LetsWorkClientRepository letsWorkClientRepo;
     
     TokenService2 tokenService = new TokenService2();
 
@@ -180,6 +186,9 @@ public class SmsOtpService {
         if (optionalUser.isPresent()) {
 
             NewUserRegister user = optionalUser.get();
+            
+            List<LetsWorkClient> companies = 
+                    letsWorkClientRepo.findAllCompaniesByUserId(user.getId());
 
             String token = tokenService.generateToken(
                     "App User",
@@ -190,6 +199,8 @@ public class SmsOtpService {
             response.put("role", "App User");
             response.put("token", token);
             response.put("user", user);
+            
+            response.put("companies", companies);
 
             return response;
         }

@@ -85,7 +85,6 @@ public class NewUserRegisterServiceImpl
             throw new RuntimeException("Invalid companyId: " + user.getCompanyId());
         }
 
-        
         if (repo.findByEmailAndCompanyId(
                 user.getEmail(),
                 user.getCompanyId()).isPresent()) {
@@ -107,8 +106,11 @@ public class NewUserRegisterServiceImpl
         user.setInternal(false);
 
         NewUserRegister saved = repo.save(user);
+        
+        String clientCompanyName = user.getClientCompanyName()+"_"+user.getEmail();
 
-        createClientCompanyMapping(saved);
+        // 🔥 Pass the transient value directly from the original incoming 'user' object
+        createClientCompanyMapping(saved, clientCompanyName);
 
         return saved;
     }
@@ -116,7 +118,6 @@ public class NewUserRegisterServiceImpl
     @Override
     public NewUserRegister saveOrUpdateManually(NewUserRegister user) {
 
-        
         Tenant tenant =
                 tenantService.findTenantByCompanyId(user.getCompanyId());
 
@@ -124,7 +125,6 @@ public class NewUserRegisterServiceImpl
             throw new RuntimeException("Invalid companyId - " + user.getCompanyId());
         }
 
-        
         LetsWorkCentre centre =
                 letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
                         user.getLetsWorkCentre(),
@@ -137,7 +137,6 @@ public class NewUserRegisterServiceImpl
             throw new RuntimeException("This LetsWorkCentre does not exists");
         }
 
-        
         if (user.getCategory() != null) {
 
             Category category =
@@ -152,7 +151,6 @@ public class NewUserRegisterServiceImpl
             }
         }
 
-        
         if (user.getSubCategory() != null) {
 
             SubCategory sub =
@@ -167,7 +165,6 @@ public class NewUserRegisterServiceImpl
             }
         }
 
-        
         if (Boolean.TRUE.equals(user.getInternal())) {
 
             NewUserRegister existing = null;
@@ -186,7 +183,6 @@ public class NewUserRegisterServiceImpl
                 ).orElse(null);
             }
 
-            
             if (existing != null) {
 
                 existing.setName(user.getName());
@@ -203,12 +199,12 @@ public class NewUserRegisterServiceImpl
 
                 NewUserRegister saved = repo.save(existing);
 
-                createClientCompanyMapping(saved);
+                // 🔥 Extract the transient field from the original DTO, not the saved entity
+                createClientCompanyMapping(saved, user.getClientCompanyName());
 
                 return saved;
             }
 
-           
             user.setCreateDate(new Date());
             user.setUpdateDate(new Date());
             user.setActive(true);
@@ -216,86 +212,38 @@ public class NewUserRegisterServiceImpl
 
             NewUserRegister saved = repo.save(user);
 
-            createClientCompanyMapping(saved);
+            // 🔥 Extract the transient field from the original DTO, not the saved entity
+            createClientCompanyMapping(saved, user.getClientCompanyName());
 
             return saved;
         }
-
         
-
-        else {
-
-
-            if (repo.findByEmailAndCompanyId(
-                    user.getEmail(),
-                    user.getCompanyId()
-            ).isPresent()) {
-
-                throw new RuntimeException("User already registered with this email");
-            }
-
-            if (repo.findByPhoneNumberAndCompanyId(
-                    user.getPhoneNumber(),
-                    user.getCompanyId()
-            ).isPresent()) {
-
-                throw new RuntimeException("User already registered with this phone number");
-            }
-
-            user.setCreateDate(new Date());
-            user.setUpdateDate(new Date());
-            user.setActive(true);
-
-            user.setInternal(false);
-
-            NewUserRegister saved = repo.save(user);
-
-            createClientCompanyMapping(saved);
-
-            return saved;
-        }
+        return null;
     }
     
-    private void createClientCompanyMapping(NewUserRegister user) {
+    private void createClientCompanyMapping(NewUserRegister user, String excelCompanyName) {
 
-        String finalCompanyName;
-
-        
-
-        if (Boolean.TRUE.equals(user.getInternal())) {
-
-            finalCompanyName = user.getClientCompanyName();
-
-            boolean exists =
-                    letsWorkClientRepo
-                            .findByClientCompanyNameAndCompanyId(
-                                    finalCompanyName,
-                                    user.getCompanyId()
-                            )
-                            .stream()
-                            .anyMatch(client ->
-                                    client.getUserId().equals(user.getId())
-                            );
-
-            if (exists) {
-                return;
-            }
+        if (excelCompanyName == null || excelCompanyName.trim().isEmpty()) {
+            throw new RuntimeException("ClientCompanyName missing in Excel for user: " + user.getEmail());
         }
 
-        
-        else {
+        excelCompanyName = excelCompanyName.trim();
 
-            finalCompanyName =
-                    user.getClientCompanyName() + "_" + user.getEmail();
+        boolean exists = letsWorkClientRepo
+                .existsByUserIdAndClientCompanyNameAndCompanyId(
+                        user.getId(),
+                        excelCompanyName,
+                        user.getCompanyId()
+                );
+
+        if (exists) {
+            return;
         }
 
         LetsWorkClient client = new LetsWorkClient();
 
-        client.setClientCompanyName(
-                finalCompanyName != null
-                        ? finalCompanyName
-                        : user.getName()
-        );
+        // 🔥 DO NOT modify Excel value
+        client.setClientCompanyName(excelCompanyName);
 
         client.setEmail(user.getEmail());
         client.setPhone(user.getPhoneNumber());
@@ -304,16 +252,16 @@ public class NewUserRegisterServiceImpl
         client.setSubCategory(user.getSubCategory());
 
         client.setLetsWorkCentre(user.getLetsWorkCentre());
-
         client.setCity(user.getCity());
         client.setState(user.getState());
 
         client.setCompanyId(user.getCompanyId());
-
         client.setUserId(user.getId());
 
         client.setCreateDate(new Date());
         client.setUpdateDate(new Date());
+        
+        client.getUsers().add(user);
 
         letsWorkClientRepo.save(client);
     }
@@ -397,47 +345,42 @@ public class NewUserRegisterServiceImpl
                         NewUserRegister.class
                 );
 
+        
         for (NewUserRegister dto : userRegisters) {
-
             String val = validate(dto);
-
             if (!val.equalsIgnoreCase("ok")) {
-                return val;
+                return "Validation failed: " + val;
             }
         }
 
-        List<String> responses = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
 
+        
         for (NewUserRegister newUserRegister : userRegisters) {
 
             try {
 
                 newUserRegister.setCompanyId(companyId);
-
-                // =====================================================
-                // IMPORTED USERS ARE ALWAYS INTERNAL
-                // =====================================================
-
                 newUserRegister.setInternal(true);
 
                 saveOrUpdateManually(newUserRegister);
 
-                responses.add(
-                        "Saved or Updated: "
-                                + newUserRegister.getName()
-                                + " "
-                                + newUserRegister.getEmail()
-                );
-
             } catch (Exception e) {
 
-                responses.add(
+                errors.add(
                         "Error saving "
                                 + newUserRegister.getEmail()
                                 + ": "
                                 + e.getMessage()
                 );
             }
+        }
+
+        
+
+        if (!errors.isEmpty()) {
+
+            return "UPLOAD PARTIALLY FAILED:\n" + String.join("\n", errors);
         }
 
         return "ok";

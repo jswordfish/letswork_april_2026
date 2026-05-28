@@ -1,6 +1,7 @@
 package com.letswork.crm.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.entities.EmailOtp;
+import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.User;
 import com.letswork.crm.repo.EmailOtpRepository;
+import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.UserRepo;
 import com.letswork.crm.serviceImpl.OtpService;
@@ -37,6 +40,9 @@ public class OtpController {
     
     @Autowired
     NewUserRegisterRepository newUserRegisterRepository;
+    
+    @Autowired
+    LetsWorkClientRepository letsWorkClientRepo;
     
     
     TokenService2 tokenService = new TokenService2();
@@ -198,12 +204,17 @@ public class OtpController {
                 return ResponseEntity.ok(response);
             }
 
+            List<LetsWorkClient> companies = 
+                    letsWorkClientRepo.findAllCompaniesByUserId(user.getId());
+
             String token = tokenService.generateToken("App User", email);
 
             response.put("status", "LOGIN_SUCCESS");
             response.put("role", "App User");
             response.put("token", token);
             response.put("user", user);
+            
+            response.put("companies", companies);
 
             return ResponseEntity.ok(response);
         }

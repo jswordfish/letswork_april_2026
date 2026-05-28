@@ -22,6 +22,9 @@ public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, 
 	
 	Optional<LetsWorkClient> findByEmailAndCompanyId(String email, String companyId);
 	
+	@Query("SELECT c FROM LetsWorkClient c JOIN c.users u WHERE u.id = :userId")
+	List<LetsWorkClient> findAllCompaniesByUserId(@Param("userId") Long userId);
+	
 	Optional<LetsWorkClient> findByClientCompanyNameAndCompanyId(String clientCompanyName, String companyId);
 	
     List<LetsWorkClient>
@@ -29,6 +32,12 @@ public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, 
                 Long userId,
                 String companyId
         );
+    
+    boolean existsByUserIdAndClientCompanyNameAndCompanyId(
+            Long userId,
+            String clientCompanyName,
+            String companyId
+    );
     
     @Transactional
     @Modifying
