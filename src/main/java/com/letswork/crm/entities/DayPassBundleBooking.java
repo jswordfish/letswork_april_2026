@@ -33,6 +33,8 @@ public class DayPassBundleBooking extends Booking {
 	
 	
 	Long dayPassBundleeId;
+	
+	Integer totalDays;
 
 	Integer remainingNumberOfDays;
 	

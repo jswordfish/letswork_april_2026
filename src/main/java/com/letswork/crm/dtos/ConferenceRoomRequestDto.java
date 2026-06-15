@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class ConferenceRoomRequestDto {
 	
-	 private Long id;
+		private Long id;
 
 	    private String companyId;
 

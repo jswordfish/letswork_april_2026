@@ -69,7 +69,7 @@ public class OtpController {
 
             if (Boolean.FALSE.equals(user.getActive())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Account deactivated");
+                        .body("Account is Deactivated pls contact to Lets Work for Account Activation");
             }
         }
 

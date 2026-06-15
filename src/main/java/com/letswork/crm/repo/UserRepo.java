@@ -56,6 +56,8 @@ public interface UserRepo extends CrudRepository<User, Long> {
 	@Query("select u from User u where u.email =:email and u.companyId =:companyId")
 	public User findByEmail( @Param("email") String email,@Param("companyId") String companyId);
 	
+	public User findByEmail(String email);
+	
 	
 	@Query("select u from User u where u.empId =:empId and u.companyId =:companyId")
 	public User findByEmpId(@Param("empId") String empId,@Param("companyId") String companyId);

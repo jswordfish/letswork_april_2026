@@ -45,6 +45,7 @@ public class InvoiceController {
 
             @RequestParam(required = false) String email,
             @RequestParam(required = false) InvoiceStatus invoiceStatus,
+            @RequestParam(required = false) String search,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
 
@@ -58,6 +59,7 @@ public class InvoiceController {
                         companyId,
                         email,
                         invoiceStatus,
+                        search,
                         fromDate,
                         toDate,
                         page,

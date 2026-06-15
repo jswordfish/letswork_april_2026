@@ -90,6 +90,12 @@ public interface DayPassBundleBookingRepository extends JpaRepository<DayPassBun
 			+ "  AND b.bookingStatus = 'ACTIVE'")
 	 Integer totalRemainingDaysDayPass(Long clientId);
 	
+	@Query("SELECT SUM(b.totalDays) FROM DayPassBundleBooking b"
+			+ "  WHERE b.letsWorkClient.id =:clientId " 
+			+  "AND TYPE(b) = 'DayPassBundleBooking' "
+			+ "  AND b.bookingStatus = 'ACTIVE'")
+	 Integer totalDaysDayPass(Long clientId);
+	
 	@Modifying
 	@Transactional
 	@Query("UPDATE DayPassBundleBooking b SET b.bookingStatus = 'EXPIRED' " +

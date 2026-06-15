@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -213,6 +214,11 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 
 	        Date createDate = existing.getCreateDate();
 
+	        // PRESERVE EXISTING USER MAPPINGS
+	        Set<NewUserRegister> mergedUsers =
+	                new HashSet<>(existing.getUsers());
+
+	        mergedUsers.add(primaryUser);
 
 	        if (clientCompany.getAadhaarS3Key() == null) {
 	            clientCompany.setAadhaarS3Key(
@@ -239,6 +245,9 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	        }
 
 	        mapper.map(clientCompany, existing);
+
+	        // RESTORE USERS AFTER MAPPER
+	        existing.setUsers(mergedUsers);
 
 	        existing.setCreateDate(createDate);
 	        existing.setUpdateDate(new Date());
@@ -407,7 +416,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
     @Override
     public PaginatedResponseDto listClientCompanies(
             String companyId,
-            String letsWorkCentre,
+            List<String> letsWorkCentre,
             String city,
             String state,
             String category,
@@ -431,11 +440,19 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
         }
 
         Pageable pageable = PageRequest.of(page, size, sortSpec);
+        
+        if (letsWorkCentre != null && letsWorkCentre.isEmpty()) {
+            letsWorkCentre = null;
+        }
+        
+        boolean checkCentres =
+                letsWorkCentre != null && !letsWorkCentre.isEmpty();
 
         Page<LetsWorkClient> pageResult =
                 repo.searchClientCompanies(
                         companyId,
                         letsWorkCentre,
+                        checkCentres,
                         city,
                         state,
                         category,
@@ -551,7 +568,10 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 		
 		LetsWorkClientPurchesedDto clientPurchesedDto = LetsWorkClientPurchesedDto.builder().clientId(client.getId())
 				.purchasedDayPassCredits(dayPassBundleBookingRepository.totalRemainingDaysDayPass(clientId))
-				.purchasedConferenceCredits(conferenceBundleBookingRepository.totalRemainingHoursConferenceBundle(clientId)).build();
+				.purchasedConferenceCredits(conferenceBundleBookingRepository.totalRemainingHoursConferenceBundle(clientId))
+				.totalPurchasedConferenceCredits(conferenceBundleBookingRepository.totalHoursConferenceBundle(clientId))
+				.totalPurchasedDayPassCredits(dayPassBundleBookingRepository.totalDaysDayPass(clientId))
+				.build();
 		
 		client.setPurchasedDayPassCredits(clientPurchesedDto.getPurchasedDayPassCredits());
 		client.setPurchasedConferenceCredits(clientPurchesedDto.getPurchasedConferenceCredits());

@@ -71,27 +71,28 @@ public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, 
 	
 	@Query(
 		    "SELECT c FROM LetsWorkClient c " +
-		    "WHERE c.companyId = :companyId " +
-		    "AND (:letsWorkCentre IS NULL OR c.letsWorkCentre = :letsWorkCentre) " +
-		    "AND (:city IS NULL OR c.city = :city) " +
-		    "AND (:state IS NULL OR c.state = :state) " +
-		    "AND (:category IS NULL OR c.category = :category) " +
-		    "AND (:subCategory IS NULL OR c.subCategory = :subCategory) " +
-		    "AND (" +
-		    "     :search IS NULL " +
-		    "     OR c.clientCompanyName LIKE %:search% " +
-		    "     OR c.letsWorkCentre LIKE %:search% " +
-		    "     OR c.city LIKE %:search% " +
-		    "     OR c.state LIKE %:search%" +
-		    "     OR c.email LIKE %:search%" +
-		    "     OR c.phone LIKE %:search%" +
-		    "     OR c.category LIKE %:search%" +
-		    "     OR c.subCategory LIKE %:search%" +
-		    ")"
-		)
+		    	    "WHERE c.companyId = :companyId " +
+		    	    "AND (:checkCentres = false OR c.letsWorkCentre IN :letsWorkCentres) " +
+		    	    "AND (:city IS NULL OR c.city = :city) " +
+		    	    "AND (:state IS NULL OR c.state = :state) " +
+		    	    "AND (:category IS NULL OR c.category = :category) " +
+		    	    "AND (:subCategory IS NULL OR c.subCategory = :subCategory) " +
+		    	    "AND (" +
+		    	    "     :search IS NULL " +
+		    	    "     OR c.clientCompanyName LIKE %:search% " +
+		    	    "     OR c.letsWorkCentre LIKE %:search% " +
+		    	    "     OR c.city LIKE %:search% " +
+		    	    "     OR c.state LIKE %:search% " +
+		    	    "     OR c.email LIKE %:search% " +
+		    	    "     OR c.phone LIKE %:search% " +
+		    	    "     OR c.category LIKE %:search% " +
+		    	    "     OR c.subCategory LIKE %:search% " +
+		    	    ")"
+		    	)
 		Page<LetsWorkClient> searchClientCompanies(
 		        @Param("companyId") String companyId,
-		        @Param("letsWorkCentre") String letsWorkCentre,
+		        @Param("letsWorkCentres") List<String> letsWorkCentres,
+		        @Param("checkCentres") boolean checkCentres,
 		        @Param("city") String city,
 		        @Param("state") String state,
 		        @Param("category") String category,

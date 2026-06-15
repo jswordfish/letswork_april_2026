@@ -73,6 +73,7 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
                 ConferenceBundleBooking.builder()
                         .letsWorkClient(client)
                         .conferenceBundle(bundle)
+                        .totalHours(bundle.getNumberOfHours())
                         .remainingHours(bundle.getNumberOfHours())
                         .price(bundle.getPrice())
                         .amount(bundle.getPrice())

@@ -74,49 +74,89 @@ public class AuthenticationController {
 	
 	@CrossOrigin
 	@RequestMapping(value = "/token2", method = RequestMethod.POST)
-	public ResponseEntity<?> createAuthenticationToken2(@RequestBody User user, @RequestParam(required = false) String superFlag)
-			throws Exception {
+	public ResponseEntity<?> createAuthenticationToken2(
+	        @RequestBody User user,
+	        @RequestParam(required = false) String superFlag
+	) throws Exception {
 
-		Objects.requireNonNull(user);
-		Objects.requireNonNull(user.getEmail());
-		Objects.requireNonNull(user.getPassword());
-		Objects.requireNonNull(user.getCompanyId());
-		User u =  userService.findByEmail(user.getEmail(), user.getCompanyId());
-		AuthenticationResponse response = new AuthenticationResponse();
-		
-		if(superFlag != null && superFlag.equals("yes")) {
-			if(!user.getEmail().equals("admin@letswork.com")) {
-				return ResponseEntity.ok("failure : Not a Super Admin User");
-			}
-		}
-		else {
-			if(user.getEmail().equals("admin@letswork.com")) {
-				return ResponseEntity.ok("failure : Not a Super Admin login Page");
-			}
-		}
-		
-			if(u == null) {
-				if(user.getEmail().equals("admin@letswork.com") && user.getPassword().equals("12345")) {
-					String token =  tokenService.generateToken("SUPER_ADMIN", user.getEmail());
-					response.setToken(token);
-					return ResponseEntity.ok(response);
-				}
-				
-				return ResponseEntity.ok("failure");
-			}
-			else {
-				//System.out.println("passed pwd "+user.getPassword()+" db pwd "+u.getPassword());
-					if(user.getPassword().equals(u.getPassword())) {
-						String token =  tokenService.generateToken(u.getOrgHierarchy().getRoleOrDesig(), u.getEmail());
-						response.setToken(token);
-						return ResponseEntity.ok(response);
-					}
-					else {
-						return ResponseEntity.ok("failure : Wrong PAssword");
-					}
-				
-				
-			}
+	    Objects.requireNonNull(user);
+	    Objects.requireNonNull(user.getEmail());
+	    Objects.requireNonNull(user.getPassword());
+	    Objects.requireNonNull(user.getCompanyId());
+
+	    User u =
+	            userService.findByEmail(
+	                    user.getEmail(),
+	                    user.getCompanyId()
+	            );
+
+	    AuthenticationResponse response =
+	            new AuthenticationResponse();
+
+	    if (superFlag != null && superFlag.equals("yes")) {
+
+	        if (!user.getEmail().equals("admin@letswork.com")) {
+	            return ResponseEntity.ok(
+	                    "failure : Not a Super Admin User"
+	            );
+	        }
+
+	    } else {
+
+	        if (user.getEmail().equals("admin@letswork.com")) {
+	            return ResponseEntity.ok(
+	                    "failure : Not a Super Admin login Page"
+	            );
+	        }
+	    }
+
+	    if (u == null) {
+
+	        if (user.getEmail().equals("admin@letswork.com")
+	                && user.getPassword().equals("12345")) {
+
+	            String token =
+	                    tokenService.generateToken(
+	                            "SUPER_ADMIN",
+	                            user.getEmail()
+	                    );
+
+	            response.setToken(token);
+
+	            // NO USER OBJECT FOR SUPER ADMIN
+	            return ResponseEntity.ok(response);
+	        }
+
+	        return ResponseEntity.ok("failure");
+	    }
+
+	    if (user.getPassword().equals(u.getPassword())) {
+
+	    	if (u.getOrgHierarchy() == null) {
+	    	    throw new RuntimeException(
+	    	            "OrgHierarchy not assigned for user : "
+	    	                    + u.getEmail()
+	    	    );
+	    	}
+
+	    	String token =
+	    	        tokenService.generateToken(
+	    	                u.getOrgHierarchy().getRoleOrDesig(),
+	    	                u.getEmail()
+	    	        );
+
+	        response.setToken(token);
+
+	        // SEND USER OBJECT FOR NORMAL USERS
+	        response.setUser(u);
+
+	        return ResponseEntity.ok(response);
+	    }
+
+	    return ResponseEntity.ok(
+	            "failure : Wrong Password"
+	    );
+	
 		
 	} 
 

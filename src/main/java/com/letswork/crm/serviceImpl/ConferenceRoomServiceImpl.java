@@ -35,8 +35,6 @@ import com.letswork.crm.service.TenantService;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 
-
-
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public class ConferenceRoomServiceImpl implements ConferenceRoomService {
@@ -98,15 +96,13 @@ public class ConferenceRoomServiceImpl implements ConferenceRoomService {
 	            new HashSet<>(
 	                    amenitiesRepo.findAllById(dto.getAmenityIds())
 	            );
-
-	    ConferenceRoom existing =
-	            repo.findByNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
-	                    dto.getName(),
-	                    dto.getLetsWorkCentre(),
-	                    dto.getCompanyId(),
-	                    dto.getCity(),
-	                    dto.getState()
-	            );
+	    
+	    ConferenceRoom existing = null;
+	    
+	    if (dto.getId() != null) {
+	    	existing = repo.findById(dto.getId()).orElse(null);
+	    	}
+	    
 
 	    ConferenceRoom saved;
 

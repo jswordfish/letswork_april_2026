@@ -14,7 +14,9 @@ import lombok.experimental.SuperBuilder;
 public class LetsWorkClientPurchesedDto {
 
 	private Long clientId;
+	private Integer totalPurchasedDayPassCredits;
 	private Integer purchasedDayPassCredits;
+	private Float totalPurchasedConferenceCredits;
 	private Float purchasedConferenceCredits;
 //	private String companyId;
 }

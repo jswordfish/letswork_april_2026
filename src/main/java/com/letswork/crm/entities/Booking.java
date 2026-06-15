@@ -44,7 +44,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="booking_type", 
-  discriminatorType = DiscriminatorType.STRING)
+  discriminatorType = DiscriminatorType.STRING,
+  length = 255)
 public class Booking extends Base{
 	
 	@Id

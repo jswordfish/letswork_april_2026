@@ -61,7 +61,7 @@ public class Msg91SmsService {
         } else if (responseBody.get("reqId") != null) {
             reqId = String.valueOf(responseBody.get("reqId"));
         } else if (responseBody.get("message") != null) {
-            reqId = String.valueOf(responseBody.get("message")); // <-- THIS is what you're getting now
+            reqId = String.valueOf(responseBody.get("message")); 
         }
 
         if (!"success".equalsIgnoreCase(type)) {

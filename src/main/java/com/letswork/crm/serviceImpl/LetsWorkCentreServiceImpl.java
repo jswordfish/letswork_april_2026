@@ -17,9 +17,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.LetsWorkCentreExcelDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
@@ -62,7 +64,7 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 
 	    Tenant tenant = tenantService.findTenantByCompanyId(centre.getCompanyId());
 	    if (tenant == null) {
-	        throw new RuntimeException("CompanyId invalid - " + centre.getCompanyId());
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CompanyId invalid - " + centre.getCompanyId());
 	    }
 
 	    validateTimeOrder("Weekdays",
@@ -198,11 +200,11 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	    }
 
 	    if (startTime.equals(endTime)) {
-	        throw new RuntimeException(label + " timing invalid: start time and end time cannot be the same (" + startTime + ")");
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, label + " timing invalid: start time and end time cannot be the same (" + startTime + ")");
 	    }
 
 	    if (startTime.isAfter(endTime)) {
-	        throw new RuntimeException(label + " timing invalid: start time (" + startTime + ") cannot be after end time (" + endTime + ")");
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, label + " timing invalid: start time (" + startTime + ") cannot be after end time (" + endTime + ")");
 	    }
 	}
 	

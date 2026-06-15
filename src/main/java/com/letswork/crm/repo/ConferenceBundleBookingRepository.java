@@ -38,6 +38,12 @@ public interface ConferenceBundleBookingRepository
 			+ "  AND b.bookingStatus = 'ACTIVE'")
 	 Float totalRemainingHoursConferenceBundle(Long clientId);
     
+    @Query("SELECT SUM(b.totalHours) FROM ConferenceBundleBooking b"
+			+ "  WHERE b.letsWorkClient.id =:clientId " 
+			+  "AND TYPE(b) = 'ConferenceBundleBooking' "
+			+ "  AND b.bookingStatus = 'ACTIVE'")
+	 Float totalHoursConferenceBundle(Long clientId);
+    
     @Modifying
     @Transactional
     @Query("UPDATE ConferenceBundleBooking b SET b.bookingStatus = 'EXPIRED' " +

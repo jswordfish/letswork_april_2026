@@ -34,6 +34,14 @@ public interface BookingService {
 	        int size
 	);
 	
+	public byte[] exportBookingsToExcel(
+	        String companyId, List<String> bookingTypes, Long clientId, String referenceId,
+	        List<BookingStatus> status, BookedFrom bookedFrom, List<String> roomNames,
+	        String search, List<String> letsWorkCentres, LocalDate fromDate, LocalDate toDate,
+	        LocalDate startDateFromDate, LocalDate startDateToDate, SortFieldByBooking sortFieldByBooking,
+	        SortingOrder order
+	) throws Exception;
+	
 	void deactivateBooking(Long bookingId);
 	
 	void deleteDraftBooking(Long bookingId);

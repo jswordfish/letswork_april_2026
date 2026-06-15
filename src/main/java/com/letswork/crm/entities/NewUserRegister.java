@@ -24,10 +24,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class NewUserRegister extends Base{
 	
-//	@Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
-	
 	@ExcelCellName(value = "Name")
 	private String name;
 	
@@ -78,11 +74,9 @@ public class NewUserRegister extends Base{
 	
 	private Boolean internal;
 	
-	
 	@ExcelCellName(value = "Client Company Name")
 	@Transient
 	private String clientCompanyName;
-
 
 	@Override
 	public int hashCode() {
@@ -91,7 +85,6 @@ public class NewUserRegister extends Base{
 		result = prime * result + Objects.hash(email);
 		return result;
 	}
-
 
 	@Override
 	public boolean equals(Object obj) {

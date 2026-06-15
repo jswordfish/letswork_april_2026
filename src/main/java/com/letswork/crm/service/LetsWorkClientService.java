@@ -28,7 +28,7 @@ public interface LetsWorkClientService {
 	
 	PaginatedResponseDto listClientCompanies(
 	        String companyId,
-	        String letsWorkCentre,
+	        List<String> letsWorkCentre,
 	        String city,
 	        String state,
 	        String category,

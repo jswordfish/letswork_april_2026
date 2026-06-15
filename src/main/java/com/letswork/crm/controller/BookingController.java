@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -114,5 +116,62 @@ public class BookingController {
 	            )
 	    );
 	}
+	
+	@GetMapping("/all/export")
+	public ResponseEntity<byte[]> exportAllBookings(
+			@RequestParam String companyId,
+	        @RequestParam String token,
+	        @RequestParam(required = false) List<String> bookingType,
+	        @RequestParam(required = false) Long clientId,
+	        @RequestParam(required = false) String referenceId,
+	        @Parameter(array = @ArraySchema(schema = @Schema(type = "string")))
+	        @RequestParam(required = false) List<BookingStatus> status,
+	        @RequestParam(required = false) BookedFrom bookedFrom,
+	        @RequestParam(required = false) List<String> roomNames, // Changed to List
+	        @RequestParam(required = false) String search,
+	        @RequestParam(required = false) List<String> letsWorkCentres, // Changed to List
+
+	        @RequestParam(required = false)
+	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	        LocalDate fromDate,
+
+	        @RequestParam(required = false)
+	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	        LocalDate toDate,
+	        
+	        @RequestParam(required = false)
+	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	        LocalDate startDateFromDate,
+
+	        @RequestParam(required = false)
+	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	        LocalDate startDateToDate,
+
+	        @RequestParam(defaultValue = "DATE_OF_PURCHASE") SortFieldByBooking sortFieldByBooking,
+	        @RequestParam(defaultValue = "DESC") SortingOrder order,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size
+	) {
+		try {
+	        byte[] excelFile = bookingService.exportBookingsToExcel(
+	                companyId, bookingType, clientId, referenceId, status, bookedFrom,
+	                roomNames, search, letsWorkCentres, fromDate, toDate,
+	                startDateFromDate, startDateToDate, sortFieldByBooking, order
+	        );
+
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+	        headers.setContentDispositionFormData("attachment", "bookings_export.xlsx");
+	        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+
+	        return ResponseEntity.ok()
+	                .headers(headers)
+	                .body(excelFile);
+
+	    } catch (Exception e) {
+	        throw new RuntimeException("Error exporting data to excel: " + e.getMessage());
+	    }
+	}
+	
 
 }

@@ -58,7 +58,7 @@ public class SmsOtpController {
 
             if (Boolean.FALSE.equals(user.getActive())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Account deactivated");
+                        .body("Account is Deactivated please contact to Lets Work for Account Activation");
             }
         }
 

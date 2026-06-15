@@ -1,6 +1,7 @@
 package com.letswork.crm.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -102,7 +103,7 @@ public class LetsWorkClientController {
 	@GetMapping
 	public ResponseEntity<PaginatedResponseDto> getClientCompanies(
 	        @RequestParam String companyId,
-	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) List<String> letsWorkCentre,
 	        @RequestParam(required = false) String city,
 	        @RequestParam(required = false) String state,
 	        @RequestParam(required = false) String category,

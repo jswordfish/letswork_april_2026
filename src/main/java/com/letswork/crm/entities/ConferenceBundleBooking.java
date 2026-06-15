@@ -24,6 +24,8 @@ public class ConferenceBundleBooking extends Booking{
 	
 	@ManyToOne
 	private ConferenceBundle conferenceBundle;
+	
+	private Float totalHours;
 
     private Float remainingHours;
 

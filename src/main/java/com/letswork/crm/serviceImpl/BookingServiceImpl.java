@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired; 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +42,10 @@ import com.letswork.crm.repo.DayPassBundleRepository;
 import com.letswork.crm.repo.InvoiceRepository;
 import com.letswork.crm.service.BookingService;
 import com.letswork.crm.util.BookingTypeResolver;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.ByteArrayOutputStream;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -257,6 +261,82 @@ public class BookingServiceImpl implements BookingService {
 	    }
 
 	    return buildResponse(result, page, size);
+	}
+	
+	@Override
+	public byte[] exportBookingsToExcel(
+	        String companyId, List<String> bookingTypes, Long clientId, String referenceId,
+	        List<BookingStatus> status, BookedFrom bookedFrom, List<String> roomNames,
+	        String search, List<String> letsWorkCentres, LocalDate fromDate, LocalDate toDate,
+	        LocalDate startDateFromDate, LocalDate startDateToDate, SortFieldByBooking sortFieldByBooking,
+	        SortingOrder order
+	) throws Exception {
+
+	    int page = 0;
+	    int size = Integer.MAX_VALUE; 
+
+	    PaginatedResponseDto responseDto = this.getAllBookings(
+	            companyId, bookingTypes, clientId, referenceId, status, bookedFrom,
+	            roomNames, search, letsWorkCentres, fromDate, toDate,
+	            startDateFromDate, startDateToDate, sortFieldByBooking, order, page, size
+	    );
+
+	    List<Booking> bookings = (List<Booking>) responseDto.getList();
+
+	    try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+	        Sheet sheet = workbook.createSheet("Bookings");
+
+	        String[] headers = {"Reference ID", "Company ID", "Client ID", "Status", "Booked From", "Start Date", "End Date"};
+	        Row headerRow = sheet.createRow(0);
+
+	        CellStyle headerStyle = workbook.createCellStyle();
+	        Font headerFont = workbook.createFont();
+	        headerFont.setBold(true);
+	        headerStyle.setFont(headerFont);
+
+	        for (int i = 0; i < headers.length; i++) {
+	            Cell cell = headerRow.createCell(i);
+	            cell.setCellValue(headers[i]);
+	            cell.setCellStyle(headerStyle);
+	        }
+
+	        int rowIdx = 1;
+	        for (Booking booking : bookings) {
+	            Row row = sheet.createRow(rowIdx++);
+
+	            // Column 0: Reference ID
+	            row.createCell(0).setCellValue(booking.getReferenceId() != null ? booking.getReferenceId() : "");
+	            
+	            // Column 1: Company ID (Inherited from Base class)
+	            row.createCell(1).setCellValue(booking.getCompanyId() != null ? booking.getCompanyId() : "");
+	            
+	            // Column 2: Client ID (Accessed through the ManyToOne relationship)
+	            if (booking.getLetsWorkClient() != null && booking.getLetsWorkClient().getId() != null) {
+	                row.createCell(2).setCellValue(booking.getLetsWorkClient().getId());
+	            } else {
+	                row.createCell(2).setCellValue("");
+	            }
+	            
+	            // Column 3: Booking Status
+	            row.createCell(3).setCellValue(booking.getBookingStatus() != null ? booking.getBookingStatus().name() : "");
+	            
+	            // Column 4: Booked From
+	            row.createCell(4).setCellValue(booking.getBookedFrom() != null ? booking.getBookedFrom().name() : "");
+	            
+	            // Column 5: Start Date
+	            row.createCell(5).setCellValue(booking.getStartDate() != null ? booking.getStartDate().toString() : "");
+	            
+	            // Column 6: Expiry Date
+	            row.createCell(6).setCellValue(booking.getExpiryDate() != null ? booking.getExpiryDate().toString() : "");
+	        }
+
+	        for (int i = 0; i < headers.length; i++) {
+	            sheet.autoSizeColumn(i);
+	        }
+
+	        workbook.write(out);
+	        return out.toByteArray();
+	    }
 	}
 	
 	@Transactional

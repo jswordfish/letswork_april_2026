@@ -11,6 +11,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,9 @@ import com.letswork.crm.util.TokenService2;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class AuthenticationFilter implements Filter {
+	
+	@Autowired
+    private TokenService2 tokenService2;
 	
 	private static String sep = "#$#$&&";
 	private static String sepPattern = "[\\#][\\$][\\#][\\$][\\&][\\&]";
@@ -183,7 +187,7 @@ public class AuthenticationFilter implements Filter {
 		    String token = httpRequest.getParameter("token");
 		    Enumeration<String> headerNames = httpRequest.getHeaderNames();
 		    boolean validToken = false;
-		    String val = TokenService2.validateTokenAndReturnUserInfo(token);
+		    String val = tokenService2.validateTokenAndReturnUserInfo(token);
     		//System.out.println("2222222222222222 val "+val);
     			if(val.startsWith("TOKEN_INVALID_")) {
     				 ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "The token is not valid.");

@@ -52,6 +52,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             String companyId,
             String email,
             InvoiceStatus invoiceStatus,
+            String search,
             LocalDate fromDate,
             LocalDate toDate,
             int page,
@@ -68,6 +69,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 companyId,
                 email,
                 invoiceStatus,
+                search,
                 fromDate,
                 toDate,
                 pageable

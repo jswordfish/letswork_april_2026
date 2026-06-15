@@ -1,5 +1,7 @@
 package com.letswork.crm.entities;
 
+import java.util.Objects;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -31,5 +33,20 @@ public class Amenities extends Base{
 	private String description;
 	
 	private String s3Path;
+
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof Amenities)) return false;
+	    Amenities other = (Amenities) o;
+	    return id != null && id.equals(other.getId());
+	}
+
+	@Override
+	public int hashCode() {
+	    return getClass().hashCode(); 
+	}
+	
+	
 
 }

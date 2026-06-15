@@ -148,18 +148,31 @@ public class NewUserRegisterController {
         return ResponseEntity.ok("Account deactivated");
     }
     
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<String> activateUser(@PathVariable Long id, @RequestParam String companyId, @RequestParam String token) {
+        
+    	NewUserRegister user = newUserRegisterRepository.findByIdAndCompanyId(id, companyId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        service.activateUser(user);
+
+        return ResponseEntity.ok("Account Activated");
+    }
+    
     @GetMapping
     public ResponseEntity<PaginatedResponseDto> get(
             @RequestParam String companyId,
             @RequestParam String token,
 
             @RequestParam(required = false) String email,
-            @RequestParam(required = false) String letsWorkCentre,
+            @RequestParam(required = false) List<String> letsWorkCentre,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
 
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String subCategory,
+            
+            @RequestParam(required = false) Boolean internal,
             
             @RequestParam(required = false) String search,
 
@@ -183,6 +196,7 @@ public class NewUserRegisterController {
                         state,
                         category,
                         subCategory,
+                        internal,
                         search,
                         fromDate,
                         toDate,

@@ -19,6 +19,8 @@ public interface NewUserRegisterRepository extends JpaRepository<NewUserRegister
 	Optional<NewUserRegister>
 	findByEmailAndCompanyId(String email, String companyId);
 	
+	Optional<NewUserRegister> findByEmail(String email);
+	
 	Optional<NewUserRegister>
 	findByIdAndCompanyId(Long id, String companyId);
 
@@ -63,40 +65,41 @@ public interface NewUserRegisterRepository extends JpaRepository<NewUserRegister
         	    "SELECT u FROM NewUserRegister u " +
         	    "WHERE u.companyId = :companyId " +
         	    "AND (:email IS NULL OR u.email = :email) " +
-        	    "AND (:centre IS NULL OR u.letsWorkCentre = :centre) " +
+        	    "AND (:checkCentres = false OR u.letsWorkCentre IN :centres) " +
         	    "AND (:city IS NULL OR u.city = :city) " +
         	    "AND (:state IS NULL OR u.state = :state) " +
         	    "AND (:category IS NULL OR u.category = :category) " +
         	    "AND (:subCategory IS NULL OR u.subCategory = :subCategory) " +
+        	    "AND (:internal IS NULL OR u.internal = :internal) " +
         	    "AND (:fromDate IS NULL OR u.createDate >= :fromDate) " +
-        	    "AND (:toDate IS NULL OR u.createDate <= :toDate)" +
-
-		        "AND (" +
-		        ":search IS NULL OR " +
-		
-		        "LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.phoneNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.category) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.subCategory) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.city) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.state) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.letsWorkCentre) LIKE LOWER(CONCAT('%', :search, '%'))" +
-		        ")"
+        	    "AND (:toDate IS NULL OR u.createDate <= :toDate) " +
+        	    "AND ( " +
+        	        ":search IS NULL OR " +
+        	        "LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+        	        "LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+        	        "LOWER(u.phoneNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+        	        "LOWER(u.category) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+        	        "LOWER(u.subCategory) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+        	        "LOWER(u.city) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+        	        "LOWER(u.state) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+        	        "LOWER(u.letsWorkCentre) LIKE LOWER(CONCAT('%', :search, '%'))" +
+        	    ")"
         	)
-        	Page<NewUserRegister> filter(
-        	        @Param("companyId") String companyId,
-        	        @Param("email") String email,
-        	        @Param("centre") String centre,
-        	        @Param("city") String city,
-        	        @Param("state") String state,
-        	        @Param("category") String category,
-        	        @Param("subCategory") String subCategory,
-        	        @Param("search") String search,
-        	        @Param("fromDate") Date fromDate,
-        	        @Param("toDate") Date toDate,
-        	        Pageable pageable
-        	);
+	        Page<NewUserRegister> filter(
+	                @Param("companyId") String companyId,
+	                @Param("email") String email,
+	                @Param("centres") List<String> centres,
+	                @Param("checkCentres") boolean checkCentres,
+	                @Param("city") String city,
+	                @Param("state") String state,
+	                @Param("category") String category,
+	                @Param("subCategory") String subCategory,
+	                @Param("internal") Boolean internal,
+	                @Param("search") String search,
+	                @Param("fromDate") Date fromDate,
+	                @Param("toDate") Date toDate,
+	                Pageable pageable
+	        );
 
     
 }

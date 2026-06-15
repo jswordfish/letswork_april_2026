@@ -6,7 +6,9 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.entities.DayPassBundle;
 import com.letswork.crm.entities.LetsWorkCentre;
@@ -40,7 +42,7 @@ public class DayPassBundleServiceImpl implements DayPassBundleService {
 
         Tenant tenant = tenantService.findTenantByCompanyId(bundle.getCompanyId());
         if (tenant == null) {
-            throw new RuntimeException("CompanyId invalid - " + bundle.getCompanyId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CompanyId invalid - " + bundle.getCompanyId());
         }
 
         LetsWorkCentre centre =
@@ -52,16 +54,16 @@ public class DayPassBundleServiceImpl implements DayPassBundleService {
                 );
 
         if (centre == null) {
-            throw new RuntimeException("This LetsWorkCentre does not exist");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This LetsWorkCentre does not exist");
         }
         
         if(bundle.getPrice() == null || bundle.getValidForDays() == null || bundle.getNumberOfDays() == null) {
-        	throw new RuntimeException("Price or Number Of Days or Valid for Days is null");
+        	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price or Number Of Days or Valid for Days is null");
         }
         
-        if(bundle.getValidForDays() < bundle.getNumberOfDays()) {
-        	throw new RuntimeException("'Valid for days' can not be lesser than 'Number of Days'");
-        }
+//        if(bundle.getValidForDays() < bundle.getNumberOfDays()) {
+//        	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Valid for days' can not be lesser than 'Number of Passes'");
+//        }
         
 
         DayPassBundle existing =

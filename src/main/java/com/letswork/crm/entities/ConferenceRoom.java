@@ -50,7 +50,7 @@ public class ConferenceRoom extends Base{
 	private String s3Path;
 	
 	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(
 	    name = "conference_room_amenities",
 	    joinColumns = @JoinColumn(name = "conference_room_id"),

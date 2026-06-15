@@ -16,6 +16,8 @@ public interface NewUserRegisterService {
     List<NewUserRegister> getAllByCompanyId(String companyId);
     
     public void disableUser(NewUserRegister user);
+    
+    public void activateUser(NewUserRegister user);
 
     NewUserRegister getByEmailAndCompanyId(
             String email,
@@ -61,11 +63,12 @@ public interface NewUserRegisterService {
     public PaginatedResponseDto getPaginated(
             String companyId,
             String email,
-            String letsWorkCentre,
+            List<String> letsWorkCentre,
             String city,
             String state,
             String category,
             String subCategory,
+            Boolean internal,
             String search,
             LocalDate fromDate,
             LocalDate toDate,

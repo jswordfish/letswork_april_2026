@@ -82,21 +82,21 @@ public class NewUserRegisterServiceImpl
                 tenantService.findTenantByCompanyId(user.getCompanyId());
 
         if (tenant == null) {
-            throw new RuntimeException("Invalid companyId: " + user.getCompanyId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid companyId: " + user.getCompanyId());
         }
 
         if (repo.findByEmailAndCompanyId(
                 user.getEmail(),
                 user.getCompanyId()).isPresent()) {
 
-            throw new RuntimeException("User already registered with this email");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User already registered with this email");
         }
 
         if (repo.findByPhoneNumberAndCompanyId(
                 user.getPhoneNumber(),
                 user.getCompanyId()).isPresent()) {
 
-            throw new RuntimeException("User already registered with this phone number");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User already registered with this phone number");
         }
 
         user.setCreateDate(new Date());
@@ -110,7 +110,7 @@ public class NewUserRegisterServiceImpl
         String clientCompanyName = user.getClientCompanyName()+"_"+user.getEmail();
 
         // 🔥 Pass the transient value directly from the original incoming 'user' object
-        createClientCompanyMapping(saved, clientCompanyName);
+        createClientCompanyMapping(saved, clientCompanyName, saved.getInternal());
 
         return saved;
     }
@@ -122,145 +122,387 @@ public class NewUserRegisterServiceImpl
                 tenantService.findTenantByCompanyId(user.getCompanyId());
 
         if (tenant == null) {
-            throw new RuntimeException("Invalid companyId - " + user.getCompanyId());
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid companyId - " + user.getCompanyId()
+            );
         }
 
-        LetsWorkCentre centre =
-                letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
-                        user.getLetsWorkCentre(),
-                        user.getCompanyId(),
-                        user.getCity(),
-                        user.getState()
+        if (Boolean.TRUE.equals(user.getInternal())) {
+
+            LetsWorkCentre centre =
+                    letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
+                            user.getLetsWorkCentre(),
+                            user.getCompanyId(),
+                            user.getCity(),
+                            user.getState()
+                    );
+
+            if (centre == null) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "This LetsWorkCentre does not exists"
                 );
-
-        if (centre == null) {
-            throw new RuntimeException("This LetsWorkCentre does not exists");
+            }
         }
 
-        if (user.getCategory() != null) {
+        // =========================================================
+        // CATEGORY VALIDATION
+        // =========================================================
+
+        if (user.getCategory() != null
+                && !user.getCategory().trim().isEmpty()) {
 
             Category category =
                     categoryRepo.findByNameAndCompanyIdAndCategoryType(
-                            user.getCategory(),
+                            user.getCategory().trim(),
                             user.getCompanyId(),
                             CategoryType.BUSINESS
                     );
 
             if (category == null) {
-                throw new RuntimeException("Invalid category");
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Invalid category"
+                );
             }
         }
 
-        if (user.getSubCategory() != null) {
+        if (user.getSubCategory() != null
+                && !user.getSubCategory().trim().isEmpty()) {
 
             SubCategory sub =
                     subCategoryRepo.findByNameAndCompanyIdAndCategoryType(
-                            user.getSubCategory(),
+                            user.getSubCategory().trim(),
                             user.getCompanyId(),
                             CategoryType.BUSINESS
                     );
 
             if (sub == null) {
-                throw new RuntimeException("Invalid sub-category");
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Invalid sub-category"
+                );
             }
         }
 
+        // =========================================================
+        // INTERNAL USER FLOW
+        // =========================================================
+
         if (Boolean.TRUE.equals(user.getInternal())) {
 
-            NewUserRegister existing = null;
+            NewUserRegister existingByEmail = null;
+            NewUserRegister existingByPhone = null;
 
-            if (user.getEmail() != null) {
-                existing = repo.findByEmailAndCompanyId(
-                        user.getEmail(),
-                        user.getCompanyId()
-                ).orElse(null);
+            if (user.getEmail() != null
+                    && !user.getEmail().trim().isEmpty()) {
+
+                existingByEmail =
+                        repo.findByEmailAndCompanyId(
+                                user.getEmail().trim(),
+                                user.getCompanyId()
+                        ).orElse(null);
             }
 
-            if (existing == null && user.getPhoneNumber() != null) {
-                existing = repo.findByPhoneNumberAndCompanyId(
-                        user.getPhoneNumber(),
-                        user.getCompanyId()
-                ).orElse(null);
+            if (user.getPhoneNumber() != null
+                    && !user.getPhoneNumber().trim().isEmpty()) {
+
+                existingByPhone =
+                        repo.findByPhoneNumberAndCompanyId(
+                                user.getPhoneNumber().trim(),
+                                user.getCompanyId()
+                        ).orElse(null);
             }
+
+            // =====================================================
+            // SAFETY CHECK
+            // =====================================================
+
+            if (existingByEmail != null
+                    && existingByPhone != null
+                    && !existingByEmail.getId().equals(existingByPhone.getId())) {
+
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Email and phone belong to different users"
+                );
+            }
+
+            NewUserRegister existing =
+                    existingByEmail != null
+                            ? existingByEmail
+                            : existingByPhone;
+
+            // =====================================================
+            // UPDATE EXISTING USER
+            // =====================================================
 
             if (existing != null) {
 
                 existing.setName(user.getName());
+                existing.setEmail(user.getEmail());
+                existing.setPhoneNumber(user.getPhoneNumber());
+
+                existing.setCity(user.getCity());
+                existing.setState(user.getState());
+                existing.setLetsWorkCentre(user.getLetsWorkCentre());
+
+                existing.setCategory(user.getCategory());
+                existing.setSubCategory(user.getSubCategory());
+
                 existing.setDob(user.getDob());
                 existing.setProfileImagePath(user.getProfileImagePath());
 
                 existing.setConferenceCredits(user.getConferenceCredits());
                 existing.setDayPass(user.getDayPass());
-                existing.setFreeConferenceCredits(user.getFreeConferenceCredits());
-                existing.setFreeDayPass(user.getFreeDayPass());
+
+                existing.setFreeConferenceCredits(
+                        user.getFreeConferenceCredits()
+                );
+
+                existing.setFreeDayPass(
+                        user.getFreeDayPass()
+                );
+
                 existing.setMonthly(user.getMonthly());
 
                 existing.setUpdateDate(new Date());
 
                 NewUserRegister saved = repo.save(existing);
 
-                // 🔥 Extract the transient field from the original DTO, not the saved entity
-                createClientCompanyMapping(saved, user.getClientCompanyName());
+                if (user.getClientCompanyName() != null
+                        && !user.getClientCompanyName().trim().isEmpty()) {
+
+                    createClientCompanyMapping(
+                            saved,
+                            user.getClientCompanyName().trim(),
+                            true
+                    );
+                }
 
                 return saved;
             }
 
+            // =====================================================
+            // CREATE NEW INTERNAL USER
+            // =====================================================
+
             user.setCreateDate(new Date());
             user.setUpdateDate(new Date());
+
             user.setActive(true);
+
             user.setInternal(true);
 
             NewUserRegister saved = repo.save(user);
 
-            // 🔥 Extract the transient field from the original DTO, not the saved entity
-            createClientCompanyMapping(saved, user.getClientCompanyName());
+            createClientCompanyMapping(
+                    saved,
+                    user.getClientCompanyName(),
+                    true
+            );
 
             return saved;
         }
-        
-        return null;
+
+        // =========================================================
+        // EXTERNAL USER FLOW
+        // =========================================================
+
+        NewUserRegister existingByEmail = null;
+        NewUserRegister existingByPhone = null;
+
+        if (user.getEmail() != null
+                && !user.getEmail().trim().isEmpty()) {
+
+            existingByEmail =
+                    repo.findByEmailAndCompanyId(
+                            user.getEmail().trim(),
+                            user.getCompanyId()
+                    ).orElse(null);
+        }
+
+        if (user.getPhoneNumber() != null
+                && !user.getPhoneNumber().trim().isEmpty()) {
+
+            existingByPhone =
+                    repo.findByPhoneNumberAndCompanyId(
+                            user.getPhoneNumber().trim(),
+                            user.getCompanyId()
+                    ).orElse(null);
+        }
+
+        if (existingByEmail != null
+                && existingByPhone != null
+                && !existingByEmail.getId().equals(existingByPhone.getId())) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Email and phone belong to different users"
+            );
+        }
+
+        NewUserRegister existing =
+                existingByEmail != null
+                        ? existingByEmail
+                        : existingByPhone;
+
+        // =====================================================
+        // UPDATE EXISTING EXTERNAL USER
+        // =====================================================
+
+        if (existing != null) {
+
+            existing.setName(user.getName());
+            existing.setDob(user.getDob());
+            existing.setProfileImagePath(user.getProfileImagePath());
+
+            existing.setUpdateDate(new Date());
+
+            return repo.save(existing);
+        }
+
+        // =====================================================
+        // CREATE NEW EXTERNAL USER
+        // =====================================================
+
+        user.setCreateDate(new Date());
+        user.setUpdateDate(new Date());
+
+        user.setActive(true);
+
+        user.setInternal(false);
+
+        NewUserRegister saved = repo.save(user);
+
+        String clientCompanyName =
+                user.getClientCompanyName().trim()
+                        + "_"
+                        + user.getEmail().trim();
+
+        createClientCompanyMapping(
+                saved,
+                clientCompanyName,
+                false
+        );
+
+        return saved;
     }
-    
-    private void createClientCompanyMapping(NewUserRegister user, String excelCompanyName) {
 
-        if (excelCompanyName == null || excelCompanyName.trim().isEmpty()) {
-            throw new RuntimeException("ClientCompanyName missing in Excel for user: " + user.getEmail());
+
+    private void createClientCompanyMapping(
+            NewUserRegister user,
+            String companyName,
+            boolean internal
+    ) {
+
+        if (companyName == null
+                || companyName.trim().isEmpty()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "ClientCompanyName missing for user: "
+                            + user.getEmail()
+            );
         }
 
-        excelCompanyName = excelCompanyName.trim();
+        companyName = companyName.trim();
 
-        boolean exists = letsWorkClientRepo
-                .existsByUserIdAndClientCompanyNameAndCompanyId(
-                        user.getId(),
-                        excelCompanyName,
-                        user.getCompanyId()
-                );
+        // =========================================================
+        // INTERNAL USER FLOW
+        // =========================================================
 
-        if (exists) {
-            return;
+        if (internal) {
+
+            LetsWorkClient existingClient =
+                    letsWorkClientRepo
+                            .findByClientCompanyNameAndCompanyId(
+                                    companyName,
+                                    user.getCompanyId()
+                            )
+                            .stream()
+                            .findFirst()
+                            .orElse(null);
+
+            // =====================================================
+            // EXISTING COMPANY
+            // =====================================================
+
+            if (existingClient != null) {
+
+                boolean alreadyMapped =
+                        existingClient.getUsers()
+                                .stream()
+                                .anyMatch(existingUser ->
+                                        existingUser.getId()
+                                                .equals(user.getId())
+                                );
+
+                if (!alreadyMapped) {
+
+                    existingClient.getUsers().add(user);
+
+                    existingClient.setUpdateDate(new Date());
+
+                    letsWorkClientRepo.save(existingClient);
+                }
+
+                return;
+            }
         }
+
+        // =========================================================
+        // EXTERNAL USER FLOW
+        // =========================================================
+
+        else {
+
+            boolean exists =
+                    letsWorkClientRepo
+                            .existsByUserIdAndClientCompanyNameAndCompanyId(
+                                    user.getId(),
+                                    companyName,
+                                    user.getCompanyId()
+                            );
+
+            if (exists) {
+                return;
+            }
+        }
+
+        // =========================================================
+        // CREATE NEW COMPANY
+        // =========================================================
 
         LetsWorkClient client = new LetsWorkClient();
 
-        // 🔥 DO NOT modify Excel value
-        client.setClientCompanyName(excelCompanyName);
+        client.setClientCompanyName(companyName);
 
         client.setEmail(user.getEmail());
+
+        client.setUserEmail(user.getEmail());
+
         client.setPhone(user.getPhoneNumber());
 
         client.setCategory(user.getCategory());
+
         client.setSubCategory(user.getSubCategory());
 
         client.setLetsWorkCentre(user.getLetsWorkCentre());
+
         client.setCity(user.getCity());
+
         client.setState(user.getState());
 
         client.setCompanyId(user.getCompanyId());
+
         client.setUserId(user.getId());
 
         client.setCreateDate(new Date());
+
         client.setUpdateDate(new Date());
-        
+
         client.getUsers().add(user);
 
         letsWorkClientRepo.save(client);
@@ -333,6 +575,19 @@ public class NewUserRegisterServiceImpl
     }
     
     @Override
+    public void activateUser(NewUserRegister user) {
+    	
+    	if (Boolean.TRUE.equals(user.getActive())) {
+    		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This user's account is already Activated");
+    	}
+    	
+    	user.setActive(true);
+    	
+    	repo.save(user);
+    	
+    }
+    
+    @Override
     public String uploadNewUserFromExcel(
             MultipartFile file,
             String companyId
@@ -347,6 +602,17 @@ public class NewUserRegisterServiceImpl
 
         
         for (NewUserRegister dto : userRegisters) {
+        	
+        	dto.setName(trim(dto.getName()));
+            dto.setEmail(trim(dto.getEmail()));
+            dto.setPhoneNumber(trim(dto.getPhoneNumber()));
+            dto.setLetsWorkCentre(trim(dto.getLetsWorkCentre()));
+            dto.setCity(trim(dto.getCity()));
+            dto.setState(trim(dto.getState()));
+            dto.setCategory(trim(dto.getCategory()));
+            dto.setSubCategory(trim(dto.getSubCategory()));
+            dto.setClientCompanyName(trim(dto.getClientCompanyName()));
+        	
             String val = validate(dto);
             if (!val.equalsIgnoreCase("ok")) {
                 return "Validation failed: " + val;
@@ -386,14 +652,16 @@ public class NewUserRegisterServiceImpl
         return "ok";
     }
     
+    private String trim(String value) {
+        return value == null ? null : value.trim();
+    }
+    
     private String validate(NewUserRegister dto) {
 		if(dto.getName() == null || dto.getName().length() == 0) {
 			return "Name Should not be null";
 		}
 	 			
-//		if(dto.getCompanyId() == null || dto.getCompanyId().length() == 0) {
-//			return "CompanyId Should not be null";	
-//			}
+
 		
 		if(dto.getEmail() == null || dto.getEmail().length() == 0) {
 			return "Email Should not be null";	
@@ -403,18 +671,7 @@ public class NewUserRegisterServiceImpl
 			return "Phone Number Should not be null";	
 			}
 		
-//		if(dto.getDob() == null) {
-//			return "Date of Birth Should not be null";	
-//			}
-		
-		
-//		if(dto.getCategory() == null || dto.getCategory().length() == 0) {
-//			return "Category Should not be null";	
-//			}
-//		
-//		if(dto.getSubCategory() == null || dto.getSubCategory().length() == 0) {
-//			return "SubCategory Should not be null";	
-//			}
+
 		
 		if(dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().length() == 0) {
 			return "LetsWorkCentre Should not be null";	
@@ -429,35 +686,35 @@ public class NewUserRegisterServiceImpl
 			}
 		
 		
-//		if(tenantService.findTenantByCompanyId(dto.getCompanyId())==null) {
-//			return "CompanyId "+dto.getCompanyId()+" does not exists";
-//		}
-		
-//		if(letsWorkCentreService.findByName(dto.getLetsWorkCentre(), dto.getCompanyId(), dto.getCity(), dto.getState()) == null){
-//			return "Letswork Cente "+dto.getLetsWorkCentre()+" does not exist";
-//		}
-//		
-//		if(categoryRepo.findByNameAndCompanyIdAndCategoryType(dto.getCategory(), dto.getCompanyId(), CategoryType.BUSINESS)==null) {
-//			return "Category "+dto.getCategory()+" does not exists";
-//		}
-//		
-//		if(subCategoryRepo.findByNameAndCompanyIdAndCategoryType(dto.getSubCategory(), dto.getCompanyId(), CategoryType.BUSINESS)==null) {
-//			return "Sub-Category "+dto.getSubCategory()+" does not exists";
-//		}
-		
+
 		 		
 		return "ok";
 	}
+    
+    private void trimUser(NewUserRegister user) {
+
+        user.setName(trim(user.getName()));
+        user.setEmail(trim(user.getEmail()));
+        user.setPhoneNumber(trim(user.getPhoneNumber()));
+        user.setLetsWorkCentre(trim(user.getLetsWorkCentre()));
+        user.setCity(trim(user.getCity()));
+        user.setState(trim(user.getState()));
+        user.setCategory(trim(user.getCategory()));
+        user.setSubCategory(trim(user.getSubCategory()));
+        user.setClientCompanyName(trim(user.getClientCompanyName()));
+    }
+    
     
     @Override
     public PaginatedResponseDto getPaginated(
             String companyId,
             String email,
-            String letsWorkCentre,
+            List<String> letsWorkCentre,
             String city,
             String state,
             String category,
             String subCategory,
+            Boolean internal,
             String search,
             LocalDate fromDate,
             LocalDate toDate,
@@ -466,16 +723,25 @@ public class NewUserRegisterServiceImpl
     ) {
         Pageable pageable =
                 PageRequest.of(page, size, Sort.by("createDate").descending());
+        
+        if (letsWorkCentre != null && letsWorkCentre.isEmpty()) {
+            letsWorkCentre = null;
+        }
+        
+        boolean checkCentres =
+                letsWorkCentre != null && !letsWorkCentre.isEmpty();
 
         Page<NewUserRegister> resultPage =
                 repo.filter(
                         companyId,
                         email,
                         letsWorkCentre,
+                        checkCentres,
                         city,
                         state,
                         category,
                         subCategory,
+                        internal,
                         search,
                         fromDate == null ? null : java.sql.Date.valueOf(fromDate),
                         toDate == null ? null : java.sql.Date.valueOf(toDate),
