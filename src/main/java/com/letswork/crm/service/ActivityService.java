@@ -1,8 +1,8 @@
 package com.letswork.crm.service;
 
 import java.time.LocalDate;
+import java.util.List;
 
-import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Activity;
 import com.letswork.crm.enums.ActionType;
 
@@ -20,16 +20,14 @@ public interface ActivityService {
             String companyId
     );
 
-    PaginatedResponseDto getPaginated(
+    List<Activity> get(
             String companyId,
             Long leadId,
             String header,
             ActionType actionType,
             String search,
             LocalDate fromDate,
-            LocalDate toDate,
-            int page,
-            int size
+            LocalDate toDate
     );
 
 }

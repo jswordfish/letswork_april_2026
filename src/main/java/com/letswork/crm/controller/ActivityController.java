@@ -1,6 +1,7 @@
 package com.letswork.crm.controller;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Activity;
 import com.letswork.crm.enums.ActionType;
 import com.letswork.crm.service.ActivityService;
@@ -66,7 +66,7 @@ public class ActivityController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<PaginatedResponseDto> get(
+	public ResponseEntity<List<Activity>> get(
 	        @RequestParam String companyId,
 	        @RequestParam String token,
 
@@ -83,35 +83,23 @@ public class ActivityController {
 	        String search,
 
 	        @RequestParam(required = false)
-	        @DateTimeFormat(
-	                iso = DateTimeFormat.ISO.DATE
-	        )
+	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	        LocalDate fromDate,
 
 	        @RequestParam(required = false)
-	        @DateTimeFormat(
-	                iso = DateTimeFormat.ISO.DATE
-	        )
-	        LocalDate toDate,
-
-	        @RequestParam(defaultValue = "0")
-	        int page,
-
-	        @RequestParam(defaultValue = "10")
-	        int size
+	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	        LocalDate toDate
 	) {
 
 	    return ResponseEntity.ok(
-	            service.getPaginated(
+	            service.get(
 	                    companyId,
 	                    leadId,
 	                    header,
 	                    actionType,
 	                    search,
 	                    fromDate,
-	                    toDate,
-	                    page,
-	                    size
+	                    toDate
 	            )
 	    );
 	}

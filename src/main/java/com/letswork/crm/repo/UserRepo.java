@@ -1,5 +1,6 @@
 package com.letswork.crm.repo;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -49,6 +50,8 @@ public interface UserRepo extends CrudRepository<User, Long> {
 	        @Param("state") String state,
 	        Pageable pageable
 	);
+	
+	List<User> findByIdIn(Collection<Long> ids);
 	
 	@Query("select u from User u where u.phoneNumber =:phoneNumber and u.companyId =:companyId")
 	public User findByPhoneNumber( @Param("phoneNumber") String phoneNumber,@Param("companyId") String companyId);

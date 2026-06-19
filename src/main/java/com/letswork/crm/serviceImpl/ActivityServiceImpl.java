@@ -2,20 +2,16 @@ package com.letswork.crm.serviceImpl;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Activity;
 import com.letswork.crm.entities.Lead;
 import com.letswork.crm.entities.Tenant;
@@ -159,70 +155,29 @@ public class ActivityServiceImpl implements ActivityService{
 	}
 
 	@Override
-	public PaginatedResponseDto getPaginated(
+	public List<Activity> get(
 	        String companyId,
 	        Long leadId,
 	        String header,
 	        ActionType actionType,
 	        String search,
 	        LocalDate fromDate,
-	        LocalDate toDate,
-	        int page,
-	        int size
+	        LocalDate toDate
 	) {
 
-	    Pageable pageable =
-	            PageRequest.of(
-	                    page,
-	                    size,
-	                    Sort.by("createDate")
-	                            .descending()
-	            );
-
-	    Page<Activity> resultPage =
-	            repo.filter(
-	                    companyId,
-	                    leadId,
-	                    header,
-	                    actionType,
-	                    search,
-	                    fromDate == null
-	                            ? null
-	                            : java.sql.Date.valueOf(fromDate),
-	                    toDate == null
-	                            ? null
-	                            : java.sql.Date.valueOf(toDate),
-	                    pageable
-	            );
-
-	    PaginatedResponseDto dto =
-	            new PaginatedResponseDto();
-
-	    dto.setSelectedPage(page);
-	    dto.setTotalNumberOfRecords(
-	            (int) resultPage.getTotalElements()
+	    return repo.filter(
+	            companyId,
+	            leadId,
+	            header,
+	            actionType,
+	            search,
+	            fromDate == null
+	                    ? null
+	                    : java.sql.Date.valueOf(fromDate),
+	            toDate == null
+	                    ? null
+	                    : java.sql.Date.valueOf(toDate)
 	    );
-
-	    dto.setTotalNumberOfPages(
-	            resultPage.getTotalPages()
-	    );
-
-	    dto.setRecordsFrom(
-	            page * size + 1
-	    );
-
-	    dto.setRecordsTo(
-	            Math.min(
-	                    (page + 1) * size,
-	                    (int) resultPage.getTotalElements()
-	            )
-	    );
-
-	    dto.setList(
-	            resultPage.getContent()
-	    );
-
-	    return dto;
 	}
 
 }

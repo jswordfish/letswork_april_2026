@@ -31,10 +31,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Contract extends Base{
+	
 	@ManyToOne
 	LetsWorkCentre  letsWorkCentre;
-	
-	
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "lets_work_client_id", nullable = false)
@@ -78,7 +77,7 @@ public class Contract extends Base{
 	
 	private Integer workstation;
 	
-
+	private Float feesPerMonth;
 	
 	private Integer freeDayPass;
 	

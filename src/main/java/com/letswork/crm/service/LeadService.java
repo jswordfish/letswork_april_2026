@@ -12,22 +12,26 @@ public interface LeadService {
 	
 	Lead saveOrUpdate(Lead lead);
 
-    PaginatedResponseDto getPaginated(
-            String companyId,
-            String name,
-            String email,
-            String phone,
-            String clientCompanyName,
-            Source source,
-            String location,
-            LeadStatus status,
-            LeadQuality leadQuality,
-            String search,
-            LocalDate fromDate,
-            LocalDate toDate,
-            int page,
-            int size
-    );
+	PaginatedResponseDto getPaginated(
+	        String companyId,
+	        String name,
+	        String email,
+	        String phone,
+	        String clientCompanyName,
+	        Source source,
+	        String location,
+	        LeadStatus status,
+	        LeadQuality leadQuality,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
+	        String solution,
+	        String search,
+	        LocalDate fromDate,
+	        LocalDate toDate,
+	        int page,
+	        int size
+	);
     
     Lead changeStatus(
             Long leadId,

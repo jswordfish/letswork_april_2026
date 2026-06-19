@@ -52,6 +52,10 @@ public class LeadController {
 	        @RequestParam(required = false) String location,
 	        @RequestParam(required = false) LeadStatus status,
 	        @RequestParam(required = false) LeadQuality leadQuality,
+	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) String city,
+	        @RequestParam(required = false) String state,
+	        @RequestParam(required = false) String solution,
 	        @RequestParam(required = false) String search,
 
 	        @RequestParam(required = false)
@@ -77,6 +81,10 @@ public class LeadController {
 	                    location,
 	                    status,
 	                    leadQuality,
+	                    letsWorkCentre,
+	                    city,
+	                    state,
+	                    solution,
 	                    search,
 	                    fromDate,
 	                    toDate,

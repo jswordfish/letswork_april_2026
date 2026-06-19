@@ -1,28 +1,47 @@
 package com.letswork.crm.serviceImpl;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.letswork.crm.dtos.LeadResponseDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Activity;
+import com.letswork.crm.entities.AssignLead;
 import com.letswork.crm.entities.Lead;
+import com.letswork.crm.entities.LetsWorkCentre;
+import com.letswork.crm.entities.Solutions;
 import com.letswork.crm.entities.Tenant;
+import com.letswork.crm.entities.User;
 import com.letswork.crm.enums.ActionType;
 import com.letswork.crm.enums.LeadQuality;
 import com.letswork.crm.enums.LeadStatus;
 import com.letswork.crm.enums.Source;
 import com.letswork.crm.repo.ActivityRepo;
+import com.letswork.crm.repo.AssignLeadRepo;
 import com.letswork.crm.repo.LeadRepo;
+import com.letswork.crm.repo.LetsWorkCentreRepository;
+import com.letswork.crm.repo.SolutionsRepository;
+import com.letswork.crm.repo.UserRepo;
 import com.letswork.crm.service.LeadService;
 import com.letswork.crm.service.TenantService;
 
@@ -37,7 +56,19 @@ public class LeadServiceImpl implements LeadService{
 	TenantService tenantService;
 	
 	@Autowired
+	LetsWorkCentreRepository letsWorkCentreRepo;
+	
+	@Autowired
+	SolutionsRepository solutionRepo;
+	
+	@Autowired
 	private ActivityRepo activityRepo;
+	
+	@Autowired
+	AssignLeadRepo assignLeadRepo;
+	
+	@Autowired
+	UserRepo userRepo;
 	
 	ModelMapper mapper = new ModelMapper();
 
@@ -48,9 +79,22 @@ public class LeadServiceImpl implements LeadService{
 	    Tenant tenant = tenantService.findTenantByCompanyId(lead.getCompanyId());
 
 	    if (tenant == null) {
-	        throw new RuntimeException(
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 	                "CompanyId invalid - " + lead.getCompanyId());
 	    }
+	    
+		LetsWorkCentre centre = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(lead.getLetsWorkCentre(), lead.getCompanyId(), lead.getCity(), lead.getState());
+		
+		if(centre==null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This LetsWorkCentre does not exists");
+		}
+		
+		Solutions solution = solutionRepo.findByNameAndLetsWorkCentreAndCompanyId(lead.getSolution(), lead.getLetsWorkCentre(), lead.getCompanyId());
+		
+		if(solution==null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This Solution does not exists");
+		}
+		
 
 	    if (lead.getId() != null) {
 
@@ -60,7 +104,7 @@ public class LeadServiceImpl implements LeadService{
 	                        lead.getCompanyId());
 
 	        if (existing == null) {
-	            throw new RuntimeException("Lead not found");
+	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lead not found");
 	        }
 
 	        if (!existing.getEmail().equalsIgnoreCase(lead.getEmail())) {
@@ -71,7 +115,7 @@ public class LeadServiceImpl implements LeadService{
 	                            lead.getCompanyId());
 
 	            if (emailLead != null) {
-	                throw new RuntimeException(
+	                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 	                        "Lead already exists with email : "
 	                                + lead.getEmail());
 	            }
@@ -85,7 +129,7 @@ public class LeadServiceImpl implements LeadService{
 	                            lead.getCompanyId());
 
 	            if (phoneLead != null) {
-	                throw new RuntimeException(
+	                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 	                        "Lead already exists with phone : "
 	                                + lead.getPhone());
 	            }
@@ -106,7 +150,7 @@ public class LeadServiceImpl implements LeadService{
 	                        lead.getCompanyId());
 
 	        if (emailLead != null) {
-	            throw new RuntimeException(
+	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 	                    "Lead already exists with email : "
 	                            + lead.getEmail());
 	        }
@@ -117,7 +161,7 @@ public class LeadServiceImpl implements LeadService{
 	                        lead.getCompanyId());
 
 	        if (phoneLead != null) {
-	            throw new RuntimeException(
+	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 	                    "Lead already exists with phone : "
 	                            + lead.getPhone());
 	        }
@@ -153,6 +197,10 @@ public class LeadServiceImpl implements LeadService{
 	        String location,
 	        LeadStatus status,
 	        LeadQuality leadQuality,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
+	        String solution,
 	        String search,
 	        LocalDate fromDate,
 	        LocalDate toDate,
@@ -161,7 +209,11 @@ public class LeadServiceImpl implements LeadService{
 	) {
 
 	    Pageable pageable =
-	            PageRequest.of(page, size, Sort.by("createDate").descending());
+	            PageRequest.of(
+	                    page,
+	                    size,
+	                    Sort.by("createDate").descending()
+	            );
 
 	    Page<Lead> resultPage =
 	            repo.filter(
@@ -174,16 +226,100 @@ public class LeadServiceImpl implements LeadService{
 	                    location,
 	                    status,
 	                    leadQuality,
+	                    letsWorkCentre,
+	                    city,
+	                    state,
+	                    solution,
 	                    search,
-	                    fromDate == null ? null : java.sql.Date.valueOf(fromDate),
-	                    toDate == null ? null : java.sql.Date.valueOf(toDate),
+	                    fromDate == null
+	                            ? null
+	                            : java.sql.Date.valueOf(fromDate),
+	                    toDate == null
+	                            ? null
+	                            : java.sql.Date.valueOf(toDate),
 	                    pageable
 	            );
 
-	    PaginatedResponseDto dto = new PaginatedResponseDto();
+	    List<Lead> leads = resultPage.getContent();
+
+	    Set<Long> leadIds =
+	            leads.stream()
+	                    .map(Lead::getId)
+	                    .collect(Collectors.toSet());
+
+	    List<AssignLead> assignments =
+	            leadIds.isEmpty()
+	                    ? Collections.emptyList()
+	                    : assignLeadRepo.findByLeadIdIn(leadIds);
+
+	    Map<Long, AssignLead> assignmentMap =
+	            assignments.stream()
+	                    .collect(
+	                            Collectors.toMap(
+	                                    AssignLead::getLeadId,
+	                                    Function.identity()
+	                            )
+	                    );
+
+	    Set<Long> userIds =
+	            assignments.stream()
+	                    .map(AssignLead::getUserId)
+	                    .collect(Collectors.toSet());
+
+	    Map<Long, User> userMap =
+	            userIds.isEmpty()
+	                    ? Collections.emptyMap()
+	                    : userRepo.findByIdIn(userIds)
+	                            .stream()
+	                            .collect(
+	                                    Collectors.toMap(
+	                                            User::getId,
+	                                            Function.identity()
+	                                    )
+	                            );
+
+	    List<LeadResponseDto> response =
+	            new ArrayList<>();
+
+	    for (Lead lead : leads) {
+
+	        LeadResponseDto dto =
+	                new LeadResponseDto();
+
+	        BeanUtils.copyProperties(
+	                lead,
+	                dto
+	        );
+
+	        AssignLead assignment =
+	                assignmentMap.get(
+	                        lead.getId()
+	                );
+
+	        if (assignment != null) {
+
+	            dto.setUser(
+	                    userMap.get(
+	                            assignment.getUserId()
+	                    )
+	            );
+	        }
+
+	        response.add(dto);
+	    }
+
+	    PaginatedResponseDto dto =
+	            new PaginatedResponseDto();
+
 	    dto.setSelectedPage(page);
-	    dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
-	    dto.setTotalNumberOfPages(resultPage.getTotalPages());
+
+	    dto.setTotalNumberOfRecords(
+	            (int) resultPage.getTotalElements()
+	    );
+
+	    dto.setTotalNumberOfPages(
+	            resultPage.getTotalPages()
+	    );
 
 	    dto.setRecordsFrom(
 	            resultPage.getTotalElements() == 0
@@ -198,7 +334,7 @@ public class LeadServiceImpl implements LeadService{
 	            )
 	    );
 
-	    dto.setList(resultPage.getContent());
+	    dto.setList(response);
 
 	    return dto;
 	}
@@ -235,11 +371,27 @@ public class LeadServiceImpl implements LeadService{
 	                "Lead not found"
 	        );
 	    }
+	    
+	    LeadStatus oldStatus = lead.getStatus();
 
 	    lead.setStatus(status);
 	    lead.setUpdateDate(new Date());
 
-	    return repo.save(lead);
+	    Lead savedLead = repo.save(lead);
+
+        Activity activity = new Activity();
+        activity.setCompanyId(savedLead.getCompanyId());
+        activity.setLeadId(savedLead.getId());
+        activity.setActionType(ActionType.STATUS_CHANGED);
+        activity.setHeader(
+                "Status changed of lead - " + savedLead.getName() + " from " + oldStatus + " to " + status
+        );
+        activity.setCreateDate(new Date());
+        activity.setUpdateDate(new Date());
+
+        activityRepo.save(activity);
+
+        return savedLead;
 	}
 
 	@Override

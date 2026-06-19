@@ -628,6 +628,76 @@ public class MailJetOtpService {
         }
     }
     
+    public void sendAgreementEmail(
+            String email,
+            String name,
+            byte[] agreementPdf
+    ) {
+
+        ClientOptions options = ClientOptions.builder()
+                .apiKey(API_KEY)
+                .apiSecretKey(SECRET_KEY)
+                .build();
+
+        MailjetClient client =
+                new MailjetClient(options);
+
+        Map<String, Object> variables =
+                new HashMap<>();
+
+        variables.put("name", name);
+
+        TransactionalEmail emailMessage =
+                TransactionalEmail.builder()
+                        .to(
+                                List.of(
+                                        new SendContact(email)
+                                )
+                        )
+                        .from(
+                                new SendContact(
+                                        SENDER_EMAIL,
+                                        "Letswork"
+                                )
+                        )
+                        .subject("Agreement Document")
+                        .templateID(8115824L)
+                        .templateLanguage(true)
+                        .variables(variables)
+                        .attachments(
+                                List.of(
+                                        Attachment.builder()
+                                                .filename("Agreement.pdf")
+                                                .contentType("application/pdf")
+                                                .base64Content(
+                                                        Base64.getEncoder()
+                                                                .encodeToString(
+                                                                        agreementPdf
+                                                                )
+                                                )
+                                                .build()
+                                )
+                        )
+                        .build();
+
+        SendEmailsRequest request =
+                SendEmailsRequest.builder()
+                        .message(emailMessage)
+                        .build();
+
+        try {
+
+            request.sendWith(client);
+
+        } catch (MailjetException e) {
+
+            throw new RuntimeException(
+                    "Failed to send agreement email",
+                    e
+            );
+        }
+    }
+    
     public void sendVisitorEmail(
     		String nameOfVisited,
     		String letsworkCenter,

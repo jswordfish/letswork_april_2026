@@ -13,9 +13,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.ClientCompanyExcelDto;
 import com.letswork.crm.dtos.LetsWorkClientPurchesedDto;
@@ -96,7 +98,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	            );
 
 	    if (tenant == null) {
-	        throw new RuntimeException(
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 	                "CompanyId invalid - " + clientCompany.getCompanyId()
 	        );
 	    }
@@ -104,7 +106,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	    NewUserRegister primaryUser =
 	            userRepo.findById(clientCompany.getUserId())
 	                    .orElseThrow(() ->
-	                            new RuntimeException(
+	                            new ResponseStatusException(HttpStatus.BAD_REQUEST,
 	                                    "User not found with id: "
 	                                            + clientCompany.getUserId()
 	                            )
@@ -119,7 +121,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	            );
 
 	    if (centre == null) {
-	        throw new RuntimeException(
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 	                "This LetsWorkCentre does not exist"
 	        );
 	    }
@@ -207,7 +209,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	                        clientCompany.getId(),
 	                        clientCompany.getCompanyId()
 	                ).orElseThrow(() ->
-	                        new RuntimeException(
+	                        new ResponseStatusException(HttpStatus.BAD_REQUEST,
 	                                "Client company not found"
 	                        )
 	                );

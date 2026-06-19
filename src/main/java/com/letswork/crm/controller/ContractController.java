@@ -1,9 +1,7 @@
 package com.letswork.crm.controller;
 
-import java.time.LocalDate;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,7 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.letswork.crm.dtos.AgreementDto;
+import com.letswork.crm.dtos.ConvertedContractDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Contract;
 import com.letswork.crm.enums.ContractStatus;
@@ -30,6 +31,45 @@ public class ContractController {
             @RequestParam String token
     ) {
         return ResponseEntity.ok(contractService.saveOrUpdate(contract));
+    }
+    
+    @PostMapping("/lead-contract")
+    public ResponseEntity<ConvertedContractDto> saveOrUpdateLead(
+            @RequestBody ConvertedContractDto dto,
+            @RequestParam String token
+    ) {
+        return ResponseEntity.ok(contractService.saveOrUpdateConverted(dto));
+    }
+    
+    @PostMapping("/send-agreement-default")
+    public ResponseEntity<String> sendAgreementDefault(
+            @RequestBody AgreementDto dto,
+            @RequestParam String token
+    ) {
+
+        return ResponseEntity.ok(
+                contractService.sendAgreementDefaultOnMail(dto)
+        );
+    }
+    
+    @PostMapping(
+            value = "/send-agreement-custom",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<String> sendAgreementCustom(
+            @RequestParam String name,
+            @RequestParam String email,
+            @RequestParam MultipartFile pdf,
+            @RequestParam String token
+    ) {
+
+        return ResponseEntity.ok(
+        		contractService.sendAgreementCustomOnMail(
+                        name,
+                        email,
+                        pdf
+                )
+        );
     }
 
     @GetMapping

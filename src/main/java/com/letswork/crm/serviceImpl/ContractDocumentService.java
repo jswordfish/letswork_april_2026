@@ -1,11 +1,10 @@
-package com.letswork.crm.serviceImpl;
+ package com.letswork.crm.serviceImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -13,13 +12,11 @@ import org.thymeleaf.context.Context;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.letswork.crm.dtos.AgreementDto;
 import com.letswork.crm.dtos.AmenityDto;
 import com.letswork.crm.entities.Contract;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-
-
-
 
 @Service
 public class ContractDocumentService {
@@ -58,6 +55,52 @@ public class ContractDocumentService {
 
         // 🔥 Normalize + parse amenities
         List<AmenityDto> amenities = parseAmenities(contract.getAmenitiesIncluded());
+
+        context.setVariable("amenities", amenities);
+
+        String html = templateEngine.process("contract-agreement", context);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        PdfRendererBuilder builder = new PdfRendererBuilder();
+        builder.withHtmlContent(html, null);
+        builder.toStream(os);
+
+        try {
+            builder.run();
+        } catch (IOException e) {
+            throw new RuntimeException("PDF generation failed", e);
+        }
+
+        return os.toByteArray();
+    }
+    
+    public byte[] generateAgreementPdfFromDto(AgreementDto dto) {
+
+        Context context = new Context();
+        
+
+        context.setVariable("clientName", dto.getLeadCompanyName());
+        context.setVariable("clientAddress", dto.getClientAdress());
+        context.setVariable("usageOfPremises", dto.getUsageOfPremises());
+        context.setVariable("agreementTenure", dto.getAgreementTenureInMonths() + " Months");
+        context.setVariable("lockInPeriod", dto.getLockInPeriodInMonths() + " Months");
+        context.setVariable("noticePeriod", dto.getNoticePeriodInMonths() + " Months");
+        context.setVariable("cabinOffered", dto.getCabinOffered());
+        context.setVariable("workstation", dto.getWorkstation());
+        context.setVariable("feesPerMonth", dto.getFeesPerMonth());
+        context.setVariable("depositAmount", dto.getDepositAmountInRupees());
+        context.setVariable("escalation", dto.getEscalationInPercentage() + "%");
+        context.setVariable("officeHoursStart", dto.getOfficeHoursStart());
+        context.setVariable("officeHoursEnd", dto.getOfficeHoursEnd());
+        context.setVariable("officeHoursStartSat", dto.getOfficeHoursStartSat());
+        context.setVariable("officeHoursEndSat", dto.getOfficeHoursEndSat());
+        context.setVariable("gstNumber", dto.getGstNumber());
+        context.setVariable("billingCycle", dto.getBillingCycle());
+        context.setVariable("advanceToken", dto.getAdvanceTokenAmount());
+        context.setVariable("commencementDate", dto.getCommencementDate());
+
+        // 🔥 Normalize + parse amenities
+        List<AmenityDto> amenities = parseAmenities(dto.getAmenitiesIncluded());
 
         context.setVariable("amenities", amenities);
 

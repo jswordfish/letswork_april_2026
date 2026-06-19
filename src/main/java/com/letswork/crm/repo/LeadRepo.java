@@ -33,31 +33,43 @@ public interface LeadRepo extends JpaRepository<Lead, Long>{
 		    "AND (:location IS NULL OR l.location = :location) " +
 		    "AND (:status IS NULL OR l.status = :status) " +
 		    "AND (:leadQuality IS NULL OR l.leadQuality = :leadQuality) " +
+		    "AND (:letsWorkCentre IS NULL OR l.letsWorkCentre = :letsWorkCentre) " +
+		    "AND (:city IS NULL OR l.city = :city) " +
+		    "AND (:state IS NULL OR l.state = :state) " +
+		    "AND (:solution IS NULL OR l.solution = :solution) " +
 		    "AND (:fromDate IS NULL OR l.createDate >= :fromDate) " +
 		    "AND (:toDate IS NULL OR l.createDate <= :toDate) " +
 		    "AND (" +
-		    ":search IS NULL OR " +
-		    "LOWER(l.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		    "LOWER(l.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		    "LOWER(l.phone) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		    "LOWER(l.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		    "LOWER(l.location) LIKE LOWER(CONCAT('%', :search, '%'))" +
+		        ":search IS NULL OR " +
+		        "LOWER(l.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(l.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(l.phone) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(l.clientCompanyName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(l.location) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(l.letsWorkCentre) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(l.city) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(l.state) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(l.solution) LIKE LOWER(CONCAT('%', :search, '%'))" +
 		    ")"
 		)
-		Page<Lead> filter(
-		        String companyId,
-		        String name,
-		        String email,
-		        String phone,
-		        String clientCompanyName,
-		        Source source,
-		        String location,
-		        LeadStatus status,
-		        LeadQuality leadQuality,
-		        String search,
-		        Date fromDate,
-		        Date toDate,
-		        Pageable pageable
-		);
+	Page<Lead> filter(
+	        String companyId,
+	        String name,
+	        String email,
+	        String phone,
+	        String clientCompanyName,
+	        Source source,
+	        String location,
+	        LeadStatus status,
+	        LeadQuality leadQuality,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
+	        String solution,
+	        String search,
+	        Date fromDate,
+	        Date toDate,
+	        Pageable pageable
+	);
 
 }

@@ -269,8 +269,7 @@ public class PdfService {
 	                index++,
 	                "Day Pass Bundle Purchase ("+dpb.getLetsWorkCentre().getName()+")",
 	                formatDate(dpb.getExpiryDate()),
-	                dpb.getRemainingNumberOfDays(),
-	                dpb.getAppliedOffer() ==null?"NA": dpb.getAppliedOffer().getName()
+	                dpb.getRemainingNumberOfDays()
 	        ));
 	    }
 
@@ -366,8 +365,7 @@ public class PdfService {
 	        int index,
 	        String description,
 	        String expiryDate,
-	        Integer remainingNumberOfDays,
-	        String Offer 
+	        Integer remainingNumberOfDays
 	        
 	) {
 	    return "<tr>" +
@@ -376,7 +374,7 @@ public class PdfService {
 //	            "<td>" + hsn + "</td>" +
 	            "<td>" + expiryDate + "</td>" +
 	            "<td>" + remainingNumberOfDays + "</td>" +
-	            "<td>" + Offer + "</td>" +
+	            
 	            "</tr>";
 	}
 	

@@ -1,6 +1,8 @@
 package com.letswork.crm.repo;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -25,6 +27,8 @@ public interface AssignLeadRepo
             Long leadId,
             String companyId
     );
+    
+    List<AssignLead> findByLeadIdIn(Collection<Long> leadIds);
     
     @Query(
     	    "SELECT a FROM AssignLead a " +

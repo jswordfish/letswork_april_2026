@@ -1,8 +1,10 @@
 package com.letswork.crm.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import com.letswork.crm.enums.LeadQuality;
@@ -42,5 +44,19 @@ public class Lead extends Base{
 	
 	@Enumerated(EnumType.STRING)
 	private LeadQuality leadQuality;
+	
+	private String letsWorkCentre;
+	
+	private String city;
+	
+	private String state;
+	
+	private String solution;
+	
+	@Lob
+	@Column(columnDefinition = "LONGTEXT")
+	private String agreementJson;
+	
+	private Integer numberOfSeats;
 
 }

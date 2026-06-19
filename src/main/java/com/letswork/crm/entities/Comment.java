@@ -23,4 +23,4 @@ public class Comment extends Base{
 	
 	private String comment;
 	
-}
+}   

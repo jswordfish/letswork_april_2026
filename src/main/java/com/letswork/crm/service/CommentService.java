@@ -1,8 +1,9 @@
 package com.letswork.crm.service;
 
 import java.time.LocalDate;
+import java.util.List;
 
-import com.letswork.crm.dtos.PaginatedResponseDto;
+import com.letswork.crm.dtos.CommentResponseDto;
 import com.letswork.crm.entities.Comment;
 
 public interface CommentService {
@@ -13,14 +14,12 @@ public interface CommentService {
 
     void delete(Long id, String companyId);
 
-    PaginatedResponseDto getPaginated(
+    List<CommentResponseDto> get(
             String companyId,
             Long leadId,
             String comment,
             String search,
             LocalDate fromDate,
-            LocalDate toDate,
-            int page,
-            int size
+            LocalDate toDate
     );
 }

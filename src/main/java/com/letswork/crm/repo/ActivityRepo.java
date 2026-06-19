@@ -1,9 +1,8 @@
 package com.letswork.crm.repo;
 
 import java.util.Date;
+import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,17 +30,17 @@ public interface ActivityRepo extends JpaRepository<Activity, Long> {
 		    "AND (" +
 		        ":search IS NULL OR " +
 		        "LOWER(a.header) LIKE LOWER(CONCAT('%', :search, '%'))" +
-		    ")"
+		    ") " +
+		    "ORDER BY a.createDate DESC"
 		)
-		Page<Activity> filter(
+		List<Activity> filter(
 		        @Param("companyId") String companyId,
 		        @Param("leadId") Long leadId,
 		        @Param("header") String header,
 		        @Param("actionType") ActionType actionType,
 		        @Param("search") String search,
 		        @Param("fromDate") Date fromDate,
-		        @Param("toDate") Date toDate,
-		        Pageable pageable
+		        @Param("toDate") Date toDate
 		);
 	
 }
