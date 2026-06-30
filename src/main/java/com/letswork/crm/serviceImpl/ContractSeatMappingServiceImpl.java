@@ -78,10 +78,10 @@ public class ContractSeatMappingServiceImpl implements ContractSeatMappingServic
 	    LetsWorkCentre centre =
 	            letsWorkCentreRepo
 	                    .findByNameAndCompanyIdAndCityAndState(
-	                            mapping.getContract().getLetsWorkCentre().getName(),
+	                            mapping.getContract().getLetsWorkCentre(),
 	                            mapping.getCompanyId(),
-	                            mapping.getContract().getLetsWorkCentre().getCity(),
-	                            mapping.getContract().getLetsWorkCentre().getState()
+	                            mapping.getContract().getCity(),
+	                            mapping.getContract().getState()
 	                    );
 
 	    if (centre == null) {
@@ -96,10 +96,10 @@ public class ContractSeatMappingServiceImpl implements ContractSeatMappingServic
 	                    .findBySeatTypeAndCompanyIdAndLetsWorkCentreAndSeatNumberAndCityAndStateAndPublishedTrue(
 	                            mapping.getSeat().getSeatType(),
 	                            mapping.getCompanyId(),
-	                            mapping.getContract().getLetsWorkCentre().getName(),
+	                            mapping.getContract().getLetsWorkCentre(),
 	                            mapping.getSeat().getSeatNumber(),
-	                            mapping.getContract().getLetsWorkCentre().getCity(),
-	                            mapping.getContract().getLetsWorkCentre().getState()
+	                            mapping.getContract().getCity(),
+	                            mapping.getContract().getState()
 	                    );
 
 	    if (seat.isEmpty()) {
@@ -191,23 +191,18 @@ public class ContractSeatMappingServiceImpl implements ContractSeatMappingServic
 	                request.getContractId()
 	        );
 
-	        LetsWorkCentre centre =
-	                new LetsWorkCentre();
-
-	        centre.setName(
-	                request.getLetsWorkCentre()
-	        );
-
-	        centre.setCity(
-	                request.getCity()
-	        );
-
-	        centre.setState(
-	                request.getState()
-	        );
+	        
 
 	        contract.setLetsWorkCentre(
-	                centre
+	                request.getLetsWorkCentre()
+	        );
+	        
+	        contract.setCity(
+	                request.getCity()
+	        );
+	        
+	        contract.setState(
+	                request.getState()
 	        );
 
 	        Seat seat =

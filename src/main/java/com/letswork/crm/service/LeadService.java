@@ -2,6 +2,7 @@ package com.letswork.crm.service;
 
 import java.time.LocalDate;
 
+import com.letswork.crm.dtos.LeadResponseDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Lead;
 import com.letswork.crm.enums.LeadQuality;
@@ -41,6 +42,6 @@ public interface LeadService {
 
     void delete(Long id, String companyId);
 
-    Lead getById(Long id, String companyId);
-
+    LeadResponseDto getById(Long id, String companyId);
+    
 }

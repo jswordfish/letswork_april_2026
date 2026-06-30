@@ -565,7 +565,7 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 		// TODO Auto-generated method stub
 
 		LetsWorkClient client = repo.findById(clientId)
-				.orElseThrow(() -> new RuntimeException("Client not found"));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Client not found"));
 		
 		
 		LetsWorkClientPurchesedDto clientPurchesedDto = LetsWorkClientPurchesedDto.builder().clientId(client.getId())

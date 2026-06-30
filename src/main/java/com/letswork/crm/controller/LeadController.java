@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.letswork.crm.dtos.LeadResponseDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Lead;
 import com.letswork.crm.enums.LeadQuality;
@@ -112,12 +113,14 @@ public class LeadController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Lead> getById(
+	public ResponseEntity<LeadResponseDto> getById(
 	        @PathVariable Long id,
 	        @RequestParam String companyId,
 	        @RequestParam String token
 	){
-		return ResponseEntity.ok(service.getById(id, companyId));
+	    return ResponseEntity.ok(
+	            service.getById(id, companyId)
+	    );
 	}
 	
 	@DeleteMapping("/{id}")

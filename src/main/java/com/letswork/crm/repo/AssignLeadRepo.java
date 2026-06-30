@@ -28,6 +28,10 @@ public interface AssignLeadRepo
             String companyId
     );
     
+    Optional<AssignLead> findFirstByLeadId(Long leadId);
+    
+    AssignLead findByLeadId(Long leadId);
+    
     List<AssignLead> findByLeadIdIn(Collection<Long> leadIds);
     
     @Query(

@@ -1,6 +1,7 @@
 package com.letswork.crm.repo;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -12,20 +13,65 @@ import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.Contract;
 import com.letswork.crm.enums.ContractStatus;
+import com.letswork.crm.enums.DateFilterType;
 
 @Repository
 public interface ContractRepository extends JpaRepository<Contract, Long> {
 
     Optional<Contract> findByIdAndCompanyId(Long id, String companyId);
 
-    @Query("SELECT c FROM Contract c " +
+    @Query("SELECT c " +
+    	       "FROM Contract c " +
     	       "WHERE c.companyId = :companyId " +
     	       "AND (:clientId IS NULL OR c.letsWorkClient.id = :clientId) " +
-    	       "AND (:status IS NULL OR c.contractStatus = :status) ")
+    	       "AND (:status IS NULL OR c.contractStatus = :status)")
     	Page<Contract> filter(
     	        @Param("companyId") String companyId,
     	        @Param("clientId") Long clientId,
     	        @Param("status") ContractStatus status,
     	        Pageable pageable
     	);
+    
+    @Query("SELECT c " +
+    	       "FROM Contract c " +
+    	       "WHERE c.companyId = :companyId " +
+    	       "AND (:clientId IS NULL OR c.letsWorkClient.id = :clientId) " +
+    	       "AND (:status IS NULL OR c.contractStatus = :status) " +
+    	       "AND (:fromDate IS NULL OR c.startDate >= :fromDate) " +
+    	       "AND (:toDate IS NULL OR c.startDate <= :toDate)")
+    	Page<Contract> filterOnStartDate(
+    	        @Param("companyId") String companyId,
+    	        @Param("clientId") Long clientId,
+    	        @Param("status") ContractStatus status,
+    	        @Param("fromDate") LocalDate fromDate,
+    	        @Param("toDate") LocalDate toDate,
+    	        Pageable pageable
+    	);
+    
+    @Query("SELECT c " +
+    	       "FROM Contract c " +
+    	       "WHERE c.companyId = :companyId " +
+    	       "AND (:clientId IS NULL OR c.letsWorkClient.id = :clientId) " +
+    	       "AND (:status IS NULL OR c.contractStatus = :status) " +
+    	       "AND (:fromDate IS NULL OR c.actualEndDate >= :fromDate) " +
+    	       "AND (:toDate IS NULL OR c.actualEndDate <= :toDate)")
+    	Page<Contract> filterOnActualEndDate(
+    	        @Param("companyId") String companyId,
+    	        @Param("clientId") Long clientId,
+    	        @Param("status") ContractStatus status,
+    	        @Param("fromDate") LocalDate fromDate,
+    	        @Param("toDate") LocalDate toDate,
+    	        Pageable pageable
+    	);
+    
+    @Query("SELECT c " +
+    	       "FROM Contract c " +
+    	       "WHERE c.actualEndDate IS NOT NULL " +
+    	       "  AND c.actualEndDate < :today " +
+    	       "  AND c.active = true " +
+    	       "  AND c.contractStatus <> com.letswork.crm.enums.ContractStatus.TERMINATED")
+    	List<Contract> findContractsToTerminate(
+    	        @Param("today") LocalDate today
+    	);
+    
 }

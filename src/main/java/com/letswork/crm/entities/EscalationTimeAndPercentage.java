@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,6 +38,7 @@ public class EscalationTimeAndPercentage {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "landlord_id")
+	@JsonBackReference
     private LandLord landLord;
 
 }

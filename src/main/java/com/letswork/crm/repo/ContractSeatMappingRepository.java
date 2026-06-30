@@ -1,5 +1,6 @@
 package com.letswork.crm.repo;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,11 +18,12 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
 
 	@Query("SELECT c FROM ContractSeatMapping c " +
  	       "WHERE c.companyId = :companyId " +
- 	       "AND c.contract.letsWorkCentre.name = :letsWorkCentre " +
- 	       "AND c.contract.letsWorkCentre.city = :city " +
- 	       "AND c.contract.letsWorkCentre.state = :state " +
+ 	       "AND c.contract.letsWorkCentre = :letsWorkCentre " +
+ 	       "AND c.contract.city = :city " +
+ 	       "AND c.contract.state = :state " +
  	       "AND (c.seat.seatNumber =:seatNumber) " +
- 	       "AND (c.seat.seatType =:seatType)") 
+ 	       "AND (c.seat.seatType =:seatType) " +
+		   "AND (c.deleted IS NULL OR c.deleted = false)")
     Optional<ContractSeatMapping> findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
     		@Param("seatNumber") String seatNumber,
     		@Param("seatType") SeatType seatType,
@@ -33,9 +35,9 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
     
     @Query("SELECT c FROM ContractSeatMapping c " +
     	       "WHERE c.companyId = :companyId " +
-    	       "AND c.contract.letsWorkCentre.name = :letsWorkCentre " +
-    	       "AND c.contract.letsWorkCentre.city = :city " +
-    	       "AND c.contract.letsWorkCentre.state = :state " +
+    	       "AND c.contract.letsWorkCentre = :letsWorkCentre " +
+    	       "AND c.contract.city = :city " +
+    	       "AND c.contract.state = :state " +
     	       "AND (c.deleted IS NULL OR c.deleted = false) " +
     	       "AND (c.actualEndDate IS NULL OR c.actualEndDate >= CURRENT_DATE)")
     	List<ContractSeatMapping> findActiveByLocation(
@@ -44,10 +46,33 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
     	        @Param("city") String city,
     	        @Param("state") String state
     	);
+    
+    @Query("SELECT c " +
+    	       "FROM ContractSeatMapping c " +
+    	       "WHERE c.companyId = :companyId " +
+    	       "  AND c.contract.letsWorkCentre = :letsWorkCentre " +
+    	       "  AND c.contract.city = :city " +
+    	       "  AND c.contract.state = :state " +
+    	       "  AND c.contract.active = true " +
+    	       "  AND (c.deleted IS NULL OR c.deleted = false) " +
+    	       "  AND ( " +
+    	       "        c.startDate <= :endDate " +
+    	       "        AND " +
+    	       "        COALESCE(c.actualEndDate, c.endDate) >= :startDate " +
+    	       "      )")
+    	List<ContractSeatMapping> findOverlappingMappings(
+    	        @Param("companyId") String companyId,
+    	        @Param("letsWorkCentre") String letsWorkCentre,
+    	        @Param("city") String city,
+    	        @Param("state") String state,
+    	        @Param("startDate") LocalDate startDate,
+    	        @Param("endDate") LocalDate endDate
+    	);
 
     @Query("SELECT c FROM ContractSeatMapping c " +
             "WHERE c.contract.id = :contractId " +
-            "AND c.companyId = :companyId")
+            "AND c.companyId = :companyId " +
+            "AND (c.deleted IS NULL OR c.deleted = false)")
      List<ContractSeatMapping> findByContractIdAndCompanyId(
              @Param("contractId") Long contractId, 
              @Param("companyId") String companyId
@@ -55,12 +80,13 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
 
      @Query("SELECT c FROM ContractSeatMapping c " +
             "WHERE c.contract.id = :contractId " +
-            "AND c.contract.letsWorkCentre.name = :letsWorkCentre " +
+            "AND c.contract.letsWorkCentre = :letsWorkCentre " +
             "AND c.companyId = :companyId " +
-            "AND c.contract.letsWorkCentre.city = :city " +
-            "AND c.contract.letsWorkCentre.state = :state " +
+            "AND c.contract.city = :city " +
+            "AND c.contract.state = :state " +
             "AND c.seat.seatType = :seatType " +
-            "AND c.seat.seatNumber = :seatNumber")
+            "AND c.seat.seatNumber = :seatNumber " +
+            "AND (c.deleted IS NULL OR c.deleted = false)")
      Optional<ContractSeatMapping> findByFullBusinessKey(
              @Param("contractId") Long contractId,
              @Param("letsWorkCentre") String letsWorkCentre,
@@ -72,10 +98,11 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
      );
      
      @Query("SELECT DISTINCT new com.letswork.crm.entities.SeatKey(" +
-             "c.contract.letsWorkCentre.name, c.contract.letsWorkCentre.city, c.contract.letsWorkCentre.state, c.companyId, c.seat.seatType, c.seat.seatNumber) " +
+             "c.contract.letsWorkCentre, c.contract.city, c.contract.state, c.companyId, c.seat.seatType, c.seat.seatNumber) " +
              "FROM ContractSeatMapping c " +
-             "WHERE c.companyId = :companyId AND c.contract.letsWorkCentre.name = :letsWorkCentre " +
-             "AND c.contract.letsWorkCentre.city = :city AND c.contract.letsWorkCentre.state = :state")
+             "WHERE c.companyId = :companyId AND c.contract.letsWorkCentre = :letsWorkCentre " +
+             "AND c.contract.city = :city AND c.contract.state = :state " +
+             "AND (c.deleted IS NULL OR c.deleted = false)")
       List<SeatKey> findSeatKeysByCompanyIdAndLetsWorkCentreAndCityAndState(
               @Param("companyId") String companyId,
               @Param("letsWorkCentre") String letsWorkCentre,
@@ -85,9 +112,9 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
      
      @Query("SELECT c FROM ContractSeatMapping c " +
     	       "WHERE c.companyId = :companyId " +
-    	       "AND c.contract.letsWorkCentre.name = :letsWorkCentre " +
-    	       "AND c.contract.letsWorkCentre.city = :city " +
-    	       "AND c.contract.letsWorkCentre.state = :state " +
+    	       "AND c.contract.letsWorkCentre = :letsWorkCentre " +
+    	       "AND c.contract.city = :city " +
+    	       "AND c.contract.state = :state " +
     	       "AND c.seat.seatType = :seatType " +
     	       "AND c.seat.seatNumber = :seatNumber " +
     	       "AND (c.deleted IS NULL OR c.deleted = false) " +

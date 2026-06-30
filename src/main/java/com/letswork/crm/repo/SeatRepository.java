@@ -67,7 +67,7 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 		        Pageable pageable
 		);
     
-    long countByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndState(
+    long countByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndStateAndPublishedTrue(
             String cabinName, String companyId, String letsWorkCentre, String city, String state);
 	
 	@Query("SELECT COUNT(s) FROM Seat s WHERE s.letsWorkCentre = :letsWorkCentre AND s.seatType = :seatType AND s.companyId = :companyId AND s.city = :city AND s.state = :state")

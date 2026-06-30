@@ -1,5 +1,6 @@
 package com.letswork.crm.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -48,8 +49,15 @@ public interface SeatService {
     
     public SeatPublishResponse publishSeats(List<SeatPublishRequest> requests);
     
-    public List<SeatAvailabilityDto> getAllSeatsWithAvailability(
-            String companyId, String letsWorkCentre, String city, String state);
+    public Seat unPublishSeat(Long seatId);
+    
+    List<SeatAvailabilityDto> getAllSeatsWithAvailability(
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            LocalDate startDate,
+            LocalDate endDate);
     
     public Page<SeatMappingResponseDto> getAllSeatMappings(
             String companyId,

@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.letswork.crm.enums.CancelContractType;
 import com.letswork.crm.enums.ContractStatus;
 
 import lombok.AllArgsConstructor;
@@ -32,8 +33,8 @@ import lombok.experimental.SuperBuilder;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Contract extends Base{
 	
-	@ManyToOne
-	LetsWorkCentre  letsWorkCentre;
+//	@ManyToOne
+//	LetsWorkCentre  letsWorkCentre;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "lets_work_client_id", nullable = false)
@@ -45,7 +46,7 @@ public class Contract extends Base{
 	
 	private Integer escalationInPercentage;
 	
-	private String letsworkcentre;
+	private String letsWorkCentre;
 	
 	private String city;
 	
@@ -102,6 +103,13 @@ public class Contract extends Base{
 	@Enumerated(EnumType.STRING)  
     private ContractStatus contractStatus;
 	
+	private String cancelDescription;
+	
+	@Enumerated(EnumType.STRING)
+	private CancelContractType cancelContractType;
+	
+	private LocalDate noticePeriodStartDate;
+	
 	private LocalDate actualEndDate;
 	
 	private String depositAmountReturnedDetails;
@@ -111,5 +119,7 @@ public class Contract extends Base{
 	private LocalDate depositAmountReturnDate;
 	
 	private String agreementS3KeyName;
+	
+	private Boolean active;
 
 }

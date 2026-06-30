@@ -2,6 +2,7 @@ package com.letswork.crm.dtos;
 
 import java.time.LocalDate;
 
+import com.letswork.crm.entities.Contract;
 import com.letswork.crm.entities.Seat;
 
 import lombok.AllArgsConstructor;
@@ -22,8 +23,10 @@ public class SeatAvailabilityDto {
     private LocalDate contractEndDate;
 
     private Long contractId;
+    
+    private Contract contract;
 
-    private String companyName;   
+    private String companyName;
 
     public SeatAvailabilityDto(Seat seat, boolean available) {
         this.seat = seat;

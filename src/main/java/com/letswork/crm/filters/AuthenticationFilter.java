@@ -181,6 +181,11 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
+		    	if(url.endsWith("/client-onboarding")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
 		    
 		    	
 		    	

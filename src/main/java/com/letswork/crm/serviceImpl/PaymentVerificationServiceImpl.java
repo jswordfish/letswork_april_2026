@@ -142,6 +142,8 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
             			client.setPurchasedConferenceCredits(bundleBooking.getConferenceBundle().getNumberOfHours() + credits);
             			clientRepo.save(client);
             		}
+            	    
+            	    
 
             	    mailService.sendConferenceBundlePurchaseEmail(
             	            email,

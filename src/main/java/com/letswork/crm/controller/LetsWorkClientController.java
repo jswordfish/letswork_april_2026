@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,13 +17,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.letswork.crm.dtos.LetsWorkClientOnboardingDto;
 import com.letswork.crm.dtos.LetsWorkClientPurchesedDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.dtos.UserWithCompaniesDto;
 import com.letswork.crm.entities.LetsWorkClient;
+import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.service.LetsWorkClientService;
+import com.letswork.crm.service.NewUserRegisterService;
 
 
 
@@ -33,6 +38,12 @@ public class LetsWorkClientController {
 	
 	@Autowired
 	LetsWorkClientService service;
+	
+	@Autowired
+	NewUserRegisterService userService;
+	
+	@Autowired
+	LetsWorkClientRepository repo;
 	
 //	@PostMapping
 //	public String createCompany(@RequestBody LetsWorkClient clientCompany, @RequestParam String token) {
@@ -59,6 +70,43 @@ public class LetsWorkClientController {
 
 	    String result =
 	    		service.saveOrUpdate(client, aadhaar, pan, tan, gst);
+
+	    return ResponseEntity.ok(result);
+	}
+	
+	@PostMapping(
+	        value = "/client-onboarding",
+	        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+	)
+	public ResponseEntity<String> saveOrUpdateClientOnboarding(
+			@RequestParam String companyId,
+	        @RequestPart("client") String clientJson,
+	        @RequestPart(value = "aadhaar", required = false) MultipartFile aadhaar,
+	        @RequestPart(value = "pan", required = false) MultipartFile pan,
+	        @RequestPart(value = "tan", required = false) MultipartFile tan,
+	        @RequestPart(value = "gst", required = false) MultipartFile gst,
+	        @RequestPart(value = "users", required = false) MultipartFile users
+	) throws IOException {
+
+		LetsWorkClientOnboardingDto dto =
+	            new ObjectMapper().readValue(clientJson, LetsWorkClientOnboardingDto.class);
+		
+		LetsWorkClient client = repo.findByIdAndCompanyId(dto.getId(), companyId).orElse(null);
+		
+		if(client==null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Company Not Found");
+		}
+		
+		client.setEmail(dto.getEmail());
+		client.setPhone(dto.getPhone());
+		repo.save(client);
+
+	    String result =
+	    		service.saveOrUpdate(client, aadhaar, pan, tan, gst);
+	    
+	    if(users!=null) {
+	    	userService.uploadNewUserFromExcel(users, companyId);
+	    }
 
 	    return ResponseEntity.ok(result);
 	}

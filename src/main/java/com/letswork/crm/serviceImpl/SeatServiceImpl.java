@@ -1,6 +1,7 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -18,10 +19,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.BulkSeatCreationDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
@@ -92,20 +95,20 @@ public class SeatServiceImpl implements SeatService {
 
         Tenant tenant = tenantService.findTenantByCompanyId(seat.getCompanyId());
         if (tenant == null) {
-            throw new RuntimeException("CompanyId invalid - " + seat.getCompanyId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CompanyId invalid - " + seat.getCompanyId());
         }
 
         LetsWorkCentre loc = letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
                 seat.getLetsWorkCentre(), seat.getCompanyId(), seat.getCity(), seat.getState());
 
         if (loc == null) {
-            throw new RuntimeException("This letsWorkCentre does not exist");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This letsWorkCentre does not exist");
         }
 
         // ✅ Cabin-related validation
         if (seat.getSeatType() == SeatType.SHARED_CABIN || seat.getSeatType() == SeatType.CABIN_DESK) {
             if (!StringUtils.hasText(seat.getCabinName())) {
-                throw new RuntimeException("Cabin name is required for SHARED_CABIN or CABIN_DESK seat type");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cabin name is required for SHARED_CABIN or CABIN_DESK seat type");
             }
 
             Cabin cabin = cabinRepository.findByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndState(
@@ -113,16 +116,16 @@ public class SeatServiceImpl implements SeatService {
                     seat.getCity(), seat.getState());
 
             if (cabin == null) {
-                throw new RuntimeException("Cabin does not exist: " + seat.getCabinName());
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cabin does not exist: " + seat.getCabinName());
             }
 
             // ✅ Check current seat count in cabin
-            long currentSeatCount = seatRepository.countByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndState(
+            long currentSeatCount = seatRepository.countByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndStateAndPublishedTrue(
                     seat.getCabinName(), seat.getCompanyId(), seat.getLetsWorkCentre(),
                     seat.getCity(), seat.getState());
 
-            if (currentSeatCount > cabin.getTotalSeats()) {
-                throw new RuntimeException("Cabin " + seat.getCabinName() + " is full. Cannot add more seats.");
+            if (currentSeatCount >= cabin.getTotalSeats()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cabin " + seat.getCabinName() + " is full. Cannot add more seats.");
             }
         } else {
             seat.setCabinName(null);
@@ -152,7 +155,7 @@ public class SeatServiceImpl implements SeatService {
 
         Tenant tenant = tenantService.findTenantByCompanyId(dto.getCompanyId());
         if (tenant == null)
-            throw new RuntimeException("Invalid company");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid company");
 
         LetsWorkCentre loc = letsWorkCentreRepo
                 .findByNameAndCompanyIdAndCityAndState(
@@ -162,7 +165,7 @@ public class SeatServiceImpl implements SeatService {
                         dto.getState());
 
         if (loc == null)
-            throw new RuntimeException("Centre not found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Centre not found");
 
         List<Seat> seats = new ArrayList<>();
 
@@ -387,7 +390,12 @@ public class SeatServiceImpl implements SeatService {
     
     @Override
     public List<SeatAvailabilityDto> getAllSeatsWithAvailability(
-            String companyId, String letsWorkCentre, String city, String state) {
+            String companyId,
+            String letsWorkCentre,
+            String city,
+            String state,
+            LocalDate startDate,
+            LocalDate endDate) {
 
         List<Seat> allSeats =
                 seatRepository.findAllByCompanyIdAndLetsWorkCentreAndCityAndState(
@@ -395,17 +403,22 @@ public class SeatServiceImpl implements SeatService {
 
         // 🔥 Fetch active contract seat mappings in one query
         List<ContractSeatMapping> activeContractMappings =
-                contractSeatMappingRepository.findActiveByLocation(
-                        companyId, letsWorkCentre, city, state);
+                contractSeatMappingRepository.findOverlappingMappings(
+                        companyId,
+                        letsWorkCentre,
+                        city,
+                        state,
+                        startDate,
+                        endDate);
 
         // 🔥 Build lookup map: SeatKey -> ContractSeatMapping
         Map<SeatKey, ContractSeatMapping> contractSeatMap =
                 activeContractMappings.stream()
                         .collect(Collectors.toMap(
                                 c -> new SeatKey(
-                                        c.getContract().getLetsWorkCentre().getName(),
-                                        c.getContract().getLetsWorkCentre().getCity(),
-                                        c.getContract().getLetsWorkCentre().getState(),
+                                        c.getContract().getLetsWorkCentre(),
+                                        c.getContract().getCity(),
+                                        c.getContract().getState(),
                                         c.getCompanyId(),
                                         c.getSeat().getSeatType(),
                                         c.getSeat().getSeatNumber()
@@ -436,19 +449,30 @@ public class SeatServiceImpl implements SeatService {
                     if (!available) {
 
                         dto.setContractId(mapping.getContract().getId());
+
                         dto.setContractStartDate(mapping.getStartDate());
+
                         dto.setContractEndDate(
                                 mapping.getActualEndDate() != null
                                         ? mapping.getActualEndDate()
                                         : mapping.getEndDate()
                         );
 
-                        // Fetch Contract - LetsWorkClient - company name
                         contractRepository
-                                .findByIdAndCompanyId(mapping.getContract().getId(), companyId)
+                                .findByIdAndCompanyId(
+                                        mapping.getContract().getId(),
+                                        companyId
+                                )
                                 .ifPresent(contract -> {
-                                    LetsWorkClient client = contract.getLetsWorkClient();
-                                    dto.setCompanyName(client.getClientCompanyName());
+
+                                    dto.setContract(contract);
+
+                                    if (contract.getLetsWorkClient() != null) {
+                                        dto.setCompanyName(
+                                                contract.getLetsWorkClient()
+                                                        .getClientCompanyName()
+                                        );
+                                    }
                                 });
                     }
 
@@ -571,6 +595,32 @@ public class SeatServiceImpl implements SeatService {
 	                );
 	                continue;
 	            }
+	            
+	         // ✅ Cabin-related validation
+	            if (seat.getSeatType() == SeatType.SHARED_CABIN || seat.getSeatType() == SeatType.CABIN_DESK) {
+	                if (!StringUtils.hasText(seat.getCabinName())) {
+	                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cabin name is required for SHARED_CABIN or CABIN_DESK seat type");
+	                }
+
+	                Cabin cabin = cabinRepository.findByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndState(
+	                        seat.getCabinName(), seat.getCompanyId(), seat.getLetsWorkCentre(),
+	                        seat.getCity(), seat.getState());
+
+	                if (cabin == null) {
+	                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cabin does not exist: " + seat.getCabinName());
+	                }
+
+	                // ✅ Check current seat count in cabin
+	                long currentSeatCount = seatRepository.countByCabinNameAndCompanyIdAndLetsWorkCentreAndCityAndStateAndPublishedTrue(
+	                        seat.getCabinName(), seat.getCompanyId(), seat.getLetsWorkCentre(),
+	                        seat.getCity(), seat.getState());
+
+	                if (currentSeatCount >= cabin.getTotalSeats()) {
+	                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cabin " + seat.getCabinName() + " is full. Cannot add more seats.");
+	                }
+	            } else {
+	                seat.setCabinName(null);
+	            }
 
 	            seat.setPublished(true);
 	            seat.setUpdateDate(new Date());
@@ -677,6 +727,43 @@ public class SeatServiceImpl implements SeatService {
 	@Override
 	public List<Seat> listSeatsInCabin(String companyId, String letsWorkCentre, String city, String state, String cabinName) {
 	    return seatRepository.findByCabinDetails(companyId, letsWorkCentre, city, state, cabinName);
+	}
+
+	@Override
+	public Seat unPublishSeat(Long seatId) {
+		// TODO Auto-generated method stub
+		
+		Seat seat = seatRepository.findById(seatId).orElse(null);
+		
+		if(seat==null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat not found with id : "+seatId);
+		}
+		
+		if (Boolean.FALSE.equals(seat.getPublished())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    seat.getSeatNumber() + " already unpublished"
+            );
+            
+        }
+		
+		ContractSeatMapping mapping = contractSeatMappingRepository.findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
+				seat.getSeatNumber(), 
+				seat.getSeatType(), 
+				seat.getLetsWorkCentre(), 
+				seat.getCompanyId(), 
+				seat.getCity(), 
+				seat.getState())
+				.orElse(null);
+		
+		if(mapping==null) {
+			seat.setPublished(false);
+		}
+		
+		else throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This seat is already mapped to contract with id : "+mapping.getContract().getId());
+		
+		Seat saved = seatRepository.save(seat);
+		
+		return saved; 
 	}
 
 	

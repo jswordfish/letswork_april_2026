@@ -1,9 +1,11 @@
  package com.letswork.crm.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -119,10 +121,25 @@ public class SeatController {
             @RequestParam String letsWorkCentre,
             @RequestParam String city,
             @RequestParam String state,
+
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate startDate,
+
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate endDate,
+
             @RequestParam String token) {
 
-        List<SeatAvailabilityDto> response = seatService.getAllSeatsWithAvailability(
-                companyId, letsWorkCentre, city, state);
+        List<SeatAvailabilityDto> response =
+                seatService.getAllSeatsWithAvailability(
+                        companyId,
+                        letsWorkCentre,
+                        city,
+                        state,
+                        startDate,
+                        endDate);
 
         return ResponseEntity.ok(response);
     }
@@ -190,6 +207,15 @@ public class SeatController {
             @RequestParam String token) {
 
         SeatPublishResponse response = seatService.publishSeats(requests);
+        return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/unpublish")
+    public ResponseEntity<Seat> unPublishSeats(
+            @RequestParam Long seatId,
+            @RequestParam String token) {
+
+        Seat response = seatService.unPublishSeat(seatId);
         return ResponseEntity.ok(response);
     }
     

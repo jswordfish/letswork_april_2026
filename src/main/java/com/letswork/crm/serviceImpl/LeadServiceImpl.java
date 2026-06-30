@@ -408,7 +408,7 @@ public class LeadServiceImpl implements LeadService{
 	}
 
 	@Override
-	public Lead getById(Long id, String companyId) {
+	public LeadResponseDto getById(Long id, String companyId) {
 
 	    Lead lead =
 	            repo.findByIdAndCompanyId(id, companyId);
@@ -417,7 +417,30 @@ public class LeadServiceImpl implements LeadService{
 	        throw new RuntimeException("Lead not found");
 	    }
 
-	    return lead;
+	    LeadResponseDto dto =
+	            new LeadResponseDto();
+
+	    BeanUtils.copyProperties(
+	            lead,
+	            dto
+	    );
+
+	    AssignLead assignment =
+	            assignLeadRepo.findByLeadId(
+	                    lead.getId()
+	            );
+
+	    if (assignment != null) {
+
+	        User user =
+	                userRepo.findById(
+	                        assignment.getUserId()
+	                ).orElse(null);
+
+	        dto.setUser(user);
+	    }
+
+	    return dto;
 	}
 
 }

@@ -1,7 +1,9 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -12,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,16 +22,20 @@ import org.springframework.web.server.ResponseStatusException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letswork.crm.dtos.AgreementDto;
+import com.letswork.crm.dtos.ContractDeleteDto;
 import com.letswork.crm.dtos.ConvertedContractDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Contract;
+import com.letswork.crm.entities.ContractSeatMapping;
 import com.letswork.crm.entities.Lead;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.ContractStatus;
+import com.letswork.crm.enums.DateFilterType;
 import com.letswork.crm.enums.LeadStatus;
 import com.letswork.crm.repo.ContractRepository;
+import com.letswork.crm.repo.ContractSeatMappingRepository;
 import com.letswork.crm.repo.LeadRepo;
 import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.service.ContractService;
@@ -36,8 +43,11 @@ import com.letswork.crm.service.LeadService;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.TenantService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @Transactional
+@Slf4j
 public class ContractServiceImpl implements ContractService {
 
     @Autowired
@@ -66,6 +76,9 @@ public class ContractServiceImpl implements ContractService {
     
     @Autowired
     NewUserRegisterService newUserRegisterService;
+    
+    @Autowired
+    ContractSeatMappingRepository seatMappingRepo;
     
     @Autowired
     private ObjectMapper objectMapper;
@@ -112,7 +125,12 @@ public class ContractServiceImpl implements ContractService {
         }
 
         else {
+        	
             contract.setCreateDate(new Date());
+            
+            contract.setActualEndDate(contract.getEndDate());
+            
+            contract.setActive(true);
 
             Contract saved = contractRepo.save(contract);
 
@@ -132,18 +150,13 @@ public class ContractServiceImpl implements ContractService {
     }
     
     @Override
-    public ConvertedContractDto saveOrUpdateConverted(ConvertedContractDto dto) {
+    public ConvertedContractDto saveOrUpdateConverted(ConvertedContractDto dto,
+	        MultipartFile agreement) {
 
         Tenant tenant = tenantService.findTenantByCompanyId(dto.getContract().getCompanyId());
         if (tenant == null) {
             throw new RuntimeException("Invalid companyId");
         }
-
-        LetsWorkClient client = letsWorkClientRepo
-                .findByIdAndCompanyId(dto.getContract().getLetsWorkClient().getId(), dto.getContract().getCompanyId())
-                .orElseThrow(() -> new RuntimeException("Invalid LetsWorkClient"));
-
-        dto.getContract().setLetsWorkClient(client);
 
         if (dto.getContract().getId() != null) {
 
@@ -157,16 +170,7 @@ public class ContractServiceImpl implements ContractService {
             mapper.map(dto.getContract(), existing);
             Contract saved = contractRepo.save(existing);
 
-            byte[] pdfBytes = contractDocumentService.generateAgreementPdf(saved);
-
-            String s3Key = s3Service.uploadContractAgreementPdf(
-            		"letsworkcentres",
-                    saved.getCompanyId(),
-                    saved.getId(),
-                    pdfBytes
-            );
-
-            saved.setAgreementS3KeyName(s3Key);
+            uploadAgreementIfPresent(saved, agreement);
             
 			ConvertedContractDto response = new ConvertedContractDto();
             
@@ -185,70 +189,213 @@ public class ContractServiceImpl implements ContractService {
         }
 
         else {
-        	dto.getContract().setCreateDate(new Date());
 
-            Contract saved = contractRepo.save(dto.getContract());
+            ConvertedContractDto response =
+                    new ConvertedContractDto();
 
-            byte[] pdfBytes = contractDocumentService.generateAgreementPdf(saved);
+            NewUserRegister savedUser = null;
 
-            String s3Key = s3Service.uploadContractAgreementPdf(
-            		"letsworkcentres",
-                    saved.getCompanyId(),
-                    saved.getId(),
-                    pdfBytes
-            );
+            if (dto.getNewUserRegister() != null) {
 
-            saved.setAgreementS3KeyName(s3Key);
-            
-            ConvertedContractDto response = new ConvertedContractDto();
-            
-            if(dto.getNewUserRegister()!=null) {
+                savedUser =
+                        newUserRegisterService
+                                .saveOrUpdateManually(
+                                        dto.getNewUserRegister()
+                                );
 
-			NewUserRegister user = newUserRegisterService.saveOrUpdateManually(dto.getNewUserRegister());
-			response.setNewUserRegister(user);
+                response.setNewUserRegister(savedUser);
+
+                LetsWorkClient client =
+                        letsWorkClientRepo
+                                .findByClientCompanyNameAndCompanyId(
+                                        dto.getNewUserRegister().getClientCompanyName(),
+                                        dto.getContract().getCompanyId()
+                                )
+                                .stream()
+                                .findFirst()
+                                .orElse(null);
+
+                if (client == null) {
+
+                    throw new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST,
+                            "LetsWorkClient was not created for company : "
+                                    + savedUser.getClientCompanyName()
+                    );
+                }
+
+                dto.getContract().setLetsWorkClient(client);
+
+            } else {
+
+                response.setNewUserRegister(null);
+
+                if (dto.getContract().getLetsWorkClient() == null
+                        || dto.getContract().getLetsWorkClient().getId() == null) {
+
+                    throw new ResponseStatusException( 
+                            HttpStatus.BAD_REQUEST,
+                            "LetsWorkClient is required"
+                    );
+                }
+
+                LetsWorkClient client =
+                        letsWorkClientRepo
+                                .findByIdAndCompanyId(
+                                        dto.getContract()
+                                                .getLetsWorkClient()
+                                                .getId(),
+                                        dto.getContract()
+                                                .getCompanyId()
+                                )
+                                .orElseThrow(() ->
+                                        new ResponseStatusException(
+                                                HttpStatus.BAD_REQUEST,
+                                                "Invalid LetsWorkClient"
+                                        ));
+
+                dto.getContract().setLetsWorkClient(client);
             }
-            else response.setNewUserRegister(null);
+
+            dto.getContract().setCreateDate(new Date());
             
-            Contract contract = contractRepo.save(saved);
+            dto.getContract().setActive(true);
             
-            response.setContract(contract);
+            dto.getContract().setActualEndDate(dto.getContract().getEndDate());
+
+            Contract saved =
+                    contractRepo.save(dto.getContract());
+
+            uploadAgreementIfPresent(saved, agreement);
+
+            saved =
+                    contractRepo.save(saved);
+
+            response.setContract(saved);
             
             return response;
         }
     }
     
+    private void uploadAgreementIfPresent(
+            Contract contract,
+            MultipartFile agreement
+    ) {
+
+        if (agreement == null || agreement.isEmpty()) {
+            return;
+        }
+
+        try {
+
+            String s3Key =
+                    s3Service.uploadContractAgreementPdf(
+                            "letsworkcentres",
+                            contract.getCompanyId(),
+                            contract.getId(),
+                            agreement.getBytes()
+                    );
+
+            contract.setAgreementS3KeyName(s3Key);
+
+        } catch (Exception e) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to upload agreement",
+                    e
+            );
+        }
+    }
 
     @Override
     public PaginatedResponseDto getPaginated(
             String companyId,
             Long letsWorkClientId,
             ContractStatus status,
+            LocalDate fromDate,
+            LocalDate toDate,
+            DateFilterType dateFilterType,
             int page,
             int size
     ) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        size,
+                        Sort.by("id").descending()
+                );
 
-        Page<Contract> resultPage = contractRepo.filter(
-                companyId,
-                letsWorkClientId,
-                status,
-                pageable
-        );
+        Page<Contract> resultPage;
 
-        PaginatedResponseDto dto = new PaginatedResponseDto();
+        if (dateFilterType == DateFilterType.FILTER_ON_START_DATE) {
+
+            resultPage =
+                    contractRepo.filterOnStartDate(
+                            companyId,
+                            letsWorkClientId,
+                            status,
+                            fromDate,
+                            toDate,
+                            pageable
+                    );
+
+        } else if (dateFilterType == DateFilterType.FILTER_ON_ACTUAL_END_DATE) {
+
+            resultPage =
+                    contractRepo.filterOnActualEndDate(
+                            companyId,
+                            letsWorkClientId,
+                            status,
+                            fromDate,
+                            toDate,
+                            pageable
+                    );
+
+        } else {
+
+            resultPage =
+                    contractRepo.filter(
+                            companyId,
+                            letsWorkClientId,
+                            status,
+                            pageable
+                    );
+        }
+
+        PaginatedResponseDto dto =
+                new PaginatedResponseDto();
+
         dto.setSelectedPage(page);
-        dto.setTotalNumberOfRecords((int) resultPage.getTotalElements());
-        dto.setTotalNumberOfPages(resultPage.getTotalPages());
-        dto.setRecordsFrom(page * size + 1);
-        dto.setRecordsTo(
-                Math.min((page + 1) * size, (int) resultPage.getTotalElements())
+
+        dto.setTotalNumberOfRecords(
+                (int) resultPage.getTotalElements()
         );
-        dto.setList(resultPage.getContent());
+
+        dto.setTotalNumberOfPages(
+                resultPage.getTotalPages()
+        );
+
+        dto.setRecordsFrom(
+                resultPage.getTotalElements() == 0
+                        ? 0
+                        : page * size + 1
+        );
+
+        dto.setRecordsTo(
+                Math.min(
+                        (page + 1) * size,
+                        (int) resultPage.getTotalElements()
+                )
+        );
+
+        dto.setList(
+                resultPage.getContent()
+        );
 
         return dto;
     }
-
 
 
     @Override
@@ -284,11 +431,11 @@ public class ContractServiceImpl implements ContractService {
                     contractDocumentService
                             .generateAgreementPdfFromDto(dto);
 
-            mailService.sendAgreementEmail(
-                    dto.getLeadEmail(),
-                    dto.getLeadName(),
-                    agreementPdf
-            );
+//            mailService.sendAgreementEmail(
+//                    dto.getLeadEmail(),
+//                    dto.getLeadName(),
+//                    agreementPdf
+//            );
             
             leadService.changeStatus(lead.getId(), dto.getCompanyId(), LeadStatus.AGREEMENT_SENT);
 
@@ -328,5 +475,84 @@ public class ContractServiceImpl implements ContractService {
             );
         }
     }
+
+	@Override
+	public Contract cancelContract(ContractDeleteDto dto) {
+		
+		Contract contract = contractRepo.findById(dto.getContractId()).orElse(null);
+		
+		if(contract==null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Contract not found with id : "+dto.getContractId());
+		}
+		
+		contract.setActualEndDate(dto.getActualEndDate());
+		
+		contract.setCancelContractType(dto.getCancelContractType());		
+		
+		contract.setCancelDescription(dto.getCancelDescription());
+				
+		if(dto.getNoticePeriodStartDate()!=null) {
+			contract.setNoticePeriodStartDate(dto.getNoticePeriodStartDate());
+		}
+		
+		Contract response = contractRepo.save(contract);
+		
+		return response;
+		
+	}
+	
+	@Scheduled(cron = "0 0 0 * * *")
+    @Transactional
+    public void terminateExpiredContracts() {
+
+        LocalDate today = LocalDate.now();
+
+        List<Contract> contracts =
+                contractRepo.findContractsToTerminate(today);
+
+        log.info(
+                "Found {} contracts to terminate",
+                contracts.size()
+        );
+
+        for (Contract contract : contracts) {
+
+            try {
+
+                List<ContractSeatMapping> mappings =
+                        seatMappingRepo.findByContractIdAndCompanyId(
+                                contract.getId(),
+                                contract.getCompanyId()
+                        );
+
+                for (ContractSeatMapping mapping : mappings) {
+                    mapping.setDeleted(true);
+                }
+
+                seatMappingRepo.saveAll(mappings);
+
+                contract.setActive(false);
+
+                contract.setContractStatus(
+                        ContractStatus.TERMINATED
+                );
+
+                contractRepo.save(contract);
+
+                log.info(
+                        "Contract {} terminated successfully",
+                        contract.getId()
+                );
+
+            } catch (Exception ex) {
+
+                log.error(
+                        "Failed to terminate contract {}",
+                        contract.getId(),
+                        ex
+                );
+            }
+        }
+	}
     
 }

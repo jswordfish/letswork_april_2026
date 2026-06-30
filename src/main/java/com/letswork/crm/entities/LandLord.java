@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.letswork.crm.enums.AgreementType;
 
 import lombok.AllArgsConstructor;
@@ -36,11 +37,17 @@ public class LandLord extends Base{
 	
 	private String name;
 	
+	private String email;
+	
+	private String phone;
+	
 	private String spocFirstName;
 	
 	private String spocLastName;
 	
 	private String spocEmail;
+	
+	private String spocPhone;
 	
 	@Column(unique = true, nullable = false)
 	private String gstNumber;
@@ -77,14 +84,12 @@ public class LandLord extends Base{
 	
 	private String agreementFileS3Path;
 	
-
-	
 	@Enumerated(EnumType.STRING)  
     @Column(nullable = false)
     private AgreementType agreementType;
 	
 	@OneToMany(mappedBy = "landLord", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@JsonManagedReference
     private List<EscalationTimeAndPercentage> timeAndPercentage = new ArrayList<>();
-	
 
 }
