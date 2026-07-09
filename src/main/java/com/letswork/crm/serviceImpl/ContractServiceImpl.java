@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -273,8 +274,29 @@ public class ContractServiceImpl implements ContractService {
 
             response.setContract(saved);
             
+            // send onboarding mail here with saved.getLetsWorkClient.getEmail()
+            
+            String link = generateLink(saved);
+            
+            mailService.sendOnboardingEmail(saved.getId(), saved.getCompanyId(), saved.getLetsWorkClient().getClientCompanyName(),
+            		link, saved.getLetsWorkClient().getEmail());
+            
             return response;
         }
+    }
+    
+    private String generateLink(Contract contract) {
+    	
+		String baseUrl = "https://letsworkadmin.vercel.app/onboarding?letsWorkClientId=";
+    	
+		if(contract==null) {
+    		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Contract not found");
+    	}
+    	
+    	Long letsWorkClientId = contract.getLetsWorkClient().getId();
+    	
+    	return baseUrl+letsWorkClientId;
+    	
     }
     
     private void uploadAgreementIfPresent(
@@ -297,6 +319,8 @@ public class ContractServiceImpl implements ContractService {
                     );
 
             contract.setAgreementS3KeyName(s3Key);
+            
+            contractRepo.save(contract);
 
         } catch (Exception e) {
 
@@ -431,11 +455,11 @@ public class ContractServiceImpl implements ContractService {
                     contractDocumentService
                             .generateAgreementPdfFromDto(dto);
 
-//            mailService.sendAgreementEmail(
-//                    dto.getLeadEmail(),
-//                    dto.getLeadName(),
-//                    agreementPdf
-//            );
+            mailService.sendAgreementEmail(
+                    dto.getLeadEmail(),
+                    dto.getLeadName(),
+                    agreementPdf
+            );
             
             leadService.changeStatus(lead.getId(), dto.getCompanyId(), LeadStatus.AGREEMENT_SENT);
 
@@ -509,7 +533,7 @@ public class ContractServiceImpl implements ContractService {
 
         List<Contract> contracts =
                 contractRepo.findContractsToTerminate(today);
-
+ 
         log.info(
                 "Found {} contracts to terminate",
                 contracts.size()

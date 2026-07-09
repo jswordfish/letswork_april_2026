@@ -59,6 +59,18 @@ public class AssignLeadServiceImpl implements AssignLeadService{
 	            tenantService.findTenantByCompanyId(
 	                    assignLead.getCompanyId()
 	            );
+		
+		AssignLead existing1 = repo.findByLeadIdAndCompanyId(assignLead.getLeadId(), assignLead.getCompanyId()).orElse(null);
+		
+		if(existing1!=null) {
+			
+			existing1.setUpdateDate(new Date());
+			return repo.save(existing1);
+		}
+		
+		else {
+			
+		
 
 	    if (tenant == null) {
 
@@ -131,7 +143,7 @@ public class AssignLeadServiceImpl implements AssignLeadService{
 
         Activity activity = new Activity();
         activity.setCompanyId(savedAssign.getCompanyId());
-        activity.setLeadId(savedAssign.getId());
+        activity.setLeadId(savedAssign.getLeadId());
         activity.setActionType(ActionType.ASSIGNED);
         activity.setHeader(
                 "Lead - " + lead.getName() + " assigned to " + user.getFirstName() + " " + user.getLastName()
@@ -142,6 +154,7 @@ public class AssignLeadServiceImpl implements AssignLeadService{
         activityRepo.save(activity);
 
         return savedAssign;
+		}
 		
 	}
 
@@ -175,7 +188,7 @@ public class AssignLeadServiceImpl implements AssignLeadService{
 		            repo.findByLeadIdAndCompanyId(
 		                    leadId,
 		                    companyId
-		            );
+		            ).orElse(null);
 		
 		    if (existing != null) {
 		

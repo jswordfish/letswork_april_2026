@@ -55,6 +55,12 @@ public class Booking extends Base{
 	@ManyToOne
 	LetsWorkClient letsWorkClient;
 	
+	private Long bookedByUserId;
+	
+	@ManyToOne
+    @JoinColumn(name = "booked_by_user")
+	private NewUserRegister bookedByUser;
+	
 	@ManyToOne
 	@JoinColumn(name = "lets_work_centre_id")
 	private LetsWorkCentre letsWorkCentre;

@@ -22,6 +22,7 @@ import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.ConferenceBundle;
 import com.letswork.crm.entities.ConferenceBundleBooking;
 import com.letswork.crm.entities.LetsWorkClient;
+import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortFieldByConferenceBundleBooking;
@@ -31,6 +32,7 @@ import com.letswork.crm.repo.ConferenceBundleBookingRepository;
 import com.letswork.crm.repo.ConferenceBundleRepository;
 import com.letswork.crm.repo.DayPassBundleBookingRepository;
 import com.letswork.crm.repo.LetsWorkClientRepository;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.ConferenceBundleBookingService;
 
 import lombok.RequiredArgsConstructor;
@@ -48,12 +50,13 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
     private final RazorpayService razorpayService;
     private final BookingRepository bookingRepo;
     private final DayPassBundleBookingRepository dayPassBundleRepo;
+    private final NewUserRegisterRepository newUserRegisterRepo;
     
     
     
     @Override
     public ConferenceBundleBooking createBundlePurchase(
-    		CreateConferenceBundleBookingRequest request //
+    		CreateConferenceBundleBookingRequest request
     ){
 
         LetsWorkClient client = clientRepo.findById(request.getClientId())
@@ -68,6 +71,16 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
         LocalDate expiryDate = now
                 .plusDays(Math.max(0, bundle.getValidForDays() - 1))
                 .toLocalDate();
+        
+        
+        NewUserRegister bookedByUser = null;
+        Long bookedByUserId = null; 
+
+        if (request.getBookedByUserId() != null) {
+            bookedByUserId = request.getBookedByUserId();
+            bookedByUser = newUserRegisterRepo.findById(bookedByUserId).orElse(null);
+        }
+        
 
         ConferenceBundleBooking booking =
                 ConferenceBundleBooking.builder()
@@ -81,6 +94,8 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
                         .bookedFrom(request.getBookedFrom())
                         .referenceId(generate("CONF_BUNDLE"))
                         .bookedFrom(request.getBookedFrom())
+                        .bookedByUserId(bookedByUserId)
+                        .bookedByUser(bookedByUser)
                         .frontendAmount(request.getFrontendAmount())
                         .frontendDiscountPercentage(request.getFrontendDiscountPercentage())
                         .frontendDiscountedAmount(request.getFrontendDiscountedAmount())
@@ -102,18 +117,6 @@ public class ConferenceBundleBookingServiceImpl implements ConferenceBundleBooki
         booking.setRazorpayOrderId(orderId);
         
         ConferenceBundleBooking savedBooking = bundleBookingRepo.save(booking);
-        
-        
-        // NOW THIS IS HANDLED IN PAYMENT VERIFICATION METHOD
-//        if (client.getPurchasedConferenceCredits() == null) {
-//        	Float credits = Optional.ofNullable(client.getPurchasedConferenceCredits()).orElse(0f);
-//			client.setPurchasedConferenceCredits(bundle.getNumberOfHours() + credits);
-//			clientRepo.save(client);
-//		}else {
-//			Float credits = client.getPurchasedConferenceCredits();
-//			client.setPurchasedConferenceCredits(bundle.getNumberOfHours() + credits);
-//			clientRepo.save(client);
-//		}
         
         return savedBooking;
     }

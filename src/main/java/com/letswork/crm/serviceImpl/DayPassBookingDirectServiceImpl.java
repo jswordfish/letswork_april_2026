@@ -33,6 +33,7 @@ import com.letswork.crm.entities.DayPassBundleBooking;
 import com.letswork.crm.entities.DayPassLimit;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.LetsWorkClient;
+import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.Offers;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.BookedFrom;
@@ -46,6 +47,7 @@ import com.letswork.crm.repo.DayPassLimitRepo;
 import com.letswork.crm.repo.InvoiceRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.LetsWorkClientRepository;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.OffersRepository;
 import com.letswork.crm.service.DayPassBookingDirectService;
 import com.letswork.crm.service.DayPassBundleBookingService;
@@ -73,6 +75,7 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
     private final RazorpayService razorpayService;
     private final DayPassBundleBookingRepository dayPassBundleBookingRepository;
     private final DayPassBundleBookingService dayPassBundleBookingService;
+    private final NewUserRegisterRepository newUserRegisterRepo;
 
     @Transactional
     @Override
@@ -174,6 +177,15 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
         booking.setDiscountedPrice(discountedPrice);
         booking.setAmount(discountedPrice);
         booking.setAppliedOffer(offer);
+        
+        if(request.getBookedByUserId()!=null) {
+            
+            booking.setBookedByUserId(request.getBookedByUserId());
+            
+            NewUserRegister bookedByUser = newUserRegisterRepo.findById(request.getBookedByUserId()).orElse(null);
+            
+            booking.setBookedByUser(bookedByUser);
+            }
         
         // Frontend calculation fields
         booking.setFrontendAmount(request.getFrontendAmount());

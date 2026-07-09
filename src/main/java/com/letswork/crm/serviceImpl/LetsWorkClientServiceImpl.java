@@ -102,15 +102,21 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	                "CompanyId invalid - " + clientCompany.getCompanyId()
 	        );
 	    }
-
-	    NewUserRegister primaryUser =
-	            userRepo.findById(clientCompany.getUserId())
-	                    .orElseThrow(() ->
-	                            new ResponseStatusException(HttpStatus.BAD_REQUEST,
-	                                    "User not found with id: "
-	                                            + clientCompany.getUserId()
-	                            )
-	                    );
+	    
+	    // 1. Declare primaryUser as null initially
+	    NewUserRegister primaryUser = null;
+	    
+	    // 2. Only query the repository if the userId is present
+	    if (clientCompany.getUserId() != null) {
+	        primaryUser =
+	                userRepo.findById(clientCompany.getUserId())
+	                        .orElseThrow(() ->
+	                                new ResponseStatusException(HttpStatus.BAD_REQUEST,
+	                                        "User not found with id: "
+	                                                + clientCompany.getUserId()
+	                                )
+	                        );
+	    }
 
 	    LetsWorkCentre centre =
 	            letsWorkCentreRepo.findByNameAndCompanyIdAndCityAndState(
@@ -130,12 +136,12 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	        clientCompany.setUsers(new HashSet<>());
 	    }
 
-	    clientCompany.getUsers().add(primaryUser);
-
-	    
+	    // 3. Only add the primaryUser if it is not null
+	    if (primaryUser != null) {
+	        clientCompany.getUsers().add(primaryUser);
+	    }
 
 	    if (aadhaar != null && !aadhaar.isEmpty()) {
-
 	        String key =
 	                s3Service.uploadClientKycDocument(
 	                        "letsworkcentres",
@@ -145,14 +151,10 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	                        aadhaar.getBytes(),
 	                        aadhaar.getOriginalFilename()
 	                );
-
 	        clientCompany.setAadhaarS3Key(key);
 	    }
 
-	    
-
 	    if (pan != null && !pan.isEmpty()) {
-
 	        String key =
 	                s3Service.uploadClientKycDocument(
 	                        "letsworkcentres",
@@ -162,14 +164,10 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	                        pan.getBytes(),
 	                        pan.getOriginalFilename()
 	                );
-
 	        clientCompany.setPanS3Key(key);
 	    }
 
-	    
-
 	    if (tan != null && !tan.isEmpty()) {
-
 	        String key =
 	                s3Service.uploadClientKycDocument(
 	                        "letsworkcentres",
@@ -179,14 +177,10 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	                        tan.getBytes(),
 	                        tan.getOriginalFilename()
 	                );
-
 	        clientCompany.setTanS3Key(key);
 	    }
 
-	    
-
 	    if (gst != null && !gst.isEmpty()) {
-
 	        String key =
 	                s3Service.uploadClientKycDocument(
 	                        "letsworkcentres",
@@ -196,11 +190,8 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	                        gst.getBytes(),
 	                        gst.getOriginalFilename()
 	                );
-
 	        clientCompany.setGstCertificateS3Key(key);
 	    }
-
-	    
 
 	    if (clientCompany.getId() != null) {
 
@@ -220,7 +211,10 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	        Set<NewUserRegister> mergedUsers =
 	                new HashSet<>(existing.getUsers());
 
-	        mergedUsers.add(primaryUser);
+	        // 4. Only add to merged users if it is not null
+	        if (primaryUser != null) {
+	            mergedUsers.add(primaryUser);
+	        }
 
 	        if (clientCompany.getAadhaarS3Key() == null) {
 	            clientCompany.setAadhaarS3Key(
@@ -259,7 +253,6 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	        return "record updated";
 	    }
 
-	    
 	    clientCompany.setCreateDate(new Date());
 	    clientCompany.setUpdateDate(new Date());
 

@@ -762,6 +762,53 @@ public class MailJetOtpService {
         }
     }
     
+    public void sendOnboardingEmail(
+    		Long contractId,
+    		String companyId,
+    		String name,
+    		String link,
+    		String email
+    ) {
+
+        ClientOptions options = ClientOptions.builder()
+                .apiKey(API_KEY)
+                .apiSecretKey(SECRET_KEY)
+                .build();
+
+        MailjetClient client = new MailjetClient(options);
+        
+        
+        Map<String, Object> variables = new HashMap<>();
+        
+        variables.put("name", name);
+        
+        variables.put("link", link);
+        
+
+        TransactionalEmail emailMessage = TransactionalEmail.builder()
+                .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+//                        new SendContact(cc2)
+                ))
+                .from(new SendContact(SENDER_EMAIL, "Zimulate"))
+                .subject("Complete Onboarding Process")
+                .templateID(8169115L)   
+                .templateLanguage(true)
+                .variables(variables)
+                .build();
+
+        SendEmailsRequest request = SendEmailsRequest.builder()
+                .message(emailMessage)
+                .build();
+
+        try {
+            request.sendWith(client);
+        } catch (MailjetException e) {
+            throw new RuntimeException("Failed to send credit reset email", e);
+        }
+    }
+    
     public static String formatDate(LocalDate date) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy");
 		return date.format(formatter);

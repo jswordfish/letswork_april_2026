@@ -1,6 +1,9 @@
 package com.letswork.crm.controller;
 
+import java.io.IOException;
 import java.time.LocalDate;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -92,6 +95,57 @@ public class LeadController {
 	                    page,
 	                    size
 	            )
+	    );
+	}
+	
+	@GetMapping("/export")
+	public void export(
+	        @RequestParam String companyId,
+	        @RequestParam String token,
+
+	        @RequestParam(required = false) String name,
+	        @RequestParam(required = false) String email,
+	        @RequestParam(required = false) String phone,
+	        @RequestParam(required = false) String clientCompanyName,
+	        @RequestParam(required = false) Source source,
+	        @RequestParam(required = false) String location,
+	        @RequestParam(required = false) LeadStatus status,
+	        @RequestParam(required = false) LeadQuality leadQuality,
+	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) String city,
+	        @RequestParam(required = false) String state,
+	        @RequestParam(required = false) String solution,
+	        @RequestParam(required = false) String search,
+
+	        @RequestParam(required = false)
+	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	        LocalDate fromDate,
+
+	        @RequestParam(required = false)
+	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	        LocalDate toDate,
+
+	        HttpServletResponse response
+	) throws IOException {
+
+	    service.exportToExcel(
+	            companyId,
+	            name,
+	            email,
+	            phone,
+	            clientCompanyName,
+	            source,
+	            location,
+	            status,
+	            leadQuality,
+	            letsWorkCentre,
+	            city,
+	            state,
+	            solution,
+	            search,
+	            fromDate,
+	            toDate,
+	            response
 	    );
 	}
 	

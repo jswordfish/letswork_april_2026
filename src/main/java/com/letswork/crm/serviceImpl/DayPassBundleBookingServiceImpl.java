@@ -23,6 +23,7 @@ import com.letswork.crm.entities.DayPassBundle;
 import com.letswork.crm.entities.DayPassBundleBooking;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.LetsWorkClient;
+import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
 import com.letswork.crm.enums.SortField;
@@ -33,6 +34,7 @@ import com.letswork.crm.repo.DayPassBundleBookingRepository;
 import com.letswork.crm.repo.DayPassBundleRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.LetsWorkClientRepository;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.OffersRepository;
 import com.letswork.crm.service.DayPassBundleBookingService;
 
@@ -51,6 +53,7 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
 	private final OffersRepository offersRepository;
 	private final BookingRepository bookingRepo;
 	private final ConferenceBundleBookingRepository confBundleRepo;
+	private final NewUserRegisterRepository newUserRegisterRepo;
 
 	@Override
 	public DayPassBundleBooking dayPassBundleBooking(DayPassBundleBookingRequest request) {
@@ -67,6 +70,14 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
 		Date createDate = new Date();
 
 		LocalDate expiryDate = LocalDate.now().plusDays(Math.max(0, bundle.getValidForDays() - 1));
+		
+		NewUserRegister bookedByUser = null;
+        Long bookedByUserId = null; 
+
+        if (request.getBookedByUserId() != null) {
+            bookedByUserId = request.getBookedByUserId();
+            bookedByUser = newUserRegisterRepo.findById(bookedByUserId).orElse(null);
+        }
 
 		DayPassBundleBooking booking = DayPassBundleBooking.builder().companyId(bundle.getCompanyId())
 				.dateOfPurchase(LocalDateTime.now()).letsWorkClient(client).letsWorkCentre(centre)
@@ -76,7 +87,7 @@ public class DayPassBundleBookingServiceImpl implements DayPassBundleBookingServ
                 .frontendDiscountPercentage(request.getFrontendDiscountPercentage())
                 .frontendDiscountedAmount(request.getFrontendDiscountedAmount()).frontendCgstPercentage(request.getFrontendCgstPercentage())
                 .frontendSgstPercentage(request.getFrontendSgstPercentage())
-                .frontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax()).build();
+                .frontendFinalAmountAfterAddingTax(request.getFrontendFinalAmountAfterAddingTax()).bookedByUserId(bookedByUserId).bookedByUser(bookedByUser).build();
 		booking.setDateOfPurchase(LocalDateTime.now());
 		String orderId = razorpayService.createOrder(
                 booking.getFrontendFinalAmountAfterAddingTax(), 

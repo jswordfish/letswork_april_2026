@@ -8,11 +8,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.letswork.crm.entities.SolutionType;
+import com.letswork.crm.enums.Unit;
 
 @Repository
 public interface SolutionTypeRepository extends JpaRepository<SolutionType, Long> {
 
-    SolutionType findByNameAndCompanyId(String name, String companyId);
+    List<SolutionType> findByNameAndCompanyId(String name, String companyId);
+    
+    SolutionType findByNameAndUnitAndCompanyId(String name, Unit unit, String companyId);
 
     List<SolutionType> findAllByCompanyId(String companyId);
     

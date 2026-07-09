@@ -34,6 +34,7 @@ import com.letswork.crm.entities.ConferenceRoom;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.LetsWorkClient;
+import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.Offers;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.BookedFrom;
@@ -47,6 +48,7 @@ import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
 import com.letswork.crm.repo.InvoiceRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.LetsWorkClientRepository;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.OffersRepository;
 import com.letswork.crm.service.ConferenceBookingDirectService;
 import com.letswork.crm.service.QRCodeService;
@@ -72,6 +74,7 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
     private final PdfService pdfService;
     private final RazorpayService razorpayService;
     private final ConferenceBundleBookingRepository bundleRepo;
+    private final NewUserRegisterRepository newUserRegisterRepo;
 
     @Transactional
     @Override
@@ -187,6 +190,15 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
         booking.setCompanyId(centre.getCompanyId());
         booking.setBookingStatus(request.getBookedFrom() == BookedFrom.APP ? BookingStatus.DRAFT : BookingStatus.ACTIVE);
         booking.setBookedFrom(request.getBookedFrom());
+        
+        if(request.getBookedByUserId()!=null) {
+        
+        booking.setBookedByUserId(request.getBookedByUserId());
+        
+        NewUserRegister bookedByUser = newUserRegisterRepo.findById(request.getBookedByUserId()).orElse(null);
+        
+        booking.setBookedByUser(bookedByUser);
+        }
         
         String refId = generate("CONF_ROOM_DIRECT");
         booking.setReferenceId(refId);
@@ -421,6 +433,7 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 	     if (newDate.isBefore(today)) {
 	         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking date cannot be in the past");
 	     }
+	    
 		booking.setStartDate(newDate);
 		booking.setExpiryDate(newDate);
 		booking.setPrice(existing.getPrice());

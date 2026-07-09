@@ -24,5 +24,7 @@ public class CreateConferenceBundleBookingRequest {
 	private Integer frontendSgstPercentage;
 	
 	private float frontendFinalAmountAfterAddingTax;
+	
+	private Long bookedByUserId;
 
 }

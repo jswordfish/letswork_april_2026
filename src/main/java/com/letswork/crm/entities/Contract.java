@@ -100,6 +100,8 @@ public class Contract extends Base{
 	
 	private String depositAmountInRupees;
 	
+	private Integer refundableDepositInMonths;
+	
 	@Enumerated(EnumType.STRING)  
     private ContractStatus contractStatus;
 	

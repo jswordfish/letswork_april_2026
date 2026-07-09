@@ -29,8 +29,6 @@ public class ConferenceBundleBooking extends Booking{
 
     private Float remainingHours;
 
-    
-
     /**
      * Price at the time of booking.
      */

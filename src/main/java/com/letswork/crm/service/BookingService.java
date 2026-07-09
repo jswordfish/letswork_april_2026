@@ -1,7 +1,10 @@
 package com.letswork.crm.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Booking;
@@ -34,13 +37,24 @@ public interface BookingService {
 	        int size
 	);
 	
-	public byte[] exportBookingsToExcel(
-	        String companyId, List<String> bookingTypes, Long clientId, String referenceId,
-	        List<BookingStatus> status, BookedFrom bookedFrom, List<String> roomNames,
-	        String search, List<String> letsWorkCentres, LocalDate fromDate, LocalDate toDate,
-	        LocalDate startDateFromDate, LocalDate startDateToDate, SortFieldByBooking sortFieldByBooking,
-	        SortingOrder order
-	) throws Exception;
+	public void exportAllBookings(
+	        String companyId,
+	        List<String> bookingTypes,
+	        Long clientId,
+	        String referenceId,
+	        List<BookingStatus> status,
+	        BookedFrom bookedFrom,
+	        List<String> roomNames,
+	        String search,
+	        List<String> letsWorkCentres,
+	        LocalDate fromDate,
+	        LocalDate toDate,
+	        LocalDate startDateFromDate,
+	        LocalDate startDateToDate,
+	        SortFieldByBooking sortFieldByBooking,
+	        SortingOrder order,
+	        HttpServletResponse response
+	) throws IOException;
 	
 	void deactivateBooking(Long bookingId);
 	

@@ -1,5 +1,6 @@
 package com.letswork.crm.serviceImpl;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,8 +11,15 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -441,6 +449,143 @@ public class LeadServiceImpl implements LeadService{
 	    }
 
 	    return dto;
+	}
+	
+	@Override
+	public void exportToExcel(
+	        String companyId,
+	        String name,
+	        String email,
+	        String phone,
+	        String clientCompanyName,
+	        Source source,
+	        String location,
+	        LeadStatus status,
+	        LeadQuality leadQuality,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
+	        String solution,
+	        String search,
+	        LocalDate fromDate,
+	        LocalDate toDate,
+	        HttpServletResponse response
+	) throws IOException {
+
+	    Page<Lead> resultPage =
+	            repo.filter(
+	                    companyId, name, email, phone, clientCompanyName, source, location,
+	                    status, leadQuality, letsWorkCentre, city, state, solution, search,
+	                    fromDate == null ? null : java.sql.Date.valueOf(fromDate),
+	                    toDate == null ? null : java.sql.Date.valueOf(toDate),
+	                    Pageable.unpaged()
+	            );
+
+	    List<Lead> leads = resultPage.getContent();
+	    List<LeadResponseDto> dtos = buildResponseList(leads);
+
+	    response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+	    response.setHeader("Content-Disposition", "attachment; filename=leads_export.xlsx");
+
+	    String[] headers = {
+	            "ID", "Name", "Email", "Phone", "Client Company",
+	            "Source", "Location", "Status", "Lead Quality",
+	            "Lets Work Centre", "City", "State", "Solution",
+	            "Assigned User", "Create Date"
+	    };
+
+	    try (SXSSFWorkbook workbook = new SXSSFWorkbook(100)) {
+	    	SXSSFSheet sheet = workbook.createSheet("Leads");
+	    	sheet.trackAllColumnsForAutoSizing(); // needed for autoSizeColumn with SXSSF
+
+	        CellStyle headerStyle = workbook.createCellStyle();
+	        Font headerFont = workbook.createFont();
+	        headerFont.setBold(true);
+	        headerStyle.setFont(headerFont);
+
+	        Row headerRow = sheet.createRow(0);
+	        for (int i = 0; i < headers.length; i++) {
+	            Cell cell = headerRow.createCell(i);
+	            cell.setCellValue(headers[i]);
+	            cell.setCellStyle(headerStyle);
+	        }
+
+	        int rowIdx = 1;
+	        for (LeadResponseDto dto : dtos) {
+	            Row row = sheet.createRow(rowIdx++);
+	            row.createCell(0).setCellValue(dto.getId() != null ? dto.getId() : 0);
+	            row.createCell(1).setCellValue(nullSafe(dto.getName()));
+	            row.createCell(2).setCellValue(nullSafe(dto.getEmail()));
+	            row.createCell(3).setCellValue(nullSafe(dto.getPhone()));
+	            row.createCell(4).setCellValue(nullSafe(dto.getClientCompanyName()));
+	            row.createCell(5).setCellValue(dto.getSource() != null ? dto.getSource().toString() : "");
+	            row.createCell(6).setCellValue(nullSafe(dto.getLocation()));
+	            row.createCell(7).setCellValue(dto.getStatus() != null ? dto.getStatus().toString() : "");
+	            row.createCell(8).setCellValue(dto.getLeadQuality() != null ? dto.getLeadQuality().toString() : "");
+	            row.createCell(9).setCellValue(nullSafe(dto.getLetsWorkCentre()));
+	            row.createCell(10).setCellValue(nullSafe(dto.getCity()));
+	            row.createCell(11).setCellValue(nullSafe(dto.getState()));
+	            row.createCell(12).setCellValue(nullSafe(dto.getSolution()));
+	            row.createCell(13).setCellValue(dto.getUser() != null ? dto.getUser().getFirstName() : "");
+	            row.createCell(14).setCellValue(dto.getCreateDate() != null ? dto.getCreateDate().toString() : "");
+	        }
+
+	        for (int i = 0; i < headers.length; i++) {
+	            sheet.autoSizeColumn(i);
+	        }
+
+	        workbook.write(response.getOutputStream());
+	        response.flushBuffer();
+	        workbook.dispose(); // cleans up temp files SXSSF creates on disk
+	    }
+	}
+
+	private String nullSafe(String value) {
+	    return value == null ? "" : value;
+	}
+	
+	private List<LeadResponseDto> buildResponseList(List<Lead> leads) {
+
+	    Set<Long> leadIds =
+	            leads.stream()
+	                    .map(Lead::getId)
+	                    .collect(Collectors.toSet());
+
+	    List<AssignLead> assignments =
+	            leadIds.isEmpty()
+	                    ? Collections.emptyList()
+	                    : assignLeadRepo.findByLeadIdIn(leadIds);
+
+	    Map<Long, AssignLead> assignmentMap =
+	            assignments.stream()
+	                    .collect(Collectors.toMap(AssignLead::getLeadId, Function.identity()));
+
+	    Set<Long> userIds =
+	            assignments.stream()
+	                    .map(AssignLead::getUserId)
+	                    .collect(Collectors.toSet());
+
+	    Map<Long, User> userMap =
+	            userIds.isEmpty()
+	                    ? Collections.emptyMap()
+	                    : userRepo.findByIdIn(userIds)
+	                            .stream()
+	                            .collect(Collectors.toMap(User::getId, Function.identity()));
+
+	    List<LeadResponseDto> response = new ArrayList<>();
+
+	    for (Lead lead : leads) {
+	        LeadResponseDto dto = new LeadResponseDto();
+	        BeanUtils.copyProperties(lead, dto);
+
+	        AssignLead assignment = assignmentMap.get(lead.getId());
+	        if (assignment != null) {
+	            dto.setUser(userMap.get(assignment.getUserId()));
+	        }
+	        response.add(dto);
+	    }
+
+	    return response;
 	}
 
 }

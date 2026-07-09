@@ -1,14 +1,13 @@
 package com.letswork.crm.entities;
 
-import java.math.BigDecimal;
-
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.letswork.crm.enums.InvoiceStatus;
+import com.letswork.crm.enums.Unit;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,5 +28,8 @@ public class SolutionType extends Base {
     private Long id;
 
     private String name;
+    
+    @Enumerated(EnumType.STRING)
+    private Unit unit;
 
 }

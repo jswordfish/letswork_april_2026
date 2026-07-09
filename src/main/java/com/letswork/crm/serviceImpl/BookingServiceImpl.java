@@ -1,16 +1,23 @@
 package com.letswork.crm.serviceImpl;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
-import org.springframework.beans.factory.annotation.Autowired; 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,10 +49,6 @@ import com.letswork.crm.repo.DayPassBundleRepository;
 import com.letswork.crm.repo.InvoiceRepository;
 import com.letswork.crm.service.BookingService;
 import com.letswork.crm.util.BookingTypeResolver;
-
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import java.io.ByteArrayOutputStream;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -263,37 +266,143 @@ public class BookingServiceImpl implements BookingService {
 	    return buildResponse(result, page, size);
 	}
 	
-	@Override
-	public byte[] exportBookingsToExcel(
-	        String companyId, List<String> bookingTypes, Long clientId, String referenceId,
-	        List<BookingStatus> status, BookedFrom bookedFrom, List<String> roomNames,
-	        String search, List<String> letsWorkCentres, LocalDate fromDate, LocalDate toDate,
-	        LocalDate startDateFromDate, LocalDate startDateToDate, SortFieldByBooking sortFieldByBooking,
-	        SortingOrder order
-	) throws Exception {
-
-	    int page = 0;
-	    int size = Integer.MAX_VALUE; 
-
-	    PaginatedResponseDto responseDto = this.getAllBookings(
-	            companyId, bookingTypes, clientId, referenceId, status, bookedFrom,
-	            roomNames, search, letsWorkCentres, fromDate, toDate,
-	            startDateFromDate, startDateToDate, sortFieldByBooking, order, page, size
+	private void writeBookingRow(Row row, Booking booking) {
+	    row.createCell(0).setCellValue(booking.getId() != null ? booking.getId() : 0);
+	    row.createCell(1).setCellValue(booking.getBookingType() != null ? booking.getBookingType() : "");
+	    row.createCell(2).setCellValue(booking.getReferenceId() != null ? booking.getReferenceId() : "");
+	    row.createCell(3).setCellValue(
+	            booking.getLetsWorkClient() != null && booking.getLetsWorkClient().getClientCompanyName() != null
+	                    ? booking.getLetsWorkClient().getClientCompanyName() : ""
 	    );
+	    row.createCell(4).setCellValue(
+	            booking.getBookedByUser() != null && booking.getBookedByUser().getName() != null
+	                    ? booking.getBookedByUser().getName() : ""
+	    );
+	    row.createCell(5).setCellValue(
+	            booking.getLetsWorkCentre() != null && booking.getLetsWorkCentre().getName() != null
+	                    ? booking.getLetsWorkCentre().getName() : ""
+	    );
+	    row.createCell(6).setCellValue(booking.getAmount() != null ? booking.getAmount().doubleValue() : 0);
+	    row.createCell(7).setCellValue(booking.getBookedFrom() != null ? booking.getBookedFrom().toString() : "");
+	    row.createCell(8).setCellValue(booking.getBookingStatus() != null ? booking.getBookingStatus().toString() : "");
+	    row.createCell(9).setCellValue(booking.getDateOfPurchase() != null ? booking.getDateOfPurchase().toString() : "");
+	    row.createCell(10).setCellValue(booking.getStartDate() != null ? booking.getStartDate().toString() : "");
+	    row.createCell(11).setCellValue(booking.getExpiryDate() != null ? booking.getExpiryDate().toString() : "");
+	    row.createCell(12).setCellValue(
+	            booking.getInvoice() != null && booking.getInvoice().getId() != null
+	                    ? booking.getInvoice().getId() : 0
+	    );
+	}
+	
+	@Override
+	public void exportAllBookings(
+	        String companyId,
+	        List<String> bookingTypes,
+	        Long clientId,
+	        String referenceId,
+	        List<BookingStatus> status,
+	        BookedFrom bookedFrom,
+	        List<String> roomNames,
+	        String search,
+	        List<String> letsWorkCentres,
+	        LocalDate fromDate,
+	        LocalDate toDate,
+	        LocalDate startDateFromDate,
+	        LocalDate startDateToDate,
+	        SortFieldByBooking sortFieldByBooking,
+	        SortingOrder order,
+	        HttpServletResponse response
+	) throws IOException {
 
-	    List<Booking> bookings = (List<Booking>) responseDto.getList();
+	    markUsedBundles();
+	    expireOldBookings();
+	    expireCompletedConferenceBookings();
+	    expireCompletedConferenceBookingsThroughBundle();
 
-	    try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-	        Sheet sheet = workbook.createSheet("Bookings");
+	    if (search != null && search.trim().isEmpty()) {
+	        search = null;
+	    }
+	    if (bookingTypes != null && bookingTypes.isEmpty()) {
+	        bookingTypes = null;
+	    }
 
-	        String[] headers = {"Reference ID", "Company ID", "Client ID", "Status", "Booked From", "Start Date", "End Date"};
-	        Row headerRow = sheet.createRow(0);
+	    boolean checkStatuses = (status != null && !status.isEmpty());
+	    List<BookingStatus> safeStatuses = checkStatuses ? status : List.of(BookingStatus.DRAFT);
+
+	    boolean checkRooms = (roomNames != null && !roomNames.isEmpty());
+	    List<String> safeRooms = checkRooms ? roomNames : List.of("");
+
+	    boolean checkCentres = (letsWorkCentres != null && !letsWorkCentres.isEmpty());
+	    List<String> safeCentres = checkCentres ? letsWorkCentres : List.of("");
+
+	    String fieldName = FIELD_MAP.get(sortFieldByBooking);
+	    Sort sort = order == SortingOrder.DESC
+	            ? Sort.by(fieldName).descending()
+	            : Sort.by(fieldName).ascending();
+
+	    LocalDateTime startDate = fromDate == null ? null : fromDate.atStartOfDay();
+	    LocalDateTime endDate = toDate == null ? null : toDate.atTime(23, 59, 59);
+
+	    Page<Booking> result;
+
+	    if (bookingTypes != null && !bookingTypes.isEmpty()) {
+	        List<String> validatedTypes = bookingTypes.stream()
+	                .map(type -> {
+	                    Class<? extends Booking> clazz = bookingTypeResolver.resolve(type);
+	                    if (clazz == null) {
+	                        throw new RuntimeException("Invalid booking type: " + type);
+	                    }
+	                    return type;
+	                })
+	                .collect(Collectors.toList());
+
+	        result = bookingRepo.filterAllBookingsWithTypes(
+	                companyId, validatedTypes, clientId, referenceId,
+	                safeStatuses, checkStatuses, bookedFrom,
+	                safeRooms, checkRooms, search,
+	                safeCentres, checkCentres,
+	                startDate, endDate, startDateFromDate, startDateToDate,
+	                Pageable.unpaged()
+	        );
+	    } else {
+	        result = bookingRepo.filterAllBookings(
+	                companyId, clientId, referenceId,
+	                safeStatuses, checkStatuses, bookedFrom,
+	                safeRooms, checkRooms, search,
+	                safeCentres, checkCentres,
+	                startDate, endDate, startDateFromDate, startDateToDate,
+	                Pageable.unpaged()
+	        );
+	    }
+
+	    List<Booking> bookings = result.getContent();
+
+	    for (Booking booking : bookings) {
+	        Invoice invoice = invoiceRepo
+	                .findByBookingReferenceId(booking.getReferenceId())
+	                .orElse(null);
+	        booking.setInvoice(invoice);
+	    }
+
+	    response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+	    response.setHeader("Content-Disposition", "attachment; filename=bookings_export.xlsx");
+
+	    String[] headers = {
+	            "ID", "Booking Type", "Reference ID", "Client Name",
+	            "Booked By", "Centre", "Amount", "Booked From",
+	            "Status", "Date Of Purchase", "Start Date", "Expiry Date", "Invoice Number"
+	    };
+
+	    try (SXSSFWorkbook workbook = new SXSSFWorkbook(100)) {
+	        SXSSFSheet sheet = workbook.createSheet("Bookings");
+	        sheet.trackAllColumnsForAutoSizing();
 
 	        CellStyle headerStyle = workbook.createCellStyle();
 	        Font headerFont = workbook.createFont();
 	        headerFont.setBold(true);
 	        headerStyle.setFont(headerFont);
 
+	        Row headerRow = sheet.createRow(0);
 	        for (int i = 0; i < headers.length; i++) {
 	            Cell cell = headerRow.createCell(i);
 	            cell.setCellValue(headers[i]);
@@ -303,39 +412,16 @@ public class BookingServiceImpl implements BookingService {
 	        int rowIdx = 1;
 	        for (Booking booking : bookings) {
 	            Row row = sheet.createRow(rowIdx++);
-
-	            // Column 0: Reference ID
-	            row.createCell(0).setCellValue(booking.getReferenceId() != null ? booking.getReferenceId() : "");
-	            
-	            // Column 1: Company ID (Inherited from Base class)
-	            row.createCell(1).setCellValue(booking.getCompanyId() != null ? booking.getCompanyId() : "");
-	            
-	            // Column 2: Client ID (Accessed through the ManyToOne relationship)
-	            if (booking.getLetsWorkClient() != null && booking.getLetsWorkClient().getId() != null) {
-	                row.createCell(2).setCellValue(booking.getLetsWorkClient().getId());
-	            } else {
-	                row.createCell(2).setCellValue("");
-	            }
-	            
-	            // Column 3: Booking Status
-	            row.createCell(3).setCellValue(booking.getBookingStatus() != null ? booking.getBookingStatus().name() : "");
-	            
-	            // Column 4: Booked From
-	            row.createCell(4).setCellValue(booking.getBookedFrom() != null ? booking.getBookedFrom().name() : "");
-	            
-	            // Column 5: Start Date
-	            row.createCell(5).setCellValue(booking.getStartDate() != null ? booking.getStartDate().toString() : "");
-	            
-	            // Column 6: Expiry Date
-	            row.createCell(6).setCellValue(booking.getExpiryDate() != null ? booking.getExpiryDate().toString() : "");
+	            writeBookingRow(row, booking);
 	        }
 
 	        for (int i = 0; i < headers.length; i++) {
 	            sheet.autoSizeColumn(i);
 	        }
 
-	        workbook.write(out);
-	        return out.toByteArray();
+	        workbook.write(response.getOutputStream());
+	        response.flushBuffer();
+	        workbook.dispose();
 	    }
 	}
 	

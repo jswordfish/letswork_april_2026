@@ -35,6 +35,7 @@ import com.letswork.crm.entities.ConferenceRoomBookingThroughBundle;
 import com.letswork.crm.entities.ConferenceRoomTimeSlot;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.LetsWorkClient;
+import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
@@ -46,6 +47,7 @@ import com.letswork.crm.repo.ConferenceRoomRepository;
 import com.letswork.crm.repo.ConferenceRoomTimeSlotRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.LetsWorkClientRepository;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.ConferenceRoomBookingThroughBundleService;
 import com.letswork.crm.service.QRCodeService;
 import com.letswork.crm.service.TenantService;
@@ -72,6 +74,7 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
     private final MailJetOtpService mailService;
     private final QRCodeService qrService;
     private final S3Service s3Service;
+    private final NewUserRegisterRepository newUserRegisterRepo;
 
     @Transactional
     @Override
@@ -136,6 +139,12 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
         singleBooking.setReferenceId(refId);
         singleBooking.setBookedFrom(BookedFrom.APP);
         singleBooking.setNumberOfHours(totalHoursRequired);
+        
+        singleBooking.setBookedByUserId(request.getBookedByUserId());
+        
+        NewUserRegister bookedByUser = newUserRegisterRepo.findById(request.getBookedByUserId()).orElse(null);
+        
+        singleBooking.setBookedByUser(bookedByUser);
 
         // 3. Process Bundles & Populate multipleBundleList
         List<BundleBookingCreditMapper> bundleMappers = new ArrayList<>();

@@ -24,4 +24,6 @@ public class DayPassBookingThroughBundleRequest {
 	
 	String companyId;
 	
+	private Long bookedByUserId;
+	
 }

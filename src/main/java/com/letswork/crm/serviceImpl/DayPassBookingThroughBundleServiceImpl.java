@@ -35,6 +35,7 @@ import com.letswork.crm.entities.DayPassBundleBooking;
 import com.letswork.crm.entities.DayPassLimit;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.LetsWorkClient;
+import com.letswork.crm.entities.NewUserRegister;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
@@ -45,6 +46,7 @@ import com.letswork.crm.repo.DayPassBookingThroughBundleRepository;
 import com.letswork.crm.repo.DayPassBundleBookingRepository;
 import com.letswork.crm.repo.DayPassLimitRepo;
 import com.letswork.crm.repo.LetsWorkClientRepository;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.service.DayPassBookingThroughBundleService;
 import com.letswork.crm.service.DayPassBundleBookingService;
 import com.letswork.crm.service.LetsWorkCentreService;
@@ -75,6 +77,7 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 
 	private final DayPassBookingThroughBundleRepository dayPassBookingThroughBundleRepository;
 	private final LetsWorkClientRepository clientRepo;
+	private final NewUserRegisterRepository newUserRegisterRepo;
 
 	@Transactional
 	@Override
@@ -132,6 +135,12 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 	    singleBooking.setStartDate(request.getDateOfUse());
 	    singleBooking.setExpiryDate(request.getDateOfUse());
 	    singleBooking.setBookingStatus(BookingStatus.ACTIVE);
+	    
+		singleBooking.setBookedByUserId(request.getBookedByUserId());
+        
+        NewUserRegister bookedByUser = newUserRegisterRepo.findById(request.getBookedByUserId()).orElse(null);
+        
+        singleBooking.setBookedByUser(bookedByUser);
 	    
 	    String refId = generate("DayPassBookingThroughBundle");
 	    singleBooking.setReferenceId(refId);

@@ -33,8 +33,9 @@ public class SolutionTypeServiceImpl implements SolutionTypeService {
             throw new RuntimeException("CompanyId invalid - " + solutionType.getCompanyId());
         }
 
-        SolutionType existing = repo.findByNameAndCompanyId(
+        SolutionType existing = repo.findByNameAndUnitAndCompanyId(
                 solutionType.getName(),
+                solutionType.getUnit(),
                 solutionType.getCompanyId()
         );
 

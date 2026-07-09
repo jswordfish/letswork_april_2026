@@ -124,7 +124,7 @@ public class SeatServiceImpl implements SeatService {
                     seat.getCabinName(), seat.getCompanyId(), seat.getLetsWorkCentre(),
                     seat.getCity(), seat.getState());
 
-            if (currentSeatCount >= cabin.getTotalSeats()) {
+            if (currentSeatCount > cabin.getTotalSeats()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cabin " + seat.getCabinName() + " is full. Cannot add more seats.");
             }
         } else {
@@ -615,7 +615,7 @@ public class SeatServiceImpl implements SeatService {
 	                        seat.getCabinName(), seat.getCompanyId(), seat.getLetsWorkCentre(),
 	                        seat.getCity(), seat.getState());
 
-	                if (currentSeatCount >= cabin.getTotalSeats()) {
+	                if (currentSeatCount > cabin.getTotalSeats()) {
 	                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cabin " + seat.getCabinName() + " is full. Cannot add more seats.");
 	                }
 	            } else {
@@ -759,7 +759,7 @@ public class SeatServiceImpl implements SeatService {
 			seat.setPublished(false);
 		}
 		
-		else throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This seat is already mapped to contract with id : "+mapping.getContract().getId());
+		else throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This seat is already mapped to company : "+mapping.getContract().getLetsWorkClient().getClientCompanyName());
 		
 		Seat saved = seatRepository.save(seat);
 		

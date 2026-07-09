@@ -21,5 +21,7 @@ public class ConferenceRoomBundleBookingRequest {
     private LocalDate slotDate;
 
     private List<ConferenceRoomSlotRequest> slots;
+    
+    private Long bookedByUserId;
 
 }

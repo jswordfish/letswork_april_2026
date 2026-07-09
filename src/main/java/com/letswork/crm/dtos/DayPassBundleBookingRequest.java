@@ -26,6 +26,8 @@ public class DayPassBundleBookingRequest {
 	private Integer frontendSgstPercentage;
 	
 	private float frontendFinalAmountAfterAddingTax;
+	
+	private Long bookedByUserId;
 
 
 }

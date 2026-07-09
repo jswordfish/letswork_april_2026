@@ -39,5 +39,7 @@ public class ConferenceBookingDirectRequest extends MultipleBookingMapperDto{
 	private Integer frontendSgstPercentage;
 	
 	private float frontendFinalAmountAfterAddingTax;
+	
+	private Long bookedByUserId;
 
 }

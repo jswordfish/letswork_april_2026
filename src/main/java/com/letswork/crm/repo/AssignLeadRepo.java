@@ -23,7 +23,7 @@ public interface AssignLeadRepo
             String companyId
     );
 
-    AssignLead findByLeadIdAndCompanyId(
+    Optional<AssignLead> findByLeadIdAndCompanyId(
             Long leadId,
             String companyId
     );
