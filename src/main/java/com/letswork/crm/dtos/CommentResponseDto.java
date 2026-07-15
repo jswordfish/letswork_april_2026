@@ -1,5 +1,7 @@
 package com.letswork.crm.dtos;
 
+import java.util.Date;
+
 import com.letswork.crm.entities.Lead;
 import com.letswork.crm.entities.User;
 
@@ -19,5 +21,7 @@ public class CommentResponseDto {
     private Lead lead;
 
     private User user;
+    
+    private Date createDate;
 
 }

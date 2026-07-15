@@ -25,5 +25,7 @@ public class OfferCreateResponseDto {
     private List<LetsWorkCentre> letsWorkCentres;
 
     private String companyId;
-
+    
+    private Boolean active;
+    
 }

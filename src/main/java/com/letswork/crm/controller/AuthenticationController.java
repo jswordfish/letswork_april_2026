@@ -132,12 +132,12 @@ public class AuthenticationController {
 
 	    if (user.getPassword().equals(u.getPassword())) {
 
-	    	if (u.getOrgHierarchy() == null) {
-	    	    throw new RuntimeException(
-	    	            "OrgHierarchy not assigned for user : "
-	    	                    + u.getEmail()
-	    	    );
-	    	}
+//	    	if (u.getOrgHierarchy() == null) {
+//	    	    throw new RuntimeException(
+//	    	            "OrgHierarchy not assigned for user : "
+//	    	                    + u.getEmail()
+//	    	    );
+//	    	}
 
 	    	String token =
 	    	        tokenService.generateToken(

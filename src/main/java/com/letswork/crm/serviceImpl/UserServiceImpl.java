@@ -100,6 +100,7 @@ public class UserServiceImpl implements UserService{
 				throw new RuntimeException("Role or designation can not be null");
 			}
 			
+			
 			OrgHierarchy orgHierarchy = orgHierarchyService.findByRoleOrDesig(user.getRoleOrDesig(), user.getCompanyId());
 			if(orgHierarchy == null) {
 				throw new RuntimeException("Role or designation invalid");
@@ -211,9 +212,9 @@ public class UserServiceImpl implements UserService{
 		}
 		
 		
-		if(orgHierarchyService.findByRoleOrDesig(dto.getRoleOrDesig(), dto.getCompanyId())==null) {
-			return "This role - "+dto.getRoleOrDesig()+" does not exists";
-		}
+//		if(orgHierarchyService.findByRoleOrDesig(dto.getRoleOrDesig(), dto.getCompanyId())==null) {
+//			return "This role - "+dto.getRoleOrDesig()+" does not exists";
+//		}
 		
 		
 		return "ok";

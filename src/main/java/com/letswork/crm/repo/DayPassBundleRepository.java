@@ -45,6 +45,11 @@ public interface DayPassBundleRepository
 		       "   OR FUNCTION('STR', d.validForDays) LIKE CONCAT('%', :search, '%') " +
 		       "   OR FUNCTION('STR', d.discountPercentage) LIKE CONCAT('%', :search, '%') " +
 		       "   OR FUNCTION('STR', d.price) LIKE CONCAT('%', :search, '%') " +
+		       ") " +
+
+		       "AND ( " +
+		       "   d.freeCredit IS NULL " +
+		       "   OR d.freeCredit = false " +
 		       ")")
 		List<DayPassBundle> searchBundles(
 		        @Param("companyId") String companyId,

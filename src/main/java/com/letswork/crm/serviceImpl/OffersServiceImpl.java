@@ -87,4 +87,13 @@ public class OffersServiceImpl implements OffersService {
 		return offer;
         
 	}
+
+	@Override
+	public Offers reactivateOffer(Offers offer) {
+		
+		offer.setActive(true);
+		offersRepository.save(offer);
+		return offer;
+		
+	}
 }

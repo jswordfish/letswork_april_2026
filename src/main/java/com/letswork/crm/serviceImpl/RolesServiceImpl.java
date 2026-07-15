@@ -34,7 +34,8 @@ public class RolesServiceImpl implements RolesService {
 
     @Autowired
     private TenantService tenantService;
-
+    
+    
     ModelMapper mapper = new ModelMapper();
 
     @Override
@@ -47,10 +48,10 @@ public class RolesServiceImpl implements RolesService {
         }
 
         // 2️⃣ Validate role exists in OrgHierarchy
-        OrgHierarchy org = orgRepo.findByRoleOrDesig(dto.getName(), companyId);
-        if (org == null) {
-            throw new RuntimeException("Role does not exist - " + dto.getName());
-        }
+//        OrgHierarchy org = orgRepo.findByRoleOrDesig(dto.getName(), companyId);
+//        if (org == null) {
+//            throw new RuntimeException("Role does not exist - " + dto.getName());
+//        }
 
         // 3️⃣ Delete existing permissions for role (FULL REPLACE)
         repo.deleteByNameAndCompanyId(dto.getName(), companyId);
@@ -76,6 +77,13 @@ public class RolesServiceImpl implements RolesService {
 
             repo.save(entity);
         }
+        
+        OrgHierarchy org = new OrgHierarchy();
+        
+        org.setRoleOrDesig(dto.getName());
+        org.setCompanyId(companyId);
+        
+        orgRepo.save(org);
 
         // 5️⃣ Return grouped response
         return getRoleGrouped(dto.getName(), companyId);

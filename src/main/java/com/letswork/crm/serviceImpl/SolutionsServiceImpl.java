@@ -11,8 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letswork.crm.dtos.PaginatedResponseDto;
@@ -89,11 +91,13 @@ public class SolutionsServiceImpl implements SolutionsService{
 
         // ✅ Check existing
         Solutions existing =
-                repo.findByNameAndLetsWorkCentreAndCompanyId(
-                        dto.getName(),
-                        dto.getLetsWorkCentre(),
-                        dto.getCompanyId()
-                );
+                repo.findById(
+                        dto.getId()
+                ).orElse(null);
+        
+        if(existing==null) {
+        	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solution not found with id : "+dto.getId());
+        }
 
         Solutions solution;
         boolean isUpdate = (existing != null);

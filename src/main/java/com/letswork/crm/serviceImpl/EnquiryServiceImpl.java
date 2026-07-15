@@ -2,6 +2,8 @@ package com.letswork.crm.serviceImpl;
 
 import java.util.Date;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,12 +16,17 @@ import org.springframework.web.server.ResponseStatusException;
 import com.letswork.crm.dtos.EnquiryDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Enquiry;
+import com.letswork.crm.entities.Lead;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.Solutions;
 import com.letswork.crm.entities.Tenant;
 import com.letswork.crm.enums.EnquiryStatus;
 import com.letswork.crm.enums.EnquiryType;
+import com.letswork.crm.enums.LeadQuality;
+import com.letswork.crm.enums.LeadStatus;
+import com.letswork.crm.enums.Source;
 import com.letswork.crm.repo.EnquiryRepository;
+import com.letswork.crm.repo.LeadRepo;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 import com.letswork.crm.repo.SolutionsRepository;
 import com.letswork.crm.service.EnquiryService;
@@ -29,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class EnquiryServiceImpl implements EnquiryService {
 
     private final EnquiryRepository enquiryRepository;
@@ -41,6 +49,9 @@ public class EnquiryServiceImpl implements EnquiryService {
     
     @Autowired
     SolutionsRepository solutionsRepo;
+    
+    @Autowired
+    private LeadRepo leadRepository;
 
     @Override
     public Enquiry createEnquiry(EnquiryDto dto) {
@@ -121,7 +132,47 @@ public class EnquiryServiceImpl implements EnquiryService {
         enquiry.setCreateDate(new Date());
         enquiry.setUpdateDate(new Date());
 
-        return enquiryRepository.save(enquiry);
+        Enquiry savedEnquiry = enquiryRepository.save(enquiry);
+
+	     // Create corresponding Lead
+	     Lead lead = new Lead();
+	
+	     lead.setName(savedEnquiry.getName());
+	     lead.setEmail(savedEnquiry.getEmail());
+	     lead.setPhone(savedEnquiry.getPhoneNumber());
+	
+	     lead.setClientCompanyName(null);
+	
+	     lead.setSource(Source.WEBSITE);
+	
+	     lead.setStatus(LeadStatus.NEW);
+	
+	     // Set a default quality (or null if you prefer)
+	     lead.setLeadQuality(LeadQuality.HOT);
+	
+	     lead.setLocation(
+	             savedEnquiry.getLetsWorkCentre()
+	             + ", "
+	             + savedEnquiry.getCity()
+	             + ", "
+	             + savedEnquiry.getState()
+	     );
+	
+	     lead.setLetsWorkCentre(savedEnquiry.getLetsWorkCentre());
+	     lead.setCity(savedEnquiry.getCity());
+	     lead.setState(savedEnquiry.getState());
+	
+	     if (savedEnquiry.getSolutions() != null) {
+	         lead.setSolution(savedEnquiry.getSolutions().getName());
+	     }
+	
+	     lead.setCompanyId(savedEnquiry.getCompanyId());
+	     lead.setCreateDate(new Date());
+	     lead.setUpdateDate(new Date());
+	
+	     leadRepository.save(lead);
+	
+	     return savedEnquiry;
     }
 
     @Override

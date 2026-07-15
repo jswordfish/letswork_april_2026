@@ -49,6 +49,7 @@ public class OfferManagementServiceImpl implements OfferManagementService {
         offer.setEndDate(dto.getEndDate());
         offer.setCompanyId(dto.getCompanyId());
         offer.setOfferType(dto.getOfferType());
+        offer.setActive(Boolean.TRUE);
 
         Offers savedOffer = offersService.saveOrUpdate(offer);
 
@@ -72,7 +73,7 @@ public class OfferManagementServiceImpl implements OfferManagementService {
         // 🔹 If code is present → return single result
         if (code != null && !code.isBlank()) {
 
-        	Offers offer = offersRepository.findByCodeAndCompanyIdAndActiveTrue(code, companyId).orElse(null);
+        	Offers offer = offersRepository.findByCodeAndCompanyId(code, companyId).orElse(null);
 
         	if (offer == null) {
         	    return Collections.emptyList();
@@ -84,11 +85,11 @@ public class OfferManagementServiceImpl implements OfferManagementService {
         // 🔹 If offerType filter is present
         if (offerType != null) {
             return offersRepository
-                    .findAllByCompanyIdAndOfferTypeAndActiveTrue(companyId, offerType);
+                    .findAllByCompanyIdAndOfferType(companyId, offerType);
         }
 
         // 🔹 Default → all offers
-        return offersRepository.findAllByCompanyIdAndActiveTrue(companyId);
+        return offersRepository.findAllByCompanyId(companyId);
     }
     
     public void expireOffers() {
@@ -109,12 +110,12 @@ public class OfferManagementServiceImpl implements OfferManagementService {
 
     @Override
     public Offers getByCodeAndCompanyId(String code, String companyId) {
-    	return offersRepository.findByCodeAndCompanyIdAndActiveTrue(code, companyId).orElse(null);
+    	return offersRepository.findByCodeAndCompanyId(code, companyId).orElse(null);
     }
 
     @Override
     public List<Offers> getAllByCompanyId(String companyId) {
-        return offersRepository.findAllByCompanyIdAndActiveTrue(companyId);
+        return offersRepository.findAllByCompanyId(companyId);
     }
 
     

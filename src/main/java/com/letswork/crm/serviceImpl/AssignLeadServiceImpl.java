@@ -64,8 +64,46 @@ public class AssignLeadServiceImpl implements AssignLeadService{
 		
 		if(existing1!=null) {
 			
+			Lead lead =
+		            leadRepo.findByIdAndCompanyId(
+		                    assignLead.getLeadId(),
+		                    assignLead.getCompanyId()
+		            );
+
+		    if (lead == null) {
+
+		        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+		                "Lead not found"
+		        );
+		    }
+
+		    User user =
+		            userRepo.findById(assignLead.getUserId()).orElse(null);
+
+		    if (user == null) {
+
+		        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+		                "User not found with id : "
+		                        + assignLead.getUserId());
+		    }
+			
 			existing1.setUpdateDate(new Date());
-			return repo.save(existing1);
+			existing1.setUserId(assignLead.getUserId());
+			AssignLead response = repo.save(existing1);
+			
+			Activity activity = new Activity();
+	        activity.setCompanyId(response.getCompanyId());
+	        activity.setLeadId(response.getLeadId());
+	        activity.setActionType(ActionType.ASSIGNED);
+	        activity.setHeader(
+	                "Lead - " + lead.getName() + " assigned to " + user.getFirstName() + " " + user.getLastName()
+	        );
+	        activity.setCreateDate(new Date());
+	        activity.setUpdateDate(new Date());
+
+	        activityRepo.save(activity);
+			
+			return response;
 		}
 		
 		else {

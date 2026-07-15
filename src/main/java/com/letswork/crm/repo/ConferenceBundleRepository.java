@@ -49,6 +49,11 @@ public interface ConferenceBundleRepository
     	       "   OR LOWER(CAST(cb.price as string)) LIKE LOWER(CONCAT('%', :search, '%')) " +
     	       "   OR LOWER(CAST(cb.validForDays as string)) LIKE LOWER(CONCAT('%', :search, '%')) " +
     	       "   OR LOWER(CAST(cb.showInApp as string)) LIKE LOWER(CONCAT('%', :search, '%')) " +
+    	       ")" +
+    	       
+    	       "AND ( " +
+    	       "   cb.freeCredit IS NULL " +
+    	       "   OR cb.freeCredit = false " +
     	       ")")
     	Page<ConferenceBundle> filter(
     	        @Param("companyId") String companyId,

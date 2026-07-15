@@ -266,8 +266,22 @@ public class ContractServiceImpl implements ContractService {
 
             Contract saved =
                     contractRepo.save(dto.getContract());
-
+            
+            if(agreement!=null) {
             uploadAgreementIfPresent(saved, agreement);
+            }
+            else {
+            	byte[] pdfBytes = contractDocumentService.generateAgreementPdf(saved);
+
+                String s3Key = s3Service.uploadContractAgreementPdf(
+                		"letsworkcentres",
+                        saved.getCompanyId(),
+                        saved.getId(),
+                        pdfBytes
+                );
+
+                saved.setAgreementS3KeyName(s3Key);
+            }
 
             saved =
                     contractRepo.save(saved);
@@ -287,7 +301,9 @@ public class ContractServiceImpl implements ContractService {
     
     private String generateLink(Contract contract) {
     	
-		String baseUrl = "https://letsworkadmin.vercel.app/onboarding?letsWorkClientId=";
+		String baseUrl = "https://letsworkadmin.vercel.app/onboarding?letsWorkClientId="; //test
+		
+//		String baseUrl = "https://letsworkapp.in/onboarding?letsWorkClientId="; //live
     	
 		if(contract==null) {
     		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Contract not found");

@@ -33,6 +33,10 @@ public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, 
                 String companyId
         );
     
+    @Query("SELECT c FROM LetsWorkClient c WHERE EXISTS "
+            + "(SELECT 1 FROM Contract ct WHERE ct.letsWorkClient = c)")
+       List<LetsWorkClient> findAllInternalClients();
+    
     boolean existsByUserIdAndClientCompanyNameAndCompanyId(
             Long userId,
             String clientCompanyName,

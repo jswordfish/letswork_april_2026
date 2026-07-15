@@ -2,6 +2,7 @@ package com.letswork.crm.service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,21 +17,22 @@ public interface LeadService {
 	
 	Lead saveOrUpdate(Lead lead);
 
-	PaginatedResponseDto getPaginated(
+	public PaginatedResponseDto getPaginated(
 	        String companyId,
 	        String name,
 	        String email,
 	        String phone,
 	        String clientCompanyName,
-	        Source source,
+	        List<Source> sources,
 	        String location,
-	        LeadStatus status,
-	        LeadQuality leadQuality,
-	        String letsWorkCentre,
+	        List<LeadStatus> statuses,
+	        List<LeadQuality> leadQualities,
+	        List<String> letsWorkCentres,
 	        String city,
 	        String state,
 	        String solution,
 	        String search,
+	        Long userId,
 	        LocalDate fromDate,
 	        LocalDate toDate,
 	        int page,
@@ -38,10 +40,24 @@ public interface LeadService {
 	);
 	
 	void exportToExcel(
-	        String companyId, String name, String email, String phone, String clientCompanyName,
-	        Source source, String location, LeadStatus status, LeadQuality leadQuality,
-	        String letsWorkCentre, String city, String state, String solution, String search,
-	        LocalDate fromDate, LocalDate toDate, HttpServletResponse response
+			String companyId,
+	        String name,
+	        String email,
+	        String phone,
+	        String clientCompanyName,
+	        List<Source> sources,
+	        String location,
+	        List<LeadStatus> statuses,
+	        List<LeadQuality> leadQualities,
+	        List<String> letsWorkCentres,
+	        String city,
+	        String state,
+	        String solution,
+	        String search,
+	        Long userId,
+	        LocalDate fromDate,
+	        LocalDate toDate,
+	        HttpServletResponse response
 	) throws IOException;
     
     Lead changeStatus(

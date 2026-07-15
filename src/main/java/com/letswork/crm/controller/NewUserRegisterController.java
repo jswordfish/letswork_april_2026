@@ -1,6 +1,7 @@
 package com.letswork.crm.controller;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,13 +99,23 @@ public class NewUserRegisterController {
             @RequestBody NewUserRegister user) {
 
         NewUserRegister saved = service.save(user);
+        
+        String clientCompanyName = user.getClientCompanyName()+"_"+user.getEmail();
+        
+        LetsWorkClient client = letsWorkClientRepo.findByClientCompanyNameAndCompanyId(clientCompanyName, user.getCompanyId()).orElse(null);
 
         String token =
                 tokenService.generateToken("App User", saved.getEmail());
+        
+        List<LetsWorkClient> clientList = new ArrayList<>();
+        if (client != null) {
+            clientList.add(client);
+        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
         response.put("user", saved);
+        response.put("companies", clientList);
 
         return ResponseEntity.ok(response);
     }

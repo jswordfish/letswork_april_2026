@@ -19,6 +19,9 @@ import com.letswork.crm.enums.DateFilterType;
 public interface ContractRepository extends JpaRepository<Contract, Long> {
 
     Optional<Contract> findByIdAndCompanyId(Long id, String companyId);
+    
+    @Query("SELECT ct FROM Contract ct JOIN FETCH ct.letsWorkClient c WHERE ct.active = true")
+    List<Contract> findAllActiveContractsWithClient();
 
     @Query("SELECT c " +
     	       "FROM Contract c " +

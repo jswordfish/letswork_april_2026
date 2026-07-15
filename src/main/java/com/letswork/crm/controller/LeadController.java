@@ -2,6 +2,7 @@ package com.letswork.crm.controller;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,15 +53,17 @@ public class LeadController {
 	        @RequestParam(required = false) String email,
 	        @RequestParam(required = false) String phone,
 	        @RequestParam(required = false) String clientCompanyName,
-	        @RequestParam(required = false) Source source,
+	        @RequestParam(required = false) List<Source> sources,
 	        @RequestParam(required = false) String location,
-	        @RequestParam(required = false) LeadStatus status,
-	        @RequestParam(required = false) LeadQuality leadQuality,
-	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) List<LeadStatus> statuses,
+	        @RequestParam(required = false) List<LeadQuality> leadQualities,
+	        @RequestParam(required = false) List<String> letsWorkCentres,
 	        @RequestParam(required = false) String city,
 	        @RequestParam(required = false) String state,
 	        @RequestParam(required = false) String solution,
 	        @RequestParam(required = false) String search,
+	        
+	        @RequestParam(required = false) Long userId,
 
 	        @RequestParam(required = false)
 	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -75,47 +78,50 @@ public class LeadController {
 	) {
 
 	    return ResponseEntity.ok(
-	            service.getPaginated(
-	                    companyId,
-	                    name,
-	                    email,
-	                    phone,
-	                    clientCompanyName,
-	                    source,
-	                    location,
-	                    status,
-	                    leadQuality,
-	                    letsWorkCentre,
-	                    city,
-	                    state,
-	                    solution,
-	                    search,
-	                    fromDate,
-	                    toDate,
-	                    page,
-	                    size
-	            )
+	    		service.getPaginated(
+	    		        companyId,
+	    		        name,
+	    		        email,
+	    		        phone,
+	    		        clientCompanyName,
+	    		        sources,
+	    		        location,
+	    		        statuses,
+	    		        leadQualities,
+	    		        letsWorkCentres,
+	    		        city,
+	    		        state,
+	    		        solution,
+	    		        search,
+	    		        userId,
+	    		        fromDate,
+	    		        toDate,
+	    		        page,
+	    		        size
+	    		)
 	    );
 	}
 	
 	@GetMapping("/export")
 	public void export(
-	        @RequestParam String companyId,
+			@RequestParam String companyId,
 	        @RequestParam String token,
 
 	        @RequestParam(required = false) String name,
 	        @RequestParam(required = false) String email,
 	        @RequestParam(required = false) String phone,
 	        @RequestParam(required = false) String clientCompanyName,
-	        @RequestParam(required = false) Source source,
+	        @RequestParam(required = false) List<Source> sources,
 	        @RequestParam(required = false) String location,
-	        @RequestParam(required = false) LeadStatus status,
-	        @RequestParam(required = false) LeadQuality leadQuality,
-	        @RequestParam(required = false) String letsWorkCentre,
+	        @RequestParam(required = false) List<LeadStatus> statuses,
+	        @RequestParam(required = false) List<LeadQuality> leadQualities,
+	        @RequestParam(required = false) List<String> letsWorkCentres,
 	        @RequestParam(required = false) String city,
 	        @RequestParam(required = false) String state,
 	        @RequestParam(required = false) String solution,
 	        @RequestParam(required = false) String search,
+	        
+	        @RequestParam(required = false) Long userId,
 
 	        @RequestParam(required = false)
 	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -129,22 +135,23 @@ public class LeadController {
 	) throws IOException {
 
 	    service.exportToExcel(
-	            companyId,
-	            name,
-	            email,
-	            phone,
-	            clientCompanyName,
-	            source,
-	            location,
-	            status,
-	            leadQuality,
-	            letsWorkCentre,
-	            city,
-	            state,
-	            solution,
-	            search,
-	            fromDate,
-	            toDate,
+	    		companyId,
+		        name,
+		        email,
+		        phone,
+		        clientCompanyName,
+		        sources,
+		        location,
+		        statuses,
+		        leadQualities,
+		        letsWorkCentres,
+		        city,
+		        state,
+		        solution,
+		        search,
+		        userId,
+		        fromDate,
+		        toDate,
 	            response
 	    );
 	}

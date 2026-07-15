@@ -126,11 +126,11 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 	                    clientCompany.getState()
 	            );
 
-	    if (centre == null) {
-	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-	                "This LetsWorkCentre does not exist"
-	        );
-	    }
+//	    if (centre == null) {
+//	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+//	                "This LetsWorkCentre does not exist"
+//	        );
+//	    }
 
 	    if (clientCompany.getUsers() == null) {
 	        clientCompany.setUsers(new HashSet<>());

@@ -1,6 +1,6 @@
 package com.letswork.crm.entities;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -30,9 +30,9 @@ public class EscalationTimeAndPercentage {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private LocalDateTime startDate;
+	private LocalDate startDate;
 	
-	private LocalDateTime endDate;
+	private LocalDate endDate;
 	
 	private float percentageIncrease;
 	

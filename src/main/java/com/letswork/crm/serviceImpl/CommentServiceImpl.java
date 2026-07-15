@@ -265,6 +265,7 @@ public class CommentServiceImpl implements CommentService{
 
 	        dto.setLead(lead);
 	        dto.setUser(user);
+	        dto.setCreateDate(c.getCreateDate());
 
 	        response.add(dto);
 	    }

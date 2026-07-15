@@ -19,17 +19,36 @@ public interface OffersRepository extends JpaRepository<Offers, Long> {
 	        String name,
 	        String companyId
 	);
+	
+	Optional<Offers> findByNameAndCompanyId(
+	        String name,
+	        String companyId
+	);
 
 	Optional<Offers> findByCodeAndCompanyIdAndActiveTrue(
 	        String code,
 	        String companyId
 	);
+	
+	Optional<Offers> findByCodeAndCompanyId(
+	        String code,
+	        String companyId
+	);
 
 	List<Offers> findByCompanyIdAndActiveTrue(String companyId);
+	
+	List<Offers> findByCompanyId(String companyId);
 
 	List<Offers> findAllByCompanyIdAndActiveTrue(String companyId);
+	
+	List<Offers> findAllByCompanyId(String companyId);
 
 	List<Offers> findAllByCompanyIdAndOfferTypeAndActiveTrue(
+	        String companyId,
+	        OfferType offerType
+	);
+	
+	List<Offers> findAllByCompanyIdAndOfferType(
 	        String companyId,
 	        OfferType offerType
 	);

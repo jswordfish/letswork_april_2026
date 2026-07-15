@@ -14,5 +14,7 @@ public interface OffersService {
     Offers getByCodeAndCompanyId(String code, String companyId);
     
     Offers disAbleOffer(Offers offer);
+    
+    Offers reactivateOffer(Offers offer);
 
 }

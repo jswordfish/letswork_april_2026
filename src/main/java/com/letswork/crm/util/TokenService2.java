@@ -23,7 +23,7 @@ public class TokenService2 {
 	private static String sep = "#$#$&&";
 	private static String sepPattern = "[\\#][\\$][\\#][\\$][\\&][\\&]";
 	
-	private static Long sessionTimeOutInDays = 1l;
+	private static Long sessionTimeOutInDays = 30l;
 	
 	public static String generateToken(String role, String user) {
 		

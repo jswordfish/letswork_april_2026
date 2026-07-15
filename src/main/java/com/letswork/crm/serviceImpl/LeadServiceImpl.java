@@ -201,15 +201,16 @@ public class LeadServiceImpl implements LeadService{
 	        String email,
 	        String phone,
 	        String clientCompanyName,
-	        Source source,
+	        List<Source> sources,
 	        String location,
-	        LeadStatus status,
-	        LeadQuality leadQuality,
-	        String letsWorkCentre,
+	        List<LeadStatus> statuses,
+	        List<LeadQuality> leadQualities,
+	        List<String> letsWorkCentres,
 	        String city,
 	        String state,
 	        String solution,
 	        String search,
+	        Long userId,
 	        LocalDate fromDate,
 	        LocalDate toDate,
 	        int page,
@@ -222,29 +223,35 @@ public class LeadServiceImpl implements LeadService{
 	                    size,
 	                    Sort.by("createDate").descending()
 	            );
+	    
+	    boolean checkSources = sources != null && !sources.isEmpty();
+	    boolean checkStatuses = statuses != null && !statuses.isEmpty();
+	    boolean checkLeadQualities = leadQualities != null && !leadQualities.isEmpty();
+	    boolean checkLetsWorkCentres = letsWorkCentres != null && !letsWorkCentres.isEmpty();
 
 	    Page<Lead> resultPage =
 	            repo.filter(
 	                    companyId,
+	                    userId,
 	                    name,
 	                    email,
 	                    phone,
 	                    clientCompanyName,
-	                    source,
+	                    checkSources,
+	                    sources,
 	                    location,
-	                    status,
-	                    leadQuality,
-	                    letsWorkCentre,
+	                    checkStatuses,
+	                    statuses,
+	                    checkLeadQualities,
+	                    leadQualities,
+	                    checkLetsWorkCentres,
+	                    letsWorkCentres,
 	                    city,
 	                    state,
 	                    solution,
 	                    search,
-	                    fromDate == null
-	                            ? null
-	                            : java.sql.Date.valueOf(fromDate),
-	                    toDate == null
-	                            ? null
-	                            : java.sql.Date.valueOf(toDate),
+	                    fromDate == null ? null : java.sql.Date.valueOf(fromDate),
+	                    toDate == null ? null : java.sql.Date.valueOf(toDate),
 	                    pageable
 	            );
 
@@ -458,28 +465,55 @@ public class LeadServiceImpl implements LeadService{
 	        String email,
 	        String phone,
 	        String clientCompanyName,
-	        Source source,
+	        List<Source> sources,
 	        String location,
-	        LeadStatus status,
-	        LeadQuality leadQuality,
-	        String letsWorkCentre,
+	        List<LeadStatus> statuses,
+	        List<LeadQuality> leadQualities,
+	        List<String> letsWorkCentres,
 	        String city,
 	        String state,
 	        String solution,
 	        String search,
+	        Long userId,
 	        LocalDate fromDate,
 	        LocalDate toDate,
 	        HttpServletResponse response
 	) throws IOException {
+	    
+	    Page<Lead> resultPage;
+	    
+	    boolean checkSources = sources != null && !sources.isEmpty();
+	    boolean checkStatuses = statuses != null && !statuses.isEmpty();
+	    boolean checkLeadQualities = leadQualities != null && !leadQualities.isEmpty();
+	    boolean checkLetsWorkCentres = letsWorkCentres != null && !letsWorkCentres.isEmpty();
 
-	    Page<Lead> resultPage =
-	            repo.filter(
-	                    companyId, name, email, phone, clientCompanyName, source, location,
-	                    status, leadQuality, letsWorkCentre, city, state, solution, search,
-	                    fromDate == null ? null : java.sql.Date.valueOf(fromDate),
-	                    toDate == null ? null : java.sql.Date.valueOf(toDate),
-	                    Pageable.unpaged()
-	            );
+	    // Create a sort definition to bring records in descending order by ID
+	    Sort sortOrder = Sort.by(Sort.Direction.DESC, "id");
+
+	    resultPage = repo.filter(
+	            companyId,
+	            userId,
+	            name,
+	            email,
+	            phone,
+	            clientCompanyName,
+	            checkSources,
+	            sources,
+	            location,
+	            checkStatuses,
+	            statuses,
+	            checkLeadQualities,
+	            leadQualities,
+	            checkLetsWorkCentres,
+	            letsWorkCentres,
+	            city,
+	            state,
+	            solution,
+	            search,
+	            fromDate == null ? null : java.sql.Date.valueOf(fromDate),
+	            toDate == null ? null : java.sql.Date.valueOf(toDate),
+	            PageRequest.of(0, Integer.MAX_VALUE, sortOrder) // Requests all records sorted DESC by ID
+	    );
 
 	    List<Lead> leads = resultPage.getContent();
 	    List<LeadResponseDto> dtos = buildResponseList(leads);
@@ -488,15 +522,15 @@ public class LeadServiceImpl implements LeadService{
 	    response.setHeader("Content-Disposition", "attachment; filename=leads_export.xlsx");
 
 	    String[] headers = {
-	            "ID", "Name", "Email", "Phone", "Client Company",
+	            "Name", "Email", "Phone Number", "Company Name",
 	            "Source", "Location", "Status", "Lead Quality",
 	            "Lets Work Centre", "City", "State", "Solution",
-	            "Assigned User", "Create Date"
+	            "Assigned User", "Create Date", "Number Of Seats"
 	    };
 
 	    try (SXSSFWorkbook workbook = new SXSSFWorkbook(100)) {
-	    	SXSSFSheet sheet = workbook.createSheet("Leads");
-	    	sheet.trackAllColumnsForAutoSizing(); // needed for autoSizeColumn with SXSSF
+	        SXSSFSheet sheet = workbook.createSheet("Leads");
+	        sheet.trackAllColumnsForAutoSizing();
 
 	        CellStyle headerStyle = workbook.createCellStyle();
 	        Font headerFont = workbook.createFont();
@@ -504,6 +538,7 @@ public class LeadServiceImpl implements LeadService{
 	        headerStyle.setFont(headerFont);
 
 	        Row headerRow = sheet.createRow(0);
+
 	        for (int i = 0; i < headers.length; i++) {
 	            Cell cell = headerRow.createCell(i);
 	            cell.setCellValue(headers[i]);
@@ -511,23 +546,26 @@ public class LeadServiceImpl implements LeadService{
 	        }
 
 	        int rowIdx = 1;
+
 	        for (LeadResponseDto dto : dtos) {
 	            Row row = sheet.createRow(rowIdx++);
-	            row.createCell(0).setCellValue(dto.getId() != null ? dto.getId() : 0);
-	            row.createCell(1).setCellValue(nullSafe(dto.getName()));
-	            row.createCell(2).setCellValue(nullSafe(dto.getEmail()));
-	            row.createCell(3).setCellValue(nullSafe(dto.getPhone()));
-	            row.createCell(4).setCellValue(nullSafe(dto.getClientCompanyName()));
-	            row.createCell(5).setCellValue(dto.getSource() != null ? dto.getSource().toString() : "");
-	            row.createCell(6).setCellValue(nullSafe(dto.getLocation()));
-	            row.createCell(7).setCellValue(dto.getStatus() != null ? dto.getStatus().toString() : "");
-	            row.createCell(8).setCellValue(dto.getLeadQuality() != null ? dto.getLeadQuality().toString() : "");
-	            row.createCell(9).setCellValue(nullSafe(dto.getLetsWorkCentre()));
-	            row.createCell(10).setCellValue(nullSafe(dto.getCity()));
-	            row.createCell(11).setCellValue(nullSafe(dto.getState()));
-	            row.createCell(12).setCellValue(nullSafe(dto.getSolution()));
-	            row.createCell(13).setCellValue(dto.getUser() != null ? dto.getUser().getFirstName() : "");
-	            row.createCell(14).setCellValue(dto.getCreateDate() != null ? dto.getCreateDate().toString() : "");
+
+//	            row.createCell(0).setCellValue(dto.getId() != null ? dto.getId() : 0);
+	            row.createCell(0).setCellValue(nullSafe(dto.getName()));
+	            row.createCell(1).setCellValue(nullSafe(dto.getEmail()));
+	            row.createCell(2).setCellValue(nullSafe(dto.getPhone()));
+	            row.createCell(3).setCellValue(nullSafe(dto.getClientCompanyName()));
+	            row.createCell(4).setCellValue(dto.getSource() != null ? dto.getSource().toString() : "");
+	            row.createCell(5).setCellValue(nullSafe(dto.getLocation()));
+	            row.createCell(6).setCellValue(dto.getStatus() != null ? dto.getStatus().toString() : "");
+	            row.createCell(7).setCellValue(dto.getLeadQuality() != null ? dto.getLeadQuality().toString() : "");
+	            row.createCell(8).setCellValue(nullSafe(dto.getLetsWorkCentre()));
+	            row.createCell(9).setCellValue(nullSafe(dto.getCity()));
+	            row.createCell(10).setCellValue(nullSafe(dto.getState()));
+	            row.createCell(11).setCellValue(nullSafe(dto.getSolution()));
+	            row.createCell(12).setCellValue(dto.getUser() != null ? dto.getUser().getFirstName() : "");
+	            row.createCell(13).setCellValue(dto.getCreateDate() != null ? dto.getCreateDate().toString() : "");
+	            row.createCell(14).setCellValue(dto.getNumberOfSeats() != null ? dto.getNumberOfSeats() : 0);
 	        }
 
 	        for (int i = 0; i < headers.length; i++) {
@@ -536,7 +574,7 @@ public class LeadServiceImpl implements LeadService{
 
 	        workbook.write(response.getOutputStream());
 	        response.flushBuffer();
-	        workbook.dispose(); // cleans up temp files SXSSF creates on disk
+	        workbook.dispose();
 	    }
 	}
 

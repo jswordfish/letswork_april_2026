@@ -99,6 +99,7 @@ public class AmenitiesServiceImpl implements AmenitiesService {
                             saved.getCompanyId(),
                             saved.getName(),
                             image.getOriginalFilename(),
+                            image.getContentType(),
                             tempFile
                     );
 

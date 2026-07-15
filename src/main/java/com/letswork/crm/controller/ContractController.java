@@ -68,7 +68,7 @@ public class ContractController {
             @RequestPart("assign") String assign,
             @RequestPart(value = "agreement", required = false)
             MultipartFile agreement,
-            @RequestParam Long leadId,
+            @RequestParam(required = false) Long leadId,
             @RequestParam String companyId,
             @RequestParam String token
     ) throws Exception {
@@ -94,7 +94,9 @@ public class ContractController {
         
         mappingService.assignMultipleSeatsToContract(assignment);
         
+        if((leadId!=null)&&(leadId!=-1)) {
         leadService.changeStatus(leadId, companyId, LeadStatus.CONVERTED);
+        }
 
         return ResponseEntity.ok(
         		response
@@ -108,7 +110,9 @@ public class ContractController {
     		@RequestParam String companyId)
     {
     	
-    	String baseUrl = "https://letsworkadmin.vercel.app/onboarding?letsWorkClientId=";
+    	String baseUrl = "https://letsworkadmin.vercel.app/onboarding?letsWorkClientId="; //test
+    	
+//    	String baseUrl = "https://letsworkapp.in/onboarding?letsWorkClientId="; //live
     	
     	Contract contract = contractRepo.findByIdAndCompanyId(contractId, companyId).orElse(null);
     	

@@ -30,119 +30,121 @@ public class LandLordServiceImpl implements LandLordService {
 	@Autowired
 	S3Service s3Service;
 	
-	String bucketName = "myapp-bucket-1758037822620";
+	String bucketName = "letsworkcentres";
 
 	@Override
 	public LandLord saveOrUpdate(LandLord incoming, MultipartFile panFile, MultipartFile aadharFile,
-            MultipartFile gstFile, MultipartFile agreementFile) throws Exception {
-		// enforce business key
-		if (incoming.getGstNumber() == null || incoming.getGstNumber().trim().isEmpty()) {
-		throw new IllegalArgumentException("gstNumber is required (business key).");
-		}
-		
-		Optional<LandLord> existingOpt = repo.findByGstNumber(incoming.getGstNumber().trim());
-		LandLord entity;
-		
-		if (existingOpt.isPresent()) {
-		// update existing
-		entity = existingOpt.get();
-		
-		// update all scalar fields except id and gstNumber
-		entity.setName(incoming.getName());
-		entity.setSpocFirstName(incoming.getSpocFirstName());
-		entity.setSpocLastName(incoming.getSpocLastName());
-		entity.setSpocEmail(incoming.getSpocEmail());
-		entity.setAadharNumber(incoming.getAadharNumber());
-		entity.setSpocAadharNumber(incoming.getSpocAadharNumber());
-		entity.setPanNumber(incoming.getPanNumber());
-		entity.setSpocPanNumber(incoming.getSpocPanNumber());
-		entity.setTinNumber(incoming.getTinNumber());
-		entity.setCinNumber(incoming.getCinNumber());
-		entity.setDepositAmount(incoming.getDepositAmount());
-		entity.setTenure(incoming.getTenure());
-		entity.setRent(incoming.getRent());
-		entity.setRemarks(incoming.getRemarks());
-		entity.setAgreementType(incoming.getAgreementType());
-		entity.setCompanyId(incoming.getCompanyId());
-		
-		// Replace child list
-		entity.getTimeAndPercentage().clear();
-		if (incoming.getTimeAndPercentage() != null) {
-		for (EscalationTimeAndPercentage child : incoming.getTimeAndPercentage()) {
-		child.setLandLord(entity); // important for bidirectional mapping
-		entity.getTimeAndPercentage().add(child);
-		}
-		}
-		
-		} else {
-		// new landlord
-		entity = incoming;
-		
-		if (entity.getTimeAndPercentage() != null) {
-		for (EscalationTimeAndPercentage child : entity.getTimeAndPercentage()) {
-		child.setLandLord(entity);
-		}
-		}
-		}
-		
-		// handle file uploads
-		String landlordName = entity.getName() != null ? entity.getName() : entity.getGstNumber();
-		
-		if (panFile != null && !panFile.isEmpty()) {
-			
-			if (entity.getPanCardS3Path() != null) {
-		        s3Service.deleteLandlordDocument(bucketName, entity.getPanCardS3Path());
-		    }
-			
-		File temp = File.createTempFile("pan-", Objects.requireNonNull(panFile.getOriginalFilename()));
-		panFile.transferTo(temp);
-		String url = s3Service.uploadLandlordDocument(bucketName, entity.getCompanyId(), landlordName, "pan", panFile.getOriginalFilename(), temp);
-		entity.setPanCardS3Path(url);
-		temp.delete();
-		}
-		
-		if (aadharFile != null && !aadharFile.isEmpty()) {
-			
-			if (entity.getAadharCardS3Path() != null) {
-		        s3Service.deleteLandlordDocument(bucketName, entity.getAadharCardS3Path());
-		    }
-			
-		File temp = File.createTempFile("aadhar-", Objects.requireNonNull(aadharFile.getOriginalFilename()));
-		aadharFile.transferTo(temp);
-		String url = s3Service.uploadLandlordDocument(bucketName, entity.getCompanyId(), landlordName, "aadhar", aadharFile.getOriginalFilename(), temp);
-		entity.setAadharCardS3Path(url);
-		temp.delete();
-		}
-		
-		if (gstFile != null && !gstFile.isEmpty()) {
-			
-			if (entity.getGstCertificateS3Path() != null) {
-		        s3Service.deleteLandlordDocument(bucketName, entity.getGstCertificateS3Path());
-		    }
-			
-		File temp = File.createTempFile("gst-", Objects.requireNonNull(gstFile.getOriginalFilename()));
-		gstFile.transferTo(temp);
-		String url = s3Service.uploadLandlordDocument(bucketName, entity.getCompanyId(), landlordName, "gst", gstFile.getOriginalFilename(), temp);
-		entity.setGstCertificateS3Path(url);
-		temp.delete();
-		}
-		
-		if (agreementFile != null && !agreementFile.isEmpty()) {
-			
-			if (entity.getAgreementFileS3Path() != null) {
-		        s3Service.deleteLandlordDocument(bucketName, entity.getAgreementFileS3Path());
-		    }
-			
-		File temp = File.createTempFile("agreement-", Objects.requireNonNull(agreementFile.getOriginalFilename()));
-		agreementFile.transferTo(temp);
-		String url = s3Service.uploadLandlordDocument(bucketName, entity.getCompanyId(), landlordName, "agreement", agreementFile.getOriginalFilename(), temp);
-		entity.setAgreementFileS3Path(url);
-		temp.delete();
-		}
-		
-		// save parent and children in one transaction
-		return repo.save(entity);
+	        MultipartFile gstFile, MultipartFile agreementFile) throws Exception {
+	    // enforce business key
+	    if (incoming.getGstNumber() == null || incoming.getGstNumber().trim().isEmpty()) {
+	        throw new IllegalArgumentException("gstNumber is required (business key).");
+	    }
+	    
+	    // Check if ID is present before querying the repository to avoid IllegalArgumentException
+	    Optional<LandLord> existingOpt = Optional.empty();
+	    if (incoming.getId() != null) {
+	        existingOpt = repo.findById(incoming.getId());
+	    }
+	    
+	    LandLord entity;
+	    
+	    if (existingOpt.isPresent()) {
+	        // update existing
+	        entity = existingOpt.get();
+	        
+	        // update all scalar fields except id
+	        entity.setName(incoming.getName());
+	        entity.setSpocFirstName(incoming.getSpocFirstName());
+	        entity.setSpocLastName(incoming.getSpocLastName());
+	        entity.setSpocEmail(incoming.getSpocEmail());
+	        entity.setAadharNumber(incoming.getAadharNumber());
+	        entity.setSpocAadharNumber(incoming.getSpocAadharNumber());
+	        entity.setPanNumber(incoming.getPanNumber());
+	        entity.setSpocPanNumber(incoming.getSpocPanNumber());
+	        entity.setTinNumber(incoming.getTinNumber());
+	        entity.setCinNumber(incoming.getCinNumber());
+	        entity.setDepositAmount(incoming.getDepositAmount());
+	        entity.setTenure(incoming.getTenure());
+	        entity.setRent(incoming.getRent());
+	        entity.setRemarks(incoming.getRemarks());
+	        entity.setAgreementType(incoming.getAgreementType());
+	        entity.setCompanyId(incoming.getCompanyId());
+	        entity.setGstNumber(incoming.getGstNumber());
+	        
+	        // Replace child list
+	        entity.getTimeAndPercentage().clear();
+	        if (incoming.getTimeAndPercentage() != null) {
+	            for (EscalationTimeAndPercentage child : incoming.getTimeAndPercentage()) {
+	                child.setLandLord(entity); // important for bidirectional mapping
+	                entity.getTimeAndPercentage().add(child);
+	            }
+	        }
+	    } else {
+	        // new landlord (incoming ID is null, or ID was provided but not found in the database)
+	        entity = incoming;
+	        
+	        if (entity.getTimeAndPercentage() != null) {
+	            for (EscalationTimeAndPercentage child : entity.getTimeAndPercentage()) {
+	                child.setLandLord(entity);
+	            }
+	        }
+	    }
+	    
+	    // handle file uploads
+	    String landlordName = entity.getName() != null ? entity.getName() : entity.getGstNumber();
+	    
+	    if (panFile != null && !panFile.isEmpty()) {
+	        if (entity.getPanCardS3Path() != null) {
+	            s3Service.deleteLandlordDocument(bucketName, entity.getPanCardS3Path());
+	        }
+	        
+	        File temp = File.createTempFile("pan-", Objects.requireNonNull(panFile.getOriginalFilename()));
+	        panFile.transferTo(temp);
+	        String url = s3Service.uploadLandlordDocument(bucketName, entity.getCompanyId(), landlordName, "pan", panFile.getOriginalFilename(), temp);
+	        entity.setPanCardS3Path(url);
+	        temp.delete();
+	    }
+	    
+	    if (aadharFile != null && !aadharFile.isEmpty()) {
+	        if (entity.getAadharCardS3Path() != null) {
+	            s3Service.deleteLandlordDocument(bucketName, entity.getAadharCardS3Path());
+	        }
+	        
+	        File temp = File.createTempFile("aadhar-", Objects.requireNonNull(aadharFile.getOriginalFilename()));
+	        aadharFile.transferTo(temp);
+	        String url = s3Service.uploadLandlordDocument(bucketName, entity.getCompanyId(), landlordName, "aadhar", aadharFile.getOriginalFilename(), temp);
+	        entity.setAadharCardS3Path(url);
+	        temp.delete();
+	    }
+	    
+	    if (gstFile != null && !gstFile.isEmpty()) {
+	        if (entity.getGstCertificateS3Path() != null) {
+	            s3Service.deleteLandlordDocument(bucketName, entity.getGstCertificateS3Path());
+	        }
+	        
+	        File temp = File.createTempFile("gst-", Objects.requireNonNull(gstFile.getOriginalFilename()));
+	        gstFile.transferTo(temp);
+	        String url = s3Service.uploadLandlordDocument(bucketName, entity.getCompanyId(), landlordName, "gst", gstFile.getOriginalFilename(), temp);
+	        entity.setGstCertificateS3Path(url);
+	        temp.delete();
+	    }
+	    
+	    if (agreementFile != null && !agreementFile.isEmpty()) {
+	        if (entity.getAgreementFileS3Path() != null) {
+	            s3Service.deleteLandlordDocument(bucketName, entity.getAgreementFileS3Path());
+	        }
+	        
+	        File temp = File.createTempFile("agreement-", Objects.requireNonNull(agreementFile.getOriginalFilename()));
+	        agreementFile.transferTo(temp);
+	        String url = s3Service.uploadLandlordDocument(bucketName, entity.getCompanyId(), landlordName, "agreement", agreementFile.getOriginalFilename(), temp);
+	        entity.setAgreementFileS3Path(url);
+	        temp.delete();
+	    }
+	    
+	    // save parent and children in one transaction
+	    return repo.save(entity);
 	}
+	
 
 	@Override
 	public PaginatedResponseDto listAll(int page, String companyId) {

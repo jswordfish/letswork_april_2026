@@ -29,12 +29,14 @@ public class DayPassBundle extends Base{
 	@ManyToOne
 	LetsWorkCentre letsWorkCentre;
 	
-	private Integer numberOfDays;//30
+	private Integer numberOfDays;
 	
-	private Integer validForDays;//60
+	private Integer validForDays;
 	
 	private Integer discountPercentage;
 	
 	private BigDecimal price;
+	
+	private Boolean freeCredit;
 
 }

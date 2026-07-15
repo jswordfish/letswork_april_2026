@@ -22,5 +22,5 @@ public class OfferCreateRequestDto {
     private List<Long> centreIds;
     
     private String companyId;
-    
+        
 }

@@ -247,6 +247,7 @@ public class S3Service {
             String companyId,
             String amenityName,
             String fileName,
+            String contentType,
             File file
     ) {
 
@@ -266,7 +267,7 @@ public class S3Service {
                 PutObjectRequest.builder()
                         .bucket(bucketName)
                         .key(keyName)
-                        .contentType("image/jpeg")
+                        .contentType(contentType)
                         .build(),
                 file.toPath()
         );

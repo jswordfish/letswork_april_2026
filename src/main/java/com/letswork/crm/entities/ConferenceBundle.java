@@ -35,5 +35,7 @@ public class ConferenceBundle extends Base{
 	private Integer validForDays;
 	
 	private Boolean showInApp;
+	
+	private Boolean freeCredit;
 
 }
