@@ -23,6 +23,7 @@ public interface ContractSeatMappingRepository extends JpaRepository<ContractSea
  	       "AND c.contract.state = :state " +
  	       "AND (c.seat.seatNumber =:seatNumber) " +
  	       "AND (c.seat.seatType =:seatType) " +
+ 	       "AND c.contract.contractStatus = 'ACTIVE' " +
 		   "AND (c.deleted IS NULL OR c.deleted = false)")
     Optional<ContractSeatMapping> findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
     		@Param("seatNumber") String seatNumber,

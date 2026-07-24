@@ -8,7 +8,9 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.OfferCreateRequestDto;
 import com.letswork.crm.dtos.OfferLetsworkCentreMappingDto;
@@ -50,6 +52,8 @@ public class OfferManagementServiceImpl implements OfferManagementService {
         offer.setCompanyId(dto.getCompanyId());
         offer.setOfferType(dto.getOfferType());
         offer.setActive(Boolean.TRUE);
+        
+        
 
         Offers savedOffer = offersService.saveOrUpdate(offer);
 
@@ -66,20 +70,25 @@ public class OfferManagementServiceImpl implements OfferManagementService {
     }
     
     @Override
-    public List<Offers> getOffers(String companyId, String code, OfferType offerType) {
-    	
-    	expireOffers();
+    public List<Offers> getOffers(String companyId, String code, OfferType offerType, String search) {
+
+        expireOffers();
 
         // 🔹 If code is present → return single result
         if (code != null && !code.isBlank()) {
 
-        	Offers offer = offersRepository.findByCodeAndCompanyId(code, companyId).orElse(null);
+            Offers offer = offersRepository.findByCodeAndCompanyId(code, companyId).orElse(null);
 
-        	if (offer == null) {
-        	    return Collections.emptyList();
-        	}
+            if (offer == null) {
+                return Collections.emptyList();
+            }
 
             return List.of(offer);
+        }
+
+        // 🔹 If search is present → search across all fields
+        if (search != null && !search.isBlank()) {
+            return offersRepository.searchOffers(companyId, search);
         }
 
         // 🔹 If offerType filter is present
@@ -117,6 +126,22 @@ public class OfferManagementServiceImpl implements OfferManagementService {
     public List<Offers> getAllByCompanyId(String companyId) {
         return offersRepository.findAllByCompanyId(companyId);
     }
+
+	@Override
+	public Offers deleteOffer(Long offerId) {
+		
+		Offers offer = offersRepository.findById(offerId).orElse(null);
+		
+		if(offer==null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Offer not found with id : "+offerId);
+		}
+		
+		offer.setDeleted(Boolean.TRUE);
+		
+		Offers saved = offersRepository.save(offer);
+		
+		return saved;
+	}
 
     
 }

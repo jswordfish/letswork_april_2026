@@ -39,9 +39,9 @@ public class DayPassBookingDirectController {
     
     @PostMapping("/cancel")
 	public ResponseEntity<DayPassBookingDirect> cancel(@RequestParam String token, @RequestParam Long id,
-			@RequestParam String companyId) {
+			@RequestParam String companyId, @RequestParam (required = false) String source) {
 
-		return ResponseEntity.ok(service.cancelBookingDirect(id, companyId));
+		return ResponseEntity.ok(service.cancelBookingDirect(id, companyId, source));
 	}
     
     @PostMapping("/rescheduleBooking")
@@ -51,9 +51,9 @@ public class DayPassBookingDirectController {
 			        example = "2026-04-09"
 			    )
 			    @RequestParam
-			    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate newDate, @RequestParam String companyId) {
+			    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate newDate, @RequestParam (required = false) String source, @RequestParam String companyId) {
 
-		return ResponseEntity.ok(service.rescheduleBookingDirect(bookingId, newDate, companyId));
+		return ResponseEntity.ok(service.rescheduleBookingDirect(bookingId, newDate, companyId, source));
 	}
 
 

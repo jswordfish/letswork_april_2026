@@ -443,11 +443,10 @@ public class ContractServiceImpl implements ContractService {
 
         try {
 
-            Lead lead =
-                    leadRepo.findByEmailAndCompanyId(
-                            dto.getLeadEmail(),
-                            dto.getCompanyId()
-                    );
+        	Lead lead = leadRepo.findFirstByEmailAndCompanyIdOrderByIdDesc(
+        	        dto.getLeadEmail(),
+        	        dto.getCompanyId()
+        	).orElse(null);
 
             if (lead == null) {
 

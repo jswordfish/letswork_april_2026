@@ -38,14 +38,14 @@ public class DayPassBookingThroughBundleController {
 	
 	@PostMapping("/cancel")
 	public ResponseEntity<DayPassBookingThroughBundle> cancel(@RequestParam String token, @RequestParam Long id,
-			@RequestParam String companyId) {
+			@RequestParam String companyId, @RequestParam (required = false) String source) {
 
-		return ResponseEntity.ok(service.cancelBookingThroughBundle(id, companyId));
+		return ResponseEntity.ok(service.cancelBookingThroughBundle(id, companyId, source));
 	}
 	
 	@PostMapping("/rescheduleBooking")
 	public ResponseEntity<DayPassBookingThroughBundle> rescheduleBooking(@RequestParam String token,
-			@RequestParam Long bookingId, @RequestParam String companyId,
+			@RequestParam Long bookingId, @RequestParam String companyId, @RequestParam (required = false) String source,
 			 @Parameter(
 				        description = "Date in ISO format",
 				        example = "2026-04-09"
@@ -53,7 +53,7 @@ public class DayPassBookingThroughBundleController {
 				    @RequestParam
 				    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate newDate) {
 		return ResponseEntity
-				.ok(service.rescheduleBookingThroughBundle(bookingId, newDate, companyId));
+				.ok(service.rescheduleBookingThroughBundle(bookingId, newDate, companyId, source));
 	}
 
 

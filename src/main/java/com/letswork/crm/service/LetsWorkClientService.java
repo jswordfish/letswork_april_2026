@@ -39,6 +39,8 @@ public interface LetsWorkClientService {
 	        int size
 	);
 	
+	void removeUserFromClient(Long clientId, Long userId, String companyId);
+	
 	List<LetsWorkClient> listAll();
 	
 	PaginatedResponseDto listAll(int page);

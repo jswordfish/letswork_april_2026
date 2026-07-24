@@ -35,13 +35,14 @@ public interface ConferenceBookingDirectService {
             int size
     );
 	
-	public ConferenceBookingDirect cancel(Long id, String companyId);
+	public ConferenceBookingDirect cancel(Long id, String companyId, String source);
 	
 	public ConferenceBookingDirect reschedule(
             Long bookingId,
             LocalDate newDate,
             List<ConferenceRoomSlotRequest> newSlots,
-            String companyId
+            String companyId,
+            String source
     );
 
 }

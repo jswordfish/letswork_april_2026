@@ -97,22 +97,22 @@ public class BookConferenceRoomController {
 ////        return ResponseEntity.ok(booking);
 ////    }
 ////
-////    @GetMapping("/scan")
-////    public ResponseEntity<BookConferenceRoom> scan(
-////            @RequestParam String qrData,
-////            @RequestParam String token
-////    ) {
-////        // Example: CONFROOM|uuid
-////        String bookingCode = qrData.split("\\|")[1];
-////
-////        BookConferenceRoom booking = repo.findByBookingCode(bookingCode).orElseThrow(() ->
-////        new RuntimeException("Booking not found")
-////);
-////                
-////
-////        return ResponseEntity.ok(booking);
-////        
-////    }
+//    @GetMapping("/scan")
+//    public ResponseEntity<BookConferenceRoom> scan(
+//            @RequestParam String qrData,
+//            @RequestParam String token
+//    ) {
+//        // Example: CONFROOM|uuid
+//        String bookingCode = qrData.split("\\|")[1];
+//
+//        BookConferenceRoom booking = repo.findByBookingCode(bookingCode).orElseThrow(() ->
+//        new RuntimeException("Booking not found")
+//);
+//                
+//
+//        return ResponseEntity.ok(booking);
+//        
+//    }
 //    
 //    @PostMapping("/allow")
 //    public ResponseEntity<BookConferenceRoom> allow(

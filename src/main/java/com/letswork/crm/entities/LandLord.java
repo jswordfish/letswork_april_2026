@@ -13,6 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.letswork.crm.enums.AgreementType;
@@ -29,6 +31,15 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@Table(
+	    name = "land_lord",
+	    uniqueConstraints = {
+	        @UniqueConstraint(
+	            name = "uk_name_land_lord", 
+	            columnNames = {"email", "phone", "company_id"}
+	        )
+	    }
+	)
 public class LandLord extends Base{
 	
 	@Id
@@ -37,8 +48,10 @@ public class LandLord extends Base{
 	
 	private String name;
 	
+	@Column(name = "email")
 	private String email;
 	
+	@Column(name = "phone")
 	private String phone;
 	
 	private String spocFirstName;

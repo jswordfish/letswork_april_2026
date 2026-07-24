@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -29,12 +31,22 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Table(
+	    name = "lets_work_client",
+	    uniqueConstraints = {
+	        @UniqueConstraint(
+	            name = "uk_name_client_company", 
+	            columnNames = {"client_company_name", "company_id"}
+	        )
+	    }
+	)
 public class LetsWorkClient extends Base{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
+    @Column(name = "client_company_name")
     @NotBlank
     private String clientCompanyName;
     

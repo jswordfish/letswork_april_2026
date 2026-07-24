@@ -1,11 +1,16 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -29,6 +34,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.dtos.LeadResponseDto;
@@ -52,6 +58,8 @@ import com.letswork.crm.repo.SolutionsRepository;
 import com.letswork.crm.repo.UserRepo;
 import com.letswork.crm.service.LeadService;
 import com.letswork.crm.service.TenantService;
+import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
 
 @Service
 @Transactional
@@ -183,7 +191,7 @@ public class LeadServiceImpl implements LeadService{
 	        activity.setLeadId(savedLead.getId());
 	        activity.setActionType(ActionType.LEAD_CREATED);
 	        activity.setHeader(
-	                "Lead created at " + new Date()
+	                "Lead created at " + getFormattedCurrentDateTime()
 	        );
 	        activity.setCreateDate(new Date());
 	        activity.setUpdateDate(new Date());
@@ -192,6 +200,140 @@ public class LeadServiceImpl implements LeadService{
 
 	        return savedLead;
 	    }
+	}
+	
+	private String getFormattedCurrentDateTime() {
+	    LocalDateTime now = LocalDateTime.now();
+	    int day = now.getDayOfMonth();
+	    
+	    // 1. Determine the ordinal suffix (st, nd, rd, th)
+	    String suffix;
+	    if (day >= 11 && day <= 13) {
+	        suffix = "th";
+	    } else {
+	        switch (day % 10) {
+	            case 1:  suffix = "st"; break;
+	            case 2:  suffix = "nd"; break;
+	            case 3:  suffix = "rd"; break;
+	            default: suffix = "th"; break;
+	        }
+	    }
+	    
+	    // 2. Format the rest of the date: "July 2026 - 03:45 PM"
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy - hh:mm a");
+	    String restOfDate = now.format(formatter);
+	    
+	    // 3. Combine them: "16" + "th " + "July 2026 - 03:45 PM"
+	    return day + suffix + " " + restOfDate;
+	}
+	
+	@Override
+	public String uploadLeadsFromExcel(
+	        MultipartFile file,
+	        String companyId
+	) throws IOException {
+
+	    List<Lead> leads =
+	            Poiji.fromExcel(
+	                    file.getInputStream(),
+	                    PoijiExcelType.XLSX,
+	                    Lead.class
+	            );
+
+	    for (Lead lead : leads) {
+
+	        lead.setName(trim(lead.getName()));
+	        lead.setEmail(trim(lead.getEmail()));
+	        lead.setPhone(trim(lead.getPhone()));
+	        lead.setClientCompanyName(trim(lead.getClientCompanyName()));
+	        lead.setLocation(trim(lead.getLocation()));
+	        lead.setLetsWorkCentre(trim(lead.getLetsWorkCentre()));
+	        lead.setCity(trim(lead.getCity()));
+	        lead.setState(trim(lead.getState()));
+	        lead.setSolution(trim(lead.getSolution()));
+
+	        String validation = validate(lead);
+
+	        if (!validation.equalsIgnoreCase("ok")) {
+	            return "Validation failed: " + validation;
+	        }
+	    }
+
+	    List<String> errors = new ArrayList<>();
+
+	    for (Lead lead : leads) {
+
+	        try {
+
+	            lead.setCompanyId(companyId);
+
+	            saveOrUpdate(lead);
+
+	        } catch (Exception e) {
+
+	            errors.add(
+	                    "Error importing lead "
+	                            + (lead.getEmail() != null ? lead.getEmail() : lead.getPhone())
+	                            + " : "
+	                            + e.getMessage()
+	            );
+	        }
+	    }
+
+	    if (!errors.isEmpty()) {
+	        return "UPLOAD PARTIALLY FAILED:\n" + String.join("\n", errors);
+	    }
+
+	    return "ok";
+	}
+	
+	private String validate(Lead dto) {
+
+	    if (dto.getName() == null || dto.getName().trim().isEmpty()) {
+	        return "Name should not be null";
+	    }
+
+	    if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
+	        return "Email should not be null";
+	    }
+
+	    if (dto.getPhone() == null || dto.getPhone().trim().isEmpty()) {
+	        return "Phone should not be null";
+	    }
+
+	    if (dto.getSource() == null) {
+	        return "Source should not be null";
+	    }
+
+	    if (dto.getStatus() == null) {
+	        return "Status should not be null";
+	    }
+
+	    if (dto.getLeadQuality() == null) {
+	        return "Lead Quality should not be null";
+	    }
+
+	    if (dto.getLetsWorkCentre() == null || dto.getLetsWorkCentre().trim().isEmpty()) {
+	        return "LetsWorkCentre should not be null";
+	    }
+
+	    if (dto.getCity() == null || dto.getCity().trim().isEmpty()) {
+	        return "City should not be null";
+	    }
+
+	    if (dto.getState() == null || dto.getState().trim().isEmpty()) {
+	        return "State should not be null";
+	    }
+
+	    if (dto.getSolution() == null || dto.getSolution().trim().isEmpty()) {
+	        return "Solution should not be null";
+	    }
+
+	    return "ok";
+	}
+	
+	private String trim(String value) {
+	    return value == null ? null : value.trim();
 	}
 
 	@Override
@@ -524,7 +666,7 @@ public class LeadServiceImpl implements LeadService{
 	    String[] headers = {
 	            "Name", "Email", "Phone Number", "Company Name",
 	            "Source", "Location", "Status", "Lead Quality",
-	            "Lets Work Centre", "City", "State", "Solution",
+	            "Lets Work Centre", "Solution",
 	            "Assigned User", "Create Date", "Number Of Seats"
 	    };
 
@@ -560,12 +702,10 @@ public class LeadServiceImpl implements LeadService{
 	            row.createCell(6).setCellValue(dto.getStatus() != null ? dto.getStatus().toString() : "");
 	            row.createCell(7).setCellValue(dto.getLeadQuality() != null ? dto.getLeadQuality().toString() : "");
 	            row.createCell(8).setCellValue(nullSafe(dto.getLetsWorkCentre()));
-	            row.createCell(9).setCellValue(nullSafe(dto.getCity()));
-	            row.createCell(10).setCellValue(nullSafe(dto.getState()));
-	            row.createCell(11).setCellValue(nullSafe(dto.getSolution()));
-	            row.createCell(12).setCellValue(dto.getUser() != null ? dto.getUser().getFirstName() : "");
-	            row.createCell(13).setCellValue(dto.getCreateDate() != null ? dto.getCreateDate().toString() : "");
-	            row.createCell(14).setCellValue(dto.getNumberOfSeats() != null ? dto.getNumberOfSeats() : 0);
+	            row.createCell(9).setCellValue(nullSafe(dto.getSolution()));
+	            row.createCell(10).setCellValue(dto.getUser() != null ? dto.getUser().getFirstName() : "");
+	            row.createCell(11).setCellValue(formatDateWithSuffix(dto.getCreateDate()));
+	            row.createCell(12).setCellValue(dto.getNumberOfSeats() != null ? dto.getNumberOfSeats() : 0);
 	        }
 
 	        for (int i = 0; i < headers.length; i++) {
@@ -576,6 +716,35 @@ public class LeadServiceImpl implements LeadService{
 	        response.flushBuffer();
 	        workbook.dispose();
 	    }
+	}
+	
+	public static String formatDateWithSuffix(Date date) {
+	    if (date == null) {
+	        return "";
+	    }
+
+	    Calendar cal = Calendar.getInstance();
+	    cal.setTime(date);
+	    int day = cal.get(Calendar.DAY_OF_MONTH);
+
+	    // Determine day-of-month ordinal suffix (st, nd, rd, th)
+	    String suffix;
+	    if (day >= 11 && day <= 13) {
+	        suffix = "th";
+	    } else {
+	        switch (day % 10) {
+	            case 1:  suffix = "st"; break;
+	            case 2:  suffix = "nd"; break;
+	            case 3:  suffix = "rd"; break;
+	            default: suffix = "th"; break;
+	        }
+	    }
+
+	    // Pattern format: "Mon, 4" + "th" + " July, 2026"
+	    SimpleDateFormat prefixFormat = new SimpleDateFormat("EEE, d", Locale.ENGLISH);
+	    SimpleDateFormat suffixFormat = new SimpleDateFormat(" MMMM, yyyy", Locale.ENGLISH);
+
+	    return prefixFormat.format(date) + suffix + suffixFormat.format(date);
 	}
 
 	private String nullSafe(String value) {

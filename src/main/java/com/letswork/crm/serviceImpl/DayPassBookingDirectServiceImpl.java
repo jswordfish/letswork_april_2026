@@ -346,7 +346,7 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
 	//
 
 	@Override
-	public DayPassBookingDirect rescheduleBookingDirect(Long bookingId, LocalDate newDate, String companyId) {
+	public DayPassBookingDirect rescheduleBookingDirect(Long bookingId, LocalDate newDate, String companyId, String source) {
 
 		DayPassBookingDirect existing = dayPassBookingDirectRepository.findByIdAndCompanyId(bookingId, companyId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking not found"));
@@ -360,7 +360,7 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
 					"New date must be different from current booking date");
 		}
 
-		cancelBookingDirect(bookingId, companyId);
+		cancelBookingDirect(bookingId, companyId, source);
 
 		DayPassBookingDirect booking = new DayPassBookingDirect();
 
@@ -417,7 +417,7 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
 	//
 	
 	@Override
-	public DayPassBookingDirect cancelBookingDirect(Long id, String companyId) {
+	public DayPassBookingDirect cancelBookingDirect(Long id, String companyId, String source) {
 
 		DayPassBookingDirect booking = dayPassBookingDirectRepository.findByIdAndCompanyId(id, companyId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking not found"));
@@ -425,8 +425,10 @@ public class DayPassBookingDirectServiceImpl implements DayPassBookingDirectServ
 		if (!((booking.getBookingStatus() == BookingStatus.ACTIVE) || (booking.getBookingStatus() == BookingStatus.RESCHEDULED) ) ) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only ACTIVE/RESCHEDULED bookings can be cancelled");
 		}
-
+		
+		if(source == null) {
 		validateCancellationAllowed(booking.getStartDate());
+		}
 
 		booking.setBookingStatus(BookingStatus.CANCELLED);
 

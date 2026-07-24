@@ -1,54 +1,473 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8"/>
     <style>
-        body { font-family: Arial; font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; }
-        td, th { border: 1px solid black; padding: 6px; }
+        @page { size: A4; margin: 60px 50px; }
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; line-height: 1.5; color: #111; }
+        h1, h2, h3 { text-align: center; margin: 4px 0; }
+        h1 { font-size: 22px; letter-spacing: 1px; }
+        .subtitle { text-align:center; font-size: 10px; margin-bottom: 4px; }
+        .agreement-title { text-align:center; font-size: 15px; font-weight:bold; text-decoration: underline; margin: 24px 0 16px; }
+        .page-break { page-break-before: always; }
+        .section-title { font-weight: bold; margin-top: 14px; margin-bottom: 4px; }
+        .clause { margin: 6px 0; text-align: justify; }
+        .sub-clause { margin: 4px 0 4px 18px; text-align: justify; }
+        table { width:100%; border-collapse: collapse; margin: 10px 0; }
+        td, th { border: 1px solid #000; padding: 6px; vertical-align: top; }
+        .footer-block { border-top: 1px solid #000; margin-top: 30px; padding-top: 6px; font-size: 9.5px; text-align:center; }
+        .header-block { text-align:center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 10px; }
+        .signature-table td { border: none; padding-top: 40px; width: 50%; vertical-align: top; }
+        .annex-table td:first-child { width: 35%; font-weight: bold; background:#f5f5f5; }
     </style>
 </head>
 <body>
 
-<h2 style="text-align:center">ANNEXURE I – CLIENT MEMBERSHIP DETAILS</h2>
+<!-- ================= COVER / HEADER ================= -->
+<div class="header-block">
+    <h1>Lets Wörk</h1>
+    <div class="subtitle">Lets Work co-spaces Private Limited &#160;|&#160; www.letswork.co.in</div>
+</div>
 
-<table>
-    <tr><td>Intending Client</td><td th:text="${clientName}"></td></tr>
-    <tr><td>Client Address</td><td th:text="${clientAddress}"></td></tr>
-    <tr><td>Usage of Premises</td><td th:text="${usageOfPremises}"></td></tr>
-    <tr><td>Agreement Tenure</td><td th:text="${agreementTenure}"></td></tr>
-    <tr><td>Lock-in Period</td><td th:text="${lockInPeriod}"></td></tr>
-    <tr><td>Notice Period</td><td th:text="${noticePeriod}"></td></tr>
-    <tr><td>Cabin Offered</td><td th:text="${cabinOffered}"></td></tr>
-    <tr><td>Total Workstation</td><td th:text="${workstation}"></td></tr>
-    <tr><td>License Fees / Month</td><td th:text="${feesPerMonth}"></td></tr>
-    <tr><td>Refundable Deposit</td><td th:text="${depositAmount}"></td></tr>
-    <tr><td>Escalation</td><td th:text="${escalation}"></td></tr>
-    <tr><td>Office Hours Start</td><td th:text="${officeHoursStart}"></td></tr>
-	<tr><td>Office Hours End</td><td th:text="${officeHoursEnd}"></td></tr>
-	<tr><td>Office Hours Start Sat</td><td th:text="${officeHoursStartSat}"></td></tr>
-	<tr><td>Office Hours End Sat</td><td th:text="${officeHoursEndSat}"></td></tr>
-    <tr><td>GST</td><td th:text="${gstNumber}"></td></tr>
-    <tr><td>Billing Cycle</td><td th:text="${billingCycle}"></td></tr>
-    <tr><td>Advance Token</td><td th:text="${advanceToken}"></td></tr>
-    <tr><td>Commencement Date</td><td th:text="${commencementDate}"></td></tr>
-	<tr>
-	    <td>Amenities Included</td>
-	    <td>
-	        <table style="width:100%; border-collapse: collapse;">
-	            <tr>
-	                <th style="border:1px solid black;">#</th>
-	                <th style="border:1px solid black;">Amenity</th>
-	                <th style="border:1px solid black;">Description</th>
-	            </tr>
-	            <tr th:each="amenity, stat : ${amenities}">
-	                <td th:text="${#strings.substring('abcdefghijklmnopqrstuvwxyz', stat.index, stat.index + 1)}"></td>
-	                <td th:text="${amenity.name}"></td>
-	                <td th:text="${amenity.description}"></td>
-	            </tr>
-	        </table>
-	    </td>
-	</tr>
+<div class="agreement-title">SERVICE AGREEMENT</div>
+
+<p class="clause">
+    This Service Agreement (Hereinafter &#8220;Agreement&#8221;) is made at Mumbai on
+    <span th:text="${agreementDate ?: '------------'}"></span>:
+</p>
+
+<p class="clause" style="text-align:center;">BETWEEN</p>
+
+<p class="clause">
+    <strong>Lets Work Co Spaces Pvt. Ltd.</strong>, (PAN:AAGCR1785A) a company incorporated under the provisions of
+    Companies Act 1956 and deemed to be a company under the Companies Act 2013 and having its registered office at
+    Office no. 405, Runwal Square, Next to Runwal Anthurium, LBS Marg, Mulund West, Mumbai 400080, Hereinafter
+    referred as &#8220;<strong>Lets Work</strong>&#8221; (which expression shall, unless it be repugnant to them context or meaning
+    thereof be deemed to mean and include its successors and permitted assigns) of the One Part.
+</p>
+
+<p class="clause" style="text-align:center;">And</p>
+
+<p class="clause">
+    <span th:text="${clientName}"></span> (PAN <span th:text="${clientPan ?: '------------'}"></span>), a company
+    incorporated under the provisions of the Companies Act, 2013, having its registered address at
+    <span th:text="${clientAddress}"></span> hereinafter referred as &#8220;<strong>Client</strong>&#8221; (which
+    expression shall, unless it be repugnant to them context or meaning thereof be deemed to mean and include its
+    successors and assigns) of the Other Part.
+</p>
+
+<p class="section-title">WHEREAS;</p>
+<p class="sub-clause">A. Lets Work is engaged in the business of providing co-working space as services at its Premises
+    (Defined below) for office use, conducting workshops, virtual office and such other purpose;</p>
+<p class="sub-clause">B. The Client is desirous of taking and Lets Work is desirous of giving on Service/Fee basis the
+    Premises (defined below), on the terms and conditions hereinafter appearing.</p>
+
+<p class="clause" style="font-weight:bold; text-align:center;">
+    NOW THIS AGREEMENT WITNESSETH AS FOLLOWS AND IT IS HEREBY AGREED BY AND BETWEEN THE PARTIES AS UNDER:
+</p>
+
+<p class="section-title">1. SCOPE OF SERVICES</p>
+<p class="clause">
+    This Agreement has been entered between Lets Work and Client to agree on the terms and conditions under which
+    Lets Work agrees to provide co-working space as a service to the Client subject to terms of this Agreement.
+    Lets Work through this Agreement permits and agrees to give access to Client of the premises as identified in
+    Annexure I (&#8220;Premises&#8221;) for the purpose of the Client running its business operations from the Premises
+    for the Term as agreed in Annexure I. The Premises shall always remain in possession of Lets Work and no control,
+    no tenancy or any other right, title and interest and or possession whatsoever is created or intended to be
+    created by this Agreement in favor of Client.
+</p>
+
+<div class="footer-block">
+    Registered and Corporate address<br/>
+    405 Runwal Square, next to Runwal Anthurium, Veena Nagar, Lal Bahadur Shastri Marg, Mulund (W), Mumbai-400080<br/>
+    CIN no: U70100MH2012PTC238696 &#160;|&#160; sales@letswork.co.in &#160;|&#160; letswork.co.in
+</div>
+
+<!-- ================= PAGE 2 ================= -->
+<div class="page-break">
+<p class="section-title">2. RESTRICTED USE</p>
+<p class="clause">
+    The use of the Premises is strictly restricted to the Client on the agreed terms and conditions of this
+    Agreement and the Client agrees that it does not have any right to assign or sub-let or part with access of the
+    unit/office cubical/desk in the Premises and the services provided shall be exclusively used by the Client.
+</p>
+<p class="clause">
+    The Client further agrees to use the unit/office cubical/desk in Premises as agreed (Detailed in Annexure) only
+    for carrying out its business therefrom and for no other purpose and also ensure that the same is abided by its
+    employees, consultants and representatives.
+</p>
+<p class="clause">
+    In the event the Client uses the unit/office cubical for any illegal and/or unlawful purpose, Lets Work shall
+    have the right to terminate the Agreement forthwith and the Client shall be liable to indemnify Lets Work for all
+    the claim/s, loss and/or damage (save and except any indirect, consequential or remote losses) suffered by Lets
+    Work due to illegal and/or unlawful actions (includes illegal and unlawful use of internet space provided in the
+    Premises) of its employees, consultants and/or representatives from the Premises and Lets Work shall also
+    forfeit the deposit provided by the client as per the agreement.
+</p>
+
+<p class="section-title">3. LOCK-IN, TERM AND TERMINATION</p>
+<p class="sub-clause">
+    a. The Agreement shall be locked-in for a defined period of the entire term, the details of which is in Annexure I
+    attached to this Agreement. This Agreement can be further renewed for a period as may be mutually agreed between
+    the Parties in writing. Client agrees that it cannot downscale agreed number of seats (as set out in Annexure I
+    below) anytime during the Term of this Agreement.
+</p>
+<p class="sub-clause">
+    b. This Agreement can be terminated by either Party by serving a prior written notice, as set out in Annexure I,
+    post completion of the Lock-in Period, to the other Party. The termination shall always be effective only on the
+    15th or 30th of a calendar month, depending on the completion of the notice period.
+    <br/>Illustration: If notice is served on 20th July and the notice period ends on 19th August, termination shall
+    be effective on 30th August. If served on 5th July and the notice period ends on 4th August, termination shall be
+    effective on 15th August.
+    <br/>In the event the Client terminates this Agreement during the Lock-in Period, the Client shall be liable to
+    pay Fees for the unexpired term of the Lock-in Period plus the notice period (as set out in Annexure I) to Lets
+    Work.
+</p>
+<p class="sub-clause">
+    c. This Agreement can be terminated forthwith by Lets Work in the event the Client delays the payment or does not
+    pay the Fees for Two (2) consecutive months.
+</p>
+<p class="sub-clause">
+    d. Further, notwithstanding anything to the contrary contained herein, either Party may terminate this Agreement
+    forthwith at any time due to:
+    <br/>i. the other Party violating any law or rule or regulation while performing its obligations under this
+    Agreement or is unable to perform its obligations hereunder as a result of any law, rule or regulation;
+    <br/>ii. In the event of breach by any Party of any of the representations, warranties, terms or covenants of this
+    Agreement, and such breach remains uncured after the expiry of 21 (twenty-one) calendar days from the date of
+    written notice of such breach being provided by the non-defaulting Party.
+    <br/>Any termination under this clause shall also be effective only on the 15th or 30th of a calendar month,
+    whichever immediately follows the expiry of the cure period.
+</p>
+
+<p class="section-title">4. SECURITY DEPOSIT</p>
+<p class="clause">
+    The Client agrees to pay a refundable interest free security deposit as specified in the Annexure I of this
+    Agreement (&#8220;Security Deposit&#8221;). The Security Deposit is towards maintenance of assets of the Premises
+    and the refund amount of Security Deposit shall be subject to deductions, if any, of the damage of the assets of
+    Lets Work, during the Term of this Agreement. This security deposit shall be refunded within Seven to Ten (7 to
+    10) working days from the date of expiry or termination of this Agreement, whichever is earlier, time being of
+    essence. In the event Lets Work fails to refund the Security Deposit within the aforesaid period, Lets Work shall
+    be entitled to pay interest at the rate of 12% per annum on the unpaid amount of the Security Deposit from the
+    date on which it was due till actual repayment thereof.
+</p>
+</div>
+
+<!-- ================= PAGE 3 ================= -->
+<div class="page-break">
+<p class="section-title">5. FEES AND MODE OF PAYMENT</p>
+<p class="clause">
+    For use of the Premises, the Client agrees to pay fees for each month as detailed in Annexure I (&#8220;the
+    Fees&#8221;). The Fees shall be paid within 2 days from the date of occupying the Premises for the ongoing month
+    on pro-rata basis and for each following month the Client shall pay fee within first week of the same month. All
+    payments shall be only through online/NEFT mode and no cash payments shall be accepted.
+</p>
+<p class="clause">
+    <strong>Late Fee:</strong> In the event of delay in payment of Fees for more than 3 days from when it was due,
+    Lets Work shall have the right to charge interest @ 18% per annum on the unpaid amount from the date on which it
+    was due until the date of payment on pro-rata basis and/or discontinue internet access until the date of payment.
+</p>
+<p class="clause">
+    <strong>Cheque Dishonor:</strong> In the event any cheque drawn in the name of Lets Work is dishonored or
+    returned by the bank of the Client, the Client shall be liable to pay a penalty of Rs. 1000/- and shall be liable
+    for action under section 138 of Negotiable Instruments Act. Further, the Client would be required to issue a
+    Demand Draft of an equivalent amount, including Rs. 1000/- penal amount, immediately upon receipt of notice in
+    lieu of the dishonored cheque.
+</p>
+<p class="clause"><strong>Amenities:</strong> Unless mentioned otherwise, the Fee includes all charges of amenities like internet, electricity, refreshments and maintenance.</p>
+<p class="clause"><strong>Overuse:</strong> Clients can occupy the Premises beyond its agreed timings as per attached Annexure I.</p>
+<p class="clause"><strong>Escalation:</strong> The Fees payable by the Client to Lets Work may be increased as per Annexure I.</p>
+<p class="clause"><strong>Discounts/offer:</strong> No discounts/offer shall be available for Client as offered by Lets Work in routine or on festivals unless agreed otherwise in writing.</p>
+
+<p class="section-title">6. TAX COMPLIANCE</p>
+<p class="clause">
+    The Client shall submit its GST registration details to Lets Work as it may be required to comply with GST
+    provisions as provided by the appropriate government, at the time of onboarding. In case Client fails to submit
+    the required GST registration details at the time of onboarding or at-least 7 days prior to the monthly invoicing
+    date, it shall not be able to avail input credit of GST paid on the Lets Work invoice. It is clarified that Lets
+    Work provides location-based services and services are specific to a Premises, hence CGST and SGST will be
+    charged as per GST guidelines.
+</p>
+<p class="clause">
+    The Client shall timely deduct the tax deductible at source (&#8220;TDS&#8221;) as applicable on the Service
+    Charges/Fees as per the provisions of the Income Tax Act, 1961. The Client shall timely deposit TDS and submit the
+    TDS certificate with respect to TDS amount deducted from the Service Charges/Fees payable, to Lets Work in the
+    succeeding month after the end of the concerned quarter for which the TDS Amount was deducted. If the TDS
+    certificate is not provided to Lets Work by the end of the second month of the next quarter, then such TDS Amount
+    shall be treated as the unpaid portion of the Fees. In case of non-submission of the TDS certificate for TDS
+    Amount or non-payment of the TDS Amount, the Client shall be liable to pay penalty @18% per annum on the
+    outstanding amount from the date on which it was due till actual payment thereof. GST shall be applicable on the
+    penalty amount.
+</p>
+<p class="clause">
+    The GST shall be charged on the Fees at extra based on the applicable rates defined by the Government at
+    prevailing time. Any taxes, enhancement and other charges, fees to be paid in respect to the business of the
+    Client running from the Premises shall be borne and paid by the Client alone.
+</p>
+</div>
+
+<!-- ================= PAGE 4 ================= -->
+<div class="page-break">
+<p class="section-title">7. HANDING OVER OF POSSESSION AND CONSEQUENCES OF DELAY</p>
+<p class="clause">
+    The Client shall cease to use and occupy the Premises on the expiry or sooner termination of this Agreement;
+    remove all its equipment, belongings, articles and things and its employees/personnel and vacate and hand back
+    the unit/office cubicle as allotted in Premises. The Client shall remove from the Premises their fixtures and
+    equipment provided that any damage or defacement is occasioned to any part of the Premises in the course of such
+    removal, the same shall be remedied by the Client immediately and at their own expense to the satisfaction of
+    Lets Work. If the Client fails to do so, Lets Work may do so at the Client&#8217;s expense or against the
+    Security Deposit of the Client. If the Client leaves any property in the Premises, Lets Work may dispose of it at
+    the Client&#8217;s cost in any way Lets Work chooses without owing the Client any responsibility for it or any
+    proceeds of sale.
+</p>
+<p class="clause">
+    The Client must leave the Premises in the same condition as it was when the Client took it apart from the wear
+    and tear due to regular use of the Premises.
+</p>
+<p class="clause">
+    <strong>Delay in Handover of Work Space:</strong> In the event of any delays by Client in handing over the work
+    space allotted after the termination or expiration of the Agreement, Client agrees to pay twice the applicable
+    Fees mentioned in Annexure I for every day of un-authorized occupation, beyond the date of expiry or termination
+    of this Agreement. Any such unpaid amount, the details whereof are provided to the Client, shall be adjusted
+    against the Security Deposit after giving prior written notice to the Client and thereafter Lets Work shall
+    refund the balance Security Deposit to the Client. Client agrees and acknowledges that the damages provided for
+    in this clause are a genuine and reasonable pre-estimate of the damages that Lets Work may suffer as a result of
+    Client&#8217;s delay and failure to comply with its obligations in the manner contemplated and is not a penalty.
+</p>
+<p class="clause">
+    In the case of GST Registration/Virtual Office Services, agreement will get renewed, and client will need to pay
+    the rent until Lets Work does not receive the change of address/transfer proof.
+</p>
+
+<p class="section-title">8. CODE OF CONDUCT</p>
+<p class="clause">
+    To ensure that all the co-workers respect each other and that everyone abides by co-operative behaviour, Lets
+    Work has set forth a code of conduct for each of its clients using the Premises. The Client is expected to read
+    and follow the Code of Conduct attached herewith as Annexure II of this Agreement.
+</p>
+
+<p class="section-title">9. INTELLECTUAL PROPERTY RIGHTS</p>
+<p class="clause">
+    No intellectual property rights are assigned under this Agreement to either Party. Each Party shall continue to
+    own all right, title and interest in the intellectual property owned respectively. Each Party shall have the
+    right to use the logo of the other Party only on their respective website for marketing purpose only.
+</p>
+</div>
+
+<!-- ================= PAGE 5 ================= -->
+<div class="page-break">
+<p class="section-title">10. INDEMNITY</p>
+<p class="clause">
+    Each Party shall indemnify and keep the other Party and its officers, directors, agents, affiliates,
+    subcontractors and employees, as may be applicable, fully and effectively indemnified, saved, defended and held
+    harmless against the damages or losses which may be suffered by the aggrieved party (save and except any
+    indirect, consequential or remote losses) due to the breach/default or non-performance of the obligations,
+    undertakings, warranties or covenants by the defaulting party under this Agreement, non-fulfilment of its
+    representations, warranties and obligations under this Agreement and/or any breach of the terms of this
+    Agreement by the Client or any of the Client&#8217;s employee or its representative and/or unlawful and/or
+    illegal acts of the Client, its employees, consultants and/or representatives, including:
+</p>
+<p class="sub-clause">&#9702; any damage caused to the Designated Area or the building or the Premises on account of any act by the Client or its employees.</p>
+<p class="sub-clause">&#9702; claim by any other client from the Premises due to act of Client and/or its employees.</p>
+
+<p class="section-title">11. INSURANCE</p>
+<p class="clause">Each Party shall be liable for insurance coverage of its assets and employees.</p>
+
+<p class="section-title">12. CONFIDENTIALITY</p>
+<p class="clause">
+    In course of availing the Services the Parties will have access to the Confidential Information (as defined
+    below) of the other Party and other clients/co-workers sharing space at Lets Work, hence this Agreement hereby
+    sets the obligation on the Receiving Party to keep all the information private and confidential known by it
+    related to the other Party and/or other Client&#8217;s/co-workers&#8217; business. Disclosing Party shall mean
+    any Party who discloses its Confidential Information to the other party under this Agreement. Receiving Party
+    shall mean any Party who receives Confidential Information from the Disclosing Party under this Agreement.
+</p>
+<p class="sub-clause">
+    a. Confidential Information in this Agreement shall mean information, knowledge or data, related to the
+    Disclosing Party and/or Lets Work clients/co-workers howsoever disclosed, including copies and reproductions
+    thereof, which are of an intellectual, technical, scientific, financial, commercial or marketing nature which is
+    not in the public domain and in which Disclosing Party has a business, proprietary or ownership interest or has a
+    legal duty to protect, which the Disclosing Party considers to be confidential, whether or not identified as
+    confidential and/or any information which a reasonable third party acting in good faith would recognise as being
+    confidential in nature.
+</p>
+<p class="sub-clause">b. The Receiving Party shall under no circumstances disclose to any third parties any information without the prior written permission of the Disclosing Party. The Client shall use the information only for performing its obligations under the Agreement.</p>
+<p class="sub-clause">c. The above-mentioned limitations shall not apply to information which was already in the Receiving Party&#8217;s possession prior to disclosure; has lawfully entered the public domain; was disclosed by a third party without breach of any confidentiality obligation; or was submitted to statutory/government authorities in the process of compliance with applicable laws.</p>
+<p class="sub-clause">d. The Receiving Party and its employees/representatives shall limit access to the Disclosing Party&#8217;s information to itself and shall be bound by the confidentiality obligations provided herein.</p>
+<p class="sub-clause">e. The Receiving Party agrees to protect the confidentiality of the Disclosing Party&#8217;s information at least with the same degree of care as it exercises with respect to its own confidential information.</p>
+<p class="sub-clause">f. The Receiving Party shall neither publicize nor make any press release relating to the Agreement, the other party or the cooperation between the parties.</p>
+<p class="sub-clause">g. The Receiving Party shall not, directly or indirectly, in any manner whatsoever share or discuss any details of the Confidential Information with any third party and/or co-workers.</p>
+<p class="clause">
+    The Client undertakes to maintain in confidence, and not to reveal to any person or body, any information or
+    data which it receives through and subsequent to availing the services pursuant to this Agreement, and which
+    pertains, directly or indirectly, to Lets Work clients/co-workers, including names, addresses and office details,
+    information which pertains to Lets Work&#8217;s/co-workers&#8217; business (including terms of agreement with its
+    clients, nature of service, consideration for the service, etc.) or any other data.
+</p>
+</div>
+
+<!-- ================= PAGE 6 ================= -->
+<div class="page-break">
+<p class="section-title">13. LIMITATION OF LIABILITY</p>
+<p class="clause">
+    Neither party shall be liable to the other under any circumstances for any indirect, special, incidental or
+    consequential damages including but not limited to loss of business, revenues, profits, savings, or any other
+    claims or demand arising out of any claimed breach or delay in the performance of this Agreement except as
+    specifically provided herein.
+</p>
+<p class="clause">
+    Neither Party shall hold the other Party or its employees or agents responsible for the loss, theft, or damage of
+    the other Party&#8217;s belongings/property/confidential information, including but not limited to laptop
+    computers, cell phones, clothing, bags, wallets, notes, prints or books. However, either Party may extend all
+    possible support to the other Party to resolve any issue relating to any such loss, theft or damage of the other
+    Party&#8217;s belongings or property without any liability.
+</p>
+
+<p class="section-title">14. REPRESENTATIONS, WARRANTIES, UNDERTAKINGS AND COVENANTS</p>
+<p class="clause">Each of the Parties hereby represents, warrants, undertakes and covenants as follows:</p>
+<p class="sub-clause">i. It has all requisite authority and rights to enter into and to perform its obligations under this Agreement.</p>
+<p class="sub-clause">ii. It has full and absolute power to execute and enter into this Agreement, and does not and will not violate any law, rule, regulation, order, or decree applicable to it.</p>
+<p class="sub-clause">iii. It has full legal capacity to enter into this Agreement and that there are no existing facts and/or circumstances and/or contractual obligations with third parties which prohibit and/or impair its capacity to enter into this Agreement.</p>
+<p class="sub-clause">iv. All legal/statutory formalities and approvals (if any) have been completed or obtained by the Parties for consummation of the transactions contemplated by this Agreement.</p>
+<p class="sub-clause">v. All information disclosed here is true and correct.</p>
+<p class="sub-clause">vi. No proceedings are pending against it which shall have material adverse impact on the implementation of this Agreement or on its obligations under this Agreement.</p>
+<p class="sub-clause">vii. It shall not disclose or divulge the Confidential Information and/or infringe or misuse Intellectual Property Rights and/or Proprietary Marks.</p>
+
+<p class="section-title">15. NON-EXCLUSIVITY</p>
+<p class="clause">Lets Work reserves the right to appoint any other co-worker providing similar services/product as provided by the Client and the Client shall have no objection for the same.</p>
+
+<p class="section-title">16. COMPANY POLICY</p>
+<p class="clause">Client agrees to abide by all the rules and policies of Lets Work as applicable for its Premises. Non-adherence to the rules and policies shall lead to strict action by Lets Work against the Client. Lets Work shall have the sole discretion to decide on the actions to be taken in the event of non-adherence of rules/policies.</p>
+</div>
+
+<!-- ================= PAGE 7 ================= -->
+<div class="page-break">
+<p class="section-title">17. SERVICES AT THE PREMISES</p>
+<p class="clause"><strong>STORAGE:</strong> Client is allotted storage in the tables attached to the desks without any additional cost. Lets Work shall handover keys for the concerned desks at the time of onboarding and Client shall ensure that the keys are kept securely and do not get lost. In the event of loss of keys, the client shall be liable to pay for the cost of getting a new key as demanded by Lets Work.</p>
+<p class="clause"><strong>AIR CONDITIONING:</strong> Lets Work shall provide air-conditioning facility in the designated space during regular office hours. However, in case of power cut of the Premises from the power service provider or for any other reason beyond the control of Lets Work, the same shall not be provided.</p>
+<p class="clause"><strong>PUBLIC HOLIDAYS:</strong> Client is required to follow the public holiday calendar as shall be provided by Lets Work on onboarding.</p>
+<p class="clause"><strong>USE OF CONFERENCE ROOM AND MEETING ROOMS:</strong> The Client is eligible to use free credits to use Conference room/s as shall be allotted per month. Any use of Conference room beyond free credit shall be charged at actuals. To use the Conference room the Client is required to request the helpdesk/reception in writing about its intention to use the respective Conference room and Lets Work shall allot the same subject to availability. Use of Conference room shall always be subject to availability irrespective of whether it is used against free credits or paid separately.</p>
+<p class="clause"><strong>INTERNET USE:</strong> The internet usage by the Client and employees shall be for its business use and shall not be used in a manner prohibited by any central or state laws. Transmission of any material in violation of Applicable Laws, including but not limited to any material or messages that are unlawful, harassing, libellous, abusive, threatening, harmful, vulgar, obscene or otherwise objectionable, or that encourages conduct that could constitute a criminal offense, give rise to civil liability or otherwise violate any Applicable Law, is prohibited.</p>
+<p class="clause">The Client shall always ensure without fail that any software downloaded onto its systems shall be licensed versions only and all compliances with respect to using the same are always complied with throughout the Term. The Client shall always keep Lets Work fully indemnified from all claims of third parties on account of any infringement of copyright or breach of the terms of its usage or otherwise.</p>
+<p class="clause">In the event any harm is caused to Lets Work, the Premises or any other client of the Premises due to any illegality/non-compliance by the Client due to usage or download of such software, the Client shall be liable to fully indemnify Lets Work for the same.</p>
+<p class="clause">Any Team Member shall not attempt to circumvent user authentication or security of any host, network, or account, including but not limited to accessing data not intended for the Client, logging into a server or account the Client is not expressly authorized to access, or probing the security of other networks or other members of the Premises. Lets Work is not responsible for data, messages or pages lost, not delivered, or misdirected because of interruptions or performance issues with the service, or the underlying network(s) and transmission equipment and systems.</p>
+<p class="clause">The ISP may monitor the internet usage of the Client. The ISP or Lets Work may disclose information regarding the Client&#8217;s use of the internet services to satisfy Applicable Laws, regulations, governmental requests, or as per the terms of usage of the ISP.</p>
+<p class="clause">The internet or telecommunication facility or network access may be temporarily unavailable for reasons outside of the direct control of Lets Work, including non-availability from the ISP. The Client shall comply with all the terms and conditions regarding the usage of the internet in effect today and as specified by the ISP, and as may be updated from time to time.</p>
+<p class="clause">Performance of internet is subject to unavailability, including emergencies, third party service failures, transmission, equipment or network problems or limitations, interference, signal strength, and maintenance and repair. End-to-end performance will also depend on a variety of other factors, including the number of subscribers simultaneously using the network, specific characteristics of wireless connectivity and network hardware, the capacity or performance of the Client&#8217;s computer equipment, and intended destination and overall traffic on the internet. Notwithstanding clause 7, Lets Work shall not have any liability in case of any disruption caused due to third party failures, failures of servers and routers or for events over which it has no control.</p>
+</div>
+
+<!-- ================= PAGE 8 ================= -->
+<div class="page-break">
+<p class="section-title">18. NON-COMPETE &amp; NON-SOLICITATION</p>
+<p class="clause">
+    The Client and each of its employees/consultants during the Term of the Agreement, and for a period of 12 months
+    after the termination of the Agreement:
+</p>
+<p class="sub-clause">i. shall not directly or indirectly attempt in any manner to solicit any employee, client or customer or third party supplier or service provider, or attempt to persuade any person, firm or entity which is an employee, client or customer or third party supplier or service provider of Lets Work to cease doing business or to reduce the amount of business which any such client or customer or supplier or service provider has customarily done or might propose doing with Lets Work; and</p>
+<p class="sub-clause">ii. shall not directly or indirectly employ or attempt to employ or assist anyone else to employ any such person who is in the employment of the co-working space, at the time of the alleged prohibited conduct.</p>
+<p class="sub-clause">iii. Lets Work agrees not to hire or attempt to hire any employees working/engaged with the Client at any time during their association with the Client or up to 6 months immediately following his/her termination or resignation from the Client.</p>
+
+<p class="section-title">19. MISCELLANEOUS</p>
+<p class="sub-clause"><strong>i. WAIVER</strong> &#8211; The failure of either party to exercise any right hereunder shall not be deemed to be a waiver of such right or any other right, nor a waiver of any continuing or subsequent breach or default of this Agreement by the other party.</p>
+<p class="sub-clause"><strong>ii. SEVERABILITY</strong> &#8211; Each term, condition, and provision of this Agreement shall be valid and enforced to the fullest extent permitted by law. If there is any conflict between any term, condition or provision, by law or regulation, the latter shall prevail; provided that any such conflicting term, condition, or provision shall be curtailed and limited only to the extent necessary to bring it within the legal requirements and the remainder of this Agreement shall not be affected thereby.</p>
+<p class="sub-clause"><strong>iii. FORCE MAJEURE</strong> &#8211; No Party shall be liable for any failure to perform or any delays in performance, and no Party shall be deemed to be in breach or default of its obligations set forth in this Agreement, if such failure or delay is due to any causes beyond its reasonable control, including acts of God, natural disasters, fire, lightning, epidemic, pandemic, flood, severe storm, earthquake, civil disturbance, lockout, curfews, lockdowns, riot, order of any court or administrative body, embargo, acts of government, acts of terrorism or other similar causes (&#8220;Force Majeure Event&#8221;). In the event of a Force Majeure Event, the Party prevented from or delayed in performing shall promptly give notice to the other Party and shall use commercially reasonable efforts to avoid or minimize the delay. If the delay continues for a period of at least thirty (30) calendar days, either Party shall have the right to terminate this Agreement.</p>
+<p class="sub-clause"><strong>iv. NO RELATIONSHIP</strong> &#8211; Parties agree that neither execution nor performance of this Agreement shall be construed or deemed to have established any joint venture or partnership or have created the relationship of employer and employee or that of principal and agent between the Parties.</p>
+<p class="sub-clause"><strong>v. NON-ASSIGNMENT</strong> &#8211; Neither Party shall have the right to assign this Agreement or any of its rights, benefits and obligations under the Agreement to any third party, save and except in case of merger, demerger, amalgamation, or acquisition.</p>
+<p class="sub-clause"><strong>vi. SEVERABILITY</strong> &#8211; If any provision of this Agreement is held to be illegal, invalid or unenforceable in any respect under the law of any jurisdiction, neither the legality, validity or enforceability of the remaining provisions hereof nor the legality, validity or enforceability of such provision under the law of any other jurisdiction shall in any manner be affected or impaired thereby. The affected provision shall be replaced by an enforceable provision that approximates the intent and the commercial effect of the affected provision.</p>
+<p class="sub-clause"><strong>vii. NOTICE</strong> &#8211; Any notice intended to be given by any Party hereto to the other Party shall be deemed to be properly and validly given only if it is delivered or sent by registered post A.D., speed post A.D., courier, or hand delivery along with a copy of the same on the email provided by such other Party in this Agreement.</p>
+<p class="sub-clause"><strong>viii. PUBLICITY</strong> &#8211; Neither Party shall be entitled to issue any media release or put up any social media post without written consent from the other Party.</p>
+<p class="sub-clause"><strong>ix. GOVERNING LAW AND DISPUTE RESOLUTION</strong> &#8211; The provisions of this Agreement shall be governed by and construed in accordance with Indian law. Any disputes, differences and doubts whatsoever which may arise between the parties hereto shall first be resolved amicably within 30 days, failing which the same shall be referred to arbitration of a Sole Arbitrator to be mutually appointed by the Parties, whose decision and award shall be final and binding on both parties. Such arbitrator shall have the power to make interim awards, have summary powers, as well as power to make an award without giving reasons. The arbitration seat will be at Mumbai and will be conducted in English language in accordance with and subject to the provisions of the Indian Arbitration and Conciliation Act, 1996 or any statutory modification(s)/re-enactment thereof for the time being in force. The costs of arbitration will be borne by the parties equally.</p>
+</div>
+
+<!-- ================= PAGE 9: SIGNATURE ================= -->
+<div class="page-break">
+<p class="clause" style="font-weight:bold; text-align:center; margin-top:40px;">
+    IN WITNESS WHEREOF THE PARTIES HAVE EXECUTED AND DELIVERED THIS AGREEMENT AS OF THE DATE FIRST ABOVE WRITTEN
+</p>
+<table class="signature-table">
+    <tr>
+        <td>
+            For <strong>Lets Work Co Spaces Pvt. Ltd.</strong><br/><br/><br/>
+            Name: ____________________________<br/>
+            Designation: ____________________________
+        </td>
+        <td>
+            For <strong><span th:text="${clientName}"></span></strong><br/><br/><br/>
+            Name: ____________________________<br/>
+            Designation: ____________________________
+        </td>
+    </tr>
 </table>
+</div>
+
+<!-- ================= ANNEXURE I (DYNAMIC) ================= -->
+<div class="page-break">
+<h2>ANNEXURE I</h2>
+<h3>CLIENT MEMBERSHIP DETAILS</h3>
+<p class="clause" style="text-align:center;">Lets Work Location: Mumbai Address</p>
+
+<table class="annex-table">
+    <tr><td>1. Intending Client</td><td th:text="${clientName}"></td></tr>
+    <tr><td>2. Client Address</td><td th:text="${clientAddress}"></td></tr>
+    <tr><td>3. Type of Agreement</td><td th:text="${typeOfAgreement ?: ''}"></td></tr>
+    <tr><td>4. Usage of the Premises</td><td th:text="${usageOfPremises}"></td></tr>
+    <tr><td>5. Agreement Tenure</td><td th:text="${agreementTenure}"></td></tr>
+    <tr><td>6. Lock-in Period</td><td th:text="${lockInPeriod}"></td></tr>
+    <tr><td>7. Notice Period</td><td th:text="${noticePeriod}"></td></tr>
+    <tr><td>8. Cabin Offered</td><td th:text="${cabinOffered}"></td></tr>
+    <tr><td>9. Total Workstation</td><td th:text="${workstation}"></td></tr>
+    <tr><td>10. License Fees / Month</td><td th:text="${feesPerMonth ?: ''}"></td></tr>
+    <tr><td>11. Refundable Deposit</td><td th:text="${depositAmount}"></td></tr>
+    <tr><td>12. Escalation</td><td th:text="${escalation}"></td></tr>
+    <tr><td>13. Car Parking</td><td th:text="${carParking ?: ''}"></td></tr>
+    <tr><td>14. One time set up charge</td><td th:text="${setupCharge ?: ''}"></td></tr>
+    
+    <tr><td>16. GST</td><td th:text="${gstNumber}"></td></tr>
+    <tr><td>17. Billing Cycle</td><td th:text="${billingCycle}"></td></tr>
+    <tr><td>18. Advance Token</td><td th:text="${advanceToken}"></td></tr>
+    <tr><td>19. Handing Over / Possession</td><td th:text="${handingOver ?: ''}"></td></tr>
+    <tr><td>20. Commencement Date</td><td th:text="${commencementDate}"></td></tr>
+    <tr>
+        <td>21. Amenities Included</td>
+        <td>
+            <table style="width:100%; border-collapse: collapse; margin:0;">
+                <tr>
+                    <th style="border:1px solid black;">#</th>
+                    <th style="border:1px solid black;">Amenity</th>
+                    <th style="border:1px solid black;">Description</th>
+                </tr>
+                <tr th:each="amenity, stat : ${amenities}">
+                    <td th:text="${#strings.substring('abcdefghijklmnopqrstuvwxyz', stat.index, stat.index + 1)}"></td>
+                    <td th:text="${amenity.name}"></td>
+                    <td th:text="${amenity.description}"></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</div>
+
+<!-- ================= ANNEXURE II ================= -->
+<div class="page-break">
+<h2>ANNEXURE II</h2>
+<h3>Lets Work Code of Conduct</h3>
+<p class="clause">
+    Lets Work is a company that provides co-working space to businesses, individuals, professionals, firms etc. who
+    are from diverse backgrounds. In order for everyone to coexist cordially we have a set of rules and regulations
+    to be followed by every person acting as an individual or representing its company/business. Following are the
+    best practices we expect to be adhered to by everyone:
+</p>
+
+<p class="sub-clause"><strong>1) Don&#8217;t Angry me:</strong> To maintain the floor decorum, everyone is required to attend their meetings/calls or any conversation between individuals at a volume which would not disturb co-workers&#8217; work.</p>
+<p class="sub-clause"><strong>2) Own your mess:</strong> Before leaving, check your desk &#8212; if it has any leftovers of food or stationery waste, please clean it up yourself as good as you want it to be when you come the next day.</p>
+<p class="sub-clause"><strong>3) Utha Le Re Baba:</strong> We offer mesmerising views and comfortable seating, which can tempt everyone to keep sipping coffee and snacks &#8212; please do not overuse any of the services/amenities and let&#8217;s make use of all resources fairly.</p>
+<p class="sub-clause"><strong>4) Pehchan Kaun:</strong> We have a lot of really cool people working out of the space. A friendly attitude helps everyone network better &#8212; go and get to know your next desk neighbour.</p>
+<p class="sub-clause"><strong>5) Paw Paw:</strong> While furry companions are a treat to play with, we are not yet equipped to provide for their comfort, hence no pets are allowed.</p>
+<p class="sub-clause"><strong>6) Bahut ghoor raha hai:</strong> Intimidating, harassing, abusive, discriminatory, derogatory, or demeaning speech or actions by anyone in our space, online networks, and in all related events and communication will not be tolerated. Harassment includes, but is not limited to, offensive verbal comments related to gender, gender identity and expressed sexual orientation, disability, physical appearance, race, ethnicity or religion; sexual images in public spaces; deliberate intimidation; stalking; following; harassing photography or recording; sustained disruption of talks or other events; inappropriate physical contact; and unwelcome sexual attention.</p>
+<p class="sub-clause"><strong>7) Control Uday Control!!!:</strong> Prolonging use of conference rooms and meeting rooms beyond the allotted time causes delays for everyone else who needs that space. Be mindful that meetings do not hamper other coworkers&#8217; schedules &#8212; time management is crucial when booking a meeting room in a shared workspace.</p>
+<p class="sub-clause"><strong>8) Parampara. Pratishtha. Anushasan:</strong> We urge you to respect the privacy of your co-workers and never tamper with their belongings. Each business is unique, and so is the information resulting from it &#8212; each co-worker is required to keep all information and/or data strictly confidential, whether related to their own business or others&#8217;.</p>
+<p class="sub-clause"><strong>9) Swagat Nahi Karoge Aap Hamara:</strong> We welcome you to our space only if you are here to work for a legal purpose. We strictly oppose any illegal activities in the premises and online through the use of our internet, including but not limited to consuming drugs or encouraging the use or sale of drugs, cybercrimes, online frauds, and visiting unlawful websites. We reserve the right to take necessary legal action against the said person.</p>
+<p class="sub-clause"><strong>10) Pehnava:</strong> You are expected to report to work in neat and presentable attire. Our objective in establishing a dress code is to enable everyone to project a professional, business-like image while enjoying the advantage of more casual and relaxed clothing. Business casual and semi-formal wear is the standard. Casual dressing is allowed every Saturday but shorts are restricted for both men and women.</p>
+</div>
 
 </body>
 </html>

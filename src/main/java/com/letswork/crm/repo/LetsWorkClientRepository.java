@@ -25,6 +25,8 @@ public interface LetsWorkClientRepository extends JpaRepository<LetsWorkClient, 
 	@Query("SELECT c FROM LetsWorkClient c JOIN c.users u WHERE u.id = :userId")
 	List<LetsWorkClient> findAllCompaniesByUserId(@Param("userId") Long userId);
 	
+	List<LetsWorkClient> findByUsers_IdAndCompanyId(Long userId, String companyId);
+	
 	Optional<LetsWorkClient> findByClientCompanyNameAndCompanyId(String clientCompanyName, String companyId);
 	
     List<LetsWorkClient>

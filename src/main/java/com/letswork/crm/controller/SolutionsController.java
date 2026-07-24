@@ -3,6 +3,8 @@ package com.letswork.crm.controller;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letswork.crm.dtos.SolutionsDto;
@@ -34,17 +37,23 @@ public class SolutionsController {
 	        @RequestPart(value = "image", required = false) MultipartFile image,
 	        @RequestParam String token
 	) throws IOException {
-
+		
+		
 		SolutionsDto dto =
 	            new ObjectMapper().readValue(
 	                    solutionJson,
 	                    SolutionsDto.class
 	            );
 
-	    String result =
-	            solutionsService.saveOrUpdate(dto, image);
-
-	    return ResponseEntity.ok(result);
+		try {
+	        String result = solutionsService.saveOrUpdate(dto, image);
+	        return ResponseEntity.ok(result);
+	    } catch (DataIntegrityViolationException ex) {
+	        throw new ResponseStatusException(
+	                HttpStatus.BAD_REQUEST,
+	                "This solution Type for this centre already exists."
+	        );
+	    }
 	}
 	
 	@GetMapping("/solution")

@@ -2,6 +2,9 @@
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,11 +30,39 @@ public class ContractDocumentService {
     
     private final ObjectMapper objectMapper = new ObjectMapper();
     
+    public static String formatWithDaySuffix(TemporalAccessor date) {
+	    if (date == null) {
+	        return "";
+	    }
+	    
+	    int day = date.get(ChronoField.DAY_OF_MONTH);
+	    String suffix = getDayOfMonthSuffix(day);
+	    
+	    // Pattern: "Mon, 20" + "th" + " Jul 2026"
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E, d'" + suffix + "' MMM yyyy");
+	    return formatter.format(date);
+	}
+
+	private static String getDayOfMonthSuffix(int day) {
+	    if (day >= 11 && day <= 13) {
+	        return "th";
+	    }
+	    switch (day % 10) {
+	        case 1:  return "st";
+	        case 2:  return "nd";
+	        case 3:  return "rd";
+	        default: return "th";
+	    }
+	}
+    
 
     public byte[] generateAgreementPdf(Contract contract) {
 
         Context context = new Context();
         LetsWorkClient client = contract.getLetsWorkClient();
+        
+        context.setVariable("agreementDate", contract.getCreateDate());
+        context.setVariable("clientPan", contract.getLetsWorkClient().getPanNumber());
 
         context.setVariable("clientName", client.getClientCompanyName());
         context.setVariable("clientAddress", contract.getClientAdress());
@@ -41,13 +72,10 @@ public class ContractDocumentService {
         context.setVariable("noticePeriod", contract.getNoticePeriodInMonths() + " Months");
         context.setVariable("cabinOffered", contract.getCabinOffered());
         context.setVariable("workstation", contract.getWorkstation());
-//        context.setVariable("feesPerMonth", contract.getFeesPerMonth());
+        context.setVariable("feesPerMonth", contract.getFeesPerMonth());
         context.setVariable("depositAmount", contract.getDepositAmountInRupees());
         context.setVariable("escalation", contract.getEscalationInPercentage() + "%");
-        context.setVariable("officeHoursStart", contract.getOfficeHoursStart());
-        context.setVariable("officeHoursEnd", contract.getOfficeHoursEnd());
-        context.setVariable("officeHoursStartSat", contract.getOfficeHoursStartSat());
-        context.setVariable("officeHoursEndSat", contract.getOfficeHoursEndSat());
+        
         context.setVariable("gstNumber", contract.getGstNumber());
         context.setVariable("billingCycle", contract.getBillingCycle());
         context.setVariable("advanceToken", contract.getAdvanceTokenAmount());
@@ -78,6 +106,8 @@ public class ContractDocumentService {
 
         Context context = new Context();
         
+        context.setVariable("agreementDate", dto.getCreateDate());
+        context.setVariable("clientPan", dto.getLetsWorkClient().getPanNumber());
 
         context.setVariable("clientName", dto.getLeadCompanyName());
         context.setVariable("clientAddress", dto.getClientAdress());
@@ -90,10 +120,7 @@ public class ContractDocumentService {
         context.setVariable("feesPerMonth", dto.getFeesPerMonth());
         context.setVariable("depositAmount", dto.getDepositAmountInRupees());
         context.setVariable("escalation", dto.getEscalationInPercentage() + "%");
-        context.setVariable("officeHoursStart", dto.getOfficeHoursStart());
-        context.setVariable("officeHoursEnd", dto.getOfficeHoursEnd());
-        context.setVariable("officeHoursStartSat", dto.getOfficeHoursStartSat());
-        context.setVariable("officeHoursEndSat", dto.getOfficeHoursEndSat());
+        
         context.setVariable("gstNumber", dto.getGstNumber());
         context.setVariable("billingCycle", dto.getBillingCycle());
         context.setVariable("advanceToken", dto.getAdvanceTokenAmount());

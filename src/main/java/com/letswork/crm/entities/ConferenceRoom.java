@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -12,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -28,17 +31,28 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@Table(
+	    name = "conference_room",
+	    uniqueConstraints = {
+	        @UniqueConstraint(
+	            name = "uk_name_conference", 
+	            columnNames = {"name", "lets_work_centre", "company_id"}
+	        )
+	    }
+	)
 public class ConferenceRoom extends Base{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
+    @Column(name = "name")
     @NotBlank
     private String name;
     
     private Integer capacity;
-
+    
+    @Column(name = "lets_work_centre")
     private String letsWorkCentre;
     
     private BigDecimal halfHourPrice;

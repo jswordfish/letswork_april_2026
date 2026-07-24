@@ -480,11 +480,19 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
                         .orElseThrow(() ->
                                 new RuntimeException("User not found"));
 
+//        List<LetsWorkClient> companies =
+//                repo.findByUserIdAndCompanyId(
+//                        userId,
+//                        companyId
+//                );
+        
         List<LetsWorkClient> companies =
-                repo.findByUserIdAndCompanyId(
+                repo.findByUsers_IdAndCompanyId(
                         userId,
                         companyId
                 );
+        
+        
 
         return new UserWithCompaniesDto(user, companies);
     }
@@ -575,5 +583,36 @@ public class LetsWorkClientServiceImpl implements LetsWorkClientService {
 		
 		return clientPurchesedDto;
 	}
+
+    @Override
+    @Transactional
+    public void removeUserFromClient(Long clientId, Long userId, String companyId) {
+
+        LetsWorkClient client = repo.findById(clientId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Client not found"));
+
+        if (!companyId.equals(client.getCompanyId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid company");
+        }
+
+        NewUserRegister user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"));
+
+        boolean removed = client.getUsers().removeIf(u -> u.getId().equals(userId));
+
+        if (!removed) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "User is not mapped to this client");
+        }
+
+        repo.save(client);
+    }
 
 }

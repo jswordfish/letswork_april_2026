@@ -124,7 +124,7 @@ public class PaymentVerificationServiceImpl implements PaymentVerificationServic
 
              // 🔽 COMMON DATA
              String email = booking.getLetsWorkClient().getEmail();
-             String name = booking.getLetsWorkClient().getClientCompanyName();
+             String name = booking.getBookedByUser().getName();
              String reference = booking.getReferenceId();
 
              if (booking instanceof ConferenceBundleBooking) {

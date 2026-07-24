@@ -89,23 +89,18 @@ public class SolutionsServiceImpl implements SolutionsService{
         SolutionType solutionType = solutionTypeRepo.findById(dto.getSolutionTypeId())
                 .orElseThrow(() -> new RuntimeException("Invalid solutionTypeId"));
 
-        // ✅ Check existing
-        Solutions existing =
-                repo.findById(
-                        dto.getId()
-                ).orElse(null);
-        
-        if(existing==null) {
-        	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solution not found with id : "+dto.getId());
+        // ✅ Check existing safely by checking if ID is present first
+        Solutions existing = null;
+        if (dto.getId() != null) {
+            existing = repo.findById(dto.getId()).orElse(null);
         }
 
         Solutions solution;
         boolean isUpdate = (existing != null);
 
         if (isUpdate) {
-        	
-        	String existingS3Path = existing.getS3Path();
-        	
+            String existingS3Path = existing.getS3Path();
+            
             solution = existing;
 
             solution.setName(dto.getName());
@@ -115,7 +110,7 @@ public class SolutionsServiceImpl implements SolutionsService{
             solution.setState(dto.getState());
             solution.setAmenities(dto.getAmenities());
             solution.setSolutionType(solutionType);
-	        solution.setS3Path(existingS3Path);
+            solution.setS3Path(existingS3Path);
             solution.setUpdateDate(new Date());
 
         } else {

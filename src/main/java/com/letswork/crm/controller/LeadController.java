@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.LeadResponseDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
@@ -42,6 +44,24 @@ public class LeadController {
 	        @RequestParam String token
 	){
 		return ResponseEntity.ok(service.saveOrUpdate(lead));
+	}
+	
+	@PostMapping(value = "/upload-excel-leads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<String> uploadLeadsExcel(
+	        @RequestParam("file") MultipartFile file,
+	        @RequestParam String companyId,
+	        @RequestParam String token) {
+
+	    if (file.isEmpty()) {
+	        return ResponseEntity.badRequest().body("Please upload a valid Excel file.");
+	    }
+
+	    try {
+	        String response = service.uploadLeadsFromExcel(file, companyId);
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+	    }
 	}
 	
 	@GetMapping

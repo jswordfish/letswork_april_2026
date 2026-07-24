@@ -300,7 +300,7 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 	
 	@Override
 	public DayPassBookingThroughBundle rescheduleBookingThroughBundle(Long bookingId, LocalDate newDate,
-			String companyId) {
+			String companyId, String source) {
 
 		DayPassBookingThroughBundle existing = dayPassBookingThroughBundleRepository
 				.findByIdAndCompanyId(bookingId, companyId)
@@ -314,7 +314,7 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New date must be different from current booking date");
 		}
 
-		cancelBookingThroughBundle(bookingId, companyId);
+		cancelBookingThroughBundle(bookingId, companyId, source);
 
 		Tenant tenant = tenantService.findTenantByCompanyId(companyId);
 
@@ -423,7 +423,7 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 
 
 	@Override
-	public DayPassBookingThroughBundle cancelBookingThroughBundle(Long id, String companyId) {
+	public DayPassBookingThroughBundle cancelBookingThroughBundle(Long id, String companyId, String source) {
 
 		DayPassBookingThroughBundle booking = dayPassBookingThroughBundleRepository.findByIdAndCompanyId(id, companyId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking not found"));
@@ -431,8 +431,10 @@ public class DayPassBookingThroughBundleServiceImpl implements DayPassBookingThr
 		if ( !((booking.getBookingStatus() == BookingStatus.ACTIVE) || (booking.getBookingStatus() == BookingStatus.RESCHEDULED) )) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only ACTIVE/RESCHEDULED bookings can be cancelled");
 		}
-
+		
+		if(source == null) {
 		validateCancellationAllowed(booking.getStartDate());
+		}
 
 		booking.setBookingStatus(BookingStatus.CANCELLED);
 

@@ -2,8 +2,11 @@ package com.letswork.crm.entities;
 
 import java.beans.Transient;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.poiji.annotation.ExcelCellName;
@@ -18,6 +21,15 @@ import lombok.experimental.SuperBuilder;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(
+	    name = "user",
+	    uniqueConstraints = {
+	        @UniqueConstraint(
+	            name = "uk_email_company_id", 
+	            columnNames = {"email", "company_id"}
+	        )
+	    }
+	)
 public class User extends Base{
 	@ExcelCellName(value = "First Name")
 	String firstName;
@@ -38,6 +50,7 @@ public class User extends Base{
 	@ExcelCellName(value = "Department")
 	String department;
 	
+	@Column(name = "email")
 	@ExcelCellName(value = "Email")
 	String email;
 	

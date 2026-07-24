@@ -48,19 +48,21 @@ public class ConferenceBookingDirectController {
     public ResponseEntity<ConferenceBookingDirect> cancelBooking(
     		@RequestParam Long bookingId,
             @RequestParam String companyId,
+            @RequestParam (required = false) String source,
             @RequestParam String token
     ) {
-        ConferenceBookingDirect booking = service.cancel(bookingId, companyId);
+        ConferenceBookingDirect booking = service.cancel(bookingId, companyId, source);
         return ResponseEntity.ok(booking);
     }
     
     @PostMapping("/reschedule")
 	public ResponseEntity<ConferenceBookingDirect> rescheduleBooking(@RequestParam Long bookingId,
 			@RequestParam String companyId,
+			@RequestParam (required = false) String source,
 			@Parameter(example = "2026-04-09") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate newDate,
 			@RequestBody List<ConferenceRoomSlotRequest> newSlot, @RequestParam String token) {
 
-		ConferenceBookingDirect booking = service.reschedule(bookingId, newDate, newSlot, companyId);
+		ConferenceBookingDirect booking = service.reschedule(bookingId, newDate, newSlot, companyId, source);
 
 		return ResponseEntity.ok(booking);
 	}

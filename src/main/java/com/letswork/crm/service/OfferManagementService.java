@@ -10,10 +10,12 @@ public interface OfferManagementService {
 	
 	Offers createOrUpdateOfferWithCentres(OfferCreateRequestDto dto);
 	
-	List<Offers> getOffers(String companyId, String code, OfferType offerType);
+	List<Offers> getOffers(String companyId, String code, OfferType offerType, String search);
 	
 	public Offers getByCodeAndCompanyId(String code, String companyId);
 	
 	public List<Offers> getAllByCompanyId(String companyId);
+	
+	public Offers deleteOffer(Long offerId);
 
 }

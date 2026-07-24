@@ -90,9 +90,9 @@ public class CategoryServiceImpl implements CategoryService {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
 
-        if (incomingNames.isEmpty()) {
-            throw new RuntimeException("No valid sub-categories provided");
-        }
+//        if (incomingNames.isEmpty()) {
+//            throw new RuntimeException("No valid sub-categories provided");
+//        }
 
         // 2️⃣ Fetch existing sub-categories for this parent
         List<SubCategory> existingSubs =

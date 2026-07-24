@@ -46,9 +46,10 @@ public class ConferenceRoomBookingThroughBundleController {
     public ResponseEntity<ConferenceRoomBookingThroughBundle> cancelBooking(
     		@RequestParam Long bookingId,
             @RequestParam String companyId,
+            @RequestParam (required = false) String source,
             @RequestParam String token
     ) {
-    	ConferenceRoomBookingThroughBundle booking = service.cancel(bookingId, companyId);
+    	ConferenceRoomBookingThroughBundle booking = service.cancel(bookingId, companyId, source);
         return ResponseEntity.ok(booking);
     }
     
@@ -56,6 +57,7 @@ public class ConferenceRoomBookingThroughBundleController {
     public ResponseEntity<ConferenceRoomBookingThroughBundle> rescheduleBooking(
     		@RequestParam Long bookingId,
             @RequestParam String companyId,
+            @RequestParam (required = false) String source,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate newDate,
 	        @RequestBody List<ConferenceRoomSlotRequest> newSlots,
 	        @RequestParam String token
@@ -65,7 +67,8 @@ public class ConferenceRoomBookingThroughBundleController {
                 bookingId,
                 newDate,
                 newSlots,
-                companyId
+                companyId,
+                source
         );
 
         return ResponseEntity.ok(booking);

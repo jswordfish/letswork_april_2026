@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,11 +69,18 @@ public class LetsWorkClientController {
 
 	    LetsWorkClient client =
 	            new ObjectMapper().readValue(clientJson, LetsWorkClient.class);
-
+	    
+	    try {
 	    String result =
 	    		service.saveOrUpdate(client, aadhaar, pan, tan, gst);
 
 	    return ResponseEntity.ok(result);
+	    }catch (DataIntegrityViolationException ex) {
+	        throw new ResponseStatusException(
+	                HttpStatus.BAD_REQUEST,
+	                "This Name already exists."
+	        );
+	    }
 	}
 	
 	@PostMapping(
@@ -121,6 +130,18 @@ public class LetsWorkClientController {
                 service.getUserWithCompanies(userId, companyId)
         );
     }
+	
+	@DeleteMapping("/{clientId}/users/{userId}")
+	public ResponseEntity<String> removeUserFromClient(
+	        @PathVariable Long clientId,
+	        @PathVariable Long userId,
+	        @RequestParam String companyId,
+	        @RequestParam String token) {
+
+	    service.removeUserFromClient(clientId, userId, companyId);
+
+	    return ResponseEntity.ok("User removed from client successfully.");
+	}
 	
 	@PostMapping(value = "/upload-excel", consumes = "multipart/form-data")
 	public ResponseEntity<String> uploadClientCompanies(

@@ -3,10 +3,13 @@ package com.letswork.crm.entities;
 import java.util.Date;
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import com.poiji.annotation.ExcelCellName;
 
@@ -22,14 +25,25 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@Table(
+	    name = "new_user_register",
+	    uniqueConstraints = {
+	        @UniqueConstraint(
+	            name = "uk_name_conference_bundle", 
+	            columnNames = {"email","phone_number", "company_id"}
+	        )
+	    }
+	)
 public class NewUserRegister extends Base{
 	
 	@ExcelCellName(value = "Name")
 	private String name;
 	
+	@Column(name = "email")
 	@ExcelCellName(value = "Email")
 	private String email;
 	
+	@Column(name = "phone_number")
 	@ExcelCellName(value = "Phone Number")
 	private String phoneNumber;
 	

@@ -30,6 +30,6 @@ public interface DayPassBookingDirectService {
 	);
 	
 	//
-	DayPassBookingDirect rescheduleBookingDirect(Long bookingId, LocalDate newDate, String companyId) ;
-	DayPassBookingDirect cancelBookingDirect(Long id, String companyId) ;
+	DayPassBookingDirect rescheduleBookingDirect(Long bookingId, LocalDate newDate, String companyId, String source) ;
+	DayPassBookingDirect cancelBookingDirect(Long id, String companyId, String source) ;
 }

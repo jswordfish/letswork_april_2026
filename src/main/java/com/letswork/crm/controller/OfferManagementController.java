@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,11 +54,12 @@ public class OfferManagementController {
             @RequestParam String token,
             @RequestParam(required = false) String code,
             @RequestParam(required = false) Long letsWorkCentreId,
-            @RequestParam(required = false) OfferType offerType   
+            @RequestParam(required = false) OfferType offerType,
+            @RequestParam(required = false) String search
     ) {
 
         List<Offers> offers =
-        		service.getOffers(companyId, code, offerType);
+        		service.getOffers(companyId, code, offerType, search);
 
         List<OfferCreateResponseDto> response = offers.stream()
                 .map(offer -> {
@@ -115,4 +117,15 @@ public class OfferManagementController {
 
         return ResponseEntity.ok(response);
     }
+    
+    @DeleteMapping
+    public ResponseEntity<Offers> deleteOffer(
+            @RequestParam Long offerId,
+            @RequestParam String token
+    ) {
+        return ResponseEntity.ok(
+                service.deleteOffer(offerId)
+        );
+    }
+    
 }

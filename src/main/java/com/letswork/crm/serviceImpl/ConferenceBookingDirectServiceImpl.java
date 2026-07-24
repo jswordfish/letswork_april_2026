@@ -356,7 +356,7 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 			"dateOfPurchase", SortFieldByConferenceBookingDirect.START_DATE, "startDate");
 
 	@Override
-	public ConferenceBookingDirect cancel(Long id, String companyId) {
+	public ConferenceBookingDirect cancel(Long id, String companyId, String source) {
 
 		ConferenceBookingDirect booking = bookingRepo.findByIdAndCompanyId(id, companyId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking not found"));
@@ -364,8 +364,10 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 		if (!((booking.getBookingStatus() == BookingStatus.ACTIVE) || (booking.getBookingStatus() == BookingStatus.RESCHEDULED) ) ) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only ACTIVE/RESCHEDULED bookings can be cancelled");
 		}
-
+		
+		if(source == null) {
 		validateCancellationAllowed(booking.getStartDate());
+		}
 		//timeSlotRepo.deleteByBooking(booking);
 		
 		//booking.getSlots().clear();
@@ -392,7 +394,7 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 	@Override
 	@Transactional
 	public ConferenceBookingDirect reschedule(Long bookingId, LocalDate newDate,
-			List<ConferenceRoomSlotRequest> newSlots, String companyId) {
+			List<ConferenceRoomSlotRequest> newSlots, String companyId, String source) {
 
 		ConferenceBookingDirect existing = bookingRepo.findByIdAndCompanyId(bookingId, companyId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking not found"));
@@ -478,7 +480,7 @@ public class ConferenceBookingDirectServiceImpl implements ConferenceBookingDire
 		bookingRepo.save(booking);
 		timeSlotRepo.saveAll(slots);
 
-		cancel(bookingId, companyId);
+		cancel(bookingId, companyId, source);
 
 		return booking;
 	}

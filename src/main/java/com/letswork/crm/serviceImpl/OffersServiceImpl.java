@@ -40,8 +40,8 @@ public class OffersServiceImpl implements OffersService {
         }
 
         Optional<Offers> existingOpt =
-                offersRepository.findByNameAndCompanyIdAndActiveTrue(
-                        offer.getName(),
+                offersRepository.findByCodeAndCompanyIdAndActiveTrue(
+                        offer.getCode(),
                         offer.getCompanyId()
                 );
 

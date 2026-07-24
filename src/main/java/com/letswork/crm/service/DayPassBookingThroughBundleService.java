@@ -23,6 +23,6 @@ public interface DayPassBookingThroughBundleService {
 			LocalDateTime startDate, LocalDateTime endDate, Long centreId, Long bundleId, Integer days,
 			SortFieldByThroughBundle sortFieldByThroughBundle, SortingOrder order, int page, int size);
 	
-	DayPassBookingThroughBundle rescheduleBookingThroughBundle(Long bookingId, LocalDate newDate, String companyId) ;
-	public DayPassBookingThroughBundle cancelBookingThroughBundle(Long id, String companyId);
+	DayPassBookingThroughBundle rescheduleBookingThroughBundle(Long bookingId, LocalDate newDate, String companyId, String source) ;
+	public DayPassBookingThroughBundle cancelBookingThroughBundle(Long id, String companyId, String source);
 }

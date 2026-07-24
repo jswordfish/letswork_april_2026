@@ -20,42 +20,62 @@ public interface OffersRepository extends JpaRepository<Offers, Long> {
 	        String companyId
 	);
 	
-	Optional<Offers> findByNameAndCompanyId(
-	        String name,
-	        String companyId
-	);
+	@Query("SELECT o FROM Offers o WHERE o.name = :name AND o.companyId = :companyId AND (o.deleted = false OR o.deleted IS NULL)")
+    Optional<Offers> findByNameAndCompanyId(
+        @Param("name") String name, 
+        @Param("companyId") String companyId
+    );
 
 	Optional<Offers> findByCodeAndCompanyIdAndActiveTrue(
 	        String code,
 	        String companyId
 	);
 	
-	Optional<Offers> findByCodeAndCompanyId(
-	        String code,
-	        String companyId
-	);
+	@Query("SELECT o FROM Offers o WHERE o.code = :code AND o.companyId = :companyId AND (o.deleted = false OR o.deleted IS NULL)")
+    Optional<Offers> findByCodeAndCompanyId(
+        @Param("code") String code, 
+        @Param("companyId") String companyId
+    );
 
 	List<Offers> findByCompanyIdAndActiveTrue(String companyId);
 	
-	List<Offers> findByCompanyId(String companyId);
+	@Query("SELECT o FROM Offers o WHERE o.companyId = :companyId AND (o.deleted = false OR o.deleted IS NULL)")
+    List<Offers> findByCompanyId(@Param("companyId") String companyId);
 
 	List<Offers> findAllByCompanyIdAndActiveTrue(String companyId);
 	
-	List<Offers> findAllByCompanyId(String companyId);
+	@Query("SELECT o FROM Offers o WHERE o.companyId = :companyId AND (o.deleted = false OR o.deleted IS NULL)")
+    List<Offers> findAllByCompanyId(@Param("companyId") String companyId);
 
 	List<Offers> findAllByCompanyIdAndOfferTypeAndActiveTrue(
 	        String companyId,
 	        OfferType offerType
 	);
 	
-	List<Offers> findAllByCompanyIdAndOfferType(
-	        String companyId,
-	        OfferType offerType
-	);
+	@Query("SELECT o FROM Offers o WHERE o.companyId = :companyId " +
+		       "AND (o.deleted = false OR o.deleted IS NULL) " +
+		       "AND (" +
+		       "    LOWER(o.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       " OR LOWER(o.code) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       " OR LOWER(o.minDiscountValue) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       " OR CAST(o.discount AS string) LIKE CONCAT('%', :search, '%') " +
+		       " OR LOWER(CAST(o.offerType AS string)) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       " OR CAST(o.active AS string) LIKE CONCAT('%', :search, '%') " +
+		       " OR CAST(o.startDate AS string) LIKE CONCAT('%', :search, '%') " +
+		       " OR CAST(o.endDate AS string) LIKE CONCAT('%', :search, '%')" +
+		       ")")
+		List<Offers> searchOffers(
+		    @Param("companyId") String companyId,
+		    @Param("search") String search
+		);
 	
-	@Query("SELECT o FROM Offers o " +
-		       "WHERE (o.active = true OR o.active IS NULL) " +
-		       "AND o.endDate < :now")
-		List<Offers> findExpiredOffers(@Param("now") LocalDateTime now);
+	@Query("SELECT o FROM Offers o WHERE o.companyId = :companyId AND o.offerType = :offerType AND (o.deleted = false OR o.deleted IS NULL)")
+    List<Offers> findAllByCompanyIdAndOfferType(
+        @Param("companyId") String companyId, 
+        @Param("offerType") OfferType offerType
+    );
+	
+	@Query("SELECT o FROM Offers o WHERE (o.active = true OR o.active IS NULL) AND o.endDate < :now AND (o.deleted = false OR o.deleted IS NULL)")
+    List<Offers> findExpiredOffers(@Param("now") LocalDateTime now);
     
 }

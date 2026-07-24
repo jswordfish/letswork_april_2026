@@ -23,6 +23,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+
 public class Seat extends Base{
 	
 	@Id

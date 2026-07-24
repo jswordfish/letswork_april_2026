@@ -80,6 +80,8 @@ public class Booking extends Base{
     private BigDecimal amount;
 
     private LocalDateTime dateOfPurchase;
+    
+    private Boolean used;
 
     private LocalDate startDate;
     

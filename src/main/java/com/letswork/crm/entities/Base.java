@@ -3,6 +3,7 @@ package com.letswork.crm.entities;
 import java.util.Date;
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -36,6 +37,7 @@ public class Base {
 	
 	String deletedBy;
 	
+	@Column(name = "company_id")
 	@ExcelCellName(value = "Company Id")
 	String companyId;
 	

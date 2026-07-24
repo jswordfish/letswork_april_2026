@@ -35,9 +35,9 @@ public interface ConferenceRoomBookingThroughBundleService {
             int size
     );
 	
-	public ConferenceRoomBookingThroughBundle cancel(Long id, String companyId);
+	public ConferenceRoomBookingThroughBundle cancel(Long id, String companyId, String source);
 	
 	public ConferenceRoomBookingThroughBundle reschedule(Long bookingId, LocalDate newDate,
-			List<ConferenceRoomSlotRequest> newSlots, String companyId);
+			List<ConferenceRoomSlotRequest> newSlots, String companyId, String source);
 
 }

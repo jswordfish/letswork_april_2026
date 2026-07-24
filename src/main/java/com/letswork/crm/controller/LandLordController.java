@@ -1,6 +1,8 @@
 package com.letswork.crm.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letswork.crm.dtos.PaginatedResponseDto;
@@ -45,8 +48,15 @@ public class LandLordController {
     ) throws Exception {
 
         LandLord landLord = objectMapper.readValue(landLordJson, LandLord.class);
+        try {
         LandLord saved = landLordService.saveOrUpdate(landLord, panFile, aadharFile, gstFile, agreementFile);
         return ResponseEntity.ok(saved);
+        }catch (DataIntegrityViolationException ex) {
+	        throw new ResponseStatusException(
+	                HttpStatus.BAD_REQUEST,
+	                "This email already exists."
+	        );
+	    }
     }
     
     @DeleteMapping

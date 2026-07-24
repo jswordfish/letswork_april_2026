@@ -363,7 +363,7 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
     
     
     @Override
-	public ConferenceRoomBookingThroughBundle cancel(Long id, String companyId) {
+	public ConferenceRoomBookingThroughBundle cancel(Long id, String companyId, String source) {
 
     	ConferenceRoomBookingThroughBundle booking = bookingRepo.findByIdAndCompanyId(id, companyId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking not found"));
@@ -372,8 +372,10 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
     	if (!((booking.getBookingStatus() == BookingStatus.ACTIVE) || (booking.getBookingStatus() == BookingStatus.RESCHEDULED) ) ) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only ACTIVE/RESCHEDULED bookings can be cancelled");
 		}
-
+    	
+    	if(source == null) {
 		validateCancellationAllowed(booking.getStartDate());
+    	}
 
 		//timeSlotRepo.deleteByBooking(booking);
 		
@@ -400,7 +402,7 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
 	@Override
 	@Transactional
 	public ConferenceRoomBookingThroughBundle reschedule(Long bookingId, LocalDate newDate,
-			List<ConferenceRoomSlotRequest> newSlots, String companyId) {
+			List<ConferenceRoomSlotRequest> newSlots, String companyId, String source) {
 
 		ConferenceRoomBookingThroughBundle existing = bookingRepo.findByIdAndCompanyId(bookingId, companyId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking not found"));
@@ -495,7 +497,7 @@ public class ConferenceRoomBookingThroughBundleServiceImpl
 		bookingRepo.save(booking);
 		timeSlotRepo.saveAll(slots);
 
-		cancel(bookingId, companyId);
+		cancel(bookingId, companyId, source);
 
 		return booking;
 	}

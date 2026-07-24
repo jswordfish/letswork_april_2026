@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.letswork.crm.dtos.LeadResponseDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Lead;
@@ -16,6 +18,11 @@ import com.letswork.crm.enums.Source;
 public interface LeadService {
 	
 	Lead saveOrUpdate(Lead lead);
+	
+	String uploadLeadsFromExcel(
+	        MultipartFile file,
+	        String companyId
+	) throws IOException;
 
 	public PaginatedResponseDto getPaginated(
 	        String companyId,
