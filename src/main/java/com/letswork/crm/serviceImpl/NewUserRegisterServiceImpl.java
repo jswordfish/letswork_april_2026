@@ -10,6 +10,8 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letswork.crm.dtos.PaginatedResponseDto;
 import com.letswork.crm.entities.Category;
 import com.letswork.crm.entities.LetsWorkCentre;
@@ -45,6 +49,9 @@ import com.poiji.exception.PoijiExcelType;
 @Transactional
 public class NewUserRegisterServiceImpl
         implements NewUserRegisterService {
+	
+	
+	Logger logger =LoggerFactory.getLogger(NewUserRegisterServiceImpl.class);
 
     @Autowired
     private NewUserRegisterRepository repo;
@@ -78,10 +85,22 @@ public class NewUserRegisterServiceImpl
     
 
     ModelMapper mapper = new ModelMapper();
+    
+    ObjectMapper objectMapper = new ObjectMapper();
+    
+    void log(NewUserRegister obj)  {
+    	try {
+			String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+			logger.debug("user with email "+obj.getEmail()+"  - "+json);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
 
     @Override
     public NewUserRegister save(NewUserRegister user) {
-
+    	log(user);
         Tenant tenant =
                 tenantService.findTenantByCompanyId(user.getCompanyId());
 
