@@ -41,7 +41,7 @@ public class Base {
 	@ExcelCellName(value = "Company Id")
 	String companyId;
 	
-	String companyName;
+//	String companyName;
 	
 	
 	public String getCompanyDescription() {
@@ -119,12 +119,12 @@ public class Base {
 	public void setCompanyId(String compamyId) {
 		this.companyId = compamyId;
 	}
-	public String getCompanyName() {
-		return companyName;
-	}
-	public void setCompanyName(String companyName) {
-		this.companyName = companyName;
-	}
+//	public String getCompanyName() {
+//		return companyName;
+//	}
+//	public void setCompanyName(String companyName) {
+//		this.companyName = companyName;
+//	}
 	
 	
 	private String company() {

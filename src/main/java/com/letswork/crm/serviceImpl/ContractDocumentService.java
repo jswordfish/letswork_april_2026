@@ -7,6 +7,7 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,7 +63,7 @@ public class ContractDocumentService {
         LetsWorkClient client = contract.getLetsWorkClient();
         
         context.setVariable("agreementDate", contract.getCreateDate());
-        context.setVariable("clientPan", contract.getLetsWorkClient().getPanNumber());
+        context.setVariable("clientPan", contract.getPanNumber());
 
         context.setVariable("clientName", client.getClientCompanyName());
         context.setVariable("clientAddress", contract.getClientAdress());
@@ -79,6 +80,7 @@ public class ContractDocumentService {
         context.setVariable("gstNumber", contract.getGstNumber());
         context.setVariable("billingCycle", contract.getBillingCycle());
         context.setVariable("advanceToken", contract.getAdvanceTokenAmount());
+        context.setVariable("handingOver", contract.getHandOver());
         context.setVariable("commencementDate", contract.getCommencementDate());
 
         // 🔥 Normalize + parse amenities
@@ -107,7 +109,12 @@ public class ContractDocumentService {
         Context context = new Context();
         
         context.setVariable("agreementDate", dto.getCreateDate());
-        context.setVariable("clientPan", dto.getLetsWorkClient().getPanNumber());
+        String panNumber = Optional.ofNullable(dto)
+                
+                .map(c -> c.getPanNumber())
+                .orElse("");
+
+        context.setVariable("clientPan", panNumber);
 
         context.setVariable("clientName", dto.getLeadCompanyName());
         context.setVariable("clientAddress", dto.getClientAdress());
@@ -117,13 +124,26 @@ public class ContractDocumentService {
         context.setVariable("noticePeriod", dto.getNoticePeriodInMonths() + " Months");
         context.setVariable("cabinOffered", dto.getCabinOffered());
         context.setVariable("workstation", dto.getWorkstation());
-        context.setVariable("feesPerMonth", dto.getFeesPerMonth());
-        context.setVariable("depositAmount", dto.getDepositAmountInRupees());
+        String formattedFees = String.format("%.2f", dto.getFeesPerMonth());
+        context.setVariable("feesPerMonth", formattedFees);
+        context.setVariable("depositAmount", dto.getDepositAmountInRupees()+".00");
         context.setVariable("escalation", dto.getEscalationInPercentage() + "%");
-        
         context.setVariable("gstNumber", dto.getGstNumber());
+        context.setVariable("carParking", dto.getCarParkingDetails());
+        Integer rawSetupCharge = dto.getOneTimeSetupCharge();
+
+	    // Cast to double so it can format with 2 decimal places
+	    String formattedSetupCharge = (rawSetupCharge != null) ? String.format("%.2f", (double) rawSetupCharge) : "0.00";
+	
+	    context.setVariable("setupCharge", formattedSetupCharge);
         context.setVariable("billingCycle", dto.getBillingCycle());
-        context.setVariable("advanceToken", dto.getAdvanceTokenAmount());
+        Integer rawToken = dto.getAdvanceTokenAmount();
+
+	    // Cast to double so String.format can apply the decimal places
+	    String formattedToken = (rawToken != null) ? String.format("%.2f", (double) rawToken) : "0.00";
+	
+	    context.setVariable("advanceToken", formattedToken);
+        context.setVariable("handingOver", dto.getHandOver());
         context.setVariable("commencementDate", dto.getCommencementDate());
 
         // 🔥 Normalize + parse amenities

@@ -123,33 +123,33 @@ public class LeadServiceImpl implements LeadService{
 	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lead not found");
 	        }
 
-	        if (!existing.getEmail().equalsIgnoreCase(lead.getEmail())) {
-
-	            Lead emailLead =
-	                    repo.findByEmailAndCompanyId(
-	                            lead.getEmail(),
-	                            lead.getCompanyId());
-
-	            if (emailLead != null) {
-	                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-	                        "Lead already exists with email : "
-	                                + lead.getEmail());
-	            }
-	        }
-
-	        if (!existing.getPhone().equals(lead.getPhone())) {
-
-	            Lead phoneLead =
-	                    repo.findByPhoneAndCompanyId(
-	                            lead.getPhone(),
-	                            lead.getCompanyId());
-
-	            if (phoneLead != null) {
-	                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-	                        "Lead already exists with phone : "
-	                                + lead.getPhone());
-	            }
-	        }
+//	        if (!existing.getEmail().equalsIgnoreCase(lead.getEmail())) {
+//
+//	            Lead emailLead =
+//	                    repo.findByEmailAndCompanyId(
+//	                            lead.getEmail(),
+//	                            lead.getCompanyId());
+//
+//	            if (emailLead != null) {
+//	                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+//	                        "Lead already exists with email : "
+//	                                + lead.getEmail());
+//	            }
+//	        }
+//
+//	        if (!existing.getPhone().equals(lead.getPhone())) {
+//
+//	            Lead phoneLead =
+//	                    repo.findByPhoneAndCompanyId(
+//	                            lead.getPhone(),
+//	                            lead.getCompanyId());
+//
+//	            if (phoneLead != null) {
+//	                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+//	                        "Lead already exists with phone : "
+//	                                + lead.getPhone());
+//	            }
+//	        }
 
 	        lead.setCreateDate(existing.getCreateDate());
 	        lead.setUpdateDate(new Date());
@@ -160,27 +160,27 @@ public class LeadServiceImpl implements LeadService{
 
 	    } else {
 
-	        Lead emailLead =
-	                repo.findByEmailAndCompanyId(
-	                        lead.getEmail(),
-	                        lead.getCompanyId());
+//	        Lead emailLead =
+//	                repo.findByEmailAndCompanyId(
+//	                        lead.getEmail(),
+//	                        lead.getCompanyId());
 
-	        if (emailLead != null) {
-	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-	                    "Lead already exists with email : "
-	                            + lead.getEmail());
-	        }
+//	        if (emailLead != null) {
+//	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+//	                    "Lead already exists with email : "
+//	                            + lead.getEmail());
+//	        }
 
-	        Lead phoneLead =
-	                repo.findByPhoneAndCompanyId(
-	                        lead.getPhone(),
-	                        lead.getCompanyId());
+//	        Lead phoneLead =
+//	                repo.findByPhoneAndCompanyId(
+//	                        lead.getPhone(),
+//	                        lead.getCompanyId());
 
-	        if (phoneLead != null) {
-	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-	                    "Lead already exists with phone : "
-	                            + lead.getPhone());
-	        }
+//	        if (phoneLead != null) {
+//	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+//	                    "Lead already exists with phone : "
+//	                            + lead.getPhone());
+//	        }
 
 	        lead.setCreateDate(new Date());
 
@@ -299,6 +299,10 @@ public class LeadServiceImpl implements LeadService{
 
 	    if (dto.getPhone() == null || dto.getPhone().trim().isEmpty()) {
 	        return "Phone should not be null";
+	    }
+	    
+	    if (dto.getPhone().trim().length() != 10) {
+	        return "Phone number must be exactly 10 digits long";
 	    }
 
 	    if (dto.getSource() == null) {

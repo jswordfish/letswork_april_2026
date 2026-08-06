@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,7 +41,8 @@ public class Visitor extends Base{
 
     @Email
     private String email;
-
+    
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate visitDate;
     
     private LocalTime timeOfVisit;

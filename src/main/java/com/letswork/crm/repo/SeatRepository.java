@@ -28,6 +28,14 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 	        String city,
 	        String state);
 	
+	List<Seat> findByCompanyIdAndLetsWorkCentreAndCityAndStateAndSeatNumberStartingWith(
+	        String companyId,
+	        String letsWorkCentre,
+	        String city,
+	        String state,
+	        String seatNumberPrefix
+	);
+	
 	@Query("SELECT s FROM Seat s WHERE s.companyId = :companyId AND s.letsWorkCentre = :letsWorkCentre " +
 		       "AND s.city = :city AND s.state = :state AND s.cabinName = :cabinName")
 		List<Seat> findByCabinDetails(@Param("companyId") String companyId,

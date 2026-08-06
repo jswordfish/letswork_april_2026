@@ -8,6 +8,11 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -70,35 +75,27 @@ public class OfferManagementServiceImpl implements OfferManagementService {
     }
     
     @Override
-    public List<Offers> getOffers(String companyId, String code, OfferType offerType, String search) {
+    public Page<Offers> getOffers(String companyId, String code, OfferType offerType, String search, int page, int size) {
 
         expireOffers();
 
-        // 🔹 If code is present → return single result
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
         if (code != null && !code.isBlank()) {
-
             Offers offer = offersRepository.findByCodeAndCompanyId(code, companyId).orElse(null);
-
-            if (offer == null) {
-                return Collections.emptyList();
-            }
-
-            return List.of(offer);
+            List<Offers> list = offer == null ? Collections.emptyList() : List.of(offer);
+            return new PageImpl<>(list, pageable, list.size());
         }
 
-        // 🔹 If search is present → search across all fields
         if (search != null && !search.isBlank()) {
-            return offersRepository.searchOffers(companyId, search);
+            return offersRepository.searchOffers(companyId, search, pageable);
         }
 
-        // 🔹 If offerType filter is present
         if (offerType != null) {
-            return offersRepository
-                    .findAllByCompanyIdAndOfferType(companyId, offerType);
+            return offersRepository.findAllByCompanyIdAndOfferType(companyId, offerType, pageable);
         }
 
-        // 🔹 Default → all offers
-        return offersRepository.findAllByCompanyId(companyId);
+        return offersRepository.findAllByCompanyId(companyId, pageable);
     }
     
     public void expireOffers() {

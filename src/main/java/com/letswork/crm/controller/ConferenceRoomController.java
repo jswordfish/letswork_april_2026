@@ -56,7 +56,7 @@ public class ConferenceRoomController {
 	    } catch (DataIntegrityViolationException ex) {
 	        throw new ResponseStatusException(
 	                HttpStatus.BAD_REQUEST,
-	                "This solution Type for this centre already exists."
+	                "This name already exists."
 	        );
 	    }
 	}

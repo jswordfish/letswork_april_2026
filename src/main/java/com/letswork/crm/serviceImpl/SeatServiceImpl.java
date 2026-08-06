@@ -167,9 +167,35 @@ public class SeatServiceImpl implements SeatService {
         if (loc == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Centre not found");
 
+        List<Seat> existingSeats =
+                seatRepository.findByCompanyIdAndLetsWorkCentreAndCityAndStateAndSeatNumberStartingWith(
+                        dto.getCompanyId(),
+                        dto.getLetsWorkCentre(),
+                        dto.getCity(),
+                        dto.getState(),
+                        dto.getPrefix() + "_"
+                );
+
+        int startNumber = 1;
+
+        if (!existingSeats.isEmpty()) {
+
+            startNumber = existingSeats.stream()
+                    .map(Seat::getSeatNumber)
+                    .map(number -> {
+                        try {
+                            return Integer.parseInt(number.substring(number.lastIndexOf('_') + 1));
+                        } catch (Exception e) {
+                            return 0;
+                        }
+                    })
+                    .max(Integer::compareTo)
+                    .orElse(0) + 1;
+        }
+
         List<Seat> seats = new ArrayList<>();
 
-        for (int i = 1; i <= dto.getTotalSeats(); i++) {
+        for (int i = 0; i < dto.getTotalSeats(); i++) {
 
             Seat seat = new Seat();
 
@@ -179,7 +205,7 @@ public class SeatServiceImpl implements SeatService {
             seat.setState(dto.getState());
 
             seat.setSeatType(dto.getSeatType());
-            seat.setSeatNumber(dto.getPrefix() + "_" + i);
+            seat.setSeatNumber(dto.getPrefix() + "_" + (startNumber + i));
 
             seat.setCabinName(dto.getCabinName());
 
@@ -190,6 +216,7 @@ public class SeatServiceImpl implements SeatService {
         }
 
         return seatRepository.saveAll(seats);
+        
     }
     
     // validate Method (Modified to enforce null cabinName for non-SHARED_CABIN) 
@@ -746,24 +773,24 @@ public class SeatServiceImpl implements SeatService {
             
         }
 		
-		ContractSeatMapping mapping = contractSeatMappingRepository.findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
-				seat.getSeatNumber(), 
-				seat.getSeatType(), 
-				seat.getLetsWorkCentre(), 
-				seat.getCompanyId(), 
-				seat.getCity(), 
-				seat.getState())
-				.orElse(null);
-		
-		if(mapping==null) {
-			seat.setPublished(false);
+		boolean mapped = contractSeatMappingRepository.existsActiveOrFutureSeatMapping(
+		        seat.getSeatNumber(),
+		        seat.getSeatType(),
+		        seat.getLetsWorkCentre(),
+		        seat.getCompanyId(),
+		        seat.getCity(),
+		        seat.getState(),
+		        LocalDate.now());
+
+		if (mapped) {
+		    throw new ResponseStatusException(
+		            HttpStatus.BAD_REQUEST,
+		            "This seat is currently assigned to an active or upcoming contract and cannot be unpublished."
+		    );
 		}
-		
-		else throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This seat is already mapped to company : "+mapping.getContract().getLetsWorkClient().getClientCompanyName());
-		
-		Seat saved = seatRepository.save(seat);
-		
-		return saved; 
+
+		seat.setPublished(false);
+		return seatRepository.save(seat);
 	}
 
 	

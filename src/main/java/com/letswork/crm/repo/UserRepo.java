@@ -51,7 +51,15 @@ public interface UserRepo extends CrudRepository<User, Long> {
 	        Pageable pageable
 	);
 	
+	boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
+
+	boolean existsByPhoneNumberAndIdNot(String phoneNumber, Long id);
+	
 	List<User> findByIdIn(Collection<Long> ids);
+	
+	boolean existsByEmailIgnoreCase(String email);
+
+    boolean existsByPhoneNumber(String phoneNumber);
 	
 	@Query("select u from User u where u.phoneNumber =:phoneNumber and u.companyId =:companyId")
 	public User findByPhoneNumber( @Param("phoneNumber") String phoneNumber,@Param("companyId") String companyId);

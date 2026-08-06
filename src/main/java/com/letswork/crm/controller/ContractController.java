@@ -63,7 +63,7 @@ public class ContractController {
             value = "/lead-contract",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public ResponseEntity<ConvertedContractDto> saveOrUpdateLead(	
+    public ResponseEntity<ConvertedContractDto> saveOrUpdateLead(
             @RequestPart("data") String data,
             @RequestPart("assign") String assign,
             @RequestPart(value = "agreement", required = false)
@@ -74,33 +74,22 @@ public class ContractController {
     ) throws Exception {
 
         ConvertedContractDto dto =
-                objectMapper.readValue(
-                        data,
-                        ConvertedContractDto.class
-                );
-        
-        BulkSeatAssignmentRequestContract assignment = 
-        		objectMapper.readValue(
-        				assign,
-                        BulkSeatAssignmentRequestContract.class
-                );
-        
+                objectMapper.readValue(data, ConvertedContractDto.class);
+
+        BulkSeatAssignmentRequestContract assignment =
+                objectMapper.readValue(assign, BulkSeatAssignmentRequestContract.class);
+
         ConvertedContractDto response = contractService.saveOrUpdateConverted(
                 dto,
-                agreement
+                agreement,
+                assignment
         );
-        
-        assignment.setContractId(response.getContract().getId());
-        
-        mappingService.assignMultipleSeatsToContract(assignment);
-        
-        if((leadId!=null)&&(leadId!=-1)) {
-        leadService.changeStatus(leadId, companyId, LeadStatus.CONVERTED);
+
+        if ((leadId != null) && (leadId != -1)) {
+            leadService.changeStatus(leadId, companyId, LeadStatus.CONVERTED);
         }
 
-        return ResponseEntity.ok(
-        		response
-        );
+        return ResponseEntity.ok(response);
     }
     
     @GetMapping("/onboarding-link")

@@ -809,6 +809,57 @@ public class MailJetOtpService {
         }
     }
     
+    public void sendMonthlyInvoiceEmail(
+    		String name,
+    		String email,
+    		byte[] pdfBytes,
+    		String invoiceFileName
+    ) {
+
+        ClientOptions options = ClientOptions.builder()
+                .apiKey(API_KEY)
+                .apiSecretKey(SECRET_KEY)
+                .build();
+
+        MailjetClient client = new MailjetClient(options);
+
+        Map<String, Object> variables = new HashMap<>();
+
+        variables.put("name", name);
+
+        String base64Pdf = Base64.getEncoder().encodeToString(pdfBytes);
+
+        Attachment attachment = Attachment.builder()
+                .contentType("application/pdf")
+                .filename(invoiceFileName)
+                .base64Content(base64Pdf)
+                .build();
+
+        TransactionalEmail emailMessage = TransactionalEmail.builder()
+                .to(List.of(new SendContact(email)))
+                .cc(List.of(
+                        new SendContact(cc1)
+//                            new SendContact(cc2)
+                ))
+                .from(new SendContact(SENDER_EMAIL, "Zimulate"))
+                .subject("Your Monthly Invoice")
+                .templateID(8237182L)
+                .templateLanguage(true)
+                .variables(variables)
+                .attachments(List.of(attachment))
+                .build();
+
+        SendEmailsRequest request = SendEmailsRequest.builder()
+                .message(emailMessage)
+                .build();
+
+        try {
+            request.sendWith(client);
+        } catch (MailjetException e) {
+            throw new RuntimeException("Failed to send monthly invoice email", e);
+        }
+    }
+    
     public static String formatDate(LocalDate date) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy");
 		return date.format(formatter);

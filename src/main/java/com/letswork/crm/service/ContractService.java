@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.letswork.crm.dtos.AgreementDto;
+import com.letswork.crm.dtos.BulkSeatAssignmentRequestContract;
 import com.letswork.crm.dtos.ContractDeleteDto;
 import com.letswork.crm.dtos.ConvertedContractDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
@@ -16,9 +17,9 @@ public interface ContractService {
 	
 	Contract saveOrUpdate(Contract contract);
 	
-	ConvertedContractDto saveOrUpdateConverted(
-	        ConvertedContractDto dto,
-	        MultipartFile agreement
+	ConvertedContractDto saveOrUpdateConverted(ConvertedContractDto dto,
+            MultipartFile agreement,
+            BulkSeatAssignmentRequestContract assignment
 	);
 	
 	public String sendAgreementDefaultOnMail(AgreementDto dto);

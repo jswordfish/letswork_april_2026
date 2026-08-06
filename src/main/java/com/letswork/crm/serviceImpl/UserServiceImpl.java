@@ -9,12 +9,15 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.letswork.crm.entities.OrgHierarchy;
 import com.letswork.crm.entities.User;
+import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.UserRepo;
 import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.OrgHierarchyService;
@@ -38,11 +41,12 @@ public class UserServiceImpl implements UserService{
 	@Autowired
 	LetsWorkCentreService letsWorkCentreService;
 	
+	@Autowired
+	private NewUserRegisterRepository newUserRegisterRepository;
+	
 	ModelMapper mapper = new ModelMapper();
 	
 	String companyAdminRole = "Company Admin";
-	
-	
 	
 	
 	OrgHierarchy createCompanyAdminRole(){
@@ -104,18 +108,37 @@ public class UserServiceImpl implements UserService{
 			user.setOrgHierarchy(orgHierarchy);
 		}
 		
+		Long id = user.getId() == null ? -1L : user.getId();
+		
+		// Check if email already exists in NewUserRegister
+		if (user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
+
+		    if (newUserRegisterRepository.existsByEmailIgnoreCaseAndIdNot(user.getEmail().trim(), id)) {
+		        throw new ResponseStatusException(
+		                HttpStatus.BAD_REQUEST,
+		                "Email already exists as a registered member."
+		        );
+		    }
+		}
+
+		// Check if phone already exists in NewUserRegister
+		if (user.getPhoneNumber() != null && !user.getPhoneNumber().trim().isEmpty()) {
+
+		    if (newUserRegisterRepository.existsByPhoneNumberAndIdNot(user.getPhoneNumber().trim(), id)) {
+		        throw new ResponseStatusException(
+		                HttpStatus.BAD_REQUEST,
+		                "Phone number already exists as a registered member."
+		        );
+		    }
+		}
+		
 		
 		
 		User user2 = null;
-			if(user.getEmail() != null && user.getEmail().trim().length() > 0) {
-				user2 = findByEmail(user.getEmail(), user.getCompanyId());
-			}
-			else if(user.getEmpId() != null && user.getEmpId().trim().length() > 0){
-				user2 = findByEmpId(user.getEmail(), user.getCompanyId());
-			}
-			else {
-				throw new RuntimeException("No role or Emp Id present");
-			}
+			
+		if(user.getId()!=null) {
+			user2 = repo.findById(user.getId()).orElse(null);
+		}
 		
 			if(user2 == null) {
 				

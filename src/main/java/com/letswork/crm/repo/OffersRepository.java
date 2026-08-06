@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,6 +38,10 @@ public interface OffersRepository extends JpaRepository<Offers, Long> {
         @Param("code") String code, 
         @Param("companyId") String companyId
     );
+	
+	Page<Offers> findAllByCompanyId(String companyId, Pageable pageable);
+
+	Page<Offers> findAllByCompanyIdAndOfferType(String companyId, OfferType offerType, Pageable pageable);
 
 	List<Offers> findByCompanyIdAndActiveTrue(String companyId);
 	
@@ -64,9 +70,10 @@ public interface OffersRepository extends JpaRepository<Offers, Long> {
 		       " OR CAST(o.startDate AS string) LIKE CONCAT('%', :search, '%') " +
 		       " OR CAST(o.endDate AS string) LIKE CONCAT('%', :search, '%')" +
 		       ")")
-		List<Offers> searchOffers(
+	Page<Offers> searchOffers(
 		    @Param("companyId") String companyId,
-		    @Param("search") String search
+		    @Param("search") String search,
+		    Pageable pageable
 		);
 	
 	@Query("SELECT o FROM Offers o WHERE o.companyId = :companyId AND o.offerType = :offerType AND (o.deleted = false OR o.deleted IS NULL)")

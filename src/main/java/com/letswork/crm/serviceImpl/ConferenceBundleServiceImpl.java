@@ -57,13 +57,14 @@ public class ConferenceBundleServiceImpl implements ConferenceBundleService {
         if(bundle.getPrice() == null) {
         	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price can not be null");
         }
-
-        ConferenceBundle existing =
-                repo.findByNameAndNumberOfHoursAndCompanyId(
-                		bundle.getName(),
-                        bundle.getNumberOfHours(),
-                        bundle.getCompanyId()
-                );
+        
+        ConferenceBundle existing = null;
+        if(bundle.getId()!=null) {
+        existing =
+                repo.findById(
+                		bundle.getId()
+                ).orElse(null);
+        }
 
         if (existing != null) {
             bundle.setId(existing.getId());

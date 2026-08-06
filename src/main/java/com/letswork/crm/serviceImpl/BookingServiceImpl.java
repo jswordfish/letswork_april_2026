@@ -1,6 +1,8 @@
 package com.letswork.crm.serviceImpl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -295,39 +297,42 @@ public class BookingServiceImpl implements BookingService {
 	}
 	
 	private void writeBookingRow(Row row, Booking booking) {
-	    row.createCell(0).setCellValue(booking.getId() != null ? booking.getId() : 0);
-	    row.createCell(1).setCellValue(booking.getBookingType() != null ? booking.getBookingType() : "");
-	    row.createCell(2).setCellValue(booking.getReferenceId() != null ? booking.getReferenceId() : "");
-	    row.createCell(3).setCellValue(
+	    
+	    row.createCell(0).setCellValue(booking.getBookingType() != null ? booking.getBookingType() : "");
+	    
+	    row.createCell(1).setCellValue(
 	            booking.getLetsWorkClient() != null && booking.getLetsWorkClient().getClientCompanyName() != null
 	                    ? booking.getLetsWorkClient().getClientCompanyName() : ""
 	    );
-	    row.createCell(4).setCellValue(
+	    row.createCell(2).setCellValue(
 	    		booking.getLetsWorkClient() != null && booking.getLetsWorkClient().getEmail() != null
                 ? booking.getLetsWorkClient().getEmail() : ""
 	    		);
-	    row.createCell(5).setCellValue(
+	    row.createCell(3).setCellValue(
 	    		booking.getLetsWorkClient() != null && booking.getLetsWorkClient().getPhone() != null
                 ? booking.getLetsWorkClient().getPhone() : ""
 	    		);
-	    row.createCell(6).setCellValue(
+	    row.createCell(4).setCellValue(
 	            booking.getBookedByUser() != null && booking.getBookedByUser().getName() != null
 	                    ? booking.getBookedByUser().getName() : ""
 	    );
-	    row.createCell(7).setCellValue(
+	    row.createCell(5).setCellValue(
 	            booking.getLetsWorkCentre() != null && booking.getLetsWorkCentre().getName() != null
 	                    ? booking.getLetsWorkCentre().getName() : ""
 	    );
-	    row.createCell(8).setCellValue(booking.getAmount() != null ? booking.getAmount().doubleValue() : 0);
-	    row.createCell(9).setCellValue(booking.getBookedFrom() != null ? booking.getBookedFrom().toString() : "");
-	    row.createCell(10).setCellValue(booking.getBookingStatus() != null ? booking.getBookingStatus().toString() : "");
-	    row.createCell(11).setCellValue(formatWithDaySuffix(booking.getDateOfPurchase()));
-	    row.createCell(12).setCellValue(formatWithDaySuffix(booking.getStartDate()));
-	    row.createCell(13).setCellValue(booking.getExpiryDate() != null ? booking.getExpiryDate().toString() : "");
-	    row.createCell(14).setCellValue(
-	            booking.getInvoice() != null && booking.getInvoice().getId() != null
-	                    ? booking.getInvoice().getId() : 0
-	    );
+	    Float amount = booking.getFrontendAmount();
+	    double roundedAmount = amount != null ? new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP).doubleValue() : 0.0;
+	    row.createCell(6).setCellValue(roundedAmount);
+
+	    Float amountTax = booking.getFrontendFinalAmountAfterAddingTax();
+	    double roundedTax = amountTax != null ? new BigDecimal(amountTax).setScale(2, RoundingMode.HALF_UP).doubleValue() : 0.0;
+	    row.createCell(7).setCellValue(roundedTax);
+	    row.createCell(8).setCellValue(booking.getBookedFrom() != null ? booking.getBookedFrom().toString() : "");
+	    row.createCell(9).setCellValue(booking.getBookingStatus() != null ? booking.getBookingStatus().toString() : "");
+	    row.createCell(10).setCellValue(formatWithDaySuffix(booking.getDateOfPurchase()));
+	    row.createCell(11).setCellValue(formatWithDaySuffix(booking.getStartDate()));
+	    row.createCell(12).setCellValue(booking.getExpiryDate() != null ? booking.getExpiryDate().toString() : "");
+	    
 	}
 	
 	@Override
@@ -425,9 +430,9 @@ public class BookingServiceImpl implements BookingService {
 	    response.setHeader("Content-Disposition", "attachment; filename=bookings_export.xlsx");
 
 	    String[] headers = {
-	            "ID", "Booking Type", "Reference ID", "Company Name", "Company Email", "Phone Number",
-	            "Booked By", "Centre", "Amount", "Booked From",
-	            "Status", "Date Of Purchase", "Date Of Booking", "Expiry Date", "Invoice Number"
+	            "Booking Type", "Company Name", "Company Email", "Phone Number",
+	            "Booked By", "Centre", "Amount", "Final Amount", "Booked From",
+	            "Status", "Date Of Purchase", "Date Of Booking", "Expiry Date"
 	    };
 
 	    try (SXSSFWorkbook workbook = new SXSSFWorkbook(100)) {

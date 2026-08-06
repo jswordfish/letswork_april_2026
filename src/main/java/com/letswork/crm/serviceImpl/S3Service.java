@@ -2,13 +2,11 @@ package com.letswork.crm.serviceImpl;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-
 
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -502,14 +500,24 @@ public class S3Service {
                     sanitizedClientName + "/" +
                     documentType + "_" + originalFilename;
 
+            File tempFile = File.createTempFile("upload-", "-" + originalFilename);
+            Files.write(tempFile.toPath(), fileBytes);
+
+            String contentType = Files.probeContentType(tempFile.toPath());
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+
             s3Client.putObject(
                     PutObjectRequest.builder()
                             .bucket(bucketName)
                             .key(keyName)
-                            .contentType("application/pdf") // or detect dynamically
+                            .contentType(contentType)
                             .build(),
                     RequestBody.fromBytes(fileBytes)
             );
+
+            tempFile.delete();
 
             return keyName;
 

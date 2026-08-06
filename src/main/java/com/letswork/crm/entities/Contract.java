@@ -72,6 +72,8 @@ public class Contract extends Base{
 	
 	private String gstNumber;
 	
+	private String panNumber;
+	
 	private String usageOfPremises;
 	
 	private String cabinOffered;
@@ -121,6 +123,8 @@ public class Contract extends Base{
 	private LocalDate depositAmountReturnDate;
 	
 	private String agreementS3KeyName;
+	
+	private String handOver;
 	
 	private Boolean active;
 

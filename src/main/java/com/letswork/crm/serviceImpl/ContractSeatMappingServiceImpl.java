@@ -121,7 +121,9 @@ public class ContractSeatMappingServiceImpl implements ContractSeatMappingServic
 	                    centre.getName(),
 	                    mapping.getCompanyId(),
 	                    centre.getCity(),
-	                    centre.getState()
+	                    centre.getState(),
+	                    mapping.getStartDate(),
+	                    mapping.getEndDate()
 	            );
 
 	    if (alreadyAssigned.isPresent()) {

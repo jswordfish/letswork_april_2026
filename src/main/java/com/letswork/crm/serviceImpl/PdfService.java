@@ -76,6 +76,11 @@ public class PdfService {
 	
 	public String buildInvoiceHtml(Invoice invoice) {
 	    try {
+	    	
+	    	if (Boolean.TRUE.equals(invoice.getMonthly())) {
+	            return buildMonthlyInvoiceHtml(invoice);
+	        }
+	    	
 	        Booking booking = invoice.getBooking();
 
 	        ClassPathResource resource = null;
@@ -175,6 +180,26 @@ public class PdfService {
 	    } catch (Exception e) {
 	        throw new RuntimeException("Failed to build invoice template", e);
 	    }
+	}
+	
+	private String buildMonthlyInvoiceHtml(Invoice invoice) throws Exception {
+	    ClassPathResource resource = new ClassPathResource("templates/invoice-monthly.html");
+
+	    String html = new String(
+	            resource.getInputStream().readAllBytes(),
+	            StandardCharsets.UTF_8
+	    );
+
+	    LetsWorkClient client = invoice.getLetsWorkClient();
+
+	    html = html.replace("${invoiceNumber}", String.valueOf(invoice.getId()));
+	    html = html.replace("${invoiceDate}", formatDate(invoice.getDateOfCreation()));
+	    html = html.replace("${customerName}", client.getClientCompanyName());
+	    html = html.replace("${billingMonth}",
+	            invoice.getDateOfCreation().format(DateTimeFormatter.ofPattern("MMMM yyyy")));
+	    html = html.replace("${amount}", invoice.getAmount().setScale(2, java.math.RoundingMode.HALF_UP).toPlainString());
+
+	    return html;
 	}
 	
 	public static String format(Float num) {

@@ -38,6 +38,11 @@ public class Invoice extends Base{
 	@JsonIgnoreProperties("invoice")
 	Booking booking;
 	
+	@ManyToOne
+	@JoinColumn(name = "lets_work_client_id")
+	@JsonIgnoreProperties("invoices")
+	private LetsWorkClient letsWorkClient;
+	
 	private LocalDate dateOfCreation;
 	
 	private BigDecimal amount;
@@ -49,5 +54,6 @@ public class Invoice extends Base{
 	
 	private String pdfS3KeyName;
 	
+	private Boolean monthly;
 
 }

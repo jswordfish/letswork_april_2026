@@ -46,11 +46,14 @@ public class CategoryServiceImpl implements CategoryService {
             Category category
     ) {
         validateCompany(category.getCompanyId());
-
-        Category existing =
-                categoryRepo.findByNameAndCompanyIdAndCategoryType(
-                        category.getName(), category.getCompanyId(), category.getCategoryType()
-                );
+        
+        Category existing = null;
+        if(category.getId()!=null) {
+        existing =
+                categoryRepo.findById(
+                        category.getId()
+                ).orElse(null);
+        }
 
         if (existing != null) {
             existing.setUpdateDate(new Date());

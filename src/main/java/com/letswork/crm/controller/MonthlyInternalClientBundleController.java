@@ -36,4 +36,18 @@ public class MonthlyInternalClientBundleController {
                     .body("Monthly bundle generation failed: " + e.getMessage());
         }
     }
+    
+    @PostMapping("/run-invoices")
+    public ResponseEntity<String> runInvoicesNow(@RequestParam String token) {
+        log.info("Manual trigger received for monthly invoice generation");
+        try {
+            scheduler.generateMonthlyInvoices();
+            return ResponseEntity.ok("Monthly invoice generation completed successfully. Check logs for details.");
+        } catch (Exception e) {
+            log.error("Manual monthly invoice generation failed", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Monthly invoice generation failed: " + e.getMessage());
+        }
+    }
+    
 }

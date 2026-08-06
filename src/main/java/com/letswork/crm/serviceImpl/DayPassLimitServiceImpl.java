@@ -54,14 +54,15 @@ public class DayPassLimitServiceImpl implements DayPassLimitService {
         if (centre == null) {
             throw new RuntimeException("This LetsWorkCentre does not exist");
         }
-
-        DayPassLimit existing = repo
-                .findByLetsWorkCentreAndCompanyIdAndCityAndState(
-                        dayPassLimit.getLetsWorkCentre(),
-                        dayPassLimit.getCompanyId(),
-                        dayPassLimit.getCity(),
-                        dayPassLimit.getState()
-                );
+        
+        DayPassLimit existing = null;
+        if(dayPassLimit.getId()!=null) {
+        existing = repo
+                .findById(
+                        dayPassLimit.getId()
+                ).orElse(null);
+        
+        }
 
         if (existing != null) {
 

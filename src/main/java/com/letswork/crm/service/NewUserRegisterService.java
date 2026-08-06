@@ -18,6 +18,8 @@ public interface NewUserRegisterService {
     public void disableUser(NewUserRegister user);
     
     public void activateUser(NewUserRegister user);
+    
+    String update(NewUserRegister dto);
 
     NewUserRegister getByEmailAndCompanyId(
             String email,

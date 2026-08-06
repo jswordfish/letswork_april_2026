@@ -88,6 +88,8 @@ public class NewUserRegister extends Base{
 	
 	private Boolean internal;
 	
+	private String gstNumber;
+	
 	@ExcelCellName(value = "Client Company Name")
 	@Transient
 	private String clientCompanyName;

@@ -74,14 +74,18 @@ public class LetsWorkCentreServiceImpl implements LetsWorkCentreService {
 	    validateTimeOrder("Saturday",
 	            centre.getStartTimeSat(),
 	            centre.getEndTimeSat());
-
-	    LetsWorkCentre existing =
+	    
+	    LetsWorkCentre existing = null;
+	    
+	    if(centre.getId()!=null) {
+	    existing =
 	            repo.findByNameAndCompanyIdAndCityAndState(
 	                    centre.getName(),
 	                    centre.getCompanyId(),
 	                    centre.getCity(),
 	                    centre.getState()
 	            );
+	    }
 
 	    LetsWorkCentre savedCentre;
 

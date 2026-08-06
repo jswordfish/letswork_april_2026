@@ -54,7 +54,7 @@ public class TenantController {
 		
 		User user = User.builder().email(tenant.getTenantAdminEmail()).password(tenant.getPassword()).department("COMPANY ADMIN").build();
 		user.setCompanyId(tenant.getCompanyId());
-		user.setCompanyName(tenant.getOrgName() == null?tenant.getCompanyName():tenant.getOrgName());
+//		user.setCompanyName(tenant.getOrgName() == null?tenant.getCompanyName():tenant.getOrgName());
 		user.setFirstName("Company");
 		user.setLastName("Admin");
 		user.setRoleOrDesig("Company Admin");

@@ -14,7 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letswork.crm.dtos.AgreementDto;
+import com.letswork.crm.dtos.BulkSeatAssignmentRequestContract;
 import com.letswork.crm.dtos.ContractDeleteDto;
 import com.letswork.crm.dtos.ConvertedContractDto;
 import com.letswork.crm.dtos.PaginatedResponseDto;
@@ -39,6 +39,7 @@ import com.letswork.crm.repo.ContractRepository;
 import com.letswork.crm.repo.ContractSeatMappingRepository;
 import com.letswork.crm.repo.LeadRepo;
 import com.letswork.crm.repo.LetsWorkClientRepository;
+import com.letswork.crm.service.ContractSeatMappingService;
 import com.letswork.crm.service.ContractService;
 import com.letswork.crm.service.LeadService;
 import com.letswork.crm.service.NewUserRegisterService;
@@ -53,6 +54,9 @@ public class ContractServiceImpl implements ContractService {
 
     @Autowired
     private ContractRepository contractRepo;
+    
+    @Autowired
+    private ContractSeatMappingService mappingService;
 
     @Autowired
     private TenantService tenantService;
@@ -151,8 +155,10 @@ public class ContractServiceImpl implements ContractService {
     }
     
     @Override
+    @Transactional
     public ConvertedContractDto saveOrUpdateConverted(ConvertedContractDto dto,
-	        MultipartFile agreement) {
+            MultipartFile agreement,
+            BulkSeatAssignmentRequestContract assignment) {
 
         Tenant tenant = tenantService.findTenantByCompanyId(dto.getContract().getCompanyId());
         if (tenant == null) {
@@ -172,56 +178,51 @@ public class ContractServiceImpl implements ContractService {
             Contract saved = contractRepo.save(existing);
 
             uploadAgreementIfPresent(saved, agreement);
-            
-			ConvertedContractDto response = new ConvertedContractDto();
-            
-            if(dto.getNewUserRegister()!=null) {
 
-			NewUserRegister user = newUserRegisterService.saveOrUpdateManually(dto.getNewUserRegister());
-			response.setNewUserRegister(user);
+            ConvertedContractDto response = new ConvertedContractDto();
+
+            if (dto.getNewUserRegister() != null) {
+                NewUserRegister user = newUserRegisterService.saveOrUpdateManually(dto.getNewUserRegister());
+                response.setNewUserRegister(user);
+            } else {
+                response.setNewUserRegister(null);
             }
-            else response.setNewUserRegister(null);
-            
+
             Contract contract = contractRepo.save(saved);
-            
+
             response.setContract(contract);
-            
+
+            assignment.setContractId(contract.getId());
+            mappingService.assignMultipleSeatsToContract(assignment);
+
             return response;
         }
 
         else {
 
-            ConvertedContractDto response =
-                    new ConvertedContractDto();
+            ConvertedContractDto response = new ConvertedContractDto();
 
             NewUserRegister savedUser = null;
 
             if (dto.getNewUserRegister() != null) {
 
-                savedUser =
-                        newUserRegisterService
-                                .saveOrUpdateManually(
-                                        dto.getNewUserRegister()
-                                );
+                savedUser = newUserRegisterService.saveOrUpdateManually(dto.getNewUserRegister());
 
                 response.setNewUserRegister(savedUser);
 
-                LetsWorkClient client =
-                        letsWorkClientRepo
-                                .findByClientCompanyNameAndCompanyId(
-                                        dto.getNewUserRegister().getClientCompanyName(),
-                                        dto.getContract().getCompanyId()
-                                )
-                                .stream()
-                                .findFirst()
-                                .orElse(null);
+                LetsWorkClient client = letsWorkClientRepo
+                        .findByClientCompanyNameAndCompanyId(
+                                dto.getNewUserRegister().getClientCompanyName(),
+                                dto.getContract().getCompanyId()
+                        )
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
 
                 if (client == null) {
-
                     throw new ResponseStatusException(
                             HttpStatus.BAD_REQUEST,
-                            "LetsWorkClient was not created for company : "
-                                    + savedUser.getClientCompanyName()
+                            "LetsWorkClient was not created for company : " + savedUser.getClientCompanyName()
                     );
                 }
 
@@ -234,47 +235,38 @@ public class ContractServiceImpl implements ContractService {
                 if (dto.getContract().getLetsWorkClient() == null
                         || dto.getContract().getLetsWorkClient().getId() == null) {
 
-                    throw new ResponseStatusException( 
+                    throw new ResponseStatusException(
                             HttpStatus.BAD_REQUEST,
                             "LetsWorkClient is required"
                     );
                 }
 
-                LetsWorkClient client =
-                        letsWorkClientRepo
-                                .findByIdAndCompanyId(
-                                        dto.getContract()
-                                                .getLetsWorkClient()
-                                                .getId(),
-                                        dto.getContract()
-                                                .getCompanyId()
-                                )
-                                .orElseThrow(() ->
-                                        new ResponseStatusException(
-                                                HttpStatus.BAD_REQUEST,
-                                                "Invalid LetsWorkClient"
-                                        ));
+                LetsWorkClient client = letsWorkClientRepo
+                        .findByIdAndCompanyId(
+                                dto.getContract().getLetsWorkClient().getId(),
+                                dto.getContract().getCompanyId()
+                        )
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.BAD_REQUEST,
+                                "Invalid LetsWorkClient"
+                        ));
 
                 dto.getContract().setLetsWorkClient(client);
             }
 
             dto.getContract().setCreateDate(new Date());
-            
             dto.getContract().setActive(true);
-            
             dto.getContract().setActualEndDate(dto.getContract().getEndDate());
 
-            Contract saved =
-                    contractRepo.save(dto.getContract());
-            
-            if(agreement!=null) {
-            uploadAgreementIfPresent(saved, agreement);
-            }
-            else {
-            	byte[] pdfBytes = contractDocumentService.generateAgreementPdf(saved);
+            Contract saved = contractRepo.save(dto.getContract());
+
+            if (agreement != null) {
+                uploadAgreementIfPresent(saved, agreement);
+            } else {
+                byte[] pdfBytes = contractDocumentService.generateAgreementPdf(saved);
 
                 String s3Key = s3Service.uploadContractAgreementPdf(
-                		"letsworkcentres",
+                        "letsworkcentres",
                         saved.getCompanyId(),
                         saved.getId(),
                         pdfBytes
@@ -283,18 +275,19 @@ public class ContractServiceImpl implements ContractService {
                 saved.setAgreementS3KeyName(s3Key);
             }
 
-            saved =
-                    contractRepo.save(saved);
+            saved = contractRepo.save(saved);
 
             response.setContract(saved);
-            
-            // send onboarding mail here with saved.getLetsWorkClient.getEmail()
-            
+
+            assignment.setContractId(saved.getId());
+            mappingService.assignMultipleSeatsToContract(assignment);
+
             String link = generateLink(saved);
-            
-            mailService.sendOnboardingEmail(saved.getId(), saved.getCompanyId(), saved.getLetsWorkClient().getClientCompanyName(),
-            		link, saved.getLetsWorkClient().getEmail());
-            
+
+            mailService.sendOnboardingEmail(saved.getId(), saved.getCompanyId(),
+                    saved.getLetsWorkClient().getClientCompanyName(),
+                    link, saved.getLetsWorkClient().getEmail());
+
             return response;
         }
     }

@@ -34,6 +34,7 @@ import com.letswork.crm.repo.LetsWorkClientRepository;
 import com.letswork.crm.repo.NewUserRegisterRepository;
 import com.letswork.crm.repo.ReferralRepository;
 import com.letswork.crm.repo.SubCategoryRepository;
+import com.letswork.crm.repo.UserRepo;
 import com.letswork.crm.service.LetsWorkCentreService;
 import com.letswork.crm.service.NewUserRegisterService;
 import com.letswork.crm.service.TenantService;
@@ -72,6 +73,9 @@ public class NewUserRegisterServiceImpl
     @Autowired
     LetsWorkClientRepository letsWorkClientRepo;
     
+    @Autowired
+    private UserRepo userRepository;
+    
 
     ModelMapper mapper = new ModelMapper();
 
@@ -97,6 +101,28 @@ public class NewUserRegisterServiceImpl
                 user.getCompanyId()).isPresent()) {
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User already registered with this phone number");
+        }
+        
+     // Check email against User table
+        if (user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
+
+            if (userRepository.existsByEmailIgnoreCase(user.getEmail().trim())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Email already exists as an employee."
+                );
+            }
+        }
+
+        // Check phone against User table
+        if (user.getPhoneNumber() != null && !user.getPhoneNumber().trim().isEmpty()) {
+
+            if (userRepository.existsByPhoneNumber(user.getPhoneNumber().trim())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Phone number already exists as an employee."
+                );
+            }
         }
 
         user.setCreateDate(new Date());
@@ -142,6 +168,31 @@ public class NewUserRegisterServiceImpl
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         "This LetsWorkCentre does not exists"
+                );
+            }
+        }
+        
+       Long id = user.getId() == null ? -1L : user.getId();
+
+        
+     // Check email against User table
+        if (user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
+
+            if (userRepository.existsByEmailIgnoreCaseAndIdNot(user.getEmail().trim(), id)) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Email already exists as an employee."
+                );
+            }
+        }
+
+        // Check phone against User table
+        if (user.getPhoneNumber() != null && !user.getPhoneNumber().trim().isEmpty()) {
+
+            if (userRepository.existsByPhoneNumberAndIdNot(user.getPhoneNumber().trim(), id)) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Phone number already exists as an employee."
                 );
             }
         }
@@ -494,6 +545,8 @@ public class NewUserRegisterServiceImpl
         client.setCity(user.getCity());
 
         client.setState(user.getState());
+        
+        client.setGstNumber(user.getGstNumber());
 
         client.setCompanyId(user.getCompanyId());
 
@@ -575,6 +628,21 @@ public class NewUserRegisterServiceImpl
     }
     
     @Override
+    public String update(NewUserRegister dto) {
+
+        NewUserRegister existing = repo.findById(dto.getId())
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "User not found"));
+
+        mapper.map(dto, existing);
+
+        repo.save(existing);
+
+        return "User updated successfully.";
+    }
+    
+    @Override
     public void activateUser(NewUserRegister user) {
     	
     	if (Boolean.TRUE.equals(user.getActive())) {
@@ -627,7 +695,7 @@ public class NewUserRegisterServiceImpl
             try {
 
                 newUserRegister.setCompanyId(companyId);
-                newUserRegister.setInternal(true);
+                newUserRegister.setInternal(true); 
 
                 saveOrUpdateManually(newUserRegister);
 

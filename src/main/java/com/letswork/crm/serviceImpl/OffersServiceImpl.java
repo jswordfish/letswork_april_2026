@@ -30,8 +30,7 @@ public class OffersServiceImpl implements OffersService {
     @Override
     public Offers saveOrUpdate(Offers offer) {
 
-        Tenant tenant =
-                tenantService.findTenantByCompanyId(offer.getCompanyId());
+        Tenant tenant = tenantService.findTenantByCompanyId(offer.getCompanyId());
 
         if (tenant == null) {
             throw new RuntimeException(
@@ -39,17 +38,15 @@ public class OffersServiceImpl implements OffersService {
             );
         }
 
-        Optional<Offers> existingOpt =
-                offersRepository.findByCodeAndCompanyIdAndActiveTrue(
-                        offer.getCode(),
-                        offer.getCompanyId()
-                );
+        Optional<Offers> existingOpt = Optional.empty();
+
+        if (offer.getId() != null) {
+            existingOpt = offersRepository.findById(offer.getId());
+        }
 
         if (existingOpt.isPresent()) {
-
             Offers existing = existingOpt.get();
 
-            offer.setId(existing.getId());
             offer.setCreateDate(existing.getCreateDate());
             offer.setUpdateDate(new Date());
 
@@ -57,7 +54,7 @@ public class OffersServiceImpl implements OffersService {
             return offersRepository.save(existing);
 
         } else {
-        	offer.setActive(true);
+            offer.setActive(true);
             offer.setCreateDate(new Date());
             offer.setUpdateDate(new Date());
             return offersRepository.save(offer);

@@ -16,23 +16,65 @@ import com.letswork.crm.enums.SeatType;
 @Repository
 public interface ContractSeatMappingRepository extends JpaRepository<ContractSeatMapping, Long> {
 
+//	@Query("SELECT c FROM ContractSeatMapping c " +
+// 	       "WHERE c.companyId = :companyId " +
+// 	       "AND c.contract.letsWorkCentre = :letsWorkCentre " +
+// 	       "AND c.contract.city = :city " +
+// 	       "AND c.contract.state = :state " +
+// 	       "AND (c.seat.seatNumber =:seatNumber) " +
+// 	       "AND (c.seat.seatType =:seatType) " +
+// 	       "AND c.contract.contractStatus = 'ACTIVE' " +
+//		   "AND (c.deleted IS NULL OR c.deleted = false)")
+//    Optional<ContractSeatMapping> findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
+//    		@Param("seatNumber") String seatNumber,
+//    		@Param("seatType") SeatType seatType,
+//    		@Param("letsWorkCentre") String letsWorkCentre,
+//            @Param("companyId") String companyId,
+//            @Param("city") String city,
+//            @Param("state") String state
+//    );
+	
+	@Query("SELECT COUNT(c) > 0 FROM ContractSeatMapping c " +
+		       "WHERE c.companyId = :companyId " +
+		       "AND c.contract.letsWorkCentre = :letsWorkCentre " +
+		       "AND c.contract.city = :city " +
+		       "AND c.contract.state = :state " +
+		       "AND c.seat.seatNumber = :seatNumber " +
+		       "AND c.seat.seatType = :seatType " +
+		       "AND c.contract.contractStatus = 'ACTIVE' " +
+		       "AND (c.deleted IS NULL OR c.deleted = false) " +
+		       "AND COALESCE(c.actualEndDate, c.endDate) >= :today")
+		boolean existsActiveOrFutureSeatMapping(
+		        @Param("seatNumber") String seatNumber,
+		        @Param("seatType") SeatType seatType,
+		        @Param("letsWorkCentre") String letsWorkCentre,
+		        @Param("companyId") String companyId,
+		        @Param("city") String city,
+		        @Param("state") String state,
+		        @Param("today") LocalDate today
+		);
+	
 	@Query("SELECT c FROM ContractSeatMapping c " +
- 	       "WHERE c.companyId = :companyId " +
- 	       "AND c.contract.letsWorkCentre = :letsWorkCentre " +
- 	       "AND c.contract.city = :city " +
- 	       "AND c.contract.state = :state " +
- 	       "AND (c.seat.seatNumber =:seatNumber) " +
- 	       "AND (c.seat.seatType =:seatType) " +
- 	       "AND c.contract.contractStatus = 'ACTIVE' " +
-		   "AND (c.deleted IS NULL OR c.deleted = false)")
-    Optional<ContractSeatMapping> findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
-    		@Param("seatNumber") String seatNumber,
-    		@Param("seatType") SeatType seatType,
-    		@Param("letsWorkCentre") String letsWorkCentre,
-            @Param("companyId") String companyId,
-            @Param("city") String city,
-            @Param("state") String state
-    );
+		       "WHERE c.companyId = :companyId " +
+		       "AND c.contract.letsWorkCentre = :letsWorkCentre " +
+		       "AND c.contract.city = :city " +
+		       "AND c.contract.state = :state " +
+		       "AND c.seat.seatNumber = :seatNumber " +
+		       "AND c.seat.seatType = :seatType " +
+		       "AND c.contract.contractStatus = 'ACTIVE' " +
+		       "AND (c.deleted IS NULL OR c.deleted = false) " +
+		       "AND c.startDate <= :endDate " +
+		       "AND c.endDate >= :startDate")
+		Optional<ContractSeatMapping> findBySeatNumberAndSeatTypeAndLetsWorkCentreAndCompanyIdAndCityAndState(
+		        @Param("seatNumber") String seatNumber,
+		        @Param("seatType") SeatType seatType,
+		        @Param("letsWorkCentre") String letsWorkCentre,
+		        @Param("companyId") String companyId,
+		        @Param("city") String city,
+		        @Param("state") String state,
+		        @Param("startDate") LocalDate startDate,
+		        @Param("endDate") LocalDate endDate
+		);
     
     @Query("SELECT c FROM ContractSeatMapping c " +
     	       "WHERE c.companyId = :companyId " +

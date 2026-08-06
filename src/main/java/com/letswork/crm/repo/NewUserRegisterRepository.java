@@ -33,6 +33,14 @@ public interface NewUserRegisterRepository extends JpaRepository<NewUserRegister
             String companyId
     );
     
+    boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
+
+    boolean existsByPhoneNumberAndIdNot(String phoneNumber, Long id);
+    
+    boolean existsByEmailIgnoreCase(String email);
+
+    boolean existsByPhoneNumber(String phoneNumber);
+    
     @Query(
             "SELECT DISTINCT u.category " +
             "FROM NewUserRegister u " +

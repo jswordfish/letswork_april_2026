@@ -10,6 +10,7 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -128,6 +130,32 @@ public class NewUserRegisterController {
         return ResponseEntity.ok(
                 service.saveOrUpdateManually(user)
         );
+    }
+    
+    @PutMapping("/new-user-register-update")
+    public ResponseEntity<String> updateUser(
+            @RequestBody NewUserRegister dto,
+            @RequestParam String token) {
+    	
+    	if(dto.getId()==null) {
+    		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide id to update");
+    	}
+
+        try {
+
+            String response = service.update(dto);
+
+            return ResponseEntity.ok(response);
+
+        } catch (DataIntegrityViolationException ex) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "A user with the same Email, Phone Number and Company already exists."
+            );
+
+        }
+
     }
     
     @PostMapping(value = "/upload-excel-newuser", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

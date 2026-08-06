@@ -79,14 +79,10 @@ public class CabinServiceImpl implements CabinService {
 
         if (!StringUtils.hasText(cabin.getCabinName()))
             throw new RuntimeException("Cabin name required");
-
-        Optional<Cabin> existing = cabinRepository
-                .findByCabinNameAndLetsWorkCentreAndCompanyIdAndCityAndState(
-                        cabin.getCabinName(),
-                        cabin.getLetsWorkCentre(),
-                        cabin.getCompanyId(),
-                        cabin.getCity(),
-                        cabin.getState());
+        
+        Optional<Cabin> existing = (cabin.getId() != null)
+                ? cabinRepository.findById(cabin.getId())
+                : Optional.empty();
 
         Cabin savedCabin;
 

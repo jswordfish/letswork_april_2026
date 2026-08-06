@@ -23,15 +23,18 @@ import com.letswork.crm.entities.ConferenceBundleBooking;
 import com.letswork.crm.entities.Contract;
 import com.letswork.crm.entities.DayPassBundle;
 import com.letswork.crm.entities.DayPassBundleBooking;
+import com.letswork.crm.entities.Invoice;
 import com.letswork.crm.entities.LetsWorkCentre;
 import com.letswork.crm.entities.LetsWorkClient;
 import com.letswork.crm.enums.BookedFrom;
 import com.letswork.crm.enums.BookingStatus;
+import com.letswork.crm.enums.InvoiceStatus;
 import com.letswork.crm.repo.ConferenceBundleBookingRepository;
 import com.letswork.crm.repo.ConferenceBundleRepository;
 import com.letswork.crm.repo.ContractRepository;
 import com.letswork.crm.repo.DayPassBundleBookingRepository;
 import com.letswork.crm.repo.DayPassBundleRepository;
+import com.letswork.crm.repo.InvoiceRepository;
 import com.letswork.crm.repo.LetsWorkCentreRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -51,6 +54,10 @@ public class MonthlyInternalClientBundleScheduler {
     private final ConferenceBundleBookingRepository conferenceBundleBookingRepo;
     private final DayPassBundleBookingRepository dayPassBundleBookingRepo;
     private final RazorpayService razorpayService;
+    private final InvoiceRepository invoiceRepo;
+    private final PdfService pdfService;
+    private final S3Service s3Service;
+    private final MailJetOtpService emailService;
 
     // Runs at 00:05 on the 1st of every month
     @Scheduled(cron = "0 5 0 1 * *")
@@ -127,6 +134,84 @@ public class MonthlyInternalClientBundleScheduler {
                         + "({} clients skipped: no credits, {} clients skipped: no centre match)",
                 monthLabel, activeContracts.size(), conferenceBookings.size(), dayPassBookings.size(),
                 conferenceBundleCache.size(), dayPassBundleCache.size(), skippedNoCredits, skippedNoCentre);
+    }
+    
+ // Runs at 00:05 on the 1st of every month
+    @Scheduled(cron = "0 5 0 1 * *")
+    @Transactional
+    public void generateMonthlyInvoices() {
+        LocalDate today = LocalDate.now();
+        String monthLabel = today.format(DateTimeFormatter.ofPattern("MMMM_yyyy"));
+
+        List<Contract> activeContracts = contractRepo.findAllActiveContractsWithClient();
+        if (activeContracts.isEmpty()) {
+            log.info("No active contracts found for {} — skipping monthly invoice generation", monthLabel);
+            return;
+        }
+
+        int createdCount = 0;
+        int skippedNoFees = 0;
+        int skippedPdfFailure = 0;
+        int skippedEmailFailure = 0;
+
+        for (Contract contract : activeContracts) {
+            LetsWorkClient client = contract.getLetsWorkClient();
+            Float feesPerMonth = contract.getFeesPerMonth();
+
+            if (feesPerMonth == null || feesPerMonth <= 0) {
+                skippedNoFees++;
+                log.debug("Client id={} has no feesPerMonth on active contract — skipping monthly invoice", client.getId());
+                continue;
+            }
+
+            Invoice invoice = new Invoice();
+            invoice.setLetsWorkClient(client);
+            invoice.setBooking(null);
+            invoice.setDateOfCreation(today);
+            invoice.setAmount(BigDecimal.valueOf(feesPerMonth));
+            invoice.setAmountFinal(feesPerMonth.floatValue());
+            invoice.setInvoiceStatus(InvoiceStatus.UNPAID);
+            invoice.setMonthly(Boolean.TRUE);
+
+            Invoice savedInvoice = invoiceRepo.save(invoice);
+
+            byte[] pdfBytes;
+            try {
+                String html = pdfService.buildInvoiceHtml(savedInvoice);
+                pdfBytes = pdfService.generateInvoicePdf(html);
+
+                String s3Key = s3Service.uploadInvoicePdf("letsworkcentres", savedInvoice.getCompanyId(), savedInvoice.getId(), pdfBytes);
+
+                savedInvoice.setPdfS3KeyName(s3Key);
+                invoiceRepo.save(savedInvoice);
+
+                createdCount++;
+            } catch (Exception e) {
+                skippedPdfFailure++;
+                log.error("Invoice id={} created for client id={} but PDF generation/upload failed — invoice saved without pdfS3KeyName",
+                        savedInvoice.getId(), client.getId(), e);
+                continue;
+            }
+
+//            try {
+//                String invoiceFileName = "invoice_" + savedInvoice.getId() + "_" + monthLabel + ".pdf";
+//                emailService.sendMonthlyInvoiceEmail(
+//                        client.getClientCompanyName(),
+//                        client.getEmail(),
+//                        pdfBytes,
+//                        invoiceFileName
+//                );
+//            } catch (Exception e) {
+//                skippedEmailFailure++;
+//                log.error("Invoice id={} created and PDF uploaded for client id={} but email send failed",
+//                        savedInvoice.getId(), client.getId(), e);
+//            }
+        }
+
+        log.info("Monthly invoice generation done for {}: {} contracts processed, {} invoices created "
+                        + "({} clients skipped: no fees configured, {} invoices saved but PDF/upload failed, "
+                        + "{} invoices created but email failed)",
+                monthLabel, activeContracts.size(), createdCount, skippedNoFees, skippedPdfFailure, skippedEmailFailure);
     }
 
     // ---------- Bundle creation (find-or-create, now parameterized by contract values) ----------
